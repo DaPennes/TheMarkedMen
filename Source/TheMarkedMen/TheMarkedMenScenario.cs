@@ -53,7 +53,7 @@ namespace TheMarkedMen
 
         public override IEnumerable<string> GetSummaryListEntries(string tag)
         {
-            yield return "One immune marked founder starts in a center-biased adaptive tribal village with industrial technology.";
+            yield return "Three immune survivors start in a center-biased adaptive tribal village with industrial technology. Each has a 50% chance to carry the visible marked rash.";
         }
 
         private static void ApplyFounderStateToPlayerStarters()

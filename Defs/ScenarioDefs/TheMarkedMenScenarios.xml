@@ -2,8 +2,8 @@
 <Defs>
   <ScenPartDef>
     <defName>CA_MarkedVillageStart</defName>
-    <label>marked village founder</label>
-    <description>Starts the colony with an immune marked founder and generates a compact tribal village around the landing site.</description>
+    <label>marked village survivors</label>
+    <description>Starts the colony with three immune outbreak survivors and generates a compact abandoned tribal village around the landing site.</description>
     <category>StartingImportant</category>
     <scenPartClass>TheMarkedMen.ScenPart_MarkedVillageStart</scenPartClass>
     <summaryPriority>480</summaryPriority>
@@ -14,17 +14,17 @@
 
   <ScenarioDef ParentName="ScenarioBase">
     <defName>CA_MarkedVillageFounder</defName>
-    <label>Marked Village Founder</label>
-    <description>You are the only known survivor whose body rejected the Marked Virus without losing the rash. The mark remains across your face, but the fever never returns. Around you stands a small palisaded village: tribal in shape, industrial in memory, and exposed to every warband that still hunts the immune.</description>
+    <label>Marked Village Survivors</label>
+    <description>Three survivors crossed the quarantine line after the Marked Virus destroyed their caravan. Their blood carries lasting immunity, though only some still bear the cross-shaped rash. After days of hiding from armed infected, they found an abandoned palisaded settlement: tribal in shape, industrial in memory, and empty except for tools, ash, and warnings carved into the walls.</description>
     <scenario>
-      <summary>One immune marked colonist starts in a tribal village with industrial technology.</summary>
+      <summary>Three immune survivors start in an abandoned tribal village with industrial technology. Each has a 50% chance to carry the visible marked rash.</summary>
       <playerFaction>
         <factionDef>PlayerColony</factionDef>
       </playerFaction>
       <parts>
         <li Class="ScenPart_ConfigPage_ConfigureStartingPawns">
           <def>ConfigPage_ConfigureStartingPawns</def>
-          <pawnCount>1</pawnCount>
+          <pawnCount>3</pawnCount>
           <pawnChoiceCount>8</pawnChoiceCount>
         </li>
 
@@ -83,7 +83,7 @@
 
         <li Class="ScenPart_GameStartDialog">
           <def>GameStartDialog</def>
-          <text>The village remembers the night the Marked Men came. Everyone else who carried the rash burned with the fever, turned, or died. You did not.\n\nThe cross-shaped rash is still visible across your face, but your blood rejects the virus. The people who built these huts are gone, leaving you a palisade, a few industrial tools, and enough old knowledge to rebuild before the warbands find you again.</text>
+          <text>The last road behind you is gone.\n\nYour caravan survived the first fever by doing what whole towns could not: you ran before the laughing voices learned your names. The Marked Virus took the sick, the guards, and the people who opened the gates. Three of you endured the blood tests, the quarantine fires, and the night marches. Your bodies reject the virus now, but the proof is uneven. Some of you still carry the cross-shaped rash like a warning painted under the skin. Some look untouched. None of you are safe.\n\nAt dawn you found the settlement. Its palisade still stands. The huts are stripped but usable. A workshop holds tools nobody had time to carry. The fields are choked with weeds, and every door tells the same story: the people here left fast, or they did not leave alive.\n\nYou could keep running until the Marked Men catch your trail. Instead, you claim the abandoned village, bar the gates, and decide this is where the immune stop fleeing.</text>
           <closeSound>GameStartSting</closeSound>
         </li>
       </parts>

@@ -1631,7 +1631,9 @@ namespace TheMarkedMen
         private const string StarterLineageResistanceTag = "CA_StarterLineageResistance";
         private const string MarkedVillageFounderTag = "CA_MarkedVillageFounder";
         private const string PersistentCrossedRashTag = "CA_PersistentCrossedRashTattoo";
+        private const string MarkedVillageRashRolledTag = "CA_MarkedVillageRashRolled";
         private const float StarterLineageBreakthroughExposureChance = 0.04f;
+        private const float MarkedVillageRashChance = 0.5f;
 
         private static readonly List<PawnKindDef> TransformationKinds = new List<PawnKindDef>();
 
@@ -1901,9 +1903,24 @@ namespace TheMarkedMen
             }
 
             bool changed = AddQuestTagIfMissing(pawn, MarkedVillageFounderTag);
-            changed |= AddQuestTagIfMissing(pawn, PersistentCrossedRashTag);
+            if (!pawn.questTags.Contains(MarkedVillageRashRolledTag))
+            {
+                changed |= AddQuestTagIfMissing(pawn, MarkedVillageRashRolledTag);
+                if (HasPersistentCrossedRashTattoo(pawn) || Rand.Chance(MarkedVillageRashChance))
+                {
+                    changed |= AddQuestTagIfMissing(pawn, PersistentCrossedRashTag);
+                }
+            }
+
             GrantCrossVirusImmunity(pawn);
-            ApplyInfectedTattoo(pawn);
+            if (HasPersistentCrossedRashTattoo(pawn))
+            {
+                ApplyInfectedTattoo(pawn);
+            }
+            else
+            {
+                RemoveCrossedRashVisualsIfNotSuccumbed(pawn);
+            }
             return changed;
         }
 
