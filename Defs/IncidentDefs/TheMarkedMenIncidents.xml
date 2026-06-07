@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+  <IncidentDef>
+    <defName>CA_CrossedRaid</defName>
+    <label>Marked Men raid</label>
+    <targetTags>
+      <li>Map_PlayerHome</li>
+    </targetTags>
+    <workerClass>TheMarkedMen.IncidentWorker_CrossedRaid</workerClass>
+    <baseChance>0</baseChance>
+    <minRefireDays>1</minRefireDays>
+    <earliestDay>45</earliestDay>
+    <category>ThreatBig</category>
+    <pointsScaleable>true</pointsScaleable>
+    <minThreatPoints>120</minThreatPoints>
+    <letterLabel>Marked Men warband</letterLabel>
+    <letterText>A coordinated warband of Marked Men is moving on the colony. They are armed, mobile, and actively searching for weak points, power systems, food stores, wounded survivors, and exposed doctors. Expect immediate pressure from the map edge; they will not kidnap, steal, time out, or retreat.</letterText>
+    <letterDef>ThreatBig</letterDef>
+    <canOccurOnAllPlanetLayers>true</canOccurOnAllPlanetLayers>
+  </IncidentDef>
+
+  <IncidentDef>
+    <defName>CA_CrossedProbe</defName>
+    <label>Marked Men probe</label>
+    <targetTags>
+      <li>Map_PlayerHome</li>
+    </targetTags>
+    <workerClass>TheMarkedMen.IncidentWorker_CrossedProbe</workerClass>
+    <baseChance>0.45</baseChance>
+    <minRefireDays>4</minRefireDays>
+    <earliestDay>12</earliestDay>
+    <category>ThreatSmall</category>
+    <pointsScaleable>true</pointsScaleable>
+    <minThreatPoints>80</minThreatPoints>
+    <letterLabel>Marked Men scouting pack</letterLabel>
+    <letterText>A small Marked Men scouting pack has found the colony. This is not the main warband, but they are testing the perimeter, looking for wounded survivors, exposed doctors, open doors, and weak firing angles. Expect a fast edge assault with a small number of infected.</letterText>
+    <letterDef>ThreatSmall</letterDef>
+    <canOccurOnAllPlanetLayers>true</canOccurOnAllPlanetLayers>
+  </IncidentDef>
+
+  <IncidentDef>
+    <defName>CA_CrossedHorde</defName>
+    <label>Marked Men horde</label>
+    <targetTags>
+      <li>Map_PlayerHome</li>
+    </targetTags>
+    <workerClass>TheMarkedMen.IncidentWorker_CrossedHorde</workerClass>
+    <baseChance>0</baseChance>
+    <minRefireDays>3</minRefireDays>
+    <earliestDay>45</earliestDay>
+    <category>ThreatBig</category>
+    <pointsScaleable>true</pointsScaleable>
+    <minThreatPoints>120</minThreatPoints>
+    <letterLabel>Marked Men horde</letterLabel>
+    <letterText>A moving horde of Marked Men has found the colony. They are infected, armed, and coordinated enough to test weak points in the perimeter. Expect immediate pressure from the map edge; keep wounded pawns away from melee contact and seal fallback doors.</letterText>
+    <letterDef>ThreatBig</letterDef>
+    <canOccurOnAllPlanetLayers>true</canOccurOnAllPlanetLayers>
+  </IncidentDef>
+</Defs>

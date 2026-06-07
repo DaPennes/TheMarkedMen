@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+  <InteractionDef>
+    <defName>CA_CrossedPredatoryTaunt</defName>
+    <label>predatory taunt</label>
+    <workerClass>TheMarkedMen.InteractionWorker_CrossedSocial</workerClass>
+    <symbol>Things/Mote/SpeechSymbols/Insult</symbol>
+    <socialFightBaseChance>0.12</socialFightBaseChance>
+    <logRulesInitiator>
+      <rulesStrings>
+        <li>r_logentry->[INITIATOR_nameDef] [taunted] [RECIPIENT_nameDef] about [subject].</li>
+        <li>r_logentry->[INITIATOR_nameDef] [said] [threat] to [RECIPIENT_nameDef].</li>
+        <li>r_logentry->[INITIATOR_nameDef] laughed while naming [RECIPIENT_nameDef]'s [weakness].</li>
+        <li>r_logentry->[INITIATOR_nameDef] promised [RECIPIENT_nameDef] there was no safe room left.</li>
+
+        <li>taunted->mocked</li>
+        <li>taunted->taunted</li>
+        <li>taunted->baited</li>
+        <li>taunted->jeered at</li>
+        <li>taunted->threatened</li>
+
+        <li>said->whispered</li>
+        <li>said->called out</li>
+        <li>said->sang</li>
+        <li>said->laughed</li>
+        <li>said->muttered</li>
+
+        <li>subject->the colony's locked doors</li>
+        <li>subject->the medicine shelves</li>
+        <li>subject->the wounded in the hospital</li>
+        <li>subject->the names on the colony roster</li>
+        <li>subject->the sound of breaking locks</li>
+        <li>subject->who would open the gate first</li>
+        <li>subject->how long the barricade would hold</li>
+        <li>subject->which colonist would break first</li>
+        <li>subject->the silence after the last door failed</li>
+
+        <li>threat->that the safe rooms were already mapped</li>
+        <li>threat->that the doctors would be found first</li>
+        <li>threat->that the power would go out soon</li>
+        <li>threat->that someone inside would panic and unlock a door</li>
+        <li>threat->that the colony had already been counted</li>
+        <li>threat->that every hiding place had a name attached</li>
+        <li>threat->that mercy was only bait</li>
+        <li>threat->that surrender would not change anything</li>
+
+        <li>weakness->fear</li>
+        <li>weakness->injuries</li>
+        <li>weakness->hiding place</li>
+        <li>weakness->friends</li>
+        <li>weakness->escape route</li>
+        <li>weakness->locked room</li>
+        <li>weakness->last round of ammunition</li>
+        <li>weakness->panic</li>
+      </rulesStrings>
+    </logRulesInitiator>
+  </InteractionDef>
+
+  <InteractionDef>
+    <defName>CA_CrossedFalseMercy</defName>
+    <label>false mercy</label>
+    <workerClass>TheMarkedMen.InteractionWorker_CrossedSocial</workerClass>
+    <symbol>Things/Mote/SpeechSymbols/Chitchat</symbol>
+    <socialFightBaseChance>0.06</socialFightBaseChance>
+    <logRulesInitiator>
+      <rulesStrings>
+        <li>r_logentry->[INITIATOR_nameDef] offered [RECIPIENT_nameDef] [offer] in a calm voice.</li>
+        <li>r_logentry->[INITIATOR_nameDef] pretended to help [RECIPIENT_nameDef] by describing [lie].</li>
+        <li>r_logentry->[INITIATOR_nameDef] used a familiar voice to ask [RECIPIENT_nameDef] for [request].</li>
+        <li>r_logentry->[INITIATOR_nameDef] promised [RECIPIENT_nameDef] safety, then laughed at the word.</li>
+
+        <li>offer->safe passage</li>
+        <li>offer->medicine</li>
+        <li>offer->a clean way out</li>
+        <li>offer->a place to hide</li>
+        <li>offer->a truce</li>
+        <li>offer->a locked door that would not hold</li>
+        <li>offer->a surrender that meant nothing</li>
+        <li>offer->one quiet minute before the breach</li>
+
+        <li>lie->an unlocked route outside</li>
+        <li>lie->a harmless blood test</li>
+        <li>lie->a survivor waiting nearby</li>
+        <li>lie->a quiet room away from the fighting</li>
+        <li>lie->a cure that did not exist</li>
+        <li>lie->a rescue team already dead</li>
+        <li>lie->a sealed bunker already opened</li>
+        <li>lie->a safe route through the dark</li>
+
+        <li>request->the door code</li>
+        <li>request->the hospital location</li>
+        <li>request->the food stores</li>
+        <li>request->the weak wall</li>
+        <li>request->the nearest wounded survivor</li>
+        <li>request->the child locks</li>
+        <li>request->the emergency tunnel</li>
+        <li>request->the last working generator</li>
+      </rulesStrings>
+    </logRulesInitiator>
+  </InteractionDef>
+
+  <InteractionDef>
+    <defName>CA_CrossedPackLaughter</defName>
+    <label>pack laughter</label>
+    <workerClass>TheMarkedMen.InteractionWorker_CrossedSocial</workerClass>
+    <symbol>Things/Mote/SpeechSymbols/Insult</symbol>
+    <socialFightBaseChance>0.16</socialFightBaseChance>
+    <logRulesInitiator>
+      <rulesStrings>
+        <li>r_logentry->[INITIATOR_nameDef] started a chorus of laughter around [RECIPIENT_nameDef].</li>
+        <li>r_logentry->[INITIATOR_nameDef] marked [RECIPIENT_nameDef] for the pack with [signal].</li>
+        <li>r_logentry->[INITIATOR_nameDef] repeated [RECIPIENT_nameDef]'s name until nearby Marked Men answered.</li>
+        <li>r_logentry->[INITIATOR_nameDef] counted the colony doors aloud while the pack answered each number.</li>
+
+        <li>signal->a sharp whistle</li>
+        <li>signal->a broken chant</li>
+        <li>signal->a shouted room number</li>
+        <li>signal->a rhythm beaten on a weapon</li>
+        <li>signal->a laughing countdown</li>
+        <li>signal->a list of colonist names</li>
+        <li>signal->a shouted map direction</li>
+        <li>signal->the rhythm of fists on a sealed door</li>
+      </rulesStrings>
+    </logRulesInitiator>
+  </InteractionDef>
+
+  <InteractionDef>
+    <defName>CA_CrossedInfectionGloat</defName>
+    <label>infection gloat</label>
+    <workerClass>TheMarkedMen.InteractionWorker_CrossedSocial</workerClass>
+    <symbol>Things/Mote/SpeechSymbols/DeepTalk</symbol>
+    <socialFightBaseChance>0.1</socialFightBaseChance>
+    <logRulesInitiator>
+      <rulesStrings>
+        <li>r_logentry->[INITIATOR_nameDef] told [RECIPIENT_nameDef] that [claim].</li>
+        <li>r_logentry->[INITIATOR_nameDef] smiled at [RECIPIENT_nameDef] and described [change].</li>
+        <li>r_logentry->[INITIATOR_nameDef] counted down near [RECIPIENT_nameDef], waiting for [change].</li>
+        <li>r_logentry->[INITIATOR_nameDef] told [RECIPIENT_nameDef] that survival only made the mark arrive later.</li>
+
+        <li>claim->the fever would make things simple</li>
+        <li>claim->the rash was only the first sign</li>
+        <li>claim->the colony would hear the laughter soon</li>
+        <li>claim->every locked door was temporary</li>
+        <li>claim->the blood would choose quickly</li>
+        <li>claim->the clean ones always ran out of time</li>
+        <li>claim->the fever was already making decisions</li>
+        <li>claim->the doors would fail before the screaming stopped</li>
+
+        <li>change->the shaking hands</li>
+        <li>change->the first smile</li>
+        <li>change->the fever</li>
+        <li>change->the loss of hesitation</li>
+        <li>change->the mark taking hold</li>
+        <li>change->the moment the fear turned useful</li>
+        <li>change->the last clear thought</li>
+        <li>change->the laugh that would not stop</li>
+      </rulesStrings>
+    </logRulesInitiator>
+  </InteractionDef>
+</Defs>

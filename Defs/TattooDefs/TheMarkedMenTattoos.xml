@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+  <TattooDef>
+    <defName>CA_Face_CrossedRash</defName>
+    <label>marked rash</label>
+    <texPath>Pawn/Tattoos/Head/TheMarkedMenRashHead</texPath>
+    <iconPath>Pawn/Tattoos/Head/TheMarkedMenRashHead_south</iconPath>
+    <tattooType>Face</tattooType>
+    <visibleNorth>false</visibleNorth>
+    <category>Tribal</category>
+    <styleTags>
+      <li>TattooFaceTribal</li>
+      <li>TattooFaceAbstract</li>
+    </styleTags>
+  </TattooDef>
+</Defs>

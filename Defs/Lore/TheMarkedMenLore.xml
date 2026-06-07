@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+  <RulePackDef>
+    <defName>CA_CrossedLoreRecords</defName>
+    <rulePack>
+      <rulesStrings>
+        <li>crossed_origin->The first confirmed Marked Virus cluster began as a blood-screening anomaly in a frontier hospital. Within four days the hospital staff were armed, organized, and hunting survivors by name.</li>
+        <li>crossed_military_report->Military Report 17: Do not classify infected as undead. Subjects retain door use, weapon use, ambush planning, and speech. Treat every infected human as an armed combatant.</li>
+        <li>crossed_survivor_journal->Survivor Journal: The worst part was the laughing. They remembered the hallways. They remembered the locks. They remembered us.</li>
+        <li>crossed_audio_log->Audio Log C-44: Marked rash is most visible around the eyes and cheeks. Advanced cases show a dark red X pattern across the face, neck, and upper torso.</li>
+        <li>crossed_progression->Medical Note: Most confirmed victims resolve quickly. A terminal case usually becomes one of the Marked Men or dies from viral collapse; rare slow infections remain lucid longer.</li>
+        <li>crossed_timeline->Planetary Timeline: Exposure. Rapid onset. Psychosis. Death reanimation. Transformation. Organized raids. Settlement collapse. Alpha migration.</li>
+      </rulesStrings>
+    </rulePack>
+  </RulePackDef>
+</Defs>

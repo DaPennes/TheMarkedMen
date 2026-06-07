@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Patch>
+  <Operation Class="PatchOperationFindMod">
+    <mods>
+      <li>RimJobWorld</li>
+    </mods>
+    <match Class="PatchOperationConditional">
+      <xpath>Defs/HediffDef[defName="CA_CrossVirus"]/description</xpath>
+      <match Class="PatchOperationReplace">
+        <xpath>Defs/HediffDef[defName="CA_CrossVirus"]/description</xpath>
+        <value>
+              <description>A contagious neurological blood-borne disease spread by close contact with infected bodily fluids, contaminated blood, tainted food, and RimJobWorld adult close-contact events when the RJW bridge is enabled. When RimJobWorld is installed and its bridge is enabled, infected adult pawns have a 75% chance to start valid RJW forced enemy-intercourse jobs with adult humanlike targets before falling back to normal aggression. The virus usually overwhelms a victim quickly. A very small number of survivors develop lasting immune resistance; most terminal cases either transform into Marked Men or die from viral collapse.</description>
+            </value>
+          </match>
+        </match>
+  </Operation>
+</Patch>

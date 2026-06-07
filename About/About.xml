@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ModMetaData>
+  <name>The Marked Men</name>
+  <author>Dapennes</author>
+  <packageId>Dapennes.themarkedmen</packageId>
+  <supportedVersions>
+    <li>1.6</li>
+  </supportedVersions>
+  <modDependencies>
+    <li>
+      <packageId>brrainz.harmony</packageId>
+      <displayName>Harmony</displayName>
+      <steamWorkshopUrl>steam://url/CommunityFilePage/2009463077</steamWorkshopUrl>
+    </li>
+  </modDependencies>
+  <loadAfter>
+    <li>brrainz.harmony</li>
+    <li>zetrith.prepatcher</li>
+    <li>daniledman.combatupdate</li>
+    <li>oskarpotocki.vanillafactionsexpanded.core</li>
+    <li>ferny.worldbuilder</li>
+    <li>c0ffee.rimworld.animations</li>
+    <li>rim.job.world</li>
+    <li>krkr.rocketman</li>
+    <li>taranchuk.performancefish</li>
+  </loadAfter>
+  <description>The Marked Men adds an intelligent infected hostile faction built around fast outbreaks, escalating raids, corpse reanimation, and colony survival pressure.
+
+The Marked Virus spreads through close contact, infected blood exposure, contaminated food, and supported compatibility hooks. Most victims progress quickly into violent infection, while rare survivors can develop immunity. Starter colonists and their descendants receive special lineage resistance, but direct exposure can still very rarely break through.
+
+The faction does not behave like shambling undead. The Marked Men use weapons, pursue weak targets, coordinate through raids and hordes, contaminate corpses, and pressure wounded or isolated colonists.
+
+This mod is inspired by the horror comic series Crossed, adapted into RimWorld as a hostile outbreak and survival scenario.</description>
+</ModMetaData>

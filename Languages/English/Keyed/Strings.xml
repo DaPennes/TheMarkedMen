@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LanguageData>
+  <CA_ModName>The Marked Men</CA_ModName>
+  <CA_CrossVirusName>Marked Virus</CA_CrossVirusName>
+  <CA_LoreBook_Title>The Marked Men</CA_LoreBook_Title>
+  <CA_LoreBook_Opening>The Marked Virus did not raise the dead. It left people alive, clever, cruel, and organized enough to end worlds.</CA_LoreBook_Opening>
+  <CA_LoreBook_ResearchNote>Field diagnostics identify a fast terminal pattern: most victims resolve quickly into either Marked Men transformation or viral collapse, while rare slow cases last longer.</CA_LoreBook_ResearchNote>
+  <CA_MilitaryReport_01>Military Report 01: Infected subjects retain weapon use, speech, door operation, cover-seeking behavior, and group tactics. Do not approach as medical casualties.</CA_MilitaryReport_01>
+  <CA_MilitaryReport_02>Military Report 02: Alphas coordinate nearby infected by sound, gesture, and remembered command structure. Remove Alpha units first whenever possible.</CA_MilitaryReport_02>
+  <CA_SurvivorJournal_01>Survivor Journal: They did not forget us. That was the first lesson. The second was that they knew which doors we locked.</CA_SurvivorJournal_01>
+  <CA_AudioLog_01>Audio Log C-44: Rash presentation forms a marked vascular pattern across the face and neck. Advanced cases glow red under certain scanner bands.</CA_AudioLog_01>
+  <CA_PlanetaryTimeline>Medical timeline: contagious close-contact exposure, infected blood contamination, fast terminal progression, rare slow infection, uncommon immune survival, viral death risk, and Marked Men transformation.</CA_PlanetaryTimeline>
+</LanguageData>

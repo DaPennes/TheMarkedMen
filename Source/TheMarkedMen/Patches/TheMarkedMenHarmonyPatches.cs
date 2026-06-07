@@ -1,0 +1,269 @@
+using System;
+using System.Reflection;
+using HarmonyLib;
+using RimWorld;
+using Verse;
+using Verse.AI.Group;
+
+namespace TheMarkedMen
+{
+    [HarmonyPatch(typeof(Pawn), nameof(Pawn.PostApplyDamage))]
+    public static class Patch_BloodExposure
+    {
+        private const float BloodExposureRadiusSquared = 25f;
+
+        public static void Postfix(Pawn __instance, DamageInfo dinfo, float totalDamageDealt)
+        {
+            if (__instance == null || totalDamageDealt <= 0f)
+            {
+                return;
+            }
+
+            Pawn instigatorPawn = dinfo.Instigator as Pawn;
+            TryExposeInstigatorToInfectedBlood(__instance, instigatorPawn);
+            TryExposeVictimToInfectedAssault(__instance, instigatorPawn);
+        }
+
+        private static void TryExposeInstigatorToInfectedBlood(Pawn damagedPawn, Pawn instigatorPawn)
+        {
+            if (!CrossedUtility.IsInfectedPawn(damagedPawn))
+            {
+                return;
+            }
+
+            if (instigatorPawn == null || instigatorPawn == damagedPawn || instigatorPawn.Dead || instigatorPawn.RaceProps == null || !instigatorPawn.RaceProps.Humanlike)
+            {
+                return;
+            }
+
+            if (CrossedUtility.IsInfectedPawn(instigatorPawn) || CrossedUtility.IsFullyProtectedFromCrossVirusExposure(instigatorPawn))
+            {
+                return;
+            }
+
+            if (damagedPawn.Spawned && instigatorPawn.Spawned && damagedPawn.Map == instigatorPawn.Map && damagedPawn.Position.DistanceToSquared(instigatorPawn.Position) > BloodExposureRadiusSquared)
+            {
+                return;
+            }
+
+            float chance = TheMarkedMenMod.Settings?.bloodExposureChance ?? TheMarkedMenSettings.InfectionTransmissionChance;
+            CrossedUtility.TryExpose(instigatorPawn, chance, "infected blood exposure", damagedPawn);
+        }
+
+        private static void TryExposeVictimToInfectedAssault(Pawn damagedPawn, Pawn instigatorPawn)
+        {
+            if (damagedPawn == null || instigatorPawn == null || damagedPawn == instigatorPawn || !CrossedUtility.IsInfectedPawn(instigatorPawn))
+            {
+                return;
+            }
+
+            if (damagedPawn.Dead || damagedPawn.RaceProps == null || !damagedPawn.RaceProps.Humanlike)
+            {
+                return;
+            }
+
+            if (CrossedUtility.IsInfectedPawn(damagedPawn) || CrossedUtility.IsFullyProtectedFromCrossVirusExposure(damagedPawn))
+            {
+                return;
+            }
+
+            CrossedUtility.TryExpose(damagedPawn, TheMarkedMenSettings.InfectionTransmissionChance, "infected assault contact", instigatorPawn);
+        }
+    }
+
+    [HarmonyPatch(typeof(Pawn), nameof(Pawn.Kill))]
+    public static class Patch_InfectedDeathReanimation
+    {
+        public static void Postfix(Pawn __instance)
+        {
+            CrossedUtility.ApplyInfectedTattoo(__instance);
+            CrossedUtility.Component?.QueueCrossedReanimation(__instance);
+        }
+    }
+
+    [HarmonyPatch(typeof(Pawn), nameof(Pawn.TickRare))]
+    public static class Patch_CrossedTacticalAI
+    {
+        public static void Postfix(Pawn __instance)
+        {
+            CrossedUtility.EnsureFearlessCrossedState(__instance);
+
+            if (__instance != null && __instance.IsHashIntervalTick(2500))
+            {
+                CrossedUtility.ApplyInfectedTattooIfInfected(__instance);
+            }
+
+            CrossedTacticalAI.TryIssueTacticalJob(__instance);
+            CrossedContagionUtility.TryContagionPulse(__instance);
+            CrossedCorpseUtility.TryContaminateNearbyCorpses(__instance);
+            CrossedSocialUtility.TryHostileSocialPulse(__instance);
+        }
+    }
+
+    [HarmonyPatch(typeof(Lord), nameof(Lord.LordTick))]
+    public static class Patch_CrossedLordInvalidPawnCleanup
+    {
+        public static void Prefix(Lord __instance)
+        {
+            CrossedLordCleanupUtility.RemoveInvalidOwnedPawns(__instance);
+        }
+    }
+
+    [HarmonyPatch(typeof(Pawn_StyleTracker), "set_FaceTattoo")]
+    public static class Patch_InfectedFaceTattooLock
+    {
+        private static bool enforcing;
+
+        public static void Postfix(Pawn_StyleTracker __instance)
+        {
+            if (enforcing || __instance?.pawn == null || !CrossedUtility.ShouldShowCrossedRash(__instance.pawn))
+            {
+                return;
+            }
+
+            TattooDef tattoo = CADefOf.CrossedFaceTattoo;
+            if (tattoo == null || __instance.FaceTattoo == tattoo)
+            {
+                return;
+            }
+
+            enforcing = true;
+            try
+            {
+                __instance.nextFaceTattooDef = tattoo;
+                __instance.FaceTattoo = tattoo;
+                __instance.Notify_StyleItemChanged();
+                __instance.pawn.Drawer?.renderer?.SetAllGraphicsDirty();
+            }
+            finally
+            {
+                enforcing = false;
+            }
+        }
+    }
+
+    [HarmonyPatch(typeof(Pawn_StyleTracker), nameof(Pawn_StyleTracker.SetupNextLookChangeData))]
+    public static class Patch_InfectedPlannedFaceTattooLock
+    {
+        public static void Postfix(Pawn_StyleTracker __instance)
+        {
+            if (__instance?.pawn == null || !CrossedUtility.ShouldShowCrossedRash(__instance.pawn))
+            {
+                return;
+            }
+
+            TattooDef tattoo = CADefOf.CrossedFaceTattoo;
+            if (tattoo != null)
+            {
+                __instance.nextFaceTattooDef = tattoo;
+            }
+        }
+    }
+
+    [HarmonyPatch(typeof(Pawn), nameof(Pawn.SetFaction))]
+    public static class Patch_InfectedTattooOnFactionChange
+    {
+        private static bool warningLogged;
+
+        public static void Postfix(Pawn __instance)
+        {
+            try
+            {
+                if (!CrossedUtility.CanSafelyProcessInfectedState(__instance))
+                {
+                    return;
+                }
+
+                CrossedUtility.EnsureStarterLineageResistance(__instance);
+                CrossedUtility.ApplyInfectedTattooIfInfected(__instance);
+            }
+            catch (Exception ex)
+            {
+                if (!warningLogged)
+                {
+                    warningLogged = true;
+                    Log.Warning("[The Marked Men] Faction-change infected tattoo update skipped: " + ex.Message);
+                }
+            }
+        }
+    }
+
+    public static class CrossedOptionalHarmonyPatches
+    {
+        private static bool setFactionDirectWarningLogged;
+
+        public static void Apply(Harmony harmony)
+        {
+            if (harmony == null)
+            {
+                return;
+            }
+
+            try
+            {
+                MethodInfo target = AccessTools.Method(typeof(Thing), "SetFactionDirect", new[] { typeof(Faction) });
+                MethodInfo postfix = AccessTools.Method(typeof(CrossedOptionalHarmonyPatches), nameof(Postfix_SetFactionDirect));
+                if (target != null && postfix != null)
+                {
+                    harmony.Patch(target, postfix: new HarmonyMethod(postfix));
+                }
+            }
+            catch (Exception ex)
+            {
+                Log.Warning("[The Marked Men] Optional SetFactionDirect tattoo patch skipped: " + ex.Message);
+            }
+
+            LongEventHandler.ExecuteWhenFinished(() => TheMarkedMenRjwCompatibility.Apply(harmony));
+        }
+
+        public static void Postfix_SetFactionDirect(Thing __instance)
+        {
+            try
+            {
+                Pawn pawn = __instance as Pawn;
+                if (!CrossedUtility.CanSafelyProcessInfectedState(pawn))
+                {
+                    return;
+                }
+
+                CrossedUtility.ApplyInfectedTattooIfInfected(pawn);
+            }
+            catch (Exception ex)
+            {
+                if (!setFactionDirectWarningLogged)
+                {
+                    setFactionDirectWarningLogged = true;
+                    Log.Warning("[The Marked Men] Direct faction infected tattoo update skipped: " + ex.Message);
+                }
+            }
+        }
+    }
+
+    [HarmonyPatch(typeof(Pawn), nameof(Pawn.SpawnSetup))]
+    public static class Patch_InfectedTattooOnSpawn
+    {
+        public static void Postfix(Pawn __instance)
+        {
+            CrossedUtility.ApplyInfectedTattooIfInfected(__instance);
+        }
+    }
+
+    [HarmonyPatch(typeof(FoodUtility), nameof(FoodUtility.AddFoodPoisoningHediff))]
+    public static class Patch_ContaminatedFoodExposure
+    {
+        public static void Postfix(Pawn pawn, Thing ingestible)
+        {
+            if (pawn == null || ingestible == null)
+            {
+                return;
+            }
+
+            string label = ingestible.def?.defName ?? string.Empty;
+            if (label.IndexOf("Human", StringComparison.OrdinalIgnoreCase) >= 0 || label.IndexOf("Meat", StringComparison.OrdinalIgnoreCase) >= 0)
+            {
+                float chance = TheMarkedMenMod.Settings?.foodExposureChance ?? TheMarkedMenSettings.InfectionTransmissionChance;
+                CrossedUtility.TryExpose(pawn, chance, "contaminated food");
+            }
+        }
+    }
+}

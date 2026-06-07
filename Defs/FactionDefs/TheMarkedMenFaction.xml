@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+  <ThingSetMakerDef>
+    <defName>CA_CrossedRaidLootMaker</defName>
+    <root Class="ThingSetMaker_MarketValue">
+      <fixedParams>
+        <filter>
+          <thingDefs>
+            <li>Silver</li>
+            <li>MedicineIndustrial</li>
+            <li>MedicineHerbal</li>
+            <li>ComponentIndustrial</li>
+            <li>MealSurvivalPack</li>
+            <li>Steel</li>
+          </thingDefs>
+        </filter>
+      </fixedParams>
+    </root>
+  </ThingSetMakerDef>
+
+  <FactionDef ParentName="FactionBase">
+    <defName>CA_CrossedFaction</defName>
+    <label>The Marked Men</label>
+    <description>The Marked Men are not shambling dead. They are living, intelligent infected who retain enough memory, tool use, language, and tactical instinct to hunt survivors, raid settlements, force breaches, and spread the Marked Virus through blood exposure.</description>
+    <fixedName>The Marked Men</fixedName>
+    <pawnSingular>Marked Man</pawnSingular>
+    <pawnsPlural>Marked Men</pawnsPlural>
+    <leaderTitle>Alpha</leaderTitle>
+    <leaderForceGenerateNewPawn>false</leaderForceGenerateNewPawn>
+    <fixedLeaderKinds>
+      <li>CA_CrossedAlpha</li>
+    </fixedLeaderKinds>
+    <humanlikeFaction>true</humanlikeFaction>
+    <permanentEnemy>true</permanentEnemy>
+    <naturalEnemy>true</naturalEnemy>
+    <hostileToFactionlessHumanlikes>true</hostileToFactionlessHumanlikes>
+    <autoFlee>false</autoFlee>
+    <canSiege>true</canSiege>
+    <canStageAttacks>true</canStageAttacks>
+    <canUseAvoidGrid>true</canUseAvoidGrid>
+    <canRequestTraders>false</canRequestTraders>
+    <canRequestMilitaryAid>false</canRequestMilitaryAid>
+    <canRequestOrbitalTrader>false</canRequestOrbitalTrader>
+    <canGenerateQuestSites>false</canGenerateQuestSites>
+    <raidsForbidden>false</raidsForbidden>
+    <rescueesCanJoin>false</rescueesCanJoin>
+    <listOrderPriority>-80</listOrderPriority>
+    <settlementGenerationWeight>0</settlementGenerationWeight>
+    <requiredCountAtGameStart>0</requiredCountAtGameStart>
+    <startingCountAtWorldCreation>0</startingCountAtWorldCreation>
+    <maxConfigurableAtWorldCreation>0</maxConfigurableAtWorldCreation>
+    <configurationListOrderPriority>5</configurationListOrderPriority>
+    <categoryTag>MarkedMen</categoryTag>
+    <techLevel>Industrial</techLevel>
+    <factionNameMaker>NamerFactionPirate</factionNameMaker>
+    <settlementNameMaker>NamerSettlementPirate</settlementNameMaker>
+    <factionIconPath>MapIcons/TheMarkedMenMapIcon</factionIconPath>
+    <settlementTexturePath>MapIcons/MarkedVillage/TheMarkedVillage</settlementTexturePath>
+    <colorSpectrum>
+      <li>(1, 1, 1)</li>
+      <li>(1, 1, 1)</li>
+      <li>(1, 1, 1)</li>
+    </colorSpectrum>
+    <backstoryFilters>
+      <li>
+        <categories>
+          <li>Pirate</li>
+        </categories>
+      </li>
+      <li>
+        <categories>
+          <li>Outlander</li>
+        </categories>
+        <commonality>0.35</commonality>
+      </li>
+      <li>
+        <categories>
+          <li>Tribal</li>
+        </categories>
+        <commonality>0.15</commonality>
+      </li>
+    </backstoryFilters>
+    <allowedArrivalTemperatureRange>-80~80</allowedArrivalTemperatureRange>
+    <basicMemberKind>CA_CrossedBerserker</basicMemberKind>
+    <raidLootMaker>CA_CrossedRaidLootMaker</raidLootMaker>
+    <raidCommonalityFromPointsCurve>
+      <points>
+        <li>(0, 0.7)</li>
+        <li>(400, 1)</li>
+        <li>(1200, 1.35)</li>
+        <li>(3000, 1.65)</li>
+      </points>
+    </raidCommonalityFromPointsCurve>
+    <raidLootValueFromPointsCurve>
+      <points>
+        <li>(0, 40)</li>
+        <li>(500, 120)</li>
+        <li>(2000, 450)</li>
+        <li>(6000, 1200)</li>
+      </points>
+    </raidLootValueFromPointsCurve>
+    <maxPawnCostPerTotalPointsCurve>
+      <points>
+        <li>(0, 45)</li>
+        <li>(150, 80)</li>
+        <li>(700, 180)</li>
+        <li>(1500, 280)</li>
+        <li>(4000, 10000)</li>
+      </points>
+    </maxPawnCostPerTotalPointsCurve>
+    <pawnGroupMakers>
+      <li>
+        <kindDef>Combat</kindDef>
+        <commonality>100</commonality>
+        <options>
+          <CA_CrossedBerserker>12</CA_CrossedBerserker>
+          <CA_CrossedHunter>8.5</CA_CrossedHunter>
+          <CA_CrossedStalker>4</CA_CrossedStalker>
+          <CA_CrossedScreamer>3</CA_CrossedScreamer>
+          <CA_CrossedBrute>2.25</CA_CrossedBrute>
+          <CA_CrossedAlpha>0.35</CA_CrossedAlpha>
+        </options>
+      </li>
+      <li>
+        <kindDef>Combat</kindDef>
+        <commonality>35</commonality>
+        <options>
+          <CA_CrossedHunter>10</CA_CrossedHunter>
+          <CA_CrossedStalker>8</CA_CrossedStalker>
+          <CA_CrossedScreamer>3</CA_CrossedScreamer>
+          <CA_CrossedBerserker>6</CA_CrossedBerserker>
+          <CA_CrossedAlpha>0.55</CA_CrossedAlpha>
+        </options>
+      </li>
+      <li>
+        <kindDef>Combat</kindDef>
+        <commonality>20</commonality>
+        <options>
+          <CA_CrossedBrute>8</CA_CrossedBrute>
+          <CA_CrossedBerserker>12</CA_CrossedBerserker>
+          <CA_CrossedScreamer>4</CA_CrossedScreamer>
+          <CA_CrossedHunter>3</CA_CrossedHunter>
+          <CA_CrossedAlpha>0.75</CA_CrossedAlpha>
+        </options>
+      </li>
+      <li>
+        <kindDef>Settlement</kindDef>
+        <commonality>100</commonality>
+        <options>
+          <CA_CrossedBerserker>10</CA_CrossedBerserker>
+          <CA_CrossedHunter>8</CA_CrossedHunter>
+          <CA_CrossedStalker>4</CA_CrossedStalker>
+          <CA_CrossedScreamer>5</CA_CrossedScreamer>
+          <CA_CrossedBrute>4</CA_CrossedBrute>
+          <CA_CrossedAlpha>1.25</CA_CrossedAlpha>
+        </options>
+      </li>
+    </pawnGroupMakers>
+  </FactionDef>
+</Defs>
