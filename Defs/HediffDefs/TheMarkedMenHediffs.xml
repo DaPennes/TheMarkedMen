@@ -12,7 +12,6 @@
     <isBad>true</isBad>
     <makesSickThought>true</makesSickThought>
     <alwaysShowSeverity>true</alwaysShowSeverity>
-    <forceRenderTreeRecache>true</forceRenderTreeRecache>
     <stages>
       <li>
         <minSeverity>0</minSeverity>

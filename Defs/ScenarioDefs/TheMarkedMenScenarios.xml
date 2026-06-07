@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Defs>
   <ScenPartDef>
-    <defName>CA_MarkedVillageStart</defName>
-    <label>marked village survivors</label>
-    <description>Starts the colony with three immune outbreak survivors and generates a compact abandoned tribal village around the landing site.</description>
+    <defName>CA_MarkedSurvivorState</defName>
+    <label>marked survivor immunity</label>
+    <description>Starts the colony with three immune outbreak survivors and gives each a chance to carry the visible marked rash.</description>
     <category>StartingImportant</category>
-    <scenPartClass>TheMarkedMen.ScenPart_MarkedVillageStart</scenPartClass>
+    <scenPartClass>TheMarkedMen.ScenPart_MarkedSurvivorState</scenPartClass>
     <summaryPriority>480</summaryPriority>
     <maxUses>1</maxUses>
     <canBeRandomlyAdded>false</canBeRandomlyAdded>
@@ -14,10 +14,10 @@
 
   <ScenarioDef ParentName="ScenarioBase">
     <defName>CA_MarkedVillageFounder</defName>
-    <label>Marked Village Survivors</label>
-    <description>Three survivors crossed the quarantine line after the Marked Virus destroyed their caravan. Their blood carries lasting immunity, though only some still bear the cross-shaped rash. After days of hiding from armed infected, they found an abandoned palisaded settlement: tribal in shape, industrial in memory, and empty except for tools, ash, and warnings carved into the walls.</description>
+    <label>Marked Survivors</label>
+    <description>Three survivors crossed the quarantine line after the Marked Virus destroyed their caravan. Their blood carries lasting immunity, though only some still bear the cross-shaped rash. After days of hiding from armed infected, they have stopped running long enough to build a colony of their own.</description>
     <scenario>
-      <summary>Three immune survivors start in an abandoned tribal village with industrial technology. Each has a 50% chance to carry the visible marked rash.</summary>
+      <summary>Three immune survivors start with industrial technology and basic supplies. Each has a 50% chance to carry the visible marked rash.</summary>
       <playerFaction>
         <factionDef>PlayerColony</factionDef>
       </playerFaction>
@@ -34,8 +34,8 @@
           <visible>false</visible>
         </li>
 
-        <li Class="TheMarkedMen.ScenPart_MarkedVillageStart">
-          <def>CA_MarkedVillageStart</def>
+        <li Class="TheMarkedMen.ScenPart_MarkedSurvivorState">
+          <def>CA_MarkedSurvivorState</def>
         </li>
 
         <li Class="ScenPart_StartingResearch">
@@ -83,7 +83,7 @@
 
         <li Class="ScenPart_GameStartDialog">
           <def>GameStartDialog</def>
-          <text>The last road behind you is gone.\n\nYour caravan survived the first fever by doing what whole towns could not: you ran before the laughing voices learned your names. The Marked Virus took the sick, the guards, and the people who opened the gates. Three of you endured the blood tests, the quarantine fires, and the night marches. Your bodies reject the virus now, but the proof is uneven. Some of you still carry the cross-shaped rash like a warning painted under the skin. Some look untouched. None of you are safe.\n\nAt dawn you found the settlement. Its palisade still stands. The huts are stripped but usable. A workshop holds tools nobody had time to carry. The fields are choked with weeds, and every door tells the same story: the people here left fast, or they did not leave alive.\n\nYou could keep running until the Marked Men catch your trail. Instead, you claim the abandoned village, bar the gates, and decide this is where the immune stop fleeing.</text>
+          <text>The last road behind you is gone.\n\nYour caravan survived the first fever by doing what whole towns could not: you ran before the laughing voices learned your names. The Marked Virus took the sick, the guards, and the people who opened the gates. Three of you endured the blood tests, the quarantine fires, and the night marches. Your bodies reject the virus now, but the proof is uneven. Some of you still carry the cross-shaped rash like a warning painted under the skin. Some look untouched. None of you are safe.\n\nYou could keep running until the Marked Men catch your trail. Instead, you stop, unpack what little survived the flight, and decide this is where the immune stop fleeing.</text>
           <closeSound>GameStartSting</closeSound>
         </li>
       </parts>

@@ -33,7 +33,7 @@
     <defName>CA_CrossedBerserker</defName>
     <label>Marked Man berserker</label>
     <labelPlural>Marked Men berserkers</labelPlural>
-    <combatPower>70</combatPower>
+    <combatPower>180</combatPower>
     <canBeSapper>true</canBeSapper>
     <apparelMoney>120~260</apparelMoney>
     <weaponMoney>80~230</weaponMoney>
@@ -51,7 +51,7 @@
     <defName>CA_CrossedHunter</defName>
     <label>Marked Man hunter</label>
     <labelPlural>Marked Men hunters</labelPlural>
-    <combatPower>88</combatPower>
+    <combatPower>240</combatPower>
     <apparelMoney>160~320</apparelMoney>
     <weaponMoney>220~520</weaponMoney>
     <weaponTags>
@@ -67,7 +67,7 @@
     <defName>CA_CrossedBrute</defName>
     <label>Marked Man brute</label>
     <labelPlural>Marked Men brutes</labelPlural>
-    <combatPower>170</combatPower>
+    <combatPower>420</combatPower>
     <canBeSapper>true</canBeSapper>
     <apparelMoney>180~360</apparelMoney>
     <apparelTags>
@@ -88,7 +88,7 @@
     <defName>CA_CrossedStalker</defName>
     <label>Marked Man stalker</label>
     <labelPlural>Marked Men stalkers</labelPlural>
-    <combatPower>98</combatPower>
+    <combatPower>260</combatPower>
     <apparelMoney>150~300</apparelMoney>
     <weaponMoney>160~360</weaponMoney>
     <weaponTags>
@@ -104,7 +104,7 @@
     <defName>CA_CrossedScreamer</defName>
     <label>Marked Man screamer</label>
     <labelPlural>Marked Men screamers</labelPlural>
-    <combatPower>56</combatPower>
+    <combatPower>170</combatPower>
     <apparelMoney>80~220</apparelMoney>
     <weaponMoney>40~140</weaponMoney>
     <weaponTags>
@@ -120,7 +120,7 @@
     <defName>CA_CrossedAlpha</defName>
     <label>Marked Man alpha</label>
     <labelPlural>Marked Men alphas</labelPlural>
-    <combatPower>330</combatPower>
+    <combatPower>850</combatPower>
     <canBeSapper>true</canBeSapper>
     <maxGenerationAge>65</maxGenerationAge>
     <apparelMoney>220~450</apparelMoney>
@@ -150,7 +150,7 @@
     <defName>CA_CrossedChild</defName>
     <label>Marked child</label>
     <labelPlural>Marked children</labelPlural>
-    <combatPower>32</combatPower>
+    <combatPower>120</combatPower>
     <pawnGroupDevelopmentStage>Child</pawnGroupDevelopmentStage>
     <apparelMoney>60~160</apparelMoney>
     <weaponMoney>40~80</weaponMoney>

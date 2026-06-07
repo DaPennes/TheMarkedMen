@@ -1259,6 +1259,7 @@ namespace TheMarkedMen
                 {
                     CrossedUtility.EnsureStarterLineageResistance(pawns[j]);
                     CrossedUtility.EnsureInfectedState(pawns[j]);
+                    CrossedUtility.RemoveMarkedVirusHediffFromFullyTurnedPawn(pawns[j]);
                 }
             }
         }
@@ -1402,7 +1403,7 @@ namespace TheMarkedMen
 
     public sealed class HediffComp_CrossVirus : HediffComp
     {
-        private const int ProgressTickInterval = 30;
+        private const int ProgressTickInterval = 250;
         private const int TerminalOutcomeUnset = -1;
         private const int TerminalOutcomeDeath = 0;
         private const int TerminalOutcomeTransformation = 1;
@@ -1446,6 +1447,14 @@ namespace TheMarkedMen
         public override void CompPostPostAdd(DamageInfo? dinfo)
         {
             Pawn pawn = parent?.pawn;
+            if (CrossedUtility.IsFullyTurnedMarkedPawn(pawn))
+            {
+                transformed = true;
+                incubationResolved = true;
+                parent.Severity = Mathf.Max(parent.Severity, Props.transformedSeverity);
+                return;
+            }
+
             if (infectionTick < 0)
             {
                 infectionTick = Find.TickManager?.TicksGame ?? 0;
@@ -1453,11 +1462,6 @@ namespace TheMarkedMen
 
             EnsureProgressionTimers(infectionTick);
             CrossedUtility.EnsureInfectedState(pawn);
-            CrossedTacticalAI.TryAttackNearestNonInfectedPawn(pawn, true);
-            if (pawn?.Drawer?.renderer?.renderTree != null)
-            {
-                pawn.Drawer.renderer.SetAllGraphicsDirty();
-            }
         }
 
         public override void CompPostPostRemoved()
@@ -1481,6 +1485,14 @@ namespace TheMarkedMen
 
             EnsureProgressionTimers(ticks);
 
+            if (CrossedUtility.IsFullyTurnedMarkedPawn(pawn))
+            {
+                transformed = true;
+                incubationResolved = true;
+                parent.Severity = Mathf.Max(parent.Severity, Props.transformedSeverity);
+                return;
+            }
+
             if (ticks < nextProgressTick)
             {
                 return;
@@ -1488,15 +1500,6 @@ namespace TheMarkedMen
 
             nextProgressTick = ticks + ProgressTickInterval;
             CrossedUtility.EnsureInfectedState(pawn);
-            CrossedTacticalAI.TryAttackNearestNonInfectedPawn(pawn, false);
-
-            if (pawn.Faction?.def == CADefOf.CrossedFaction)
-            {
-                incubationResolved = true;
-                transformed = true;
-                parent.Severity = Mathf.Max(parent.Severity, Props.transformedSeverity);
-                return;
-            }
 
             if (transformed)
             {
@@ -2118,13 +2121,8 @@ namespace TheMarkedMen
             if (newlyInfected)
             {
                 Component?.NotifyExposure(pawn, source);
-                NotifyInfectionRetarget(pawn, infector);
-                CrossedTacticalAI.TryAttackNearestNonInfectedPawn(pawn, true);
             }
-            else
-            {
-                CrossedTacticalAI.TryAttackNearestNonInfectedPawn(pawn, false);
-            }
+
             return true;
         }
 
@@ -2158,7 +2156,6 @@ namespace TheMarkedMen
             }
 
             ApplyInfectedTattoo(pawn);
-            NotifyInfectionRetarget(pawn, infector);
             if (suppressNotification)
             {
                 return;
@@ -2182,11 +2179,14 @@ namespace TheMarkedMen
             }
 
             EnsureFearlessCrossedState(pawn);
-            HediffDef virus = CADefOf.CrossVirus;
-            if (virus != null)
+            if (!IsCrossedFactionPawn(pawn))
             {
-                Hediff hediff = pawn.health.hediffSet.GetFirstHediffOfDef(virus) ?? pawn.health.AddHediff(virus);
-                hediff.Severity = 1f;
+                HediffDef virus = CADefOf.CrossVirus;
+                if (virus != null)
+                {
+                    Hediff hediff = pawn.health.hediffSet.GetFirstHediffOfDef(virus) ?? pawn.health.AddHediff(virus);
+                    hediff.Severity = 1f;
+                }
             }
 
             if (pawn.kindDef == CADefOf.Berserker && CADefOf.BloodRush != null && !pawn.health.hediffSet.HasHediff(CADefOf.BloodRush))
@@ -2200,7 +2200,16 @@ namespace TheMarkedMen
 
             ApplyInfectedTattoo(pawn);
             EnsureCrossedBasicClothingOnly(pawn);
-            CrossedTacticalAI.TryAttackNearestNonInfectedPawn(pawn, false);
+        }
+
+        public static void RemoveMarkedVirusHediffFromFullyTurnedPawn(Pawn pawn)
+        {
+            HediffDef virus = IsCrossedFactionPawn(pawn) ? CADefOf.CrossVirus : null;
+            Hediff existing = virus == null ? null : pawn?.health?.hediffSet?.GetFirstHediffOfDef(virus);
+            if (existing != null)
+            {
+                pawn.health.RemoveHediff(existing);
+            }
         }
 
         public static void ApplyInfectedTattoo(Pawn pawn)
@@ -2211,14 +2220,17 @@ namespace TheMarkedMen
                 return;
             }
 
-            pawn.style.nextFaceTattooDef = tattoo;
+            if (pawn.style.nextFaceTattooDef != tattoo)
+            {
+                pawn.style.nextFaceTattooDef = tattoo;
+            }
+
             if (pawn.style.FaceTattoo != tattoo)
             {
                 pawn.style.FaceTattoo = tattoo;
                 pawn.style.Notify_StyleItemChanged();
+                pawn.Drawer?.renderer?.SetAllGraphicsDirty();
             }
-
-            pawn.Drawer?.renderer?.SetAllGraphicsDirty();
         }
 
         public static void ApplyInfectedTattooIfInfected(Pawn pawn)
@@ -2424,6 +2436,16 @@ namespace TheMarkedMen
             if (currentPawnTarget != null && CrossedUtility.IsFullyTurnedMarkedPawn(currentPawnTarget) && !IsAttackJob(currentJobDef))
             {
                 return TryRetargetAwayFromPawn(pawn, currentPawnTarget, true);
+            }
+
+            if (IsAttackJob(currentJobDef) && IsValidNonInfectedPawnTarget(currentPawnTarget, pawn))
+            {
+                return false;
+            }
+
+            if (IsTacticalRangedMoveJob(pawn.CurJob, currentPawnTarget) && IsValidNonInfectedPawnTarget(currentPawnTarget, pawn))
+            {
+                return false;
             }
 
             if (TryStartInfighting(pawn, currentJobDef, currentPawnTarget))
@@ -2763,11 +2785,6 @@ namespace TheMarkedMen
                 return 0f;
             }
 
-            if (!CanPotentiallyEngageTarget(searcher, target))
-            {
-                return 0f;
-            }
-
             float score = 95f;
             if (CrossedUtility.IsPartiallyMarkedPawn(target))
             {
@@ -2869,11 +2886,6 @@ namespace TheMarkedMen
                 return 0f;
             }
 
-            if (!CanPotentiallyEngageTarget(searcher, target))
-            {
-                return 0f;
-            }
-
             float score = 200f;
             if (CrossedUtility.IsPartiallyMarkedPawn(target))
             {
@@ -2900,23 +2912,6 @@ namespace TheMarkedMen
                 && target.RaceProps != null
                 && target.RaceProps.Humanlike
                 && CrossedUtility.IsInfectedPawn(target);
-        }
-
-        private static bool CanPotentiallyEngageTarget(Pawn searcher, Thing target)
-        {
-            if (searcher?.Map == null || target == null || target.Destroyed)
-            {
-                return false;
-            }
-
-            Verb rangedVerb = GetRangedVerb(searcher);
-            if (rangedVerb != null && rangedVerb.CanHitTargetFrom(searcher.Position, target))
-            {
-                return true;
-            }
-
-            return searcher.CanReach(target, PathEndMode.Touch, Danger.Deadly, true, true)
-                || searcher.CanReach(target, PathEndMode.OnCell, Danger.Deadly, true, true);
         }
 
         private static bool CanUseTacticalAI(Pawn pawn)
@@ -3028,6 +3023,7 @@ namespace TheMarkedMen
     {
         private const float ContagionRadius = 2.9f;
         private const float ContagionRadiusSquared = ContagionRadius * ContagionRadius;
+        private const int ContagionPulseIntervalTicks = 500;
         private const int MaxContagionTargetsPerPulse = 3;
 
         public static void TryContagionPulse(Pawn source)
@@ -3039,6 +3035,11 @@ namespace TheMarkedMen
             }
 
             if (source == null || source.Dead || !source.Spawned || source.Map == null || !CrossedUtility.IsInfectedPawn(source))
+            {
+                return;
+            }
+
+            if (!source.IsHashIntervalTick(ContagionPulseIntervalTicks))
             {
                 return;
             }
@@ -3662,6 +3663,7 @@ namespace TheMarkedMen
 
     public static class CrossedLordCleanupUtility
     {
+        private const int CleanupIntervalTicks = 250;
         private const string WaitDownedJobDefName = "Wait_Downed";
 
         public static List<Pawn> CollectValidSpawnedLordPawns(IEnumerable<Pawn> pawns, Map map, Faction faction)
@@ -3685,7 +3687,19 @@ namespace TheMarkedMen
 
         public static void RemoveInvalidOwnedPawns(Lord lord)
         {
-            if (lord?.ownedPawns == null || lord.ownedPawns.Count == 0 || !IsCrossedLord(lord))
+            if (lord?.ownedPawns == null || lord.ownedPawns.Count == 0)
+            {
+                return;
+            }
+
+            int ticks = Find.TickManager?.TicksGame ?? 0;
+            int hash = lord.GetHashCode() & int.MaxValue;
+            if ((ticks + hash) % CleanupIntervalTicks != 0)
+            {
+                return;
+            }
+
+            if (!IsCrossedLord(lord))
             {
                 return;
             }
@@ -3903,7 +3917,7 @@ namespace TheMarkedMen
     public sealed class IncidentWorker_CrossedHorde : IncidentWorker
     {
         private const int MinHordeCount = 3;
-        private const int MaxHordeCount = 30;
+        private const int MaxHordeCount = 12;
 
         protected override bool CanFireNowSub(IncidentParms parms)
         {
@@ -4077,7 +4091,7 @@ namespace TheMarkedMen
     public sealed class IncidentWorker_CrossedProbe : IncidentWorker
     {
         private const int MinProbeCount = 2;
-        private const int MaxProbeCount = 8;
+        private const int MaxProbeCount = 4;
 
         protected override bool CanFireNowSub(IncidentParms parms)
         {

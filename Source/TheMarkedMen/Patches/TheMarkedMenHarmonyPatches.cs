@@ -84,19 +84,18 @@ namespace TheMarkedMen
     [HarmonyPatch(typeof(Pawn), nameof(Pawn.TickRare))]
     public static class Patch_CrossedTacticalAI
     {
+        private const int InfectedStateMaintenanceIntervalTicks = 2500;
+
         public static void Postfix(Pawn __instance)
         {
-            CrossedUtility.EnsureFearlessCrossedState(__instance);
-
-            if (__instance != null && __instance.IsHashIntervalTick(2500))
+            if (__instance == null || !__instance.IsHashIntervalTick(InfectedStateMaintenanceIntervalTicks))
             {
-                CrossedUtility.ApplyInfectedTattooIfInfected(__instance);
+                return;
             }
 
-            CrossedTacticalAI.TryIssueTacticalJob(__instance);
-            CrossedContagionUtility.TryContagionPulse(__instance);
-            CrossedCorpseUtility.TryContaminateNearbyCorpses(__instance);
-            CrossedSocialUtility.TryHostileSocialPulse(__instance);
+            CrossedUtility.EnsureFearlessCrossedState(__instance);
+            CrossedUtility.ApplyInfectedTattooIfInfected(__instance);
+            CrossedUtility.RemoveMarkedVirusHediffFromFullyTurnedPawn(__instance);
         }
     }
 
