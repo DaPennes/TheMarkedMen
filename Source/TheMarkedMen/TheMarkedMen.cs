@@ -5,6 +5,7 @@ using System.Reflection;
 using HarmonyLib;
 using LudeonTK;
 using RimWorld;
+using RimWorld.Planet;
 using UnityEngine;
 using Verse;
 using Verse.AI;
@@ -211,6 +212,7 @@ namespace TheMarkedMen
         private int activeRaidPeakInfected;
         private float activeRaidPoints;
         private Map activeRaidMap;
+        private bool crossedWorldSettlementInitialized;
         private List<string> recentIncidents = new List<string>();
         private List<Pawn> pendingReanimationPawns = new List<Pawn>();
         private List<int> pendingReanimationTicks = new List<int>();
@@ -226,6 +228,7 @@ namespace TheMarkedMen
         {
             base.StartedNewGame();
             EnsureCrossedFaction(false);
+            EnsureCrossedWorldSettlement();
             raidScheduleActivated = false;
             raidScheduleVersion = RaidScheduleVersion;
             starterLineageInitialized = false;
@@ -239,6 +242,7 @@ namespace TheMarkedMen
         {
             base.FinalizeInit();
             EnsureCrossedFaction(false);
+            EnsureCrossedWorldSettlement();
             InitializeStarterLineageResistance();
             EnsureInfectedStateOnLoadedPawns();
             int ticks = Find.TickManager?.TicksGame ?? 0;
@@ -290,6 +294,7 @@ namespace TheMarkedMen
             Scribe_Values.Look(ref activeRaidWaveCount, "activeRaidWaveCount", 0);
             Scribe_Values.Look(ref activeRaidPeakInfected, "activeRaidPeakInfected", 0);
             Scribe_Values.Look(ref activeRaidPoints, "activeRaidPoints", 0f);
+            Scribe_Values.Look(ref crossedWorldSettlementInitialized, "crossedWorldSettlementInitialized", false);
             Scribe_References.Look(ref activeRaidMap, "activeRaidMap");
             Scribe_Collections.Look(ref recentIncidents, "recentIncidents", LookMode.Value);
             Scribe_Collections.Look(ref pendingReanimationPawns, "pendingReanimationPawns", LookMode.Reference);
@@ -757,6 +762,89 @@ namespace TheMarkedMen
                 Log.Error("[The Marked Men] Failed to create Marked Men faction: " + ex);
                 return null;
             }
+        }
+
+        private void EnsureCrossedWorldSettlement()
+        {
+            Faction faction = EnsureCrossedFaction(true);
+            if (faction == null || Find.World?.worldObjects == null || WorldObjectDefOf.Settlement == null)
+            {
+                return;
+            }
+
+            if (HasCrossedSettlement(faction))
+            {
+                crossedWorldSettlementInitialized = true;
+                return;
+            }
+
+            if (crossedWorldSettlementInitialized)
+            {
+                return;
+            }
+
+            try
+            {
+                PlanetTile tile = TileFinder.RandomSettlementTileFor(faction, true, null);
+                if (!tile.Valid)
+                {
+                    tile = TileFinder.RandomSettlementTileFor(faction, false, null);
+                }
+
+                if (!tile.Valid)
+                {
+                    Log.Warning("[The Marked Men] Could not find a valid world tile for a Marked Men settlement.");
+                    return;
+                }
+
+                Settlement settlement = WorldObjectMaker.MakeWorldObject(WorldObjectDefOf.Settlement) as Settlement;
+                if (settlement == null)
+                {
+                    Log.Warning("[The Marked Men] Could not create a Marked Men settlement world object.");
+                    return;
+                }
+
+                settlement.SetFaction(faction);
+                settlement.Tile = tile;
+                if (faction.def?.settlementNameMaker != null)
+                {
+                    settlement.Name = SettlementNameGenerator.GenerateSettlementName(settlement, faction.def.settlementNameMaker);
+                }
+                else
+                {
+                    settlement.Name = "Marked Village";
+                }
+
+                Find.World.worldObjects.Add(settlement);
+                EnsureFactionHostility(faction);
+                crossedWorldSettlementInitialized = true;
+                Log.Message("[The Marked Men] Added missing Marked Men settlement to the world map.");
+            }
+            catch (Exception ex)
+            {
+                Log.Warning("[The Marked Men] Failed to add missing Marked Men settlement: " + ex.Message);
+            }
+        }
+
+        private static bool HasCrossedSettlement(Faction faction)
+        {
+            List<Settlement> settlements = Find.World?.worldObjects?.Settlements;
+            if (settlements == null)
+            {
+                return false;
+            }
+
+            FactionDef factionDef = faction?.def ?? CADefOf.CrossedFaction;
+            for (int i = 0; i < settlements.Count; i++)
+            {
+                Settlement settlement = settlements[i];
+                if (settlement != null && !settlement.Destroyed && settlement.Faction?.def == factionDef)
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         private static void EnsureFactionHostility(Faction faction)

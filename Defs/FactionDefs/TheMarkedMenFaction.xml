@@ -45,10 +45,10 @@
     <raidsForbidden>false</raidsForbidden>
     <rescueesCanJoin>false</rescueesCanJoin>
     <listOrderPriority>-80</listOrderPriority>
-    <settlementGenerationWeight>0</settlementGenerationWeight>
-    <requiredCountAtGameStart>0</requiredCountAtGameStart>
-    <startingCountAtWorldCreation>0</startingCountAtWorldCreation>
-    <maxConfigurableAtWorldCreation>0</maxConfigurableAtWorldCreation>
+    <settlementGenerationWeight>1</settlementGenerationWeight>
+    <requiredCountAtGameStart>1</requiredCountAtGameStart>
+    <startingCountAtWorldCreation>1</startingCountAtWorldCreation>
+    <maxConfigurableAtWorldCreation>1</maxConfigurableAtWorldCreation>
     <configurationListOrderPriority>5</configurationListOrderPriority>
     <categoryTag>MarkedMen</categoryTag>
     <techLevel>Industrial</techLevel>

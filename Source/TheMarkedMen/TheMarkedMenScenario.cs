@@ -14,6 +14,15 @@ namespace TheMarkedMen
         private const float FullVillageScoreThreshold = 780f;
         private const int RoadsideTorchSpacing = 8;
         private const int RoadsideTorchDuplicateRadius = 5;
+        private const int RoomPerimeterClearance = 1;
+        private const int FullPerimeterWest = -20;
+        private const int FullPerimeterEast = 20;
+        private const int FullPerimeterNorth = 17;
+        private const int FullPerimeterSouth = -17;
+        private const int CompactPerimeterWest = -15;
+        private const int CompactPerimeterEast = 15;
+        private const int CompactPerimeterNorth = 12;
+        private const int CompactPerimeterSouth = -12;
 
         private bool villageGenerated;
 
@@ -239,8 +248,9 @@ namespace TheMarkedMen
             TerrainDef packedDirt = Terrain("PackedDirt");
             TerrainDef straw = Terrain("StrawMatting");
             TerrainDef plazaTerrain = straw ?? packedDirt;
-            int gateX = fullVillage ? 21 : 16;
-            int gateZ = fullVillage ? 18 : 13;
+            VillagePerimeter perimeter = PerimeterFor(fullVillage);
+            int gateX = perimeter.east + 1;
+            int gateZ = perimeter.north + 1;
 
             LayVillagePlaza(map, origin, plazaTerrain);
             LayVillagePath(map, origin, Cell(origin, -9, -9), 1, packedDirt);
@@ -267,27 +277,27 @@ namespace TheMarkedMen
         {
             BuildCourtyard(map, origin);
 
-            TryBuildSleepingHut(map, origin, -9, -5, "western sleeping hut");
-            TryBuildSleepingHut(map, origin, 9, -5, "eastern sleeping hut");
-            TryBuildWorkshopHut(map, origin, 0, 8);
-            TryBuildStorageHut(map, origin, -11, 7);
-            TryBuildKitchenHut(map, origin, 11, 7);
+            TryBuildSleepingHut(map, origin, fullVillage, -9, -5, "western sleeping hut");
+            TryBuildSleepingHut(map, origin, fullVillage, 9, -5, "eastern sleeping hut");
+            TryBuildWorkshopHut(map, origin, fullVillage, 0, 8);
+            TryBuildStorageHut(map, origin, fullVillage, -11, 7);
+            TryBuildKitchenHut(map, origin, fullVillage, 11, 7);
 
             if (fullVillage)
             {
-                TryBuildInfirmaryHut(map, origin, -15, 0);
-                TryBuildPowerShed(map, origin, 15, 0);
-                TryBuildArmoryHut(map, origin, -15, 10);
-                TryBuildCommsHut(map, origin, 15, 10);
+                TryBuildInfirmaryHut(map, origin, fullVillage, -15, 0);
+                TryBuildPowerShed(map, origin, fullVillage, 15, 0);
+                TryBuildArmoryHut(map, origin, fullVillage, -15, 10);
+                TryBuildCommsHut(map, origin, fullVillage, 15, 10);
                 TryBuildWatchPost(map, origin, 0, -15);
             }
 
             BuildFallbackCampIfSparse(map, origin);
         }
 
-        private static void TryBuildSleepingHut(Map map, IntVec3 origin, int centerX, int centerZ, string label)
+        private static void TryBuildSleepingHut(Map map, IntVec3 origin, bool fullVillage, int centerX, int centerZ, string label)
         {
-            if (TryBuildRoom(map, origin, centerX, centerZ, 7, 7, DoorSide.South, "StrawMatting", roomOrigin =>
+            if (TryBuildRoom(map, origin, fullVillage, centerX, centerZ, 7, 7, DoorSide.South, "StrawMatting", roomOrigin =>
             {
                 ThingDef leather = Thing("Leather_Plain");
                 ThingDef wood = Thing("WoodLog");
@@ -303,9 +313,9 @@ namespace TheMarkedMen
             BuildOpenCampCluster(map, Cell(origin, centerX, centerZ), label);
         }
 
-        private static void TryBuildWorkshopHut(Map map, IntVec3 origin, int centerX, int centerZ)
+        private static void TryBuildWorkshopHut(Map map, IntVec3 origin, bool fullVillage, int centerX, int centerZ)
         {
-            if (TryBuildRoom(map, origin, centerX, centerZ, 9, 7, DoorSide.North, "WoodPlankFloor", roomOrigin =>
+            if (TryBuildRoom(map, origin, fullVillage, centerX, centerZ, 9, 7, DoorSide.North, "WoodPlankFloor", roomOrigin =>
             {
                 ThingDef wood = Thing("WoodLog");
                 ThingDef steel = Thing("Steel");
@@ -321,9 +331,9 @@ namespace TheMarkedMen
             BuildOpenWorkshop(map, Cell(origin, centerX, centerZ));
         }
 
-        private static void TryBuildStorageHut(Map map, IntVec3 origin, int centerX, int centerZ)
+        private static void TryBuildStorageHut(Map map, IntVec3 origin, bool fullVillage, int centerX, int centerZ)
         {
-            if (TryBuildRoom(map, origin, centerX, centerZ, 7, 7, DoorSide.East, "StrawMatting", roomOrigin =>
+            if (TryBuildRoom(map, origin, fullVillage, centerX, centerZ, 7, 7, DoorSide.East, "StrawMatting", roomOrigin =>
             {
                 ThingDef wood = Thing("WoodLog");
                 TrySpawnBuildingNear(Thing("Shelf"), map, Cell(roomOrigin, -2, -1), Rot4.North, 3, wood);
@@ -337,9 +347,9 @@ namespace TheMarkedMen
             TrySpawnBuildingNear(Thing("Shelf"), map, Cell(origin, centerX, centerZ), Rot4.North, 6, Thing("WoodLog"), true);
         }
 
-        private static void TryBuildKitchenHut(Map map, IntVec3 origin, int centerX, int centerZ)
+        private static void TryBuildKitchenHut(Map map, IntVec3 origin, bool fullVillage, int centerX, int centerZ)
         {
-            if (TryBuildRoom(map, origin, centerX, centerZ, 7, 7, DoorSide.West, "StrawMatting", roomOrigin =>
+            if (TryBuildRoom(map, origin, fullVillage, centerX, centerZ, 7, 7, DoorSide.West, "StrawMatting", roomOrigin =>
             {
                 ThingDef wood = Thing("WoodLog");
                 TrySpawnBuildingNear(Thing("TableButcher"), map, Cell(roomOrigin, -1, 0), Rot4.East, 3, wood);
@@ -353,9 +363,9 @@ namespace TheMarkedMen
             TrySpawnBuildingNear(Thing("Campfire"), map, Cell(origin, centerX, centerZ), Rot4.North, 6, null, true);
         }
 
-        private static void TryBuildInfirmaryHut(Map map, IntVec3 origin, int centerX, int centerZ)
+        private static void TryBuildInfirmaryHut(Map map, IntVec3 origin, bool fullVillage, int centerX, int centerZ)
         {
-            TryBuildRoom(map, origin, centerX, centerZ, 7, 6, DoorSide.East, "StrawMatting", roomOrigin =>
+            TryBuildRoom(map, origin, fullVillage, centerX, centerZ, 7, 6, DoorSide.East, "StrawMatting", roomOrigin =>
             {
                 ThingDef leather = Thing("Leather_Plain");
                 ThingDef wood = Thing("WoodLog");
@@ -365,9 +375,9 @@ namespace TheMarkedMen
             });
         }
 
-        private static void TryBuildPowerShed(Map map, IntVec3 origin, int centerX, int centerZ)
+        private static void TryBuildPowerShed(Map map, IntVec3 origin, bool fullVillage, int centerX, int centerZ)
         {
-            TryBuildRoom(map, origin, centerX, centerZ, 8, 6, DoorSide.West, "WoodPlankFloor", roomOrigin =>
+            TryBuildRoom(map, origin, fullVillage, centerX, centerZ, 8, 6, DoorSide.West, "WoodPlankFloor", roomOrigin =>
             {
                 ThingDef steel = Thing("Steel");
                 TrySpawnBuildingNear(Thing("WoodFiredGenerator"), map, Cell(roomOrigin, -2, 0), Rot4.East, 3, steel);
@@ -376,9 +386,9 @@ namespace TheMarkedMen
             });
         }
 
-        private static void TryBuildArmoryHut(Map map, IntVec3 origin, int centerX, int centerZ)
+        private static void TryBuildArmoryHut(Map map, IntVec3 origin, bool fullVillage, int centerX, int centerZ)
         {
-            TryBuildRoom(map, origin, centerX, centerZ, 6, 6, DoorSide.South, "StrawMatting", roomOrigin =>
+            TryBuildRoom(map, origin, fullVillage, centerX, centerZ, 6, 6, DoorSide.South, "StrawMatting", roomOrigin =>
             {
                 ThingDef wood = Thing("WoodLog");
                 TrySpawnBuildingNear(Thing("Shelf"), map, Cell(roomOrigin, -1, 0), Rot4.North, 3, wood);
@@ -386,9 +396,9 @@ namespace TheMarkedMen
             });
         }
 
-        private static void TryBuildCommsHut(Map map, IntVec3 origin, int centerX, int centerZ)
+        private static void TryBuildCommsHut(Map map, IntVec3 origin, bool fullVillage, int centerX, int centerZ)
         {
-            TryBuildRoom(map, origin, centerX, centerZ, 6, 6, DoorSide.South, "WoodPlankFloor", roomOrigin =>
+            TryBuildRoom(map, origin, fullVillage, centerX, centerZ, 6, 6, DoorSide.South, "WoodPlankFloor", roomOrigin =>
             {
                 ThingDef steel = Thing("Steel");
                 ThingDef wood = Thing("WoodLog");
@@ -415,10 +425,10 @@ namespace TheMarkedMen
             TrySpawnBuildingNear(Thing("TorchLamp"), map, Cell(post, 0, 1), Rot4.North, 4, Thing("WoodLog"), false);
         }
 
-        private static bool TryBuildRoom(Map map, IntVec3 origin, int preferredX, int preferredZ, int width, int height, DoorSide doorSide, string floorDefName, Action<IntVec3> populate)
+        private static bool TryBuildRoom(Map map, IntVec3 origin, bool fullVillage, int preferredX, int preferredZ, int width, int height, DoorSide doorSide, string floorDefName, Action<IntVec3> populate)
         {
             IntVec3 roomOrigin;
-            if (!TryFindNearbyRoomOrigin(map, Cell(origin, preferredX, preferredZ), width, height, doorSide, 8, out roomOrigin))
+            if (!TryFindNearbyRoomOrigin(map, origin, fullVillage, Cell(origin, preferredX, preferredZ), width, height, doorSide, 8, out roomOrigin))
             {
                 return false;
             }
@@ -617,7 +627,7 @@ namespace TheMarkedMen
             return report.Accepted;
         }
 
-        private static bool TryFindNearbyRoomOrigin(Map map, IntVec3 preferred, int width, int height, DoorSide doorSide, int radius, out IntVec3 result)
+        private static bool TryFindNearbyRoomOrigin(Map map, IntVec3 villageOrigin, bool fullVillage, IntVec3 preferred, int width, int height, DoorSide doorSide, int radius, out IntVec3 result)
         {
             result = IntVec3.Invalid;
             float bestScore = float.MinValue;
@@ -626,7 +636,7 @@ namespace TheMarkedMen
                 for (int z = -radius; z <= radius; z++)
                 {
                     IntVec3 candidate = Cell(preferred, x, z);
-                    if (!candidate.InBounds(map) || !CanSupportRoom(map, candidate, width, height, doorSide))
+                    if (!candidate.InBounds(map) || !CanSupportRoom(map, villageOrigin, fullVillage, candidate, width, height, doorSide))
                     {
                         continue;
                     }
@@ -644,7 +654,7 @@ namespace TheMarkedMen
             return result.IsValid;
         }
 
-        private static bool CanSupportRoom(Map map, IntVec3 roomOrigin, int width, int height, DoorSide doorSide)
+        private static bool CanSupportRoom(Map map, IntVec3 villageOrigin, bool fullVillage, IntVec3 roomOrigin, int width, int height, DoorSide doorSide)
         {
             ThingDef wall = Thing("Wall");
             ThingDef door = Thing("Door");
@@ -654,6 +664,11 @@ namespace TheMarkedMen
             int minZ = -height / 2;
             int maxZ = minZ + height - 1;
             IntVec3 doorOffset = DoorOffset(width, height, doorSide);
+
+            if (!RoomRespectsPerimeterClearance(villageOrigin, fullVillage, roomOrigin, minX, minZ, maxX, maxZ))
+            {
+                return false;
+            }
 
             for (int x = minX; x <= maxX; x++)
             {
@@ -677,6 +692,24 @@ namespace TheMarkedMen
             }
 
             return true;
+        }
+
+        private static bool RoomRespectsPerimeterClearance(IntVec3 villageOrigin, bool fullVillage, IntVec3 roomOrigin, int minX, int minZ, int maxX, int maxZ)
+        {
+            VillagePerimeter perimeter = PerimeterFor(fullVillage);
+            int roomWest = roomOrigin.x + minX;
+            int roomEast = roomOrigin.x + maxX;
+            int roomSouth = roomOrigin.z + minZ;
+            int roomNorth = roomOrigin.z + maxZ;
+            int allowedWest = villageOrigin.x + perimeter.west + RoomPerimeterClearance + 1;
+            int allowedEast = villageOrigin.x + perimeter.east - RoomPerimeterClearance - 1;
+            int allowedSouth = villageOrigin.z + perimeter.south + RoomPerimeterClearance + 1;
+            int allowedNorth = villageOrigin.z + perimeter.north - RoomPerimeterClearance - 1;
+
+            return roomWest >= allowedWest
+                && roomEast <= allowedEast
+                && roomSouth >= allowedSouth
+                && roomNorth <= allowedNorth;
         }
 
         private static void BuildOpenCampCluster(Map map, IntVec3 preferred, string label)
@@ -734,10 +767,11 @@ namespace TheMarkedMen
 
         private static void BuildAdaptivePerimeter(Map map, IntVec3 origin, bool fullVillage)
         {
-            int west = fullVillage ? -20 : -15;
-            int east = fullVillage ? 20 : 15;
-            int north = fullVillage ? 17 : 12;
-            int south = fullVillage ? -17 : -12;
+            VillagePerimeter perimeter = PerimeterFor(fullVillage);
+            int west = perimeter.west;
+            int east = perimeter.east;
+            int north = perimeter.north;
+            int south = perimeter.south;
             ThingDef wall = Thing("Wall");
             ThingDef door = Thing("Door");
             ThingDef barricade = Thing("Barricade");
@@ -773,6 +807,13 @@ namespace TheMarkedMen
             }
 
             TrySpawnBuildingAt(sandbags, map, cell, rot, cloth, true);
+        }
+
+        private static VillagePerimeter PerimeterFor(bool fullVillage)
+        {
+            return fullVillage
+                ? new VillagePerimeter(FullPerimeterWest, FullPerimeterEast, FullPerimeterNorth, FullPerimeterSouth)
+                : new VillagePerimeter(CompactPerimeterWest, CompactPerimeterEast, CompactPerimeterNorth, CompactPerimeterSouth);
         }
 
         private static void BuildFields(Map map, IntVec3 origin)
@@ -1587,6 +1628,22 @@ namespace TheMarkedMen
             South,
             East,
             West
+        }
+
+        private struct VillagePerimeter
+        {
+            public readonly int west;
+            public readonly int east;
+            public readonly int north;
+            public readonly int south;
+
+            public VillagePerimeter(int west, int east, int north, int south)
+            {
+                this.west = west;
+                this.east = east;
+                this.north = north;
+                this.south = south;
+            }
         }
 
         private struct WallTorchCandidate
