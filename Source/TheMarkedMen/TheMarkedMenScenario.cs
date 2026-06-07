@@ -24,14 +24,6 @@ namespace TheMarkedMen
         private const int CompactPerimeterNorth = 12;
         private const int CompactPerimeterSouth = -12;
 
-        private bool villageGenerated;
-
-        public override void ExposeData()
-        {
-            base.ExposeData();
-            Scribe_Values.Look(ref villageGenerated, "villageGenerated", false);
-        }
-
         public override void Notify_PawnGenerated(Pawn pawn, PawnGenerationContext context, bool redressed)
         {
             base.Notify_PawnGenerated(pawn, context, redressed);
@@ -89,8 +81,20 @@ namespace TheMarkedMen
 
         private void TryGenerateVillage(Map map)
         {
-            if (villageGenerated || map == null || map.Size.x <= 0 || map.Size.z <= 0)
+            if (map == null || map.Size.x <= 0 || map.Size.z <= 0)
             {
+                return;
+            }
+
+            MapComponent_MarkedVillageStartState state = map.GetComponent<MapComponent_MarkedVillageStartState>();
+            if (state != null && state.VillageGenerated)
+            {
+                return;
+            }
+
+            if (HasGeneratedVillageSignature(map))
+            {
+                state?.MarkVillageGenerated();
                 return;
             }
 
@@ -107,7 +111,7 @@ namespace TheMarkedMen
             PrepareVillageGround(map, site.origin, fullVillage);
             BuildFields(map, site.origin);
             PlaceStartingCaches(map, site.origin);
-            villageGenerated = true;
+            state?.MarkVillageGenerated();
         }
 
         private static VillageSite FindVillageSite(Map map)
@@ -141,6 +145,81 @@ namespace TheMarkedMen
             }
 
             return best;
+        }
+
+        private static bool HasGeneratedVillageSignature(Map map)
+        {
+            int markers = 0;
+            if (HasSpawnedThingDef(map, "SimpleResearchBench"))
+            {
+                markers++;
+            }
+
+            if (HasSpawnedThingDef(map, "FueledSmithy"))
+            {
+                markers++;
+            }
+
+            if (HasSpawnedThingDef(map, "Gun_BoltActionRifle"))
+            {
+                markers++;
+            }
+
+            if (HasSpawnedStackCountAtLeast(map, "Pemmican", 180))
+            {
+                markers++;
+            }
+
+            return markers >= 3;
+        }
+
+        private static bool HasSpawnedThingDef(Map map, string defName)
+        {
+            ThingDef def = Thing(defName);
+            if (def == null || map?.listerThings == null)
+            {
+                return false;
+            }
+
+            List<Thing> things = map.listerThings.ThingsOfDef(def);
+            for (int i = 0; i < things.Count; i++)
+            {
+                Thing thing = things[i];
+                if (thing != null && !thing.Destroyed)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private static bool HasSpawnedStackCountAtLeast(Map map, string defName, int count)
+        {
+            ThingDef def = Thing(defName);
+            if (def == null || map?.listerThings == null)
+            {
+                return false;
+            }
+
+            int total = 0;
+            List<Thing> things = map.listerThings.ThingsOfDef(def);
+            for (int i = 0; i < things.Count; i++)
+            {
+                Thing thing = things[i];
+                if (thing == null || thing.Destroyed)
+                {
+                    continue;
+                }
+
+                total += thing.stackCount;
+                if (total >= count)
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         private static void ConsiderSite(Map map, IntVec3 center, int offsetX, int offsetZ, ref VillageSite best)
@@ -1678,6 +1757,28 @@ namespace TheMarkedMen
                 bridgeableCells = 0;
                 blockedCells = 0;
             }
+        }
+    }
+
+    public sealed class MapComponent_MarkedVillageStartState : MapComponent
+    {
+        private bool villageGenerated;
+
+        public bool VillageGenerated => villageGenerated;
+
+        public MapComponent_MarkedVillageStartState(Map map) : base(map)
+        {
+        }
+
+        public override void ExposeData()
+        {
+            base.ExposeData();
+            Scribe_Values.Look(ref villageGenerated, "markedVillageGenerated", false);
+        }
+
+        public void MarkVillageGenerated()
+        {
+            villageGenerated = true;
         }
     }
 }
