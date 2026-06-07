@@ -12,6 +12,8 @@ namespace TheMarkedMen
         private const int SiteSearchRadius = 72;
         private const int SiteSearchStep = 3;
         private const float FullVillageScoreThreshold = 780f;
+        private const int RoadsideTorchSpacing = 8;
+        private const int RoadsideTorchDuplicateRadius = 5;
 
         private bool villageGenerated;
 
@@ -292,7 +294,6 @@ namespace TheMarkedMen
                 TrySpawnBuildingNear(Thing("Bedroll"), map, Cell(roomOrigin, -1, -1), Rot4.South, 3, leather);
                 TrySpawnBuildingNear(Thing("Bedroll"), map, Cell(roomOrigin, 2, -1), Rot4.South, 3, leather);
                 TrySpawnBuildingNear(Thing("Stool"), map, Cell(roomOrigin, -2, 1), Rot4.North, 3, wood);
-                TrySpawnBuildingNear(Thing("TorchLamp"), map, Cell(roomOrigin, 2, 1), Rot4.North, 3, wood);
                 TrySpawnBuildingNear(Thing("PassiveCooler"), map, Cell(roomOrigin, -2, -2), Rot4.North, 3, wood);
             }))
             {
@@ -312,7 +313,6 @@ namespace TheMarkedMen
                 TrySpawnBuildingNear(Thing("FueledSmithy"), map, Cell(roomOrigin, 2, 0), Rot4.West, 3, steel);
                 TrySpawnBuildingNear(Thing("HandTailoringBench"), map, Cell(roomOrigin, 0, 2), Rot4.South, 3, wood);
                 TrySpawnBuildingNear(Thing("Shelf"), map, Cell(roomOrigin, -3, 2), Rot4.North, 3, wood);
-                TrySpawnBuildingNear(Thing("TorchLamp"), map, Cell(roomOrigin, 3, 2), Rot4.North, 3, wood);
             }))
             {
                 return;
@@ -329,7 +329,6 @@ namespace TheMarkedMen
                 TrySpawnBuildingNear(Thing("Shelf"), map, Cell(roomOrigin, -2, -1), Rot4.North, 3, wood);
                 TrySpawnBuildingNear(Thing("Shelf"), map, Cell(roomOrigin, -2, 1), Rot4.North, 3, wood);
                 TrySpawnBuildingNear(Thing("Shelf"), map, Cell(roomOrigin, 1, 1), Rot4.East, 3, wood);
-                TrySpawnBuildingNear(Thing("TorchLamp"), map, Cell(roomOrigin, 2, -2), Rot4.North, 3, wood);
             }))
             {
                 return;
@@ -346,7 +345,6 @@ namespace TheMarkedMen
                 TrySpawnBuildingNear(Thing("TableButcher"), map, Cell(roomOrigin, -1, 0), Rot4.East, 3, wood);
                 TrySpawnBuildingNear(Thing("FueledStove"), map, Cell(roomOrigin, 2, 0), Rot4.West, 3, wood);
                 TrySpawnBuildingNear(Thing("Shelf"), map, Cell(roomOrigin, 0, 2), Rot4.North, 3, wood);
-                TrySpawnBuildingNear(Thing("TorchLamp"), map, Cell(roomOrigin, -2, -2), Rot4.North, 3, wood);
             }))
             {
                 return;
@@ -364,7 +362,6 @@ namespace TheMarkedMen
                 TrySpawnBuildingNear(Thing("Bedroll"), map, Cell(roomOrigin, -1, 0), Rot4.South, 3, leather);
                 TrySpawnBuildingNear(Thing("Bedroll"), map, Cell(roomOrigin, 2, 0), Rot4.South, 3, leather);
                 TrySpawnBuildingNear(Thing("Shelf"), map, Cell(roomOrigin, -2, 2), Rot4.North, 3, wood);
-                TrySpawnBuildingNear(Thing("TorchLamp"), map, Cell(roomOrigin, 2, 2), Rot4.North, 3, wood);
             });
         }
 
@@ -386,7 +383,6 @@ namespace TheMarkedMen
                 ThingDef wood = Thing("WoodLog");
                 TrySpawnBuildingNear(Thing("Shelf"), map, Cell(roomOrigin, -1, 0), Rot4.North, 3, wood);
                 TrySpawnBuildingNear(Thing("Shelf"), map, Cell(roomOrigin, 1, 0), Rot4.North, 3, wood);
-                TrySpawnBuildingNear(Thing("TorchLamp"), map, Cell(roomOrigin, 0, 2), Rot4.North, 3, wood);
             });
         }
 
@@ -460,7 +456,165 @@ namespace TheMarkedMen
             }
 
             populate?.Invoke(roomOrigin);
+            TrySpawnInteriorWallTorch(map, roomOrigin, width, height, doorSide);
             return true;
+        }
+
+        private static bool TrySpawnInteriorWallTorch(Map map, IntVec3 roomOrigin, int width, int height, DoorSide doorSide)
+        {
+            ThingDef wallTorch = Thing("TorchWallLamp");
+            if (wallTorch == null || map == null || !roomOrigin.IsValid)
+            {
+                return false;
+            }
+
+            ThingDef wood = Thing("WoodLog");
+            List<WallTorchCandidate> candidates = new List<WallTorchCandidate>();
+            AddInteriorWallTorchCandidates(candidates, roomOrigin, width, height, doorSide);
+            for (int i = 0; i < candidates.Count; i++)
+            {
+                WallTorchCandidate candidate = candidates[i];
+                if (TrySpawnWallTorchAt(wallTorch, map, candidate.cell, candidate.rot, wood))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private static void AddInteriorWallTorchCandidates(List<WallTorchCandidate> candidates, IntVec3 roomOrigin, int width, int height, DoorSide doorSide)
+        {
+            if (candidates == null)
+            {
+                return;
+            }
+
+            int minX = -width / 2;
+            int maxX = minX + width - 1;
+            int minZ = -height / 2;
+            int maxZ = minZ + height - 1;
+            IntVec3 doorOffset = DoorOffset(width, height, doorSide);
+
+            switch (doorSide)
+            {
+                case DoorSide.North:
+                    AddWallTorchSideCandidates(candidates, roomOrigin, minX, maxX, minZ, maxZ, doorOffset, DoorSide.South);
+                    AddWallTorchSideCandidates(candidates, roomOrigin, minX, maxX, minZ, maxZ, doorOffset, DoorSide.East);
+                    AddWallTorchSideCandidates(candidates, roomOrigin, minX, maxX, minZ, maxZ, doorOffset, DoorSide.West);
+                    AddWallTorchSideCandidates(candidates, roomOrigin, minX, maxX, minZ, maxZ, doorOffset, DoorSide.North);
+                    break;
+                case DoorSide.South:
+                    AddWallTorchSideCandidates(candidates, roomOrigin, minX, maxX, minZ, maxZ, doorOffset, DoorSide.North);
+                    AddWallTorchSideCandidates(candidates, roomOrigin, minX, maxX, minZ, maxZ, doorOffset, DoorSide.East);
+                    AddWallTorchSideCandidates(candidates, roomOrigin, minX, maxX, minZ, maxZ, doorOffset, DoorSide.West);
+                    AddWallTorchSideCandidates(candidates, roomOrigin, minX, maxX, minZ, maxZ, doorOffset, DoorSide.South);
+                    break;
+                case DoorSide.East:
+                    AddWallTorchSideCandidates(candidates, roomOrigin, minX, maxX, minZ, maxZ, doorOffset, DoorSide.West);
+                    AddWallTorchSideCandidates(candidates, roomOrigin, minX, maxX, minZ, maxZ, doorOffset, DoorSide.North);
+                    AddWallTorchSideCandidates(candidates, roomOrigin, minX, maxX, minZ, maxZ, doorOffset, DoorSide.South);
+                    AddWallTorchSideCandidates(candidates, roomOrigin, minX, maxX, minZ, maxZ, doorOffset, DoorSide.East);
+                    break;
+                case DoorSide.West:
+                    AddWallTorchSideCandidates(candidates, roomOrigin, minX, maxX, minZ, maxZ, doorOffset, DoorSide.East);
+                    AddWallTorchSideCandidates(candidates, roomOrigin, minX, maxX, minZ, maxZ, doorOffset, DoorSide.North);
+                    AddWallTorchSideCandidates(candidates, roomOrigin, minX, maxX, minZ, maxZ, doorOffset, DoorSide.South);
+                    AddWallTorchSideCandidates(candidates, roomOrigin, minX, maxX, minZ, maxZ, doorOffset, DoorSide.West);
+                    break;
+            }
+        }
+
+        private static void AddWallTorchSideCandidates(List<WallTorchCandidate> candidates, IntVec3 roomOrigin, int minX, int maxX, int minZ, int maxZ, IntVec3 doorOffset, DoorSide wallSide)
+        {
+            int[] offsets = { 0, -1, 1, -2, 2, -3, 3 };
+            for (int i = 0; i < offsets.Length; i++)
+            {
+                int offset = offsets[i];
+                switch (wallSide)
+                {
+                    case DoorSide.North:
+                        if (offset <= minX || offset >= maxX || IsDoorOffset(offset, maxZ, doorOffset))
+                        {
+                            continue;
+                        }
+                        candidates.Add(new WallTorchCandidate(Cell(roomOrigin, offset, maxZ - 1), Rot4.North));
+                        candidates.Add(new WallTorchCandidate(Cell(roomOrigin, offset, maxZ), Rot4.South));
+                        break;
+                    case DoorSide.South:
+                        if (offset <= minX || offset >= maxX || IsDoorOffset(offset, minZ, doorOffset))
+                        {
+                            continue;
+                        }
+                        candidates.Add(new WallTorchCandidate(Cell(roomOrigin, offset, minZ + 1), Rot4.South));
+                        candidates.Add(new WallTorchCandidate(Cell(roomOrigin, offset, minZ), Rot4.North));
+                        break;
+                    case DoorSide.East:
+                        if (offset <= minZ || offset >= maxZ || IsDoorOffset(maxX, offset, doorOffset))
+                        {
+                            continue;
+                        }
+                        candidates.Add(new WallTorchCandidate(Cell(roomOrigin, maxX - 1, offset), Rot4.East));
+                        candidates.Add(new WallTorchCandidate(Cell(roomOrigin, maxX, offset), Rot4.West));
+                        break;
+                    case DoorSide.West:
+                        if (offset <= minZ || offset >= maxZ || IsDoorOffset(minX, offset, doorOffset))
+                        {
+                            continue;
+                        }
+                        candidates.Add(new WallTorchCandidate(Cell(roomOrigin, minX + 1, offset), Rot4.West));
+                        candidates.Add(new WallTorchCandidate(Cell(roomOrigin, minX, offset), Rot4.East));
+                        break;
+                }
+            }
+        }
+
+        private static bool IsDoorOffset(int x, int z, IntVec3 doorOffset)
+        {
+            return x == doorOffset.x && z == doorOffset.z;
+        }
+
+        private static bool TrySpawnWallTorchAt(ThingDef wallTorch, Map map, IntVec3 cell, Rot4 rot, ThingDef stuff)
+        {
+            if (!CanPlaceWallTorchAt(wallTorch, map, cell, rot, stuff))
+            {
+                return false;
+            }
+
+            try
+            {
+                ThingDef resolvedStuff = wallTorch.MadeFromStuff ? stuff ?? Thing("WoodLog") : null;
+                Thing thing = ThingMaker.MakeThing(wallTorch, resolvedStuff);
+                if (thing.def.CanHaveFaction)
+                {
+                    thing.SetFactionDirect(Faction.OfPlayer);
+                }
+
+                Thing spawned = GenSpawn.Spawn(thing, cell, map, rot, WipeMode.Vanish, false, false);
+                ClaimAndUnforbid(spawned);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Log.Warning("[The Marked Men] Skipped invalid wall torch placement at " + cell + ": " + ex.Message);
+                return false;
+            }
+        }
+
+        private static bool CanPlaceWallTorchAt(ThingDef wallTorch, Map map, IntVec3 cell, Rot4 rot, ThingDef stuff)
+        {
+            if (wallTorch == null || map == null || !cell.InBounds(map))
+            {
+                return false;
+            }
+
+            if (HasThingDefInFootprint(map, cell, rot, wallTorch))
+            {
+                return false;
+            }
+
+            AcceptanceReport report = GenConstruct.CanPlaceBlueprintAt(wallTorch, cell, rot, map, true, null, null, stuff, true, false, true);
+            return report.Accepted;
         }
 
         private static bool TryFindNearbyRoomOrigin(Map map, IntVec3 preferred, int width, int height, DoorSide doorSide, int radius, out IntVec3 result)
@@ -916,6 +1070,7 @@ namespace TheMarkedMen
                         TrySetVillageWalkSurface(map, new IntVec3(x, 0, z), terrain);
                     }
                 }
+                PlaceRoadsideTorches(map, start, end, halfWidth);
                 return;
             }
 
@@ -928,6 +1083,7 @@ namespace TheMarkedMen
                         TrySetVillageWalkSurface(map, new IntVec3(x, 0, z), terrain);
                     }
                 }
+                PlaceRoadsideTorches(map, start, end, halfWidth);
                 return;
             }
 
@@ -938,6 +1094,118 @@ namespace TheMarkedMen
                     TrySetVillageWalkSurface(map, new IntVec3(x, 0, z), terrain);
                 }
             }
+            PlaceRoadsideTorches(map, start, end, halfWidth);
+        }
+
+        private static void PlaceRoadsideTorches(Map map, IntVec3 start, IntVec3 end, int halfWidth)
+        {
+            ThingDef torch = Thing("TorchLamp");
+            ThingDef wood = Thing("WoodLog");
+            if (map == null || torch == null || !start.InBounds(map) || !end.InBounds(map))
+            {
+                return;
+            }
+
+            int sideOffset = Mathf.Max(halfWidth + 2, 3);
+            if (start.x == end.x)
+            {
+                int minZ = Mathf.Min(start.z, end.z);
+                int maxZ = Mathf.Max(start.z, end.z);
+                if (maxZ - minZ + 1 < RoadsideTorchSpacing)
+                {
+                    return;
+                }
+
+                int index = 0;
+                for (int z = minZ + RoadsideTorchSpacing / 2; z <= maxZ - RoadsideTorchSpacing / 2; z += RoadsideTorchSpacing)
+                {
+                    int side = index % 2 == 0 ? -1 : 1;
+                    IntVec3 primary = new IntVec3(start.x + side * sideOffset, 0, z);
+                    IntVec3 secondary = new IntVec3(start.x - side * sideOffset, 0, z);
+                    if (!TrySpawnRoadsideTorchNear(torch, map, primary, wood))
+                    {
+                        TrySpawnRoadsideTorchNear(torch, map, secondary, wood);
+                    }
+                    index++;
+                }
+                return;
+            }
+
+            if (start.z == end.z)
+            {
+                int minX = Mathf.Min(start.x, end.x);
+                int maxX = Mathf.Max(start.x, end.x);
+                if (maxX - minX + 1 < RoadsideTorchSpacing)
+                {
+                    return;
+                }
+
+                int index = 0;
+                for (int x = minX + RoadsideTorchSpacing / 2; x <= maxX - RoadsideTorchSpacing / 2; x += RoadsideTorchSpacing)
+                {
+                    int side = index % 2 == 0 ? -1 : 1;
+                    IntVec3 primary = new IntVec3(x, 0, start.z + side * sideOffset);
+                    IntVec3 secondary = new IntVec3(x, 0, start.z - side * sideOffset);
+                    if (!TrySpawnRoadsideTorchNear(torch, map, primary, wood))
+                    {
+                        TrySpawnRoadsideTorchNear(torch, map, secondary, wood);
+                    }
+                    index++;
+                }
+            }
+        }
+
+        private static bool TrySpawnRoadsideTorchNear(ThingDef torch, Map map, IntVec3 preferred, ThingDef stuff)
+        {
+            IntVec3 cell;
+            return TryFindRoadsideTorchCell(torch, map, preferred, stuff, 2, out cell)
+                && TrySpawnBuildingAt(torch, map, cell, Rot4.North, stuff, true);
+        }
+
+        private static bool TryFindRoadsideTorchCell(ThingDef torch, Map map, IntVec3 preferred, ThingDef stuff, int radius, out IntVec3 result)
+        {
+            result = IntVec3.Invalid;
+            if (torch == null || map == null)
+            {
+                return false;
+            }
+
+            float bestScore = float.MinValue;
+            for (int x = -radius; x <= radius; x++)
+            {
+                for (int z = -radius; z <= radius; z++)
+                {
+                    IntVec3 candidate = Cell(preferred, x, z);
+                    if (!candidate.InBounds(map) || HasAnyBuilding(map, candidate) || HasNearbyThingDef(map, torch, candidate, RoadsideTorchDuplicateRadius))
+                    {
+                        continue;
+                    }
+
+                    if (!CanPlaceBuildableAt(torch, map, candidate, Rot4.North, stuff, true, false))
+                    {
+                        continue;
+                    }
+
+                    TerrainDef terrain = candidate.GetTerrain(map);
+                    float score = 100f - Mathf.Abs(x) - Mathf.Abs(z);
+                    if (TerrainSupports(terrain, "Medium"))
+                    {
+                        score += 8f;
+                    }
+                    else if (CanBridgeCell(map, candidate))
+                    {
+                        score -= 4f;
+                    }
+
+                    if (score > bestScore)
+                    {
+                        bestScore = score;
+                        result = candidate;
+                    }
+                }
+            }
+
+            return result.IsValid;
         }
 
         private static void TrySetVillageWalkSurface(Map map, IntVec3 cell, TerrainDef terrain)
@@ -1043,6 +1311,86 @@ namespace TheMarkedMen
         private static bool HasAnyEdifice(Map map, IntVec3 cell)
         {
             return map != null && cell.InBounds(map) && cell.GetEdifice(map) != null;
+        }
+
+        private static bool HasAnyBuilding(Map map, IntVec3 cell)
+        {
+            if (map == null || !cell.InBounds(map))
+            {
+                return false;
+            }
+
+            List<Thing> things = cell.GetThingList(map);
+            for (int i = 0; i < things.Count; i++)
+            {
+                Thing thing = things[i];
+                if (thing != null && !thing.Destroyed && thing.def.category == ThingCategory.Building)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private static bool HasThingDefInFootprint(Map map, IntVec3 center, Rot4 rot, ThingDef def)
+        {
+            if (map == null || def == null)
+            {
+                return false;
+            }
+
+            foreach (IntVec3 cell in FootprintCells(center, rot, def))
+            {
+                if (HasThingDefAt(map, cell, def))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private static bool HasNearbyThingDef(Map map, ThingDef def, IntVec3 center, int radius)
+        {
+            if (map == null || def == null || !center.InBounds(map))
+            {
+                return false;
+            }
+
+            for (int x = -radius; x <= radius; x++)
+            {
+                for (int z = -radius; z <= radius; z++)
+                {
+                    IntVec3 cell = Cell(center, x, z);
+                    if (HasThingDefAt(map, cell, def))
+                    {
+                        return true;
+                    }
+                }
+            }
+
+            return false;
+        }
+
+        private static bool HasThingDefAt(Map map, IntVec3 cell, ThingDef def)
+        {
+            if (map == null || def == null || !cell.InBounds(map))
+            {
+                return false;
+            }
+
+            List<Thing> things = cell.GetThingList(map);
+            for (int i = 0; i < things.Count; i++)
+            {
+                Thing thing = things[i];
+                if (thing != null && !thing.Destroyed && thing.def == def)
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         private static bool CanBridgeCell(Map map, IntVec3 cell)
@@ -1239,6 +1587,18 @@ namespace TheMarkedMen
             South,
             East,
             West
+        }
+
+        private struct WallTorchCandidate
+        {
+            public readonly IntVec3 cell;
+            public readonly Rot4 rot;
+
+            public WallTorchCandidate(IntVec3 cell, Rot4 rot)
+            {
+                this.cell = cell;
+                this.rot = rot;
+            }
         }
 
         private struct VillageSite
