@@ -213,6 +213,7 @@ namespace TheMarkedMen
                 Log.Warning("[The Marked Men] Optional SetFactionDirect tattoo patch skipped: " + ex.Message);
             }
 
+            TheMarkedMenWorldbuilderCompatibility.Apply(harmony);
             LongEventHandler.ExecuteWhenFinished(() => TheMarkedMenRjwCompatibility.Apply(harmony));
         }
 
