@@ -37,7 +37,7 @@
     <autoFlee>false</autoFlee>
     <canSiege>true</canSiege>
     <canStageAttacks>true</canStageAttacks>
-    <canUseAvoidGrid>true</canUseAvoidGrid>
+    <canUseAvoidGrid>false</canUseAvoidGrid>
     <canRequestTraders>false</canRequestTraders>
     <canRequestMilitaryAid>false</canRequestMilitaryAid>
     <canRequestOrbitalTrader>false</canRequestOrbitalTrader>
