@@ -40,22 +40,37 @@ namespace TheMarkedMen
 
     public sealed class TheMarkedMenSettings : ModSettings
     {
-        private const int CurrentSettingsVersion = 5;
+        private const int CurrentSettingsVersion = 6;
         public const float InfectionTransmissionChance = 0.45f;
+        public const float DefaultMarkedRaidFrequencyMultiplier = 1f;
+        public const float MinMarkedRaidFrequencyMultiplier = 0f;
+        public const float MaxMarkedRaidFrequencyMultiplier = 5f;
 
         public bool infectionEnabled = true;
         public bool verboseCompatibilityLogging;
         public bool rjwAutoEnableWhenInstalled = true;
         public bool rjwIntegrationEnabled = true;
+        public bool randomizeMarkedRaids;
+        public float markedRaidFrequencyMultiplier = DefaultMarkedRaidFrequencyMultiplier;
         public float bloodExposureChance = InfectionTransmissionChance;
         public float foodExposureChance = InfectionTransmissionChance;
         public float rjwExposureChance = InfectionTransmissionChance;
         public float severityPerDay = 0.34f;
 
         private int settingsVersion = CurrentSettingsVersion;
+        private string markedRaidFrequencyBuffer;
         private string bloodBuffer;
         private string foodBuffer;
         private string rjwBuffer;
+        private Vector2 scrollPosition;
+
+        public float EffectiveMarkedRaidFrequencyMultiplier => Mathf.Clamp(markedRaidFrequencyMultiplier, MinMarkedRaidFrequencyMultiplier, MaxMarkedRaidFrequencyMultiplier);
+
+        public static float CurrentMarkedRaidFrequencyMultiplier => TheMarkedMenMod.Settings?.EffectiveMarkedRaidFrequencyMultiplier ?? DefaultMarkedRaidFrequencyMultiplier;
+
+        public static bool AutomaticMarkedRaidsEnabled => CurrentMarkedRaidFrequencyMultiplier > 0.001f;
+
+        public static bool RandomizeMarkedRaids => TheMarkedMenMod.Settings?.randomizeMarkedRaids == true;
 
         public override void ExposeData()
         {
@@ -65,6 +80,8 @@ namespace TheMarkedMen
             Scribe_Values.Look(ref verboseCompatibilityLogging, "verboseCompatibilityLogging", false);
             Scribe_Values.Look(ref rjwAutoEnableWhenInstalled, "rjwAutoEnableWhenInstalled", true);
             Scribe_Values.Look(ref rjwIntegrationEnabled, "rjwIntegrationEnabled", true);
+            Scribe_Values.Look(ref randomizeMarkedRaids, "randomizeMarkedRaids", false);
+            Scribe_Values.Look(ref markedRaidFrequencyMultiplier, "markedRaidFrequencyMultiplier", DefaultMarkedRaidFrequencyMultiplier);
             Scribe_Values.Look(ref bloodExposureChance, "bloodExposureChance", InfectionTransmissionChance);
             Scribe_Values.Look(ref foodExposureChance, "foodExposureChance", InfectionTransmissionChance);
             Scribe_Values.Look(ref rjwExposureChance, "rjwExposureChance", InfectionTransmissionChance);
@@ -89,8 +106,16 @@ namespace TheMarkedMen
                     rjwIntegrationEnabled = true;
                 }
 
+                if (loadedSettingsVersion < 6)
+                {
+                    randomizeMarkedRaids = false;
+                    markedRaidFrequencyMultiplier = DefaultMarkedRaidFrequencyMultiplier;
+                }
+
                 settingsVersion = CurrentSettingsVersion;
             }
+
+            ClampSettings();
         }
 
         public bool AutoEnableRjwIntegrationIfInstalled()
@@ -107,10 +132,18 @@ namespace TheMarkedMen
 
         public void DoWindowContents(Rect inRect)
         {
+            Rect viewRect = new Rect(0f, 0f, inRect.width - 16f, 900f);
+            Widgets.BeginScrollView(inRect, ref scrollPosition, viewRect);
             Listing_Standard listing = new Listing_Standard();
-            listing.Begin(inRect);
+            listing.Begin(viewRect);
             listing.CheckboxLabeled("Enable Marked Virus transmission", ref infectionEnabled);
             listing.CheckboxLabeled("Verbose compatibility log on load", ref verboseCompatibilityLogging);
+            listing.Gap();
+            listing.Label("Raid tuning");
+            listing.CheckboxLabeled("Randomize Marked raid timing and arrivals", ref randomizeMarkedRaids);
+            listing.Label("Randomized raids vary automatic raid timers and use safe edge-walk arrival patterns instead of always using the same grouped edge entry.");
+            listing.TextFieldNumericLabeled("Marked raid frequency multiplier", ref markedRaidFrequencyMultiplier, ref markedRaidFrequencyBuffer, MinMarkedRaidFrequencyMultiplier, MaxMarkedRaidFrequencyMultiplier);
+            listing.Label("0 disables automatic Marked raid events. 1 is default. 0.5 is roughly half as frequent. 2 is roughly twice as frequent.");
             listing.Gap();
             listing.Label("Disease tuning");
             listing.Label("Marked Virus close contact, blood, and contaminated food exposure have a 45% transmission chance unless the target is immune.");
@@ -125,6 +158,16 @@ namespace TheMarkedMen
             listing.Label("When RJW is installed, the bridge can transmit Marked Virus through adult RJW close-contact events, gives infected adult pawns a 75% chance to start valid RJW forced enemy-intercourse jobs with adult humanlike targets, preserves active RJW jobs, and adds no hard dependency.");
             listing.TextFieldNumericLabeled("RJW exposure chance", ref rjwExposureChance, ref rjwBuffer, 0f, 1f);
             listing.End();
+            Widgets.EndScrollView();
+            ClampSettings();
+        }
+
+        private void ClampSettings()
+        {
+            markedRaidFrequencyMultiplier = Mathf.Clamp(markedRaidFrequencyMultiplier, MinMarkedRaidFrequencyMultiplier, MaxMarkedRaidFrequencyMultiplier);
+            bloodExposureChance = Mathf.Clamp01(bloodExposureChance);
+            foodExposureChance = Mathf.Clamp01(foodExposureChance);
+            rjwExposureChance = Mathf.Clamp01(rjwExposureChance);
         }
     }
 
@@ -185,6 +228,7 @@ namespace TheMarkedMen
         private const int InitialThreatFirstTick = GenDate.TicksPerDay * 45;
         private const int RaidFirstTick = InitialThreatFirstTick;
         private const int RaidIntervalTicks = GenDate.TicksPerDay * 5;
+        private const int RaidMinimumIntervalTicks = GenDate.TicksPerDay;
         private const int DebugEarlyRaidDelayTicks = 2500;
         private const int RaidScheduleVersion = 3;
         private const int HordeFirstTick = InitialThreatFirstTick + HordeBaseIntervalTicks;
@@ -195,6 +239,8 @@ namespace TheMarkedMen
         private const int RecentIncidentLimit = 12;
         private const float RaidEscalationPerRaid = 0.18f;
         private const float RaidEscalationMaxBonus = 5f;
+        private const float RandomRaidIntervalMinFactor = 0.6f;
+        private const float RandomRaidIntervalMaxFactor = 1.6f;
 
         private readonly Game game;
         private int nextMaintenanceTick;
@@ -255,26 +301,40 @@ namespace TheMarkedMen
                 raidScheduleActivated = false;
             }
 
-            bool raidTimerInvalid = nextRaidTick <= 0
-                || !raidScheduleActivated && ticks < RaidFirstTick && nextRaidTick != RaidFirstTick
-                || raidScheduleActivated && nextRaidTick - ticks > RaidIntervalTicks;
-            if (raidTimerInvalid)
+            if (TheMarkedMenSettings.AutomaticMarkedRaidsEnabled)
             {
-                ScheduleNextRaid(ticks);
+                bool raidTimerInvalid = nextRaidTick <= 0
+                    || !raidScheduleActivated && ticks < RaidFirstTick && nextRaidTick != RaidFirstTick
+                    || raidScheduleActivated && nextRaidTick - ticks > CalculateMaxAdjustedRaidIntervalTicks();
+                if (raidTimerInvalid)
+                {
+                    ScheduleNextRaid(ticks);
+                }
+                else if (raidScheduleVersion < RaidScheduleVersion)
+                {
+                    MigrateRaidSchedule(ticks);
+                }
             }
-            else if (raidScheduleVersion < RaidScheduleVersion)
+            else
             {
-                MigrateRaidSchedule(ticks);
+                nextRaidTick = 0;
             }
 
             raidScheduleVersion = RaidScheduleVersion;
 
-            bool hordeTimerInvalid = nextHordeTick <= 0
-                || ticks < HordeFirstTick && nextHordeTick != HordeFirstTick
-                || ticks >= HordeFirstTick && nextHordeTick - ticks > HordeMaxIntervalTicks;
-            if (hordeTimerInvalid)
+            if (TheMarkedMenSettings.AutomaticMarkedRaidsEnabled)
             {
-                ScheduleNextHorde(ticks);
+                bool hordeTimerInvalid = nextHordeTick <= 0
+                    || ticks < HordeFirstTick && nextHordeTick != HordeFirstTick
+                    || ticks >= HordeFirstTick && nextHordeTick - ticks > CalculateMaxAdjustedHordeIntervalTicks();
+                if (hordeTimerInvalid)
+                {
+                    ScheduleNextHorde(ticks);
+                }
+            }
+            else
+            {
+                nextHordeTick = 0;
             }
         }
 
@@ -359,7 +419,7 @@ namespace TheMarkedMen
             ticksUntilRaid = 0;
             targetMap = null;
 
-            if (Find.TickManager == null || activeRaid || CADefOf.CrossedRaid == null)
+            if (Find.TickManager == null || activeRaid || CADefOf.CrossedRaid == null || !TheMarkedMenSettings.AutomaticMarkedRaidsEnabled)
             {
                 return false;
             }
@@ -380,7 +440,7 @@ namespace TheMarkedMen
                 nextTick = nextRaidTick;
                 if (nextTick <= 0)
                 {
-                    nextTick = ticks + RaidIntervalTicks;
+                    nextTick = ticks + CalculateAdjustedRaidIntervalTicks(false);
                 }
             }
 
@@ -402,7 +462,7 @@ namespace TheMarkedMen
 
         public bool DebugScheduleRaidSoon()
         {
-            if (Find.TickManager == null || CADefOf.CrossedRaid == null || FindRaidTargetMap() == null)
+            if (Find.TickManager == null || CADefOf.CrossedRaid == null || FindRaidTargetMap() == null || !TheMarkedMenSettings.AutomaticMarkedRaidsEnabled)
             {
                 return false;
             }
@@ -427,7 +487,7 @@ namespace TheMarkedMen
             bool fired = TryFireRaidIncident(true);
             if (fired)
             {
-                nextRaidTick = ticks + RaidIntervalTicks;
+                ScheduleNextRaid(ticks);
             }
 
             return fired;
@@ -966,6 +1026,12 @@ namespace TheMarkedMen
 
         private void TryFireScheduledRaid(int ticks)
         {
+            if (!TheMarkedMenSettings.AutomaticMarkedRaidsEnabled)
+            {
+                nextRaidTick = 0;
+                return;
+            }
+
             if (!raidScheduleActivated)
             {
                 if (ticks < RaidFirstTick)
@@ -993,7 +1059,7 @@ namespace TheMarkedMen
             }
 
             TryFireRaidIncident();
-            nextRaidTick = ticks + RaidIntervalTicks;
+            ScheduleNextRaid(ticks);
         }
 
         private bool TryFireRaidIncident(bool force = false)
@@ -1010,20 +1076,25 @@ namespace TheMarkedMen
             parms.target = map;
             parms.faction = crossed;
             parms.points = CalculateStorytellerRaidPoints(map, raidDef, parms.points);
-            parms.raidStrategy = RaidStrategyDefOf.ImmediateAttack;
-            parms.raidArrivalMode = PawnsArrivalModeDefOf.EdgeWalkInGroups;
             parms.pawnGroupKind = PawnGroupKindDefOf.Combat;
             parms.canKidnap = false;
             parms.canSteal = false;
             parms.canTimeoutOrFlee = false;
             parms.forced = true;
+            ApplyMarkedRaidArrivalPattern(parms);
 
             return (force || raidDef.Worker.CanFireNow(parms)) && raidDef.Worker.TryExecute(parms);
         }
 
         private void ScheduleNextRaid(int fromTick)
         {
-            nextRaidTick = !raidScheduleActivated && fromTick < RaidFirstTick ? RaidFirstTick : fromTick + RaidIntervalTicks;
+            if (!TheMarkedMenSettings.AutomaticMarkedRaidsEnabled)
+            {
+                nextRaidTick = 0;
+                return;
+            }
+
+            nextRaidTick = !raidScheduleActivated && fromTick < RaidFirstTick ? RaidFirstTick : fromTick + CalculateAdjustedRaidIntervalTicks(true);
         }
 
         private void MigrateRaidSchedule(int ticks)
@@ -1034,9 +1105,10 @@ namespace TheMarkedMen
             }
 
             int ticksUntilRaid = nextRaidTick - ticks;
-            if (ticksUntilRaid < RaidIntervalTicks)
+            int adjustedInterval = CalculateAdjustedRaidIntervalTicks(false);
+            if (ticksUntilRaid < adjustedInterval)
             {
-                nextRaidTick = ticks + RaidIntervalTicks;
+                nextRaidTick = ticks + adjustedInterval;
             }
         }
 
@@ -1056,6 +1128,12 @@ namespace TheMarkedMen
 
         private void TryFireScheduledHorde(int ticks)
         {
+            if (!TheMarkedMenSettings.AutomaticMarkedRaidsEnabled)
+            {
+                nextHordeTick = 0;
+                return;
+            }
+
             if (ticks < HordeFirstTick)
             {
                 nextHordeTick = HordeFirstTick;
@@ -1097,13 +1175,12 @@ namespace TheMarkedMen
             parms.target = map;
             parms.faction = crossed;
             parms.points = CalculateStorytellerHordePoints(map, hordeDef, parms.points);
-            parms.raidStrategy = RaidStrategyDefOf.ImmediateAttack;
-            parms.raidArrivalMode = PawnsArrivalModeDefOf.EdgeWalkInGroups;
             parms.pawnGroupKind = PawnGroupKindDefOf.Combat;
             parms.canKidnap = false;
             parms.canSteal = false;
             parms.canTimeoutOrFlee = false;
             parms.forced = false;
+            ApplyMarkedRaidArrivalPattern(parms);
 
             return (force || hordeDef.Worker.CanFireNow(parms)) && hordeDef.Worker.TryExecute(parms);
         }
@@ -1122,13 +1199,12 @@ namespace TheMarkedMen
             parms.target = map;
             parms.faction = crossed;
             parms.points = Mathf.Max(probeDef.minThreatPoints, StorytellerUtility.DefaultThreatPointsNow(map) * 0.45f);
-            parms.raidStrategy = RaidStrategyDefOf.ImmediateAttack;
-            parms.raidArrivalMode = PawnsArrivalModeDefOf.EdgeWalkInGroups;
             parms.pawnGroupKind = PawnGroupKindDefOf.Combat;
             parms.canKidnap = false;
             parms.canSteal = false;
             parms.canTimeoutOrFlee = false;
             parms.forced = force;
+            ApplyMarkedRaidArrivalPattern(parms);
 
             return (force || probeDef.Worker.CanFireNow(parms)) && probeDef.Worker.TryExecute(parms);
         }
@@ -1161,9 +1237,61 @@ namespace TheMarkedMen
             return best;
         }
 
+        public static void ApplyMarkedRaidArrivalPattern(IncidentParms parms)
+        {
+            if (parms == null)
+            {
+                return;
+            }
+
+            parms.raidStrategy = RaidStrategyDefOf.ImmediateAttack;
+            parms.raidArrivalMode = ChooseMarkedRaidArrivalMode(parms);
+        }
+
+        private static PawnsArrivalModeDef ChooseMarkedRaidArrivalMode(IncidentParms parms)
+        {
+            PawnsArrivalModeDef fallback = PawnsArrivalModeDefOf.EdgeWalkInGroups;
+            if (!TheMarkedMenSettings.RandomizeMarkedRaids)
+            {
+                return fallback;
+            }
+
+            List<PawnsArrivalModeDef> candidates = new List<PawnsArrivalModeDef>(4);
+            AddArrivalCandidate(candidates, PawnsArrivalModeDefOf.EdgeWalkInGroups, parms);
+            AddArrivalCandidate(candidates, PawnsArrivalModeDefOf.EdgeWalkInDistributedGroups, parms);
+            AddArrivalCandidate(candidates, PawnsArrivalModeDefOf.EdgeWalkInDistributed, parms);
+            AddArrivalCandidate(candidates, PawnsArrivalModeDefOf.EdgeWalkIn, parms);
+
+            if (candidates.Count == 0)
+            {
+                return fallback;
+            }
+
+            return candidates[Rand.RangeInclusive(0, candidates.Count - 1)];
+        }
+
+        private static void AddArrivalCandidate(List<PawnsArrivalModeDef> candidates, PawnsArrivalModeDef mode, IncidentParms parms)
+        {
+            if (mode == null || candidates.Contains(mode))
+            {
+                return;
+            }
+
+            if (mode.Worker == null || mode.Worker.CanUseWith(parms))
+            {
+                candidates.Add(mode);
+            }
+        }
+
         private void ScheduleNextHorde(int fromTick)
         {
-            nextHordeTick = fromTick < HordeFirstTick ? HordeFirstTick : fromTick + CalculateAdjustedHordeIntervalTicks(FindHordeTargetMap());
+            if (!TheMarkedMenSettings.AutomaticMarkedRaidsEnabled)
+            {
+                nextHordeTick = 0;
+                return;
+            }
+
+            nextHordeTick = fromTick < HordeFirstTick ? HordeFirstTick : fromTick + CalculateAdjustedHordeIntervalTicks(FindHordeTargetMap(), true);
         }
 
         private void InitializeStarterLineageResistance()
@@ -1213,7 +1341,19 @@ namespace TheMarkedMen
             }
         }
 
-        private static int CalculateAdjustedHordeIntervalTicks(Map map)
+        private static int CalculateAdjustedRaidIntervalTicks(bool allowRandomize)
+        {
+            int adjusted = ApplyRaidFrequencyToInterval(RaidIntervalTicks, RaidMinimumIntervalTicks);
+            return ApplyRaidRandomization(adjusted, RaidMinimumIntervalTicks, allowRandomize);
+        }
+
+        private static int CalculateMaxAdjustedRaidIntervalTicks()
+        {
+            int adjusted = ApplyRaidFrequencyToInterval(RaidIntervalTicks, RaidMinimumIntervalTicks);
+            return ApplyRaidRandomizationMax(adjusted, RaidMinimumIntervalTicks);
+        }
+
+        private static int CalculateAdjustedHordeIntervalTicks(Map map, bool allowRandomize)
         {
             float points = map == null ? 120f : StorytellerUtility.DefaultThreatPointsNow(map);
             float pressure = Mathf.InverseLerp(120f, 3600f, points);
@@ -1221,7 +1361,42 @@ namespace TheMarkedMen
             float pressureFactor = Mathf.Lerp(1f, 0.72f, pressure);
             float difficultyFactor = Mathf.Clamp(1f / Mathf.Sqrt(threatScale), 0.75f, 1f);
             int adjusted = Mathf.RoundToInt(HordeBaseIntervalTicks * pressureFactor * difficultyFactor);
-            return Mathf.Clamp(adjusted, HordeMinIntervalTicks, HordeMaxIntervalTicks);
+            adjusted = Mathf.Clamp(adjusted, HordeMinIntervalTicks, HordeMaxIntervalTicks);
+            adjusted = ApplyRaidFrequencyToInterval(adjusted, RaidMinimumIntervalTicks);
+            return ApplyRaidRandomization(adjusted, RaidMinimumIntervalTicks, allowRandomize);
+        }
+
+        private static int CalculateMaxAdjustedHordeIntervalTicks()
+        {
+            int adjusted = ApplyRaidFrequencyToInterval(HordeMaxIntervalTicks, RaidMinimumIntervalTicks);
+            return ApplyRaidRandomizationMax(adjusted, RaidMinimumIntervalTicks);
+        }
+
+        private static int ApplyRaidFrequencyToInterval(int intervalTicks, int minimumTicks)
+        {
+            float multiplier = TheMarkedMenSettings.CurrentMarkedRaidFrequencyMultiplier;
+            if (multiplier <= 0.001f)
+            {
+                return int.MaxValue;
+            }
+
+            return Mathf.Max(minimumTicks, Mathf.RoundToInt(intervalTicks / multiplier));
+        }
+
+        private static int ApplyRaidRandomization(int intervalTicks, int minimumTicks, bool allowRandomize)
+        {
+            if (!allowRandomize || !TheMarkedMenSettings.RandomizeMarkedRaids)
+            {
+                return Mathf.Max(minimumTicks, intervalTicks);
+            }
+
+            return Mathf.Max(minimumTicks, Mathf.RoundToInt(intervalTicks * Rand.Range(RandomRaidIntervalMinFactor, RandomRaidIntervalMaxFactor)));
+        }
+
+        private static int ApplyRaidRandomizationMax(int intervalTicks, int minimumTicks)
+        {
+            float factor = TheMarkedMenSettings.RandomizeMarkedRaids ? RandomRaidIntervalMaxFactor : 1f;
+            return Mathf.Max(minimumTicks, Mathf.RoundToInt(intervalTicks * factor));
         }
 
         private static float CalculateStorytellerHordePoints(Map map, IncidentDef hordeDef, float existingPoints)
@@ -3767,6 +3942,11 @@ namespace TheMarkedMen
 
     public sealed class IncidentWorker_CrossedRaid : IncidentWorker_RaidEnemy
     {
+        public override float ChanceFactorNow(IIncidentTarget target)
+        {
+            return base.ChanceFactorNow(target) * TheMarkedMenSettings.CurrentMarkedRaidFrequencyMultiplier;
+        }
+
         protected override bool CanFireNowSub(IncidentParms parms)
         {
             return base.CanFireNowSub(parms) && CrossedUtility.Component?.EnsureCrossedFaction() != null;
@@ -3799,12 +3979,11 @@ namespace TheMarkedMen
                 parms.points = component.CalculateEscalatedRaidPoints(parms.points);
             }
 
-            parms.raidStrategy = RaidStrategyDefOf.ImmediateAttack;
-            parms.raidArrivalMode = PawnsArrivalModeDefOf.EdgeWalkInGroups;
             parms.pawnGroupKind = PawnGroupKindDefOf.Combat;
             parms.canKidnap = false;
             parms.canSteal = false;
             parms.canTimeoutOrFlee = false;
+            TheMarkedMenGameComponent.ApplyMarkedRaidArrivalPattern(parms);
 
             bool result = base.TryExecuteWorker(parms);
             if (result && map != null)
@@ -3919,6 +4098,11 @@ namespace TheMarkedMen
         private const int MinHordeCount = 3;
         private const int MaxHordeCount = 12;
 
+        public override float ChanceFactorNow(IIncidentTarget target)
+        {
+            return base.ChanceFactorNow(target) * TheMarkedMenSettings.CurrentMarkedRaidFrequencyMultiplier;
+        }
+
         protected override bool CanFireNowSub(IncidentParms parms)
         {
             if (!base.CanFireNowSub(parms) || !(parms.target is Map map) || map.mapPawns == null || !map.mapPawns.AnyFreeColonistSpawned)
@@ -3945,12 +4129,11 @@ namespace TheMarkedMen
             }
 
             parms.faction = crossed;
-            parms.raidStrategy = RaidStrategyDefOf.ImmediateAttack;
-            parms.raidArrivalMode = PawnsArrivalModeDefOf.EdgeWalkInGroups;
             parms.pawnGroupKind = PawnGroupKindDefOf.Combat;
             parms.canKidnap = false;
             parms.canSteal = false;
             parms.canTimeoutOrFlee = false;
+            TheMarkedMenGameComponent.ApplyMarkedRaidArrivalPattern(parms);
             parms.points = CalculateIncidentHordePoints(map, parms.points, def.minThreatPoints);
 
             int count = CalculateHordeCount(parms.points, parms.pawnCount, map);
@@ -3976,7 +4159,7 @@ namespace TheMarkedMen
             parms.pawnCount = pawns.Count;
             LordMaker.MakeNewLord(crossed, new LordJob_AssaultColony(crossed, false, false, false, false, false, parms.points >= 700f, true), map, pawns);
             CrossedUtility.Component?.NotifyHordeLaunched(pawns.Count, parms.points);
-            SendHordeLetter(pawns, parms.points);
+            SendHordeLetter(pawns, parms);
             return true;
         }
 
@@ -4068,7 +4251,7 @@ namespace TheMarkedMen
             }
         }
 
-        private void SendHordeLetter(List<Pawn> pawns, float points)
+        private void SendHordeLetter(List<Pawn> pawns, IncidentParms parms)
         {
             if (Find.LetterStack == null)
             {
@@ -4077,12 +4260,12 @@ namespace TheMarkedMen
 
             IncidentParms letterParms = new IncidentParms
             {
-                points = points,
+                points = parms?.points ?? 0f,
                 target = pawns.Count > 0 ? pawns[0].Map : null,
-                raidStrategy = RaidStrategyDefOf.ImmediateAttack,
-                raidArrivalMode = PawnsArrivalModeDefOf.EdgeWalkInGroups
+                raidStrategy = parms?.raidStrategy ?? RaidStrategyDefOf.ImmediateAttack,
+                raidArrivalMode = parms?.raidArrivalMode ?? PawnsArrivalModeDefOf.EdgeWalkInGroups
             };
-            string label = CrossedRaidAlertUtility.BuildRaidLetterLabel(def.letterLabel.NullOrEmpty() ? "Marked Men horde" : def.letterLabel, pawns, points);
+            string label = CrossedRaidAlertUtility.BuildRaidLetterLabel(def.letterLabel.NullOrEmpty() ? "Marked Men horde" : def.letterLabel, pawns, letterParms.points);
             string text = CrossedRaidAlertUtility.BuildRaidLetterText(def.letterText, pawns, letterParms, true);
             Find.LetterStack.ReceiveLetter(label, text, def.letterDef ?? LetterDefOf.ThreatBig, new LookTargets(pawns));
         }
@@ -4092,6 +4275,11 @@ namespace TheMarkedMen
     {
         private const int MinProbeCount = 2;
         private const int MaxProbeCount = 4;
+
+        public override float ChanceFactorNow(IIncidentTarget target)
+        {
+            return base.ChanceFactorNow(target) * TheMarkedMenSettings.CurrentMarkedRaidFrequencyMultiplier;
+        }
 
         protected override bool CanFireNowSub(IncidentParms parms)
         {
@@ -4113,12 +4301,11 @@ namespace TheMarkedMen
             }
 
             parms.faction = crossed;
-            parms.raidStrategy = RaidStrategyDefOf.ImmediateAttack;
-            parms.raidArrivalMode = PawnsArrivalModeDefOf.EdgeWalkInGroups;
             parms.pawnGroupKind = PawnGroupKindDefOf.Combat;
             parms.canKidnap = false;
             parms.canSteal = false;
             parms.canTimeoutOrFlee = false;
+            TheMarkedMenGameComponent.ApplyMarkedRaidArrivalPattern(parms);
             parms.points = CalculateProbePoints(map, parms.points, def.minThreatPoints);
 
             int count = CalculateProbeCount(parms.points, parms.pawnCount);
@@ -4144,7 +4331,7 @@ namespace TheMarkedMen
             parms.pawnCount = pawns.Count;
             LordMaker.MakeNewLord(crossed, new LordJob_AssaultColony(crossed, false, false, false, false, false, false, true), map, pawns);
             CrossedUtility.Component?.NotifyProbeLaunched(pawns.Count, parms.points);
-            SendProbeLetter(pawns, parms.points);
+            SendProbeLetter(pawns, parms);
             return true;
         }
 
@@ -4222,7 +4409,7 @@ namespace TheMarkedMen
             }
         }
 
-        private void SendProbeLetter(List<Pawn> pawns, float points)
+        private void SendProbeLetter(List<Pawn> pawns, IncidentParms parms)
         {
             if (Find.LetterStack == null)
             {
@@ -4231,12 +4418,12 @@ namespace TheMarkedMen
 
             IncidentParms letterParms = new IncidentParms
             {
-                points = points,
+                points = parms?.points ?? 0f,
                 target = pawns.Count > 0 ? pawns[0].Map : null,
-                raidStrategy = RaidStrategyDefOf.ImmediateAttack,
-                raidArrivalMode = PawnsArrivalModeDefOf.EdgeWalkInGroups
+                raidStrategy = parms?.raidStrategy ?? RaidStrategyDefOf.ImmediateAttack,
+                raidArrivalMode = parms?.raidArrivalMode ?? PawnsArrivalModeDefOf.EdgeWalkInGroups
             };
-            string label = CrossedRaidAlertUtility.BuildRaidLetterLabel(def.letterLabel.NullOrEmpty() ? "Marked Men scouting pack" : def.letterLabel, pawns, points);
+            string label = CrossedRaidAlertUtility.BuildRaidLetterLabel(def.letterLabel.NullOrEmpty() ? "Marked Men scouting pack" : def.letterLabel, pawns, letterParms.points);
             string text = CrossedRaidAlertUtility.BuildRaidLetterText(def.letterText, pawns, letterParms, false);
             Find.LetterStack.ReceiveLetter(label, text, def.letterDef ?? LetterDefOf.ThreatSmall, new LookTargets(pawns));
         }
