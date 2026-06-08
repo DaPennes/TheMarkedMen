@@ -52,6 +52,23 @@
     <configurationListOrderPriority>5</configurationListOrderPriority>
     <categoryTag>MarkedMen</categoryTag>
     <techLevel>Industrial</techLevel>
+    <allowedCultures>
+      <li MayRequire="Ludeon.RimWorld.Ideology">Kriminul</li>
+    </allowedCultures>
+    <fixedIdeo>true</fixedIdeo>
+    <ideoName>The Marked One</ideoName>
+    <ideoDescription>The Marked One is less a faith than a command that survives inside the fever. It teaches that the red cross is proof of selection: the infected remember enough to hunt, speak, and organize, while the unmarked are failed kin fit only to feed the spread. Every raid is a sermon, every corpse a warning, and every survivor taken alive is another chance for the world to wear the mark.</ideoDescription>
+    <hiddenIdeo>true</hiddenIdeo>
+    <forcedMemes>
+      <li MayRequire="Ludeon.RimWorld.Ideology">Structure_Ideological</li>
+      <li MayRequire="Ludeon.RimWorld.Ideology">Cannibal</li>
+      <li MayRequire="Ludeon.RimWorld.Ideology">Supremacist</li>
+      <li MayRequire="Ludeon.RimWorld.Ideology">Raider</li>
+    </forcedMemes>
+    <styles>
+      <li MayRequire="Ludeon.RimWorld.Ideology">Morbid</li>
+    </styles>
+    <requiredPreceptsOnly>true</requiredPreceptsOnly>
     <factionNameMaker>NamerFactionPirate</factionNameMaker>
     <settlementNameMaker>NamerSettlementPirate</settlementNameMaker>
     <factionIconPath>MapIcons/TheMarkedMenMapIcon</factionIconPath>

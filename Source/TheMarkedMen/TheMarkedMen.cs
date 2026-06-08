@@ -41,13 +41,25 @@ namespace TheMarkedMen
 
     public sealed class TheMarkedMenSettings : ModSettings
     {
-        private const int CurrentSettingsVersion = 7;
+        private const int CurrentSettingsVersion = 8;
         public const float InfectionTransmissionChance = 0.45f;
         public const float DefaultMarkedRaidFrequencyMultiplier = 1f;
         public const float MinMarkedRaidFrequencyMultiplier = 0f;
         public const float MaxMarkedRaidFrequencyMultiplier = 5f;
         public const float DefaultRaidEscalationPerRaid = 0.18f;
         public const float DefaultRaidEscalationMaxBonus = 5f;
+        public const float DefaultImmunitySurvivalChance = 0.05f;
+        public const float DefaultTerminalTransformationWeight = 0.75f;
+        public const float DefaultTerminalDeathWeight = 0.20f;
+        public const float DefaultTerminalTransformationChance = DefaultTerminalTransformationWeight / (DefaultTerminalTransformationWeight + DefaultTerminalDeathWeight);
+        private const float LegacyDefaultImmunitySurvivalChance = 0.02f;
+        private const float LegacyDefaultTerminalTransformationWeight = 0.55f;
+        private const float LegacyDefaultTerminalDeathWeight = 0.45f;
+        private const float SettingsViewHeight = 5600f;
+        private const float PresetButtonHeight = 32f;
+        private const float PresetButtonGap = 4f;
+        private const string CustomPresetName = "Custom";
+        private static readonly Color HelpTextColor = new Color(0.72f, 0.72f, 0.72f);
 
         public bool infectionEnabled = true;
         public bool verboseCompatibilityLogging;
@@ -91,9 +103,9 @@ namespace TheMarkedMen
         public float corpseContaminationChance = 1f;
         public float infectionProgressionSpeedMultiplier = 1f;
         public float incubationDurationMultiplier = 1f;
-        public float immunitySurvivalChance = 0.02f;
-        public float terminalTransformationWeight = 0.55f;
-        public float terminalDeathWeight = 0.45f;
+        public float immunitySurvivalChance = DefaultImmunitySurvivalChance;
+        public float terminalTransformationWeight = DefaultTerminalTransformationWeight;
+        public float terminalDeathWeight = DefaultTerminalDeathWeight;
         public float reanimationChance = 1f;
         public int reanimationDelayTicks = 900;
         public float starterLineageBreakthroughChance = 0.04f;
@@ -271,9 +283,9 @@ namespace TheMarkedMen
             Scribe_Values.Look(ref corpseContaminationChance, "corpseContaminationChance", 1f);
             Scribe_Values.Look(ref infectionProgressionSpeedMultiplier, "infectionProgressionSpeedMultiplier", 1f);
             Scribe_Values.Look(ref incubationDurationMultiplier, "incubationDurationMultiplier", 1f);
-            Scribe_Values.Look(ref immunitySurvivalChance, "immunitySurvivalChance", 0.02f);
-            Scribe_Values.Look(ref terminalTransformationWeight, "terminalTransformationWeight", 0.55f);
-            Scribe_Values.Look(ref terminalDeathWeight, "terminalDeathWeight", 0.45f);
+            Scribe_Values.Look(ref immunitySurvivalChance, "immunitySurvivalChance", DefaultImmunitySurvivalChance);
+            Scribe_Values.Look(ref terminalTransformationWeight, "terminalTransformationWeight", DefaultTerminalTransformationWeight);
+            Scribe_Values.Look(ref terminalDeathWeight, "terminalDeathWeight", DefaultTerminalDeathWeight);
             Scribe_Values.Look(ref reanimationChance, "reanimationChance", 1f);
             Scribe_Values.Look(ref reanimationDelayTicks, "reanimationDelayTicks", 900);
             Scribe_Values.Look(ref starterLineageBreakthroughChance, "starterLineageBreakthroughChance", 0.04f);
@@ -349,9 +361,9 @@ namespace TheMarkedMen
                     corpseContaminationChance = 1f;
                     infectionProgressionSpeedMultiplier = 1f;
                     incubationDurationMultiplier = 1f;
-                    immunitySurvivalChance = 0.02f;
-                    terminalTransformationWeight = 0.55f;
-                    terminalDeathWeight = 0.45f;
+                    immunitySurvivalChance = DefaultImmunitySurvivalChance;
+                    terminalTransformationWeight = DefaultTerminalTransformationWeight;
+                    terminalDeathWeight = DefaultTerminalDeathWeight;
                     reanimationChance = 1f;
                     reanimationDelayTicks = 900;
                     starterLineageBreakthroughChance = 0.04f;
@@ -367,10 +379,24 @@ namespace TheMarkedMen
                     currentPreset = "Default";
                 }
 
+                if (loadedSettingsVersion < 8 && UsesLegacyDefaultVirusOutcome())
+                {
+                    immunitySurvivalChance = DefaultImmunitySurvivalChance;
+                    terminalTransformationWeight = DefaultTerminalTransformationWeight;
+                    terminalDeathWeight = DefaultTerminalDeathWeight;
+                }
+
                 settingsVersion = CurrentSettingsVersion;
             }
 
             ClampSettings();
+        }
+
+        private bool UsesLegacyDefaultVirusOutcome()
+        {
+            return Mathf.Approximately(immunitySurvivalChance, LegacyDefaultImmunitySurvivalChance)
+                && Mathf.Approximately(terminalTransformationWeight, LegacyDefaultTerminalTransformationWeight)
+                && Mathf.Approximately(terminalDeathWeight, LegacyDefaultTerminalDeathWeight);
         }
 
         public bool AutoEnableRjwIntegrationIfInstalled()
@@ -387,127 +413,103 @@ namespace TheMarkedMen
 
         public void DoWindowContents(Rect inRect)
         {
-            Rect viewRect = new Rect(0f, 0f, inRect.width - 16f, 2900f);
+            Rect viewRect = new Rect(0f, 0f, inRect.width - 16f, SettingsViewHeight);
             Widgets.BeginScrollView(inRect, ref scrollPosition, viewRect);
             Listing_Standard listing = new Listing_Standard();
             listing.Begin(viewRect);
 
-            listing.Label("Preset: " + currentPreset);
-            if (listing.ButtonText("Casual", null, 1f))
-            {
-                ApplyCasualPreset();
-            }
-            if (listing.ButtonText("Vanilla-like", null, 1f))
-            {
-                ApplyVanillaLikePreset();
-            }
-            if (listing.ButtonText("Default", null, 1f))
-            {
-                ApplyDefaultPreset(true);
-            }
-            if (listing.ButtonText("Brutal", null, 1f))
-            {
-                ApplyBrutalPreset();
-            }
-            if (listing.ButtonText("Outbreak simulator", null, 1f))
-            {
-                ApplyOutbreakPreset();
-            }
-            listing.Gap();
+            DrawSettingsIntro(listing);
+            DrawPresetControls(listing);
 
-            listing.CheckboxLabeled("Enable Marked Virus transmission", ref infectionEnabled);
-            listing.CheckboxLabeled("Verbose compatibility log on load", ref verboseCompatibilityLogging);
-            listing.Gap();
+            DrawSectionHeader(listing, "Core Rules", "Global switches for infection and compatibility diagnostics. These do not remove existing hediffs from a save.");
+            DrawCheckbox(listing, "Allow new Marked Virus infections", ref infectionEnabled, "When disabled, this mod stops creating new Marked Virus exposure events. Existing infections continue to run normally.");
+            DrawCheckbox(listing, "Log detected compatibility mods on load", ref verboseCompatibilityLogging, "Writes a short compatibility scan to the RimWorld log after loading. Leave this off unless you are troubleshooting.");
 
-            listing.Label("Raid tuning");
-            listing.CheckboxLabeled("Enable scheduled warbands", ref scheduledWarbandsEnabled);
-            listing.CheckboxLabeled("Enable scheduled hordes", ref scheduledHordesEnabled);
-            listing.CheckboxLabeled("Enable scouting probes", ref scoutingProbesEnabled);
-            listing.CheckboxLabeled("Randomize Marked raid timing and arrivals", ref randomizeMarkedRaids);
-            DrawInt(listing, "First Marked raid day", ref firstMarkedRaidDay, 1, 600, "firstMarkedRaidDay");
-            DrawFloat(listing, "Global Marked raid frequency", ref markedRaidFrequencyMultiplier, MinMarkedRaidFrequencyMultiplier, MaxMarkedRaidFrequencyMultiplier, "markedRaidFrequencyMultiplier");
-            DrawFloat(listing, "Warband frequency", ref warbandFrequencyMultiplier, 0f, MaxMarkedRaidFrequencyMultiplier, "warbandFrequencyMultiplier");
-            DrawFloat(listing, "Horde frequency", ref hordeFrequencyMultiplier, 0f, MaxMarkedRaidFrequencyMultiplier, "hordeFrequencyMultiplier");
-            DrawFloat(listing, "Probe storyteller chance", ref probeFrequencyMultiplier, 0f, MaxMarkedRaidFrequencyMultiplier, "probeFrequencyMultiplier");
-            DrawFloat(listing, "Raid points multiplier", ref raidPointsMultiplier, 0.05f, 10f, "raidPointsMultiplier");
-            DrawFloat(listing, "Minimum raid points", ref minimumRaidPoints, 0f, 10000f, "minimumRaidPoints");
-            DrawFloat(listing, "Maximum raid points (0 = uncapped)", ref maximumRaidPoints, 0f, 50000f, "maximumRaidPoints");
-            DrawFloat(listing, "Raid escalation per warband", ref raidEscalationPerRaid, 0f, 2f, "raidEscalationPerRaid");
-            DrawFloat(listing, "Raid escalation cap", ref raidEscalationMaxBonus, 0f, 20f, "raidEscalationMaxBonus");
-            listing.CheckboxLabeled("Allow grouped edge arrival", ref allowGroupedEdgeArrival);
-            listing.CheckboxLabeled("Allow distributed group arrival", ref allowDistributedGroupArrival);
-            listing.CheckboxLabeled("Allow distributed edge arrival", ref allowDistributedArrival);
-            listing.CheckboxLabeled("Allow single edge arrival", ref allowSingleEdgeArrival);
-            listing.Gap();
+            DrawSectionHeader(listing, "Raid Schedule", "Controls when Marked Men incidents appear and how hard scheduled attacks scale.");
+            DrawCheckbox(listing, "Enable scheduled warbands", ref scheduledWarbandsEnabled, "Allows the main timed Marked Men raids that escalate over the colony timeline.");
+            DrawCheckbox(listing, "Enable scheduled hordes", ref scheduledHordesEnabled, "Allows larger moving horde events in addition to the main warband schedule.");
+            DrawCheckbox(listing, "Enable scouting probes", ref scoutingProbesEnabled, "Allows small scouting packs that test the colony before larger attacks arrive.");
+            DrawCheckbox(listing, "Randomize raid timing and arrival patterns", ref randomizeMarkedRaids, "Adds uncertainty to raid intervals and arrival modes. Disable this for predictable testing or calmer pacing.");
+            DrawInt(listing, "First scheduled raid day", ref firstMarkedRaidDay, 1, 600, "firstMarkedRaidDay", "Earliest colony day when scheduled Marked Men raids can begin.");
+            DrawFloat(listing, "Global event frequency multiplier", ref markedRaidFrequencyMultiplier, MinMarkedRaidFrequencyMultiplier, MaxMarkedRaidFrequencyMultiplier, "markedRaidFrequencyMultiplier", "Master multiplier for warbands, hordes, and probes. Set this to 0 to stop all scheduled Marked Men incidents.");
+            DrawFloat(listing, "Warband frequency multiplier", ref warbandFrequencyMultiplier, 0f, MaxMarkedRaidFrequencyMultiplier, "warbandFrequencyMultiplier", "Multiplier for main warband raids after the global multiplier is applied.");
+            DrawFloat(listing, "Horde frequency multiplier", ref hordeFrequencyMultiplier, 0f, MaxMarkedRaidFrequencyMultiplier, "hordeFrequencyMultiplier", "Multiplier for horde events after the global multiplier is applied.");
+            DrawFloat(listing, "Scouting probe frequency multiplier", ref probeFrequencyMultiplier, 0f, MaxMarkedRaidFrequencyMultiplier, "probeFrequencyMultiplier", "Multiplier for small probe incidents after the global multiplier is applied.");
+            DrawHelp(listing, "Effective frequencies: warbands " + MultiplierText(EffectiveWarbandFrequencyMultiplier) + ", hordes " + MultiplierText(EffectiveHordeFrequencyMultiplier) + ", probes " + MultiplierText(EffectiveProbeFrequencyMultiplier) + ".");
+            DrawFloat(listing, "Raid strength multiplier", ref raidPointsMultiplier, 0.05f, 10f, "raidPointsMultiplier", "Scales incident points after the minimum point floor is applied.");
+            DrawFloat(listing, "Minimum raid points", ref minimumRaidPoints, 0f, 10000f, "minimumRaidPoints", "Point floor for generated Marked Men attacks. Higher values make even early raids larger.");
+            DrawFloat(listing, "Maximum raid points", ref maximumRaidPoints, 0f, 50000f, "maximumRaidPoints", "Point cap for Marked Men attacks. Use 0 for no cap.");
+            DrawFloat(listing, "Escalation gained per warband", ref raidEscalationPerRaid, 0f, 2f, "raidEscalationPerRaid", "Extra raid strength added after each scheduled warband starts.");
+            DrawFloat(listing, "Escalation maximum bonus", ref raidEscalationMaxBonus, 0f, 20f, "raidEscalationMaxBonus", "Maximum accumulated escalation bonus from repeated warbands.");
+            DrawCheckbox(listing, "Allow grouped edge arrivals", ref allowGroupedEdgeArrival, "Allows raiders to enter together from one map edge.");
+            DrawCheckbox(listing, "Allow split group edge arrivals", ref allowDistributedGroupArrival, "Allows several groups to enter from different edge positions.");
+            DrawCheckbox(listing, "Allow scattered edge arrivals", ref allowDistributedArrival, "Allows a wider scattered edge arrival pattern.");
+            DrawCheckbox(listing, "Allow single pawn edge arrivals", ref allowSingleEdgeArrival, "Allows single-file edge entry when the incident worker selects it.");
 
-            listing.Label("Enemy composition");
-            DrawFloat(listing, "Berserker weight", ref berserkerWeightMultiplier, 0f, 5f, "berserkerWeightMultiplier");
-            DrawFloat(listing, "Hunter weight", ref hunterWeightMultiplier, 0f, 5f, "hunterWeightMultiplier");
-            DrawFloat(listing, "Stalker weight", ref stalkerWeightMultiplier, 0f, 5f, "stalkerWeightMultiplier");
-            DrawFloat(listing, "Screamer weight", ref screamerWeightMultiplier, 0f, 5f, "screamerWeightMultiplier");
-            DrawFloat(listing, "Brute weight", ref bruteWeightMultiplier, 0f, 5f, "bruteWeightMultiplier");
-            DrawFloat(listing, "Alpha weight", ref alphaWeightMultiplier, 0f, 5f, "alphaWeightMultiplier");
-            listing.CheckboxLabeled("Allow Marked children", ref allowMarkedChildren);
-            DrawInt(listing, "Minimum horde size", ref minimumHordeSize, 1, 50, "minimumHordeSize");
-            DrawInt(listing, "Maximum horde size", ref maximumHordeSize, 1, 100, "maximumHordeSize");
-            DrawInt(listing, "Minimum probe size", ref minimumProbeSize, 1, 20, "minimumProbeSize");
-            DrawInt(listing, "Maximum probe size", ref maximumProbeSize, 1, 30, "maximumProbeSize");
-            DrawInt(listing, "Maximum alphas per raid", ref maximumAlphasPerRaid, 0, 99, "maximumAlphasPerRaid");
-            listing.Gap();
+            DrawSectionHeader(listing, "Enemy Mix", "Controls which infected pawn types appear. Weight 0 disables that type; weight 1 is normal; higher values make that type more common.");
+            DrawFloat(listing, "Berserker weight", ref berserkerWeightMultiplier, 0f, 5f, "berserkerWeightMultiplier", "Basic aggressive infected. This is the safest fallback type when other weights are low.");
+            DrawFloat(listing, "Hunter weight", ref hunterWeightMultiplier, 0f, 5f, "hunterWeightMultiplier", "Fast pressure unit used more often as raid points rise.");
+            DrawFloat(listing, "Stalker weight", ref stalkerWeightMultiplier, 0f, 5f, "stalkerWeightMultiplier", "Flanking and probe-focused infected.");
+            DrawFloat(listing, "Screamer weight", ref screamerWeightMultiplier, 0f, 5f, "screamerWeightMultiplier", "Disruptive infected used in stronger attacks.");
+            DrawFloat(listing, "Brute weight", ref bruteWeightMultiplier, 0f, 5f, "bruteWeightMultiplier", "Heavy infected. Usually appears only when raid points are high enough.");
+            DrawFloat(listing, "Alpha weight", ref alphaWeightMultiplier, 0f, 5f, "alphaWeightMultiplier", "Command infected that strengthens nearby Marked Men. Also limited by the maximum alpha setting.");
+            DrawCheckbox(listing, "Allow child Marked pawns", ref allowMarkedChildren, "Allows child infected pawn kinds in eligible low-point raids. Disable this if you do not want child enemies.");
+            DrawInt(listing, "Minimum horde size", ref minimumHordeSize, 1, 50, "minimumHordeSize", "Smallest horde size when a horde incident does not request a specific count.");
+            DrawInt(listing, "Maximum horde size", ref maximumHordeSize, 1, 100, "maximumHordeSize", "Largest horde size after threat scaling and variance.");
+            DrawInt(listing, "Minimum scouting probe size", ref minimumProbeSize, 1, 20, "minimumProbeSize", "Smallest scouting pack size when the incident does not request a specific count.");
+            DrawInt(listing, "Maximum scouting probe size", ref maximumProbeSize, 1, 30, "maximumProbeSize", "Largest scouting pack size after threat scaling and variance.");
+            DrawInt(listing, "Maximum alphas per raid", ref maximumAlphasPerRaid, 0, 99, "maximumAlphasPerRaid", "Hard cap for alpha infected in generated raids. Set to 0 to prevent alphas from spawning.");
 
-            listing.Label("Disease tuning");
-            DrawFloat(listing, "Blood exposure chance", ref bloodExposureChance, 0f, 1f, "bloodExposureChance");
-            DrawFloat(listing, "Contaminated food chance", ref foodExposureChance, 0f, 1f, "foodExposureChance");
-            DrawFloat(listing, "Infected assault contact chance", ref infectedAssaultExposureChance, 0f, 1f, "infectedAssaultExposureChance");
-            DrawFloat(listing, "Close-contact contagion chance", ref closeContactExposureChance, 0f, 1f, "closeContactExposureChance");
-            DrawFloat(listing, "Corpse contamination chance", ref corpseContaminationChance, 0f, 1f, "corpseContaminationChance");
-            DrawFloat(listing, "Infection progression speed", ref infectionProgressionSpeedMultiplier, 0.05f, 10f, "infectionProgressionSpeedMultiplier");
-            DrawFloat(listing, "Incubation duration multiplier", ref incubationDurationMultiplier, 0.05f, 10f, "incubationDurationMultiplier");
-            DrawFloat(listing, "Immunity survival chance", ref immunitySurvivalChance, 0f, 1f, "immunitySurvivalChance");
-            DrawFloat(listing, "Terminal transformation weight", ref terminalTransformationWeight, 0f, 10f, "terminalTransformationWeight");
-            DrawFloat(listing, "Terminal death weight", ref terminalDeathWeight, 0f, 10f, "terminalDeathWeight");
-            DrawFloat(listing, "Reanimation chance", ref reanimationChance, 0f, 1f, "reanimationChance");
-            DrawInt(listing, "Reanimation delay ticks", ref reanimationDelayTicks, 60, GenDate.TicksPerDay * 30, "reanimationDelayTicks");
-            DrawFloat(listing, "Starter-lineage breakthrough chance", ref starterLineageBreakthroughChance, 0f, 1f, "starterLineageBreakthroughChance");
-            listing.Gap();
+            DrawSectionHeader(listing, "Virus And Corpses", "Controls exposure chances, infection timing, terminal outcomes, and infected corpse reanimation.");
+            DrawFloat(listing, "Blood exposure chance", ref bloodExposureChance, 0f, 1f, "bloodExposureChance", "Chance that infected blood exposure creates a Marked Virus exposure event.");
+            DrawFloat(listing, "Contaminated food exposure chance", ref foodExposureChance, 0f, 1f, "foodExposureChance", "Chance that eating contaminated food creates a Marked Virus exposure event.");
+            DrawFloat(listing, "Infected melee contact chance", ref infectedAssaultExposureChance, 0f, 1f, "infectedAssaultExposureChance", "Chance that direct infected assault contact creates a Marked Virus exposure event.");
+            DrawFloat(listing, "Close-contact contagion chance", ref closeContactExposureChance, 0f, 1f, "closeContactExposureChance", "Chance per valid nearby target during a contagion pulse from an infected pawn.");
+            DrawFloat(listing, "Corpse contamination chance", ref corpseContaminationChance, 0f, 1f, "corpseContaminationChance", "Chance that an infected pawn contaminates a nearby corpse during a corpse contamination pulse.");
+            DrawFloat(listing, "Infection progression speed", ref infectionProgressionSpeedMultiplier, 0.05f, 10f, "infectionProgressionSpeedMultiplier", "Higher values make the disease advance faster. Lower values give victims more time.");
+            DrawFloat(listing, "Incubation duration multiplier", ref incubationDurationMultiplier, 0.05f, 10f, "incubationDurationMultiplier", "Multiplies infection stage durations before progression speed is applied.");
+            DrawFloat(listing, "Immune survivor chance", ref immunitySurvivalChance, 0f, 1f, "immunitySurvivalChance", "Chance that a terminal infection ends in lasting immunity instead of transformation or viral death.");
+            DrawFloat(listing, "Terminal transformation weight", ref terminalTransformationWeight, 0f, 10f, "terminalTransformationWeight", "Relative weight for becoming one of the Marked Men when immunity does not save the pawn.");
+            DrawFloat(listing, "Terminal death weight", ref terminalDeathWeight, 0f, 10f, "terminalDeathWeight", "Relative weight for dying from viral collapse when immunity does not save the pawn.");
+            DrawHelp(listing, "Current terminal outcome after the immunity roll: " + PercentText(CurrentTerminalTransformationChance(null)) + " transform, " + PercentText(1f - CurrentTerminalTransformationChance(null)) + " die.");
+            DrawFloat(listing, "Corpse reanimation chance", ref reanimationChance, 0f, 1f, "reanimationChance", "Chance that a valid infected corpse queues for reanimation after death.");
+            DrawInt(listing, "Corpse reanimation delay ticks", ref reanimationDelayTicks, 60, GenDate.TicksPerDay * 30, "reanimationDelayTicks", "Delay before queued infected corpses can reanimate. 60,000 ticks equals one in-game day.");
+            DrawFloat(listing, "Founder-lineage breakthrough chance", ref starterLineageBreakthroughChance, 0f, 1f, "starterLineageBreakthroughChance", "Chance that special starter-lineage resistance fails after direct exposure.");
 
-            listing.Label("AI and behavior");
-            listing.CheckboxLabeled("Marked pawns always assault", ref markedAlwaysAssault);
-            listing.CheckboxLabeled("Marked pawns can time out or flee", ref markedCanTimeoutOrFlee);
-            listing.CheckboxLabeled("Enable tactical retargeting", ref tacticalRetargetingEnabled);
-            listing.CheckboxLabeled("Enable power, food, doctor, and turret priority targeting", ref priorityTargetingEnabled);
-            listing.CheckboxLabeled("Enable door and wall targeting", ref doorTargetingEnabled);
-            DrawFloat(listing, "Infighting chance", ref infightingChance, 0f, 1f, "infightingChance");
-            DrawFloat(listing, "Panic/social terror strength", ref socialTerrorStrength, 0f, 5f, "socialTerrorStrength");
-            listing.Gap();
+            DrawSectionHeader(listing, "Infected AI", "Controls how aggressively Marked Men attack, retarget, breach, and terrorize nearby pawns.");
+            DrawCheckbox(listing, "Force Marked pawns to keep assaulting", ref markedAlwaysAssault, "Keeps generated Marked Men focused on attacking instead of behaving like ordinary raiders.");
+            DrawCheckbox(listing, "Allow Marked pawns to time out or flee", ref markedCanTimeoutOrFlee, "Allows Marked Men lords to retreat or time out. Leave disabled for relentless pressure.");
+            DrawCheckbox(listing, "Enable tactical retargeting", ref tacticalRetargetingEnabled, "Lets infected pawns periodically switch to better tactical targets.");
+            DrawCheckbox(listing, "Enable priority targeting", ref priorityTargetingEnabled, "Lets infected pawns prefer power, food, medical, research, and turret targets when appropriate.");
+            DrawCheckbox(listing, "Enable door and wall targeting", ref doorTargetingEnabled, "Allows infected pawns to bash or target barriers when pursuing a colony.");
+            DrawFloat(listing, "Marked infighting chance", ref infightingChance, 0f, 1f, "infightingChance", "Chance during each infighting check that infected pawns may turn on each other.");
+            DrawFloat(listing, "Panic and social terror strength", ref socialTerrorStrength, 0f, 5f, "socialTerrorStrength", "Scales the radius and strength of Marked Men terror effects. Set to 0 to disable these effects.");
 
-            listing.Label("Story and UI");
-            listing.CheckboxLabeled("Enable raid countdown alert", ref raidCountdownAlertEnabled);
-            DrawFloat(listing, "Countdown alert visible days", ref raidCountdownVisibleDays, 0f, 999f, "raidCountdownVisibleDays");
-            DrawFloat(listing, "Countdown high-priority days", ref raidCountdownHighPriorityDays, 0f, 30f, "raidCountdownHighPriorityDays");
-            listing.CheckboxLabeled("Detailed raid letters", ref detailedRaidLetters);
-            listing.CheckboxLabeled("Record incident log entries", ref incidentLogEnabled);
-            listing.CheckboxLabeled("Enable Dev Mode debug actions", ref debugActionsEnabled);
-            listing.Gap();
+            DrawSectionHeader(listing, "Messages And Dev Tools", "Controls player-facing alerts, incident history, and optional debug actions.");
+            DrawCheckbox(listing, "Show raid countdown alert", ref raidCountdownAlertEnabled, "Shows a gizmo alert when a scheduled Marked Men raid is approaching.");
+            DrawFloat(listing, "Countdown visible days", ref raidCountdownVisibleDays, 0f, 999f, "raidCountdownVisibleDays", "How many in-game days before a scheduled raid the countdown alert becomes visible.");
+            DrawFloat(listing, "High-priority countdown days", ref raidCountdownHighPriorityDays, 0f, 30f, "raidCountdownHighPriorityDays", "How many in-game days before a scheduled raid the alert becomes high priority.");
+            DrawCheckbox(listing, "Use detailed raid letters", ref detailedRaidLetters, "Adds richer raid letter text with pawn counts, points, arrival mode, and tactical warning details.");
+            DrawCheckbox(listing, "Record incident log entries", ref incidentLogEnabled, "Stores Marked Men incident history in the game component for debugging and future review.");
+            DrawCheckbox(listing, "Enable Dev Mode debug actions", ref debugActionsEnabled, "Adds Dev Mode actions for starting or rescheduling Marked Men incidents while testing.");
 
-            listing.Label("Performance");
-            DrawInt(listing, "Contagion pulse interval ticks", ref contagionPulseIntervalTicks, 60, GenDate.TicksPerDay, "contagionPulseIntervalTicks");
-            DrawInt(listing, "Max contagion targets per pulse", ref maxContagionTargetsPerPulse, 0, 50, "maxContagionTargetsPerPulse");
-            DrawInt(listing, "Corpse contamination interval ticks", ref corpseContaminationIntervalTicks, 60, GenDate.TicksPerDay, "corpseContaminationIntervalTicks");
-            DrawInt(listing, "Max corpses per pulse", ref maxCorpsesPerPulse, 0, 50, "maxCorpsesPerPulse");
-            DrawInt(listing, "Tactical retarget interval ticks", ref tacticalRetargetIntervalTicks, 1, 2500, "tacticalRetargetIntervalTicks");
-            DrawInt(listing, "Infighting check interval ticks", ref infightingCheckIntervalTicks, 60, GenDate.TicksPerDay, "infightingCheckIntervalTicks");
-            DrawInt(listing, "Lord cleanup interval ticks", ref lordCleanupIntervalTicks, 60, GenDate.TicksPerDay, "lordCleanupIntervalTicks");
-            DrawInt(listing, "Infected-state maintenance interval ticks", ref infectedStateMaintenanceIntervalTicks, 60, GenDate.TicksPerDay, "infectedStateMaintenanceIntervalTicks");
-            DrawInt(listing, "Reanimation process interval ticks", ref reanimationProcessIntervalTicks, 60, GenDate.TicksPerDay, "reanimationProcessIntervalTicks");
-            DrawInt(listing, "Max pending reanimations per tick", ref maxPendingReanimationsPerTick, 1, 500, "maxPendingReanimationsPerTick");
-            listing.Gap();
+            DrawSectionHeader(listing, "Performance", "Controls how often background systems run. Higher intervals reduce CPU work but make reactions less immediate.");
+            DrawInt(listing, "Ticks between contagion pulses", ref contagionPulseIntervalTicks, 60, GenDate.TicksPerDay, "contagionPulseIntervalTicks", "How often infected pawns try nearby close-contact exposure checks.");
+            DrawInt(listing, "Max contagion targets per pulse", ref maxContagionTargetsPerPulse, 0, 50, "maxContagionTargetsPerPulse", "Maximum nearby pawns checked by each contagion pulse. Set to 0 to disable pulse-based close-contact spread.");
+            DrawInt(listing, "Ticks between corpse contamination pulses", ref corpseContaminationIntervalTicks, 60, GenDate.TicksPerDay, "corpseContaminationIntervalTicks", "How often infected pawns try to contaminate nearby corpses.");
+            DrawInt(listing, "Max corpses checked per pulse", ref maxCorpsesPerPulse, 0, 50, "maxCorpsesPerPulse", "Maximum nearby corpses checked during each corpse contamination pulse. Set to 0 to disable corpse contamination.");
+            DrawInt(listing, "Ticks between tactical retarget checks", ref tacticalRetargetIntervalTicks, 1, 2500, "tacticalRetargetIntervalTicks", "How often infected pawns can reconsider tactical targets.");
+            DrawInt(listing, "Ticks between infighting checks", ref infightingCheckIntervalTicks, 60, GenDate.TicksPerDay, "infightingCheckIntervalTicks", "How often infected pawns can roll for infighting behavior.");
+            DrawInt(listing, "Ticks between lord cleanup checks", ref lordCleanupIntervalTicks, 60, GenDate.TicksPerDay, "lordCleanupIntervalTicks", "How often the mod cleans up invalid raid lord state.");
+            DrawInt(listing, "Ticks between infected-state maintenance", ref infectedStateMaintenanceIntervalTicks, 60, GenDate.TicksPerDay, "infectedStateMaintenanceIntervalTicks", "How often infected pawns refresh state such as faction-specific visuals.");
+            DrawInt(listing, "Ticks between reanimation processing", ref reanimationProcessIntervalTicks, 60, GenDate.TicksPerDay, "reanimationProcessIntervalTicks", "How often queued corpse reanimations are processed.");
+            DrawInt(listing, "Max queued reanimations processed per tick", ref maxPendingReanimationsPerTick, 1, 500, "maxPendingReanimationsPerTick", "Limits burst work when many infected corpses are waiting to reanimate.");
 
-            listing.Label("RJW compatibility");
-            listing.CheckboxLabeled("Auto-enable RJW bridge when RJW is installed", ref rjwAutoEnableWhenInstalled);
-            listing.CheckboxLabeled("Enable RJW Marked Virus bridge", ref rjwIntegrationEnabled);
-            listing.Label("When RJW is installed, the bridge can transmit Marked Virus through adult RJW close-contact events, gives infected adult pawns a 75% chance to start valid RJW forced enemy-intercourse jobs with adult humanlike targets, preserves active RJW jobs, and adds no hard dependency.");
-            DrawFloat(listing, "RJW exposure chance", ref rjwExposureChance, 0f, 1f, "rjwExposureChance");
+            DrawSectionHeader(listing, "Optional RimJobWorld Bridge", "Only applies when RimJobWorld is installed. The bridge adds no hard dependency.");
+            DrawHelp(listing, "RimJobWorld detected right now: " + (TheMarkedMenRjwCompatibility.IsRjwLoaded() ? "yes" : "no") + ".");
+            DrawCheckbox(listing, "Auto-enable the RimJobWorld bridge when detected", ref rjwAutoEnableWhenInstalled, "Automatically turns on the bridge after RimJobWorld is found in the active mod list.");
+            DrawCheckbox(listing, "Enable RimJobWorld Marked Virus bridge", ref rjwIntegrationEnabled, "Allows adult RJW close-contact events to transmit Marked Virus and lets valid infected adults use RJW enemy assault jobs.");
+            DrawFloat(listing, "RimJobWorld exposure chance", ref rjwExposureChance, 0f, 1f, "rjwExposureChance", "Chance that a valid RJW close-contact event involving one infected pawn exposes the other pawn.");
             listing.End();
             Widgets.EndScrollView();
             ClampSettings();
@@ -535,7 +537,7 @@ namespace TheMarkedMen
             TheMarkedMenSettings settings = TheMarkedMenMod.Settings;
             if (settings == null)
             {
-                return Mathf.Clamp01(props?.terminalTransformationChance ?? 0.55f);
+                return Mathf.Clamp01(props?.terminalTransformationChance ?? DefaultTerminalTransformationChance);
             }
 
             float total = Mathf.Max(0f, settings.terminalTransformationWeight) + Mathf.Max(0f, settings.terminalDeathWeight);
@@ -605,23 +607,158 @@ namespace TheMarkedMen
             return baseWeight * Mathf.Clamp(settings?.KindWeightMultiplier(kind) ?? 1f, 0f, 5f);
         }
 
-        private void DrawFloat(Listing_Standard listing, string label, ref float value, float min, float max, string key)
+        private void DrawSettingsIntro(Listing_Standard listing)
         {
-            string buffer = GetBuffer(key);
-            listing.TextFieldNumericLabeled(label, ref value, ref buffer, min, max);
-            numericBuffers[key] = buffer;
+            GameFont oldFont = Text.Font;
+            Text.Font = GameFont.Medium;
+            listing.Label("The Marked Men Settings");
+            Text.Font = oldFont;
+            DrawHelp(listing, "Use presets for a quick difficulty pass, or tune each section directly. Editing any field changes the active preset to Custom.");
         }
 
-        private void DrawInt(Listing_Standard listing, string label, ref int value, int min, int max, string key)
+        private void DrawPresetControls(Listing_Standard listing)
         {
+            listing.Gap(6f);
+            listing.Label("Active preset: " + PresetLabel());
+            DrawHelp(listing, "Presets rewrite the schedule, enemy mix, virus behavior, AI pressure, story UI, and performance settings at once.");
+
+            Rect row = listing.GetRect(PresetButtonHeight, 1f);
+            float buttonWidth = (row.width - (PresetButtonGap * 4f)) / 5f;
+            DrawPresetButton(new Rect(row.x, row.y, buttonWidth, row.height), "Casual", "Slower raids, lower exposure risk, smaller hordes, and more immune survivors.", ApplyCasualPreset);
+            DrawPresetButton(new Rect(row.x + (buttonWidth + PresetButtonGap), row.y, buttonWidth, row.height), "Vanilla-like", "Keeps the faction dangerous while staying closer to ordinary RimWorld pacing.", ApplyVanillaLikePreset);
+            DrawPresetButton(new Rect(row.x + ((buttonWidth + PresetButtonGap) * 2f), row.y, buttonWidth, row.height), "Default", "Restores the intended baseline tuning for the mod.", () => ApplyDefaultPreset(true));
+            DrawPresetButton(new Rect(row.x + ((buttonWidth + PresetButtonGap) * 3f), row.y, buttonWidth, row.height), "Brutal", "Faster, harder, less forgiving raids with stronger infection pressure.", ApplyBrutalPreset);
+            DrawPresetButton(new Rect(row.x + ((buttonWidth + PresetButtonGap) * 4f), row.y, buttonWidth, row.height), "Outbreak", "Large outbreak pressure with faster spread, larger hordes, and faster corpse cycling.", ApplyOutbreakPreset);
+            listing.Gap(6f);
+        }
+
+        private void DrawPresetButton(Rect rect, string label, string tooltip, Action applyPreset)
+        {
+            if (Widgets.ButtonText(rect, label, true, true, true, null))
+            {
+                applyPreset();
+                ClearNumericBuffers();
+            }
+
+            TooltipHandler.TipRegion(rect, new TipSignal(tooltip));
+        }
+
+        private void DrawSectionHeader(Listing_Standard listing, string title, string description)
+        {
+            listing.Gap(10f);
+            listing.GapLine(6f);
+            GameFont oldFont = Text.Font;
+            Text.Font = GameFont.Medium;
+            listing.Label(title);
+            Text.Font = oldFont;
+            DrawHelp(listing, description);
+        }
+
+        private void DrawHelp(Listing_Standard listing, string text)
+        {
+            if (string.IsNullOrEmpty(text))
+            {
+                return;
+            }
+
+            Color oldColor = GUI.color;
+            GameFont oldFont = Text.Font;
+            GUI.color = HelpTextColor;
+            Text.Font = GameFont.Small;
+            listing.Label(text);
+            Text.Font = oldFont;
+            GUI.color = oldColor;
+            listing.Gap(2f);
+        }
+
+        private void DrawCheckbox(Listing_Standard listing, string label, ref bool value, string help)
+        {
+            bool before = value;
+            listing.CheckboxLabeled(label, ref value, help, 0f, 1f);
+            if (before != value)
+            {
+                NoteManualChange();
+            }
+
+            DrawHelp(listing, help);
+        }
+
+        private void DrawFloat(Listing_Standard listing, string label, ref float value, float min, float max, string key, string help)
+        {
+            float before = value;
             string buffer = GetBuffer(key);
             listing.TextFieldNumericLabeled(label, ref value, ref buffer, min, max);
             numericBuffers[key] = buffer;
+            if (!Mathf.Approximately(before, value))
+            {
+                NoteManualChange();
+            }
+
+            DrawHelp(listing, help + " Current value: " + FloatValueText(value, min, max) + ".");
+        }
+
+        private void DrawInt(Listing_Standard listing, string label, ref int value, int min, int max, string key, string help)
+        {
+            int before = value;
+            string buffer = GetBuffer(key);
+            listing.TextFieldNumericLabeled(label, ref value, ref buffer, min, max);
+            numericBuffers[key] = buffer;
+            if (before != value)
+            {
+                NoteManualChange();
+            }
+
+            DrawHelp(listing, help + " Current value: " + IntValueText(value, max) + ".");
         }
 
         private string GetBuffer(string key)
         {
             return numericBuffers.TryGetValue(key, out string buffer) ? buffer : null;
+        }
+
+        private string PresetLabel()
+        {
+            return string.IsNullOrEmpty(currentPreset) ? CustomPresetName : currentPreset;
+        }
+
+        private void NoteManualChange()
+        {
+            currentPreset = CustomPresetName;
+        }
+
+        private void ClearNumericBuffers()
+        {
+            numericBuffers.Clear();
+        }
+
+        private static string FloatValueText(float value, float min, float max)
+        {
+            if (min >= 0f && max <= 1f)
+            {
+                return PercentText(value) + " (" + value.ToString("0.###") + ")";
+            }
+
+            return value.ToString("0.###");
+        }
+
+        private static string IntValueText(int value, int max)
+        {
+            if (max >= GenDate.TicksPerDay)
+            {
+                return value + " ticks (" + (value / (float)GenDate.TicksPerDay).ToString("0.##") + " days)";
+            }
+
+            return value.ToString();
+        }
+
+        private static string PercentText(float value)
+        {
+            return Mathf.RoundToInt(Mathf.Clamp01(value) * 100f) + "%";
+        }
+
+        private static string MultiplierText(float value)
+        {
+            return Mathf.Max(0f, value).ToString("0.##") + "x";
         }
 
         private void ClampSettings()
@@ -703,9 +840,9 @@ namespace TheMarkedMen
             corpseContaminationChance = 1f;
             infectionProgressionSpeedMultiplier = 1f;
             incubationDurationMultiplier = 1f;
-            immunitySurvivalChance = 0.02f;
-            terminalTransformationWeight = 0.55f;
-            terminalDeathWeight = 0.45f;
+            immunitySurvivalChance = DefaultImmunitySurvivalChance;
+            terminalTransformationWeight = DefaultTerminalTransformationWeight;
+            terminalDeathWeight = DefaultTerminalDeathWeight;
             reanimationChance = 1f;
             reanimationDelayTicks = 900;
             starterLineageBreakthroughChance = 0.04f;
@@ -722,6 +859,8 @@ namespace TheMarkedMen
             {
                 currentPreset = "Default";
             }
+
+            ClearNumericBuffers();
         }
 
         private void ApplyCasualPreset()
@@ -751,6 +890,7 @@ namespace TheMarkedMen
             maximumAlphasPerRaid = 1;
             socialTerrorStrength = 0.5f;
             ClampSettings();
+            ClearNumericBuffers();
         }
 
         private void ApplyVanillaLikePreset()
@@ -767,6 +907,7 @@ namespace TheMarkedMen
             reanimationChance = 0.7f;
             socialTerrorStrength = 0.75f;
             ClampSettings();
+            ClearNumericBuffers();
         }
 
         private void ApplyBrutalPreset()
@@ -800,6 +941,7 @@ namespace TheMarkedMen
             starterLineageBreakthroughChance = 0.08f;
             socialTerrorStrength = 1.5f;
             ClampSettings();
+            ClearNumericBuffers();
         }
 
         private void ApplyOutbreakPreset()
@@ -841,6 +983,7 @@ namespace TheMarkedMen
             maxCorpsesPerPulse = 5;
             socialTerrorStrength = 1.25f;
             ClampSettings();
+            ClearNumericBuffers();
         }
 
         private void ResetArrivalDefaults()
@@ -963,6 +1106,260 @@ namespace TheMarkedMen
         }
     }
 
+    public static class MarkedIdeologyUtility
+    {
+        private const string LogPrefix = "[The Marked Men] ";
+        private const string FixedIconDefName = "Skull";
+        private const string FixedColorDefName = "Red";
+        private const string FallbackStyleCategoryDefName = "Morbid";
+
+        private static readonly string[] FallbackMemeDefNames =
+        {
+            "Structure_Ideological",
+            "Cannibal",
+            "Supremacist",
+            "Raider"
+        };
+
+        public static void NormalizeMarkedOneIdeology()
+        {
+            if (!ModsConfig.IdeologyActive)
+            {
+                return;
+            }
+
+            try
+            {
+                FactionDef factionDef = CADefOf.CrossedFaction;
+                Faction faction = factionDef == null ? null : Find.FactionManager?.FirstFactionOfDef(factionDef);
+                Ideo ideo = faction?.ideos?.PrimaryIdeo;
+                if (factionDef == null || ideo == null)
+                {
+                    return;
+                }
+
+                bool changed = ApplyFixedText(ideo, factionDef);
+                changed |= ApplyFixedVisibility(ideo, factionDef);
+                changed |= ApplyFixedMemes(ideo, factionDef);
+                changed |= ApplyFixedIconAndColor(ideo);
+                changed |= ApplyFixedStyles(ideo, factionDef);
+
+                if (changed)
+                {
+                    RecacheIdeo(ideo);
+                    Log.Message(LogPrefix + "Normalized The Marked One ideology.");
+                }
+            }
+            catch (Exception ex)
+            {
+                Log.Warning(LogPrefix + "Skipped The Marked One ideology normalization: " + ex.Message);
+            }
+        }
+
+        private static bool ApplyFixedText(Ideo ideo, FactionDef factionDef)
+        {
+            bool changed = false;
+
+            if (!factionDef.ideoName.NullOrEmpty() && ideo.name != factionDef.ideoName)
+            {
+                ideo.name = factionDef.ideoName;
+                changed = true;
+            }
+
+            if (!factionDef.ideoDescription.NullOrEmpty() && ideo.description != factionDef.ideoDescription)
+            {
+                ideo.description = factionDef.ideoDescription;
+                changed = true;
+            }
+
+            return changed;
+        }
+
+        private static bool ApplyFixedVisibility(Ideo ideo, FactionDef factionDef)
+        {
+            if (ideo.hidden == factionDef.hiddenIdeo)
+            {
+                return false;
+            }
+
+            ideo.hidden = factionDef.hiddenIdeo;
+            return true;
+        }
+
+        private static bool ApplyFixedMemes(Ideo ideo, FactionDef factionDef)
+        {
+            if (ideo.memes == null)
+            {
+                return false;
+            }
+
+            List<MemeDef> targetMemes = BuildTargetMemes(factionDef);
+            if (targetMemes.Count == 0)
+            {
+                return false;
+            }
+
+            bool alreadyExact = ideo.memes.Count == targetMemes.Count;
+            if (alreadyExact)
+            {
+                for (int i = 0; i < targetMemes.Count; i++)
+                {
+                    if (!ideo.memes.Contains(targetMemes[i]))
+                    {
+                        alreadyExact = false;
+                        break;
+                    }
+                }
+            }
+
+            if (alreadyExact)
+            {
+                return false;
+            }
+
+            ideo.memes.Clear();
+            ideo.memes.AddRange(targetMemes);
+            ideo.SortMemesInDisplayOrder();
+            return true;
+        }
+
+        private static bool ApplyFixedIconAndColor(Ideo ideo)
+        {
+            IdeoIconDef iconDef = DefDatabase<IdeoIconDef>.GetNamedSilentFail(FixedIconDefName);
+            ColorDef colorDef = DefDatabase<ColorDef>.GetNamedSilentFail(FixedColorDefName);
+            if (iconDef == null || colorDef == null || ideo.iconDef == iconDef && ideo.colorDef == colorDef && ideo.primaryFactionColor == null)
+            {
+                return false;
+            }
+
+            ideo.SetIcon(iconDef, colorDef, true);
+            return true;
+        }
+
+        private static bool ApplyFixedStyles(Ideo ideo, FactionDef factionDef)
+        {
+            List<StyleCategoryDef> targetStyles = BuildTargetStyles(factionDef);
+            if (targetStyles.Count == 0)
+            {
+                return false;
+            }
+
+            if (ideo.thingStyleCategories == null)
+            {
+                ideo.thingStyleCategories = new List<ThingStyleCategoryWithPriority>();
+            }
+
+            bool alreadyExact = ideo.thingStyleCategories.Count == targetStyles.Count;
+            if (alreadyExact)
+            {
+                for (int i = 0; i < targetStyles.Count; i++)
+                {
+                    ThingStyleCategoryWithPriority current = ideo.thingStyleCategories[i];
+                    if (current == null || current.category != targetStyles[i])
+                    {
+                        alreadyExact = false;
+                        break;
+                    }
+                }
+            }
+
+            if (alreadyExact)
+            {
+                return false;
+            }
+
+            ideo.thingStyleCategories.Clear();
+            for (int i = 0; i < targetStyles.Count; i++)
+            {
+                ideo.thingStyleCategories.Add(new ThingStyleCategoryWithPriority(targetStyles[i], 1f));
+            }
+
+            ideo.SortStyleCategories();
+            ideo.style?.RecalculateAvailableStyleItems();
+            ideo.style?.EnsureAtLeastOneStyleItemAvailable();
+            return true;
+        }
+
+        private static List<MemeDef> BuildTargetMemes(FactionDef factionDef)
+        {
+            List<MemeDef> targetMemes = new List<MemeDef>();
+            AddUniqueMemes(targetMemes, factionDef.forcedMemes);
+            if (targetMemes.Count == 0)
+            {
+                for (int i = 0; i < FallbackMemeDefNames.Length; i++)
+                {
+                    MemeDef meme = DefDatabase<MemeDef>.GetNamedSilentFail(FallbackMemeDefNames[i]);
+                    if (meme != null && !targetMemes.Contains(meme))
+                    {
+                        targetMemes.Add(meme);
+                    }
+                }
+            }
+
+            return targetMemes;
+        }
+
+        private static List<StyleCategoryDef> BuildTargetStyles(FactionDef factionDef)
+        {
+            List<StyleCategoryDef> targetStyles = new List<StyleCategoryDef>();
+            AddUniqueStyles(targetStyles, factionDef.styles);
+            if (targetStyles.Count == 0)
+            {
+                StyleCategoryDef style = DefDatabase<StyleCategoryDef>.GetNamedSilentFail(FallbackStyleCategoryDefName);
+                if (style != null)
+                {
+                    targetStyles.Add(style);
+                }
+            }
+
+            return targetStyles;
+        }
+
+        private static void AddUniqueMemes(List<MemeDef> targetMemes, List<MemeDef> sourceMemes)
+        {
+            if (sourceMemes == null)
+            {
+                return;
+            }
+
+            for (int i = 0; i < sourceMemes.Count; i++)
+            {
+                MemeDef meme = sourceMemes[i];
+                if (meme != null && !targetMemes.Contains(meme))
+                {
+                    targetMemes.Add(meme);
+                }
+            }
+        }
+
+        private static void AddUniqueStyles(List<StyleCategoryDef> targetStyles, List<StyleCategoryDef> sourceStyles)
+        {
+            if (sourceStyles == null)
+            {
+                return;
+            }
+
+            for (int i = 0; i < sourceStyles.Count; i++)
+            {
+                StyleCategoryDef style = sourceStyles[i];
+                if (style != null && !targetStyles.Contains(style))
+                {
+                    targetStyles.Add(style);
+                }
+            }
+        }
+
+        private static void RecacheIdeo(Ideo ideo)
+        {
+            ideo.RecachePrecepts();
+            ideo.RecachePossibleRoles();
+            ideo.RecachePossibleBuildings();
+            ideo.RecachePossibleBuildables();
+            ideo.RecachePossibleMentalBreaks();
+            ideo.RecacheNeeds();
+        }
+    }
+
     public sealed class TheMarkedMenGameComponent : GameComponent
     {
         private const int MaintenanceTickInterval = 2500;
@@ -1024,6 +1421,7 @@ namespace TheMarkedMen
             base.StartedNewGame();
             EnsureCrossedFaction(false);
             EnsureCrossedWorldSettlement();
+            MarkedIdeologyUtility.NormalizeMarkedOneIdeology();
             raidScheduleActivated = false;
             raidScheduleVersion = RaidScheduleVersion;
             starterLineageInitialized = false;
@@ -1038,6 +1436,7 @@ namespace TheMarkedMen
             base.FinalizeInit();
             EnsureCrossedFaction(false);
             EnsureCrossedWorldSettlement();
+            MarkedIdeologyUtility.NormalizeMarkedOneIdeology();
             InitializeStarterLineageResistance();
             EnsureInfectedStateOnLoadedPawns();
             int ticks = Find.TickManager?.TicksGame ?? 0;
@@ -2486,8 +2885,8 @@ namespace TheMarkedMen
         public int rareTransformationMinTicks = 600;
         public int rareTransformationMaxTicks = 900;
         public float symptomOnsetFraction = 0.15f;
-        public float immunityChance = 0.02f;
-        public float terminalTransformationChance = 0.55f;
+        public float immunityChance = TheMarkedMenSettings.DefaultImmunitySurvivalChance;
+        public float terminalTransformationChance = TheMarkedMenSettings.DefaultTerminalTransformationChance;
         public float transformedSeverity = 1f;
 
         public HediffCompProperties_CrossVirus()
@@ -3909,6 +4308,7 @@ namespace TheMarkedMen
             }
 
             ApplyInfectedTattoo(pawn);
+            CrossedTacticalAI.TryAttackNearestNonInfectedPawn(pawn, true, allowRjwJob: false);
             if (suppressNotification)
             {
                 return;
@@ -4366,7 +4766,7 @@ namespace TheMarkedMen
             return TryAssignAttackJob(pawn, target);
         }
 
-        public static bool TryAttackNearestNonInfectedPawn(Pawn pawn, bool forceCurrentJob)
+        public static bool TryAttackNearestNonInfectedPawn(Pawn pawn, bool forceCurrentJob, bool allowRjwJob = true)
         {
             if (!CanUseTacticalAI(pawn))
             {
@@ -4374,7 +4774,7 @@ namespace TheMarkedMen
             }
 
             CrossedUtility.EnsureFearlessCrossedState(pawn);
-            if (TheMarkedMenRjwCompatibility.TryStartBestInfectedIntercourseJob(pawn, forceCurrentJob))
+            if (allowRjwJob && TheMarkedMenRjwCompatibility.TryStartBestInfectedIntercourseJob(pawn, forceCurrentJob))
             {
                 return true;
             }

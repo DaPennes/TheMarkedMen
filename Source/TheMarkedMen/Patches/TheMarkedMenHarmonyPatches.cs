@@ -85,11 +85,15 @@ namespace TheMarkedMen
     [HarmonyPatch(typeof(Pawn), nameof(Pawn.TickRare))]
     public static class Patch_CrossedTacticalAI
     {
-        private const int InfectedStateMaintenanceIntervalTicks = 2500;
-
         public static void Postfix(Pawn __instance)
         {
-            if (__instance == null || !__instance.IsHashIntervalTick(TheMarkedMenSettings.InfectedStateMaintenanceIntervalTicks))
+            if (__instance == null)
+            {
+                return;
+            }
+
+            CrossedTacticalAI.TryIssueTacticalJob(__instance);
+            if (!__instance.IsHashIntervalTick(TheMarkedMenSettings.InfectedStateMaintenanceIntervalTicks))
             {
                 return;
             }

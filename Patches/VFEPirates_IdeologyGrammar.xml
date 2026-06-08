@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Patch>
+  <Operation Class="PatchOperationConditional">
+    <xpath>/Defs/MemeDef[defName="VFEP_PirateMeme"]/generalRules/rulesStrings[not(li[starts-with(., "memeConcept-&gt;")])]</xpath>
+    <match Class="PatchOperationAdd">
+      <xpath>/Defs/MemeDef[defName="VFEP_PirateMeme"]/generalRules/rulesStrings</xpath>
+      <value>
+        <li>memeConcept-&gt;piracy</li>
+        <li>memeConcept-&gt;plunder</li>
+        <li>memeConcept-&gt;raiding</li>
+        <li>memeConcept-&gt;camaraderie</li>
+        <li>memeConcept-&gt;the code</li>
+      </value>
+    </match>
+  </Operation>
+</Patch>
