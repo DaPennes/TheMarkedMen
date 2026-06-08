@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+  <StatDef>
+    <defName>CA_MarkedVirusResistance</defName>
+    <label>marked virus resistance</label>
+    <description>How resistant this pawn is to contracting the Marked Virus from direct exposure. Apparel with Marked Virus resistance reduces exposure risk, while fully sealed protective sets can block direct exposure. This stat is separate from toxic environment resistance and does not affect vanilla toxin mechanics.</description>
+    <workerClass>TheMarkedMen.StatWorker_MarkedVirusResistance</workerClass>
+    <category>PawnResistances</category>
+    <defaultBaseValue>0</defaultBaseValue>
+    <hideAtValue>0</hideAtValue>
+    <minValue>0</minValue>
+    <maxValue>1</maxValue>
+    <toStringStyle>PercentZero</toStringStyle>
+    <showIfUndefined>false</showIfUndefined>
+    <displayPriorityInCategory>3449</displayPriorityInCategory>
+  </StatDef>
+</Defs>

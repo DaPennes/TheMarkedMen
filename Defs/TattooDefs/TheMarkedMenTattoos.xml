@@ -1,6 +1,62 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Defs>
   <TattooDef>
+    <defName>CA_Face_CrossedRashStage1</defName>
+    <label>marked rash stage 1</label>
+    <texPath>Pawn/Tattoos/Head/TheMarkedMenRashHeadStage1</texPath>
+    <iconPath>Pawn/Tattoos/Head/TheMarkedMenRashHeadStage1_south</iconPath>
+    <tattooType>Face</tattooType>
+    <visibleNorth>false</visibleNorth>
+    <category>Tribal</category>
+    <styleTags>
+      <li>TattooFaceTribal</li>
+      <li>TattooFaceAbstract</li>
+    </styleTags>
+  </TattooDef>
+
+  <TattooDef>
+    <defName>CA_Face_CrossedRashStage2</defName>
+    <label>marked rash stage 2</label>
+    <texPath>Pawn/Tattoos/Head/TheMarkedMenRashHeadStage2</texPath>
+    <iconPath>Pawn/Tattoos/Head/TheMarkedMenRashHeadStage2_south</iconPath>
+    <tattooType>Face</tattooType>
+    <visibleNorth>false</visibleNorth>
+    <category>Tribal</category>
+    <styleTags>
+      <li>TattooFaceTribal</li>
+      <li>TattooFaceAbstract</li>
+    </styleTags>
+  </TattooDef>
+
+  <TattooDef>
+    <defName>CA_Face_CrossedRashStage3</defName>
+    <label>marked rash stage 3</label>
+    <texPath>Pawn/Tattoos/Head/TheMarkedMenRashHeadStage3</texPath>
+    <iconPath>Pawn/Tattoos/Head/TheMarkedMenRashHeadStage3_south</iconPath>
+    <tattooType>Face</tattooType>
+    <visibleNorth>false</visibleNorth>
+    <category>Tribal</category>
+    <styleTags>
+      <li>TattooFaceTribal</li>
+      <li>TattooFaceAbstract</li>
+    </styleTags>
+  </TattooDef>
+
+  <TattooDef>
+    <defName>CA_Face_CrossedRashStage4</defName>
+    <label>marked rash stage 4</label>
+    <texPath>Pawn/Tattoos/Head/TheMarkedMenRashHeadStage4</texPath>
+    <iconPath>Pawn/Tattoos/Head/TheMarkedMenRashHeadStage4_south</iconPath>
+    <tattooType>Face</tattooType>
+    <visibleNorth>false</visibleNorth>
+    <category>Tribal</category>
+    <styleTags>
+      <li>TattooFaceTribal</li>
+      <li>TattooFaceAbstract</li>
+    </styleTags>
+  </TattooDef>
+
+  <TattooDef>
     <defName>CA_Face_CrossedRash</defName>
     <label>marked rash</label>
     <texPath>Pawn/Tattoos/Head/TheMarkedMenRashHead</texPath>
