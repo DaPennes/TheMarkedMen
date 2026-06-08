@@ -67,7 +67,7 @@ namespace TheMarkedMen
                 return;
             }
 
-            CrossedUtility.TryExpose(damagedPawn, TheMarkedMenSettings.InfectionTransmissionChance, "infected assault contact", instigatorPawn);
+            CrossedUtility.TryExpose(damagedPawn, TheMarkedMenSettings.InfectedAssaultExposureChance, "infected assault contact", instigatorPawn);
         }
     }
 
@@ -88,7 +88,7 @@ namespace TheMarkedMen
 
         public static void Postfix(Pawn __instance)
         {
-            if (__instance == null || !__instance.IsHashIntervalTick(InfectedStateMaintenanceIntervalTicks))
+            if (__instance == null || !__instance.IsHashIntervalTick(TheMarkedMenSettings.InfectedStateMaintenanceIntervalTicks))
             {
                 return;
             }

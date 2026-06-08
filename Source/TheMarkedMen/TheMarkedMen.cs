@@ -40,37 +40,189 @@ namespace TheMarkedMen
 
     public sealed class TheMarkedMenSettings : ModSettings
     {
-        private const int CurrentSettingsVersion = 6;
+        private const int CurrentSettingsVersion = 7;
         public const float InfectionTransmissionChance = 0.45f;
         public const float DefaultMarkedRaidFrequencyMultiplier = 1f;
         public const float MinMarkedRaidFrequencyMultiplier = 0f;
         public const float MaxMarkedRaidFrequencyMultiplier = 5f;
+        public const float DefaultRaidEscalationPerRaid = 0.18f;
+        public const float DefaultRaidEscalationMaxBonus = 5f;
 
         public bool infectionEnabled = true;
         public bool verboseCompatibilityLogging;
         public bool rjwAutoEnableWhenInstalled = true;
         public bool rjwIntegrationEnabled = true;
+        public bool scheduledWarbandsEnabled = true;
+        public bool scheduledHordesEnabled = true;
+        public bool scoutingProbesEnabled = true;
         public bool randomizeMarkedRaids;
         public float markedRaidFrequencyMultiplier = DefaultMarkedRaidFrequencyMultiplier;
+        public float warbandFrequencyMultiplier = 1f;
+        public float hordeFrequencyMultiplier = 1f;
+        public float probeFrequencyMultiplier = 1f;
+        public int firstMarkedRaidDay = 45;
+        public float raidPointsMultiplier = 1f;
+        public float minimumRaidPoints = 120f;
+        public float maximumRaidPoints;
+        public float raidEscalationPerRaid = DefaultRaidEscalationPerRaid;
+        public float raidEscalationMaxBonus = DefaultRaidEscalationMaxBonus;
+        public bool allowGroupedEdgeArrival = true;
+        public bool allowDistributedGroupArrival = true;
+        public bool allowDistributedArrival = true;
+        public bool allowSingleEdgeArrival = true;
+        public float berserkerWeightMultiplier = 1f;
+        public float hunterWeightMultiplier = 1f;
+        public float stalkerWeightMultiplier = 1f;
+        public float screamerWeightMultiplier = 1f;
+        public float bruteWeightMultiplier = 1f;
+        public float alphaWeightMultiplier = 1f;
+        public bool allowMarkedChildren;
+        public int minimumHordeSize = 3;
+        public int maximumHordeSize = 12;
+        public int minimumProbeSize = 2;
+        public int maximumProbeSize = 4;
+        public int maximumAlphasPerRaid = 99;
         public float bloodExposureChance = InfectionTransmissionChance;
         public float foodExposureChance = InfectionTransmissionChance;
         public float rjwExposureChance = InfectionTransmissionChance;
+        public float infectedAssaultExposureChance = InfectionTransmissionChance;
+        public float closeContactExposureChance = InfectionTransmissionChance;
+        public float corpseContaminationChance = 1f;
+        public float infectionProgressionSpeedMultiplier = 1f;
+        public float incubationDurationMultiplier = 1f;
+        public float immunitySurvivalChance = 0.02f;
+        public float terminalTransformationWeight = 0.55f;
+        public float terminalDeathWeight = 0.45f;
+        public float reanimationChance = 1f;
+        public int reanimationDelayTicks = 900;
+        public float starterLineageBreakthroughChance = 0.04f;
         public float severityPerDay = 0.34f;
+        public bool markedAlwaysAssault = true;
+        public bool markedCanTimeoutOrFlee;
+        public bool tacticalRetargetingEnabled = true;
+        public bool priorityTargetingEnabled = true;
+        public bool doorTargetingEnabled = true;
+        public float infightingChance = 0.12f;
+        public float socialTerrorStrength = 1f;
+        public bool raidCountdownAlertEnabled = true;
+        public float raidCountdownVisibleDays = 999f;
+        public float raidCountdownHighPriorityDays = 1f;
+        public bool detailedRaidLetters = true;
+        public bool incidentLogEnabled = true;
+        public bool debugActionsEnabled = true;
+        public int contagionPulseIntervalTicks = 500;
+        public int maxContagionTargetsPerPulse = 3;
+        public int corpseContaminationIntervalTicks = 750;
+        public int maxCorpsesPerPulse = 2;
+        public int tacticalRetargetIntervalTicks = 6;
+        public int infightingCheckIntervalTicks = 1000;
+        public int lordCleanupIntervalTicks = 250;
+        public int infectedStateMaintenanceIntervalTicks = 2500;
+        public int reanimationProcessIntervalTicks = 2500;
+        public int maxPendingReanimationsPerTick = 24;
 
         private int settingsVersion = CurrentSettingsVersion;
-        private string markedRaidFrequencyBuffer;
-        private string bloodBuffer;
-        private string foodBuffer;
-        private string rjwBuffer;
+        private string currentPreset = "Default";
         private Vector2 scrollPosition;
+        private readonly Dictionary<string, string> numericBuffers = new Dictionary<string, string>();
 
         public float EffectiveMarkedRaidFrequencyMultiplier => Mathf.Clamp(markedRaidFrequencyMultiplier, MinMarkedRaidFrequencyMultiplier, MaxMarkedRaidFrequencyMultiplier);
 
-        public static float CurrentMarkedRaidFrequencyMultiplier => TheMarkedMenMod.Settings?.EffectiveMarkedRaidFrequencyMultiplier ?? DefaultMarkedRaidFrequencyMultiplier;
+        public float EffectiveWarbandFrequencyMultiplier => EffectiveEventFrequency(scheduledWarbandsEnabled, warbandFrequencyMultiplier);
 
-        public static bool AutomaticMarkedRaidsEnabled => CurrentMarkedRaidFrequencyMultiplier > 0.001f;
+        public float EffectiveHordeFrequencyMultiplier => EffectiveEventFrequency(scheduledHordesEnabled, hordeFrequencyMultiplier);
+
+        public float EffectiveProbeFrequencyMultiplier => EffectiveEventFrequency(scoutingProbesEnabled, probeFrequencyMultiplier);
+
+        public static bool WarbandsEnabled => (TheMarkedMenMod.Settings?.EffectiveWarbandFrequencyMultiplier ?? DefaultMarkedRaidFrequencyMultiplier) > 0.001f;
+
+        public static bool HordesEnabled => (TheMarkedMenMod.Settings?.EffectiveHordeFrequencyMultiplier ?? DefaultMarkedRaidFrequencyMultiplier) > 0.001f;
+
+        public static bool ProbesEnabled => (TheMarkedMenMod.Settings?.EffectiveProbeFrequencyMultiplier ?? DefaultMarkedRaidFrequencyMultiplier) > 0.001f;
+
+        public static float WarbandFrequencyMultiplier => TheMarkedMenMod.Settings?.EffectiveWarbandFrequencyMultiplier ?? DefaultMarkedRaidFrequencyMultiplier;
+
+        public static float HordeFrequencyMultiplier => TheMarkedMenMod.Settings?.EffectiveHordeFrequencyMultiplier ?? DefaultMarkedRaidFrequencyMultiplier;
+
+        public static float ProbeFrequencyMultiplier => TheMarkedMenMod.Settings?.EffectiveProbeFrequencyMultiplier ?? DefaultMarkedRaidFrequencyMultiplier;
 
         public static bool RandomizeMarkedRaids => TheMarkedMenMod.Settings?.randomizeMarkedRaids == true;
+
+        public static bool DetailedRaidLetters => TheMarkedMenMod.Settings?.detailedRaidLetters != false;
+
+        public static bool IncidentLogEnabled => TheMarkedMenMod.Settings?.incidentLogEnabled != false;
+
+        public static bool DebugActionsEnabled => TheMarkedMenMod.Settings?.debugActionsEnabled != false;
+
+        public static int FirstMarkedRaidDay => Mathf.Clamp(TheMarkedMenMod.Settings?.firstMarkedRaidDay ?? 45, 1, 600);
+
+        public static int FirstMarkedRaidTick => FirstMarkedRaidDay * GenDate.TicksPerDay;
+
+        public static float RaidEscalationPerRaid => Mathf.Clamp(TheMarkedMenMod.Settings?.raidEscalationPerRaid ?? DefaultRaidEscalationPerRaid, 0f, 2f);
+
+        public static float RaidEscalationMaxBonus => Mathf.Clamp(TheMarkedMenMod.Settings?.raidEscalationMaxBonus ?? DefaultRaidEscalationMaxBonus, 0f, 20f);
+
+        public static float StarterLineageBreakthroughChance => Mathf.Clamp01(TheMarkedMenMod.Settings?.starterLineageBreakthroughChance ?? 0.04f);
+
+        public static float InfectedAssaultExposureChance => Mathf.Clamp01(TheMarkedMenMod.Settings?.infectedAssaultExposureChance ?? InfectionTransmissionChance);
+
+        public static float CloseContactExposureChance => Mathf.Clamp01(TheMarkedMenMod.Settings?.closeContactExposureChance ?? InfectionTransmissionChance);
+
+        public static float CorpseContaminationChance => Mathf.Clamp01(TheMarkedMenMod.Settings?.corpseContaminationChance ?? 1f);
+
+        public static float ReanimationChance => Mathf.Clamp01(TheMarkedMenMod.Settings?.reanimationChance ?? 1f);
+
+        public static int ReanimationDelayTicks => Mathf.Clamp(TheMarkedMenMod.Settings?.reanimationDelayTicks ?? 900, 60, GenDate.TicksPerDay * 30);
+
+        public static int ReanimationProcessIntervalTicks => Mathf.Clamp(TheMarkedMenMod.Settings?.reanimationProcessIntervalTicks ?? 2500, 60, GenDate.TicksPerDay);
+
+        public static int MaxPendingReanimationsPerTick => Mathf.Clamp(TheMarkedMenMod.Settings?.maxPendingReanimationsPerTick ?? 24, 1, 500);
+
+        public static int ContagionPulseIntervalTicks => Mathf.Clamp(TheMarkedMenMod.Settings?.contagionPulseIntervalTicks ?? 500, 60, GenDate.TicksPerDay);
+
+        public static int MaxContagionTargetsPerPulse => Mathf.Clamp(TheMarkedMenMod.Settings?.maxContagionTargetsPerPulse ?? 3, 0, 50);
+
+        public static int CorpseContaminationIntervalTicks => Mathf.Clamp(TheMarkedMenMod.Settings?.corpseContaminationIntervalTicks ?? 750, 60, GenDate.TicksPerDay);
+
+        public static int MaxCorpsesPerPulse => Mathf.Clamp(TheMarkedMenMod.Settings?.maxCorpsesPerPulse ?? 2, 0, 50);
+
+        public static int TacticalRetargetIntervalTicks => Mathf.Clamp(TheMarkedMenMod.Settings?.tacticalRetargetIntervalTicks ?? 6, 1, 2500);
+
+        public static int InfightingCheckIntervalTicks => Mathf.Clamp(TheMarkedMenMod.Settings?.infightingCheckIntervalTicks ?? 1000, 60, GenDate.TicksPerDay);
+
+        public static int LordCleanupIntervalTicks => Mathf.Clamp(TheMarkedMenMod.Settings?.lordCleanupIntervalTicks ?? 250, 60, GenDate.TicksPerDay);
+
+        public static int InfectedStateMaintenanceIntervalTicks => Mathf.Clamp(TheMarkedMenMod.Settings?.infectedStateMaintenanceIntervalTicks ?? 2500, 60, GenDate.TicksPerDay);
+
+        public static bool MarkedAlwaysAssault => TheMarkedMenMod.Settings?.markedAlwaysAssault != false;
+
+        public static bool MarkedCanTimeoutOrFlee => TheMarkedMenMod.Settings?.markedCanTimeoutOrFlee == true;
+
+        public static bool TacticalRetargetingEnabled => TheMarkedMenMod.Settings?.tacticalRetargetingEnabled != false;
+
+        public static bool PriorityTargetingEnabled => TheMarkedMenMod.Settings?.priorityTargetingEnabled != false;
+
+        public static bool DoorTargetingEnabled => TheMarkedMenMod.Settings?.doorTargetingEnabled != false;
+
+        public static float InfightingChance => Mathf.Clamp01(TheMarkedMenMod.Settings?.infightingChance ?? 0.12f);
+
+        public static float SocialTerrorStrength => Mathf.Clamp(TheMarkedMenMod.Settings?.socialTerrorStrength ?? 1f, 0f, 5f);
+
+        public static bool RaidCountdownAlertEnabled => TheMarkedMenMod.Settings?.raidCountdownAlertEnabled != false;
+
+        public static float RaidCountdownVisibleDays => Mathf.Clamp(TheMarkedMenMod.Settings?.raidCountdownVisibleDays ?? 999f, 0f, 999f);
+
+        public static float RaidCountdownHighPriorityDays => Mathf.Clamp(TheMarkedMenMod.Settings?.raidCountdownHighPriorityDays ?? 1f, 0f, 30f);
+
+        private float EffectiveEventFrequency(bool enabled, float eventMultiplier)
+        {
+            if (!enabled)
+            {
+                return 0f;
+            }
+
+            return Mathf.Clamp(EffectiveMarkedRaidFrequencyMultiplier * Mathf.Clamp(eventMultiplier, 0f, MaxMarkedRaidFrequencyMultiplier), 0f, 10f);
+        }
 
         public override void ExposeData()
         {
@@ -80,12 +232,75 @@ namespace TheMarkedMen
             Scribe_Values.Look(ref verboseCompatibilityLogging, "verboseCompatibilityLogging", false);
             Scribe_Values.Look(ref rjwAutoEnableWhenInstalled, "rjwAutoEnableWhenInstalled", true);
             Scribe_Values.Look(ref rjwIntegrationEnabled, "rjwIntegrationEnabled", true);
+            Scribe_Values.Look(ref scheduledWarbandsEnabled, "scheduledWarbandsEnabled", true);
+            Scribe_Values.Look(ref scheduledHordesEnabled, "scheduledHordesEnabled", true);
+            Scribe_Values.Look(ref scoutingProbesEnabled, "scoutingProbesEnabled", true);
             Scribe_Values.Look(ref randomizeMarkedRaids, "randomizeMarkedRaids", false);
             Scribe_Values.Look(ref markedRaidFrequencyMultiplier, "markedRaidFrequencyMultiplier", DefaultMarkedRaidFrequencyMultiplier);
+            Scribe_Values.Look(ref warbandFrequencyMultiplier, "warbandFrequencyMultiplier", 1f);
+            Scribe_Values.Look(ref hordeFrequencyMultiplier, "hordeFrequencyMultiplier", 1f);
+            Scribe_Values.Look(ref probeFrequencyMultiplier, "probeFrequencyMultiplier", 1f);
+            Scribe_Values.Look(ref firstMarkedRaidDay, "firstMarkedRaidDay", 45);
+            Scribe_Values.Look(ref raidPointsMultiplier, "raidPointsMultiplier", 1f);
+            Scribe_Values.Look(ref minimumRaidPoints, "minimumRaidPoints", 120f);
+            Scribe_Values.Look(ref maximumRaidPoints, "maximumRaidPoints", 0f);
+            Scribe_Values.Look(ref raidEscalationPerRaid, "raidEscalationPerRaid", DefaultRaidEscalationPerRaid);
+            Scribe_Values.Look(ref raidEscalationMaxBonus, "raidEscalationMaxBonus", DefaultRaidEscalationMaxBonus);
+            Scribe_Values.Look(ref allowGroupedEdgeArrival, "allowGroupedEdgeArrival", true);
+            Scribe_Values.Look(ref allowDistributedGroupArrival, "allowDistributedGroupArrival", true);
+            Scribe_Values.Look(ref allowDistributedArrival, "allowDistributedArrival", true);
+            Scribe_Values.Look(ref allowSingleEdgeArrival, "allowSingleEdgeArrival", true);
+            Scribe_Values.Look(ref berserkerWeightMultiplier, "berserkerWeightMultiplier", 1f);
+            Scribe_Values.Look(ref hunterWeightMultiplier, "hunterWeightMultiplier", 1f);
+            Scribe_Values.Look(ref stalkerWeightMultiplier, "stalkerWeightMultiplier", 1f);
+            Scribe_Values.Look(ref screamerWeightMultiplier, "screamerWeightMultiplier", 1f);
+            Scribe_Values.Look(ref bruteWeightMultiplier, "bruteWeightMultiplier", 1f);
+            Scribe_Values.Look(ref alphaWeightMultiplier, "alphaWeightMultiplier", 1f);
+            Scribe_Values.Look(ref allowMarkedChildren, "allowMarkedChildren", false);
+            Scribe_Values.Look(ref minimumHordeSize, "minimumHordeSize", 3);
+            Scribe_Values.Look(ref maximumHordeSize, "maximumHordeSize", 12);
+            Scribe_Values.Look(ref minimumProbeSize, "minimumProbeSize", 2);
+            Scribe_Values.Look(ref maximumProbeSize, "maximumProbeSize", 4);
+            Scribe_Values.Look(ref maximumAlphasPerRaid, "maximumAlphasPerRaid", 99);
             Scribe_Values.Look(ref bloodExposureChance, "bloodExposureChance", InfectionTransmissionChance);
             Scribe_Values.Look(ref foodExposureChance, "foodExposureChance", InfectionTransmissionChance);
             Scribe_Values.Look(ref rjwExposureChance, "rjwExposureChance", InfectionTransmissionChance);
+            Scribe_Values.Look(ref infectedAssaultExposureChance, "infectedAssaultExposureChance", InfectionTransmissionChance);
+            Scribe_Values.Look(ref closeContactExposureChance, "closeContactExposureChance", InfectionTransmissionChance);
+            Scribe_Values.Look(ref corpseContaminationChance, "corpseContaminationChance", 1f);
+            Scribe_Values.Look(ref infectionProgressionSpeedMultiplier, "infectionProgressionSpeedMultiplier", 1f);
+            Scribe_Values.Look(ref incubationDurationMultiplier, "incubationDurationMultiplier", 1f);
+            Scribe_Values.Look(ref immunitySurvivalChance, "immunitySurvivalChance", 0.02f);
+            Scribe_Values.Look(ref terminalTransformationWeight, "terminalTransformationWeight", 0.55f);
+            Scribe_Values.Look(ref terminalDeathWeight, "terminalDeathWeight", 0.45f);
+            Scribe_Values.Look(ref reanimationChance, "reanimationChance", 1f);
+            Scribe_Values.Look(ref reanimationDelayTicks, "reanimationDelayTicks", 900);
+            Scribe_Values.Look(ref starterLineageBreakthroughChance, "starterLineageBreakthroughChance", 0.04f);
             Scribe_Values.Look(ref severityPerDay, "severityPerDay", 0.34f);
+            Scribe_Values.Look(ref markedAlwaysAssault, "markedAlwaysAssault", true);
+            Scribe_Values.Look(ref markedCanTimeoutOrFlee, "markedCanTimeoutOrFlee", false);
+            Scribe_Values.Look(ref tacticalRetargetingEnabled, "tacticalRetargetingEnabled", true);
+            Scribe_Values.Look(ref priorityTargetingEnabled, "priorityTargetingEnabled", true);
+            Scribe_Values.Look(ref doorTargetingEnabled, "doorTargetingEnabled", true);
+            Scribe_Values.Look(ref infightingChance, "infightingChance", 0.12f);
+            Scribe_Values.Look(ref socialTerrorStrength, "socialTerrorStrength", 1f);
+            Scribe_Values.Look(ref raidCountdownAlertEnabled, "raidCountdownAlertEnabled", true);
+            Scribe_Values.Look(ref raidCountdownVisibleDays, "raidCountdownVisibleDays", 999f);
+            Scribe_Values.Look(ref raidCountdownHighPriorityDays, "raidCountdownHighPriorityDays", 1f);
+            Scribe_Values.Look(ref detailedRaidLetters, "detailedRaidLetters", true);
+            Scribe_Values.Look(ref incidentLogEnabled, "incidentLogEnabled", true);
+            Scribe_Values.Look(ref debugActionsEnabled, "debugActionsEnabled", true);
+            Scribe_Values.Look(ref contagionPulseIntervalTicks, "contagionPulseIntervalTicks", 500);
+            Scribe_Values.Look(ref maxContagionTargetsPerPulse, "maxContagionTargetsPerPulse", 3);
+            Scribe_Values.Look(ref corpseContaminationIntervalTicks, "corpseContaminationIntervalTicks", 750);
+            Scribe_Values.Look(ref maxCorpsesPerPulse, "maxCorpsesPerPulse", 2);
+            Scribe_Values.Look(ref tacticalRetargetIntervalTicks, "tacticalRetargetIntervalTicks", 6);
+            Scribe_Values.Look(ref infightingCheckIntervalTicks, "infightingCheckIntervalTicks", 1000);
+            Scribe_Values.Look(ref lordCleanupIntervalTicks, "lordCleanupIntervalTicks", 250);
+            Scribe_Values.Look(ref infectedStateMaintenanceIntervalTicks, "infectedStateMaintenanceIntervalTicks", 2500);
+            Scribe_Values.Look(ref reanimationProcessIntervalTicks, "reanimationProcessIntervalTicks", 2500);
+            Scribe_Values.Look(ref maxPendingReanimationsPerTick, "maxPendingReanimationsPerTick", 24);
+            Scribe_Values.Look(ref currentPreset, "currentPreset", "Default");
             if (Scribe.mode == LoadSaveMode.PostLoadInit && loadedSettingsVersion < CurrentSettingsVersion)
             {
                 if (loadedSettingsVersion < 3)
@@ -112,6 +327,45 @@ namespace TheMarkedMen
                     markedRaidFrequencyMultiplier = DefaultMarkedRaidFrequencyMultiplier;
                 }
 
+                if (loadedSettingsVersion < 7)
+                {
+                    scheduledWarbandsEnabled = true;
+                    scheduledHordesEnabled = true;
+                    scoutingProbesEnabled = true;
+                    warbandFrequencyMultiplier = 1f;
+                    hordeFrequencyMultiplier = 1f;
+                    probeFrequencyMultiplier = 1f;
+                    firstMarkedRaidDay = 45;
+                    raidPointsMultiplier = 1f;
+                    minimumRaidPoints = 120f;
+                    maximumRaidPoints = 0f;
+                    raidEscalationPerRaid = DefaultRaidEscalationPerRaid;
+                    raidEscalationMaxBonus = DefaultRaidEscalationMaxBonus;
+                    ResetArrivalDefaults();
+                    ResetCompositionDefaults();
+                    infectedAssaultExposureChance = InfectionTransmissionChance;
+                    closeContactExposureChance = InfectionTransmissionChance;
+                    corpseContaminationChance = 1f;
+                    infectionProgressionSpeedMultiplier = 1f;
+                    incubationDurationMultiplier = 1f;
+                    immunitySurvivalChance = 0.02f;
+                    terminalTransformationWeight = 0.55f;
+                    terminalDeathWeight = 0.45f;
+                    reanimationChance = 1f;
+                    reanimationDelayTicks = 900;
+                    starterLineageBreakthroughChance = 0.04f;
+                    markedAlwaysAssault = true;
+                    markedCanTimeoutOrFlee = false;
+                    tacticalRetargetingEnabled = true;
+                    priorityTargetingEnabled = true;
+                    doorTargetingEnabled = true;
+                    infightingChance = 0.12f;
+                    socialTerrorStrength = 1f;
+                    ResetStoryDefaults();
+                    ResetPerformanceDefaults();
+                    currentPreset = "Default";
+                }
+
                 settingsVersion = CurrentSettingsVersion;
             }
 
@@ -132,42 +386,508 @@ namespace TheMarkedMen
 
         public void DoWindowContents(Rect inRect)
         {
-            Rect viewRect = new Rect(0f, 0f, inRect.width - 16f, 900f);
+            Rect viewRect = new Rect(0f, 0f, inRect.width - 16f, 2900f);
             Widgets.BeginScrollView(inRect, ref scrollPosition, viewRect);
             Listing_Standard listing = new Listing_Standard();
             listing.Begin(viewRect);
+
+            listing.Label("Preset: " + currentPreset);
+            if (listing.ButtonText("Casual", null, 1f))
+            {
+                ApplyCasualPreset();
+            }
+            if (listing.ButtonText("Vanilla-like", null, 1f))
+            {
+                ApplyVanillaLikePreset();
+            }
+            if (listing.ButtonText("Default", null, 1f))
+            {
+                ApplyDefaultPreset(true);
+            }
+            if (listing.ButtonText("Brutal", null, 1f))
+            {
+                ApplyBrutalPreset();
+            }
+            if (listing.ButtonText("Outbreak simulator", null, 1f))
+            {
+                ApplyOutbreakPreset();
+            }
+            listing.Gap();
+
             listing.CheckboxLabeled("Enable Marked Virus transmission", ref infectionEnabled);
             listing.CheckboxLabeled("Verbose compatibility log on load", ref verboseCompatibilityLogging);
             listing.Gap();
+
             listing.Label("Raid tuning");
+            listing.CheckboxLabeled("Enable scheduled warbands", ref scheduledWarbandsEnabled);
+            listing.CheckboxLabeled("Enable scheduled hordes", ref scheduledHordesEnabled);
+            listing.CheckboxLabeled("Enable scouting probes", ref scoutingProbesEnabled);
             listing.CheckboxLabeled("Randomize Marked raid timing and arrivals", ref randomizeMarkedRaids);
-            listing.Label("Randomized raids vary automatic raid timers and use safe edge-walk arrival patterns instead of always using the same grouped edge entry.");
-            listing.TextFieldNumericLabeled("Marked raid frequency multiplier", ref markedRaidFrequencyMultiplier, ref markedRaidFrequencyBuffer, MinMarkedRaidFrequencyMultiplier, MaxMarkedRaidFrequencyMultiplier);
-            listing.Label("0 disables automatic Marked raid events. 1 is default. 0.5 is roughly half as frequent. 2 is roughly twice as frequent.");
+            DrawInt(listing, "First Marked raid day", ref firstMarkedRaidDay, 1, 600, "firstMarkedRaidDay");
+            DrawFloat(listing, "Global Marked raid frequency", ref markedRaidFrequencyMultiplier, MinMarkedRaidFrequencyMultiplier, MaxMarkedRaidFrequencyMultiplier, "markedRaidFrequencyMultiplier");
+            DrawFloat(listing, "Warband frequency", ref warbandFrequencyMultiplier, 0f, MaxMarkedRaidFrequencyMultiplier, "warbandFrequencyMultiplier");
+            DrawFloat(listing, "Horde frequency", ref hordeFrequencyMultiplier, 0f, MaxMarkedRaidFrequencyMultiplier, "hordeFrequencyMultiplier");
+            DrawFloat(listing, "Probe storyteller chance", ref probeFrequencyMultiplier, 0f, MaxMarkedRaidFrequencyMultiplier, "probeFrequencyMultiplier");
+            DrawFloat(listing, "Raid points multiplier", ref raidPointsMultiplier, 0.05f, 10f, "raidPointsMultiplier");
+            DrawFloat(listing, "Minimum raid points", ref minimumRaidPoints, 0f, 10000f, "minimumRaidPoints");
+            DrawFloat(listing, "Maximum raid points (0 = uncapped)", ref maximumRaidPoints, 0f, 50000f, "maximumRaidPoints");
+            DrawFloat(listing, "Raid escalation per warband", ref raidEscalationPerRaid, 0f, 2f, "raidEscalationPerRaid");
+            DrawFloat(listing, "Raid escalation cap", ref raidEscalationMaxBonus, 0f, 20f, "raidEscalationMaxBonus");
+            listing.CheckboxLabeled("Allow grouped edge arrival", ref allowGroupedEdgeArrival);
+            listing.CheckboxLabeled("Allow distributed group arrival", ref allowDistributedGroupArrival);
+            listing.CheckboxLabeled("Allow distributed edge arrival", ref allowDistributedArrival);
+            listing.CheckboxLabeled("Allow single edge arrival", ref allowSingleEdgeArrival);
             listing.Gap();
+
+            listing.Label("Enemy composition");
+            DrawFloat(listing, "Berserker weight", ref berserkerWeightMultiplier, 0f, 5f, "berserkerWeightMultiplier");
+            DrawFloat(listing, "Hunter weight", ref hunterWeightMultiplier, 0f, 5f, "hunterWeightMultiplier");
+            DrawFloat(listing, "Stalker weight", ref stalkerWeightMultiplier, 0f, 5f, "stalkerWeightMultiplier");
+            DrawFloat(listing, "Screamer weight", ref screamerWeightMultiplier, 0f, 5f, "screamerWeightMultiplier");
+            DrawFloat(listing, "Brute weight", ref bruteWeightMultiplier, 0f, 5f, "bruteWeightMultiplier");
+            DrawFloat(listing, "Alpha weight", ref alphaWeightMultiplier, 0f, 5f, "alphaWeightMultiplier");
+            listing.CheckboxLabeled("Allow Marked children", ref allowMarkedChildren);
+            DrawInt(listing, "Minimum horde size", ref minimumHordeSize, 1, 50, "minimumHordeSize");
+            DrawInt(listing, "Maximum horde size", ref maximumHordeSize, 1, 100, "maximumHordeSize");
+            DrawInt(listing, "Minimum probe size", ref minimumProbeSize, 1, 20, "minimumProbeSize");
+            DrawInt(listing, "Maximum probe size", ref maximumProbeSize, 1, 30, "maximumProbeSize");
+            DrawInt(listing, "Maximum alphas per raid", ref maximumAlphasPerRaid, 0, 99, "maximumAlphasPerRaid");
+            listing.Gap();
+
             listing.Label("Disease tuning");
-            listing.Label("Marked Virus close contact, blood, and contaminated food exposure have a 45% transmission chance unless the target is immune.");
-            listing.Label("Melee hits no longer have a separate infection rule; the virus spreads through contagious close contact and fluid exposure.");
-            listing.Label("Newly infected pawns immediately assault the nearest non-infected humanlike pawn and will not flee while infected.");
-            listing.TextFieldNumericLabeled("Blood exposure chance", ref bloodExposureChance, ref bloodBuffer, 0f, 1f);
-            listing.TextFieldNumericLabeled("Contaminated food chance", ref foodExposureChance, ref foodBuffer, 0f, 1f);
+            DrawFloat(listing, "Blood exposure chance", ref bloodExposureChance, 0f, 1f, "bloodExposureChance");
+            DrawFloat(listing, "Contaminated food chance", ref foodExposureChance, 0f, 1f, "foodExposureChance");
+            DrawFloat(listing, "Infected assault contact chance", ref infectedAssaultExposureChance, 0f, 1f, "infectedAssaultExposureChance");
+            DrawFloat(listing, "Close-contact contagion chance", ref closeContactExposureChance, 0f, 1f, "closeContactExposureChance");
+            DrawFloat(listing, "Corpse contamination chance", ref corpseContaminationChance, 0f, 1f, "corpseContaminationChance");
+            DrawFloat(listing, "Infection progression speed", ref infectionProgressionSpeedMultiplier, 0.05f, 10f, "infectionProgressionSpeedMultiplier");
+            DrawFloat(listing, "Incubation duration multiplier", ref incubationDurationMultiplier, 0.05f, 10f, "incubationDurationMultiplier");
+            DrawFloat(listing, "Immunity survival chance", ref immunitySurvivalChance, 0f, 1f, "immunitySurvivalChance");
+            DrawFloat(listing, "Terminal transformation weight", ref terminalTransformationWeight, 0f, 10f, "terminalTransformationWeight");
+            DrawFloat(listing, "Terminal death weight", ref terminalDeathWeight, 0f, 10f, "terminalDeathWeight");
+            DrawFloat(listing, "Reanimation chance", ref reanimationChance, 0f, 1f, "reanimationChance");
+            DrawInt(listing, "Reanimation delay ticks", ref reanimationDelayTicks, 60, GenDate.TicksPerDay * 30, "reanimationDelayTicks");
+            DrawFloat(listing, "Starter-lineage breakthrough chance", ref starterLineageBreakthroughChance, 0f, 1f, "starterLineageBreakthroughChance");
             listing.Gap();
+
+            listing.Label("AI and behavior");
+            listing.CheckboxLabeled("Marked pawns always assault", ref markedAlwaysAssault);
+            listing.CheckboxLabeled("Marked pawns can time out or flee", ref markedCanTimeoutOrFlee);
+            listing.CheckboxLabeled("Enable tactical retargeting", ref tacticalRetargetingEnabled);
+            listing.CheckboxLabeled("Enable power, food, doctor, and turret priority targeting", ref priorityTargetingEnabled);
+            listing.CheckboxLabeled("Enable door and wall targeting", ref doorTargetingEnabled);
+            DrawFloat(listing, "Infighting chance", ref infightingChance, 0f, 1f, "infightingChance");
+            DrawFloat(listing, "Panic/social terror strength", ref socialTerrorStrength, 0f, 5f, "socialTerrorStrength");
+            listing.Gap();
+
+            listing.Label("Story and UI");
+            listing.CheckboxLabeled("Enable raid countdown alert", ref raidCountdownAlertEnabled);
+            DrawFloat(listing, "Countdown alert visible days", ref raidCountdownVisibleDays, 0f, 999f, "raidCountdownVisibleDays");
+            DrawFloat(listing, "Countdown high-priority days", ref raidCountdownHighPriorityDays, 0f, 30f, "raidCountdownHighPriorityDays");
+            listing.CheckboxLabeled("Detailed raid letters", ref detailedRaidLetters);
+            listing.CheckboxLabeled("Record incident log entries", ref incidentLogEnabled);
+            listing.CheckboxLabeled("Enable Dev Mode debug actions", ref debugActionsEnabled);
+            listing.Gap();
+
+            listing.Label("Performance");
+            DrawInt(listing, "Contagion pulse interval ticks", ref contagionPulseIntervalTicks, 60, GenDate.TicksPerDay, "contagionPulseIntervalTicks");
+            DrawInt(listing, "Max contagion targets per pulse", ref maxContagionTargetsPerPulse, 0, 50, "maxContagionTargetsPerPulse");
+            DrawInt(listing, "Corpse contamination interval ticks", ref corpseContaminationIntervalTicks, 60, GenDate.TicksPerDay, "corpseContaminationIntervalTicks");
+            DrawInt(listing, "Max corpses per pulse", ref maxCorpsesPerPulse, 0, 50, "maxCorpsesPerPulse");
+            DrawInt(listing, "Tactical retarget interval ticks", ref tacticalRetargetIntervalTicks, 1, 2500, "tacticalRetargetIntervalTicks");
+            DrawInt(listing, "Infighting check interval ticks", ref infightingCheckIntervalTicks, 60, GenDate.TicksPerDay, "infightingCheckIntervalTicks");
+            DrawInt(listing, "Lord cleanup interval ticks", ref lordCleanupIntervalTicks, 60, GenDate.TicksPerDay, "lordCleanupIntervalTicks");
+            DrawInt(listing, "Infected-state maintenance interval ticks", ref infectedStateMaintenanceIntervalTicks, 60, GenDate.TicksPerDay, "infectedStateMaintenanceIntervalTicks");
+            DrawInt(listing, "Reanimation process interval ticks", ref reanimationProcessIntervalTicks, 60, GenDate.TicksPerDay, "reanimationProcessIntervalTicks");
+            DrawInt(listing, "Max pending reanimations per tick", ref maxPendingReanimationsPerTick, 1, 500, "maxPendingReanimationsPerTick");
+            listing.Gap();
+
             listing.Label("RJW compatibility");
             listing.CheckboxLabeled("Auto-enable RJW bridge when RJW is installed", ref rjwAutoEnableWhenInstalled);
             listing.CheckboxLabeled("Enable RJW Marked Virus bridge", ref rjwIntegrationEnabled);
             listing.Label("When RJW is installed, the bridge can transmit Marked Virus through adult RJW close-contact events, gives infected adult pawns a 75% chance to start valid RJW forced enemy-intercourse jobs with adult humanlike targets, preserves active RJW jobs, and adds no hard dependency.");
-            listing.TextFieldNumericLabeled("RJW exposure chance", ref rjwExposureChance, ref rjwBuffer, 0f, 1f);
+            DrawFloat(listing, "RJW exposure chance", ref rjwExposureChance, 0f, 1f, "rjwExposureChance");
             listing.End();
             Widgets.EndScrollView();
             ClampSettings();
         }
 
+        public static float ApplyRaidPointSettings(float points)
+        {
+            TheMarkedMenSettings settings = TheMarkedMenMod.Settings;
+            if (settings == null)
+            {
+                return Mathf.Max(120f, points);
+            }
+
+            float adjusted = Mathf.Max(points, settings.minimumRaidPoints) * settings.raidPointsMultiplier;
+            if (settings.maximumRaidPoints > 0f)
+            {
+                adjusted = Mathf.Min(adjusted, settings.maximumRaidPoints);
+            }
+
+            return Mathf.Max(0f, adjusted);
+        }
+
+        public static float CurrentTerminalTransformationChance(HediffCompProperties_CrossVirus props)
+        {
+            TheMarkedMenSettings settings = TheMarkedMenMod.Settings;
+            if (settings == null)
+            {
+                return Mathf.Clamp01(props?.terminalTransformationChance ?? 0.55f);
+            }
+
+            float total = Mathf.Max(0f, settings.terminalTransformationWeight) + Mathf.Max(0f, settings.terminalDeathWeight);
+            if (total <= 0.001f)
+            {
+                return 1f;
+            }
+
+            return Mathf.Clamp01(settings.terminalTransformationWeight / total);
+        }
+
+        public static int AdjustInfectionTicks(int ticks)
+        {
+            TheMarkedMenSettings settings = TheMarkedMenMod.Settings;
+            if (settings == null)
+            {
+                return Mathf.Max(1, ticks);
+            }
+
+            float duration = Mathf.Max(1f, ticks * settings.incubationDurationMultiplier);
+            duration /= Mathf.Max(0.05f, settings.infectionProgressionSpeedMultiplier);
+            return Mathf.Clamp(Mathf.RoundToInt(duration), 1, GenDate.TicksPerDay * 120);
+        }
+
+        public float KindWeightMultiplier(PawnKindDef kind)
+        {
+            if (kind == CADefOf.Berserker)
+            {
+                return berserkerWeightMultiplier;
+            }
+            if (kind == CADefOf.Hunter)
+            {
+                return hunterWeightMultiplier;
+            }
+            if (kind == CADefOf.Stalker)
+            {
+                return stalkerWeightMultiplier;
+            }
+            if (kind == CADefOf.Screamer)
+            {
+                return screamerWeightMultiplier;
+            }
+            if (kind == CADefOf.Brute)
+            {
+                return bruteWeightMultiplier;
+            }
+            if (kind == CADefOf.Alpha)
+            {
+                return alphaWeightMultiplier;
+            }
+            if (kind == CADefOf.Child)
+            {
+                return allowMarkedChildren ? Mathf.Max(0.01f, berserkerWeightMultiplier) : 0f;
+            }
+
+            return 1f;
+        }
+
+        public static float AdjustKindWeight(PawnKindDef kind, float baseWeight)
+        {
+            if (baseWeight <= 0f)
+            {
+                return 0f;
+            }
+
+            TheMarkedMenSettings settings = TheMarkedMenMod.Settings;
+            return baseWeight * Mathf.Clamp(settings?.KindWeightMultiplier(kind) ?? 1f, 0f, 5f);
+        }
+
+        private void DrawFloat(Listing_Standard listing, string label, ref float value, float min, float max, string key)
+        {
+            string buffer = GetBuffer(key);
+            listing.TextFieldNumericLabeled(label, ref value, ref buffer, min, max);
+            numericBuffers[key] = buffer;
+        }
+
+        private void DrawInt(Listing_Standard listing, string label, ref int value, int min, int max, string key)
+        {
+            string buffer = GetBuffer(key);
+            listing.TextFieldNumericLabeled(label, ref value, ref buffer, min, max);
+            numericBuffers[key] = buffer;
+        }
+
+        private string GetBuffer(string key)
+        {
+            return numericBuffers.TryGetValue(key, out string buffer) ? buffer : null;
+        }
+
         private void ClampSettings()
         {
             markedRaidFrequencyMultiplier = Mathf.Clamp(markedRaidFrequencyMultiplier, MinMarkedRaidFrequencyMultiplier, MaxMarkedRaidFrequencyMultiplier);
+            warbandFrequencyMultiplier = Mathf.Clamp(warbandFrequencyMultiplier, 0f, MaxMarkedRaidFrequencyMultiplier);
+            hordeFrequencyMultiplier = Mathf.Clamp(hordeFrequencyMultiplier, 0f, MaxMarkedRaidFrequencyMultiplier);
+            probeFrequencyMultiplier = Mathf.Clamp(probeFrequencyMultiplier, 0f, MaxMarkedRaidFrequencyMultiplier);
+            firstMarkedRaidDay = Mathf.Clamp(firstMarkedRaidDay, 1, 600);
+            raidPointsMultiplier = Mathf.Clamp(raidPointsMultiplier, 0.05f, 10f);
+            minimumRaidPoints = Mathf.Clamp(minimumRaidPoints, 0f, 10000f);
+            maximumRaidPoints = Mathf.Clamp(maximumRaidPoints, 0f, 50000f);
+            raidEscalationPerRaid = Mathf.Clamp(raidEscalationPerRaid, 0f, 2f);
+            raidEscalationMaxBonus = Mathf.Clamp(raidEscalationMaxBonus, 0f, 20f);
+            berserkerWeightMultiplier = Mathf.Clamp(berserkerWeightMultiplier, 0f, 5f);
+            hunterWeightMultiplier = Mathf.Clamp(hunterWeightMultiplier, 0f, 5f);
+            stalkerWeightMultiplier = Mathf.Clamp(stalkerWeightMultiplier, 0f, 5f);
+            screamerWeightMultiplier = Mathf.Clamp(screamerWeightMultiplier, 0f, 5f);
+            bruteWeightMultiplier = Mathf.Clamp(bruteWeightMultiplier, 0f, 5f);
+            alphaWeightMultiplier = Mathf.Clamp(alphaWeightMultiplier, 0f, 5f);
+            minimumHordeSize = Mathf.Clamp(minimumHordeSize, 1, 50);
+            maximumHordeSize = Mathf.Clamp(maximumHordeSize, minimumHordeSize, 100);
+            minimumProbeSize = Mathf.Clamp(minimumProbeSize, 1, 20);
+            maximumProbeSize = Mathf.Clamp(maximumProbeSize, minimumProbeSize, 30);
+            maximumAlphasPerRaid = Mathf.Clamp(maximumAlphasPerRaid, 0, 99);
             bloodExposureChance = Mathf.Clamp01(bloodExposureChance);
             foodExposureChance = Mathf.Clamp01(foodExposureChance);
             rjwExposureChance = Mathf.Clamp01(rjwExposureChance);
+            infectedAssaultExposureChance = Mathf.Clamp01(infectedAssaultExposureChance);
+            closeContactExposureChance = Mathf.Clamp01(closeContactExposureChance);
+            corpseContaminationChance = Mathf.Clamp01(corpseContaminationChance);
+            infectionProgressionSpeedMultiplier = Mathf.Clamp(infectionProgressionSpeedMultiplier, 0.05f, 10f);
+            incubationDurationMultiplier = Mathf.Clamp(incubationDurationMultiplier, 0.05f, 10f);
+            immunitySurvivalChance = Mathf.Clamp01(immunitySurvivalChance);
+            terminalTransformationWeight = Mathf.Clamp(terminalTransformationWeight, 0f, 10f);
+            terminalDeathWeight = Mathf.Clamp(terminalDeathWeight, 0f, 10f);
+            reanimationChance = Mathf.Clamp01(reanimationChance);
+            reanimationDelayTicks = Mathf.Clamp(reanimationDelayTicks, 60, GenDate.TicksPerDay * 30);
+            starterLineageBreakthroughChance = Mathf.Clamp01(starterLineageBreakthroughChance);
+            infightingChance = Mathf.Clamp01(infightingChance);
+            socialTerrorStrength = Mathf.Clamp(socialTerrorStrength, 0f, 5f);
+            raidCountdownVisibleDays = Mathf.Clamp(raidCountdownVisibleDays, 0f, 999f);
+            raidCountdownHighPriorityDays = Mathf.Clamp(raidCountdownHighPriorityDays, 0f, 30f);
+            contagionPulseIntervalTicks = Mathf.Clamp(contagionPulseIntervalTicks, 60, GenDate.TicksPerDay);
+            maxContagionTargetsPerPulse = Mathf.Clamp(maxContagionTargetsPerPulse, 0, 50);
+            corpseContaminationIntervalTicks = Mathf.Clamp(corpseContaminationIntervalTicks, 60, GenDate.TicksPerDay);
+            maxCorpsesPerPulse = Mathf.Clamp(maxCorpsesPerPulse, 0, 50);
+            tacticalRetargetIntervalTicks = Mathf.Clamp(tacticalRetargetIntervalTicks, 1, 2500);
+            infightingCheckIntervalTicks = Mathf.Clamp(infightingCheckIntervalTicks, 60, GenDate.TicksPerDay);
+            lordCleanupIntervalTicks = Mathf.Clamp(lordCleanupIntervalTicks, 60, GenDate.TicksPerDay);
+            infectedStateMaintenanceIntervalTicks = Mathf.Clamp(infectedStateMaintenanceIntervalTicks, 60, GenDate.TicksPerDay);
+            reanimationProcessIntervalTicks = Mathf.Clamp(reanimationProcessIntervalTicks, 60, GenDate.TicksPerDay);
+            maxPendingReanimationsPerTick = Mathf.Clamp(maxPendingReanimationsPerTick, 1, 500);
+        }
+
+        private void ApplyDefaultPreset(bool updatePreset)
+        {
+            scheduledWarbandsEnabled = true;
+            scheduledHordesEnabled = true;
+            scoutingProbesEnabled = true;
+            randomizeMarkedRaids = false;
+            markedRaidFrequencyMultiplier = 1f;
+            warbandFrequencyMultiplier = 1f;
+            hordeFrequencyMultiplier = 1f;
+            probeFrequencyMultiplier = 1f;
+            firstMarkedRaidDay = 45;
+            raidPointsMultiplier = 1f;
+            minimumRaidPoints = 120f;
+            maximumRaidPoints = 0f;
+            raidEscalationPerRaid = DefaultRaidEscalationPerRaid;
+            raidEscalationMaxBonus = DefaultRaidEscalationMaxBonus;
+            ResetArrivalDefaults();
+            ResetCompositionDefaults();
+            bloodExposureChance = InfectionTransmissionChance;
+            foodExposureChance = InfectionTransmissionChance;
+            rjwExposureChance = InfectionTransmissionChance;
+            infectedAssaultExposureChance = InfectionTransmissionChance;
+            closeContactExposureChance = InfectionTransmissionChance;
+            corpseContaminationChance = 1f;
+            infectionProgressionSpeedMultiplier = 1f;
+            incubationDurationMultiplier = 1f;
+            immunitySurvivalChance = 0.02f;
+            terminalTransformationWeight = 0.55f;
+            terminalDeathWeight = 0.45f;
+            reanimationChance = 1f;
+            reanimationDelayTicks = 900;
+            starterLineageBreakthroughChance = 0.04f;
+            markedAlwaysAssault = true;
+            markedCanTimeoutOrFlee = false;
+            tacticalRetargetingEnabled = true;
+            priorityTargetingEnabled = true;
+            doorTargetingEnabled = true;
+            infightingChance = 0.12f;
+            socialTerrorStrength = 1f;
+            ResetStoryDefaults();
+            ResetPerformanceDefaults();
+            if (updatePreset)
+            {
+                currentPreset = "Default";
+            }
+        }
+
+        private void ApplyCasualPreset()
+        {
+            ApplyDefaultPreset(false);
+            currentPreset = "Casual";
+            markedRaidFrequencyMultiplier = 0.5f;
+            warbandFrequencyMultiplier = 0.7f;
+            hordeFrequencyMultiplier = 0.5f;
+            probeFrequencyMultiplier = 0.8f;
+            firstMarkedRaidDay = 60;
+            raidPointsMultiplier = 0.7f;
+            raidEscalationPerRaid = 0.08f;
+            raidEscalationMaxBonus = 1.5f;
+            bloodExposureChance = 0.22f;
+            foodExposureChance = 0.15f;
+            infectedAssaultExposureChance = 0.25f;
+            closeContactExposureChance = 0.2f;
+            corpseContaminationChance = 0.35f;
+            infectionProgressionSpeedMultiplier = 0.55f;
+            immunitySurvivalChance = 0.08f;
+            terminalTransformationWeight = 0.35f;
+            terminalDeathWeight = 0.65f;
+            reanimationChance = 0.35f;
+            minimumHordeSize = 2;
+            maximumHordeSize = 6;
+            maximumAlphasPerRaid = 1;
+            socialTerrorStrength = 0.5f;
+            ClampSettings();
+        }
+
+        private void ApplyVanillaLikePreset()
+        {
+            ApplyDefaultPreset(false);
+            currentPreset = "Vanilla-like";
+            markedRaidFrequencyMultiplier = 0.75f;
+            hordeFrequencyMultiplier = 0.6f;
+            firstMarkedRaidDay = 50;
+            raidPointsMultiplier = 0.9f;
+            raidEscalationPerRaid = 0.1f;
+            raidEscalationMaxBonus = 2f;
+            corpseContaminationChance = 0.65f;
+            reanimationChance = 0.7f;
+            socialTerrorStrength = 0.75f;
+            ClampSettings();
+        }
+
+        private void ApplyBrutalPreset()
+        {
+            ApplyDefaultPreset(false);
+            currentPreset = "Brutal";
+            randomizeMarkedRaids = true;
+            markedRaidFrequencyMultiplier = 1.6f;
+            warbandFrequencyMultiplier = 1.4f;
+            hordeFrequencyMultiplier = 1.8f;
+            probeFrequencyMultiplier = 1.5f;
+            firstMarkedRaidDay = 30;
+            raidPointsMultiplier = 1.25f;
+            raidEscalationPerRaid = 0.3f;
+            raidEscalationMaxBonus = 8f;
+            minimumHordeSize = 5;
+            maximumHordeSize = 18;
+            maximumProbeSize = 6;
+            alphaWeightMultiplier = 1.6f;
+            bruteWeightMultiplier = 1.4f;
+            bloodExposureChance = 0.65f;
+            infectedAssaultExposureChance = 0.65f;
+            closeContactExposureChance = 0.65f;
+            corpseContaminationChance = 1f;
+            infectionProgressionSpeedMultiplier = 1.5f;
+            immunitySurvivalChance = 0.01f;
+            terminalTransformationWeight = 0.75f;
+            terminalDeathWeight = 0.25f;
+            reanimationChance = 1f;
+            reanimationDelayTicks = 600;
+            starterLineageBreakthroughChance = 0.08f;
+            socialTerrorStrength = 1.5f;
+            ClampSettings();
+        }
+
+        private void ApplyOutbreakPreset()
+        {
+            ApplyDefaultPreset(false);
+            currentPreset = "Outbreak simulator";
+            scheduledWarbandsEnabled = true;
+            scheduledHordesEnabled = true;
+            scoutingProbesEnabled = true;
+            randomizeMarkedRaids = true;
+            markedRaidFrequencyMultiplier = 1.2f;
+            hordeFrequencyMultiplier = 2.2f;
+            probeFrequencyMultiplier = 1.6f;
+            firstMarkedRaidDay = 20;
+            raidPointsMultiplier = 0.85f;
+            minimumHordeSize = 8;
+            maximumHordeSize = 30;
+            berserkerWeightMultiplier = 1.5f;
+            hunterWeightMultiplier = 0.75f;
+            stalkerWeightMultiplier = 1.35f;
+            screamerWeightMultiplier = 1.4f;
+            bruteWeightMultiplier = 0.8f;
+            alphaWeightMultiplier = 0.6f;
+            bloodExposureChance = 0.8f;
+            foodExposureChance = 0.7f;
+            infectedAssaultExposureChance = 0.8f;
+            closeContactExposureChance = 0.9f;
+            corpseContaminationChance = 1f;
+            infectionProgressionSpeedMultiplier = 2.2f;
+            immunitySurvivalChance = 0.005f;
+            terminalTransformationWeight = 0.9f;
+            terminalDeathWeight = 0.1f;
+            reanimationChance = 1f;
+            reanimationDelayTicks = 300;
+            starterLineageBreakthroughChance = 0.12f;
+            contagionPulseIntervalTicks = 300;
+            maxContagionTargetsPerPulse = 6;
+            corpseContaminationIntervalTicks = 360;
+            maxCorpsesPerPulse = 5;
+            socialTerrorStrength = 1.25f;
+            ClampSettings();
+        }
+
+        private void ResetArrivalDefaults()
+        {
+            allowGroupedEdgeArrival = true;
+            allowDistributedGroupArrival = true;
+            allowDistributedArrival = true;
+            allowSingleEdgeArrival = true;
+        }
+
+        private void ResetCompositionDefaults()
+        {
+            berserkerWeightMultiplier = 1f;
+            hunterWeightMultiplier = 1f;
+            stalkerWeightMultiplier = 1f;
+            screamerWeightMultiplier = 1f;
+            bruteWeightMultiplier = 1f;
+            alphaWeightMultiplier = 1f;
+            allowMarkedChildren = false;
+            minimumHordeSize = 3;
+            maximumHordeSize = 12;
+            minimumProbeSize = 2;
+            maximumProbeSize = 4;
+            maximumAlphasPerRaid = 99;
+        }
+
+        private void ResetStoryDefaults()
+        {
+            raidCountdownAlertEnabled = true;
+            raidCountdownVisibleDays = 999f;
+            raidCountdownHighPriorityDays = 1f;
+            detailedRaidLetters = true;
+            incidentLogEnabled = true;
+            debugActionsEnabled = true;
+        }
+
+        private void ResetPerformanceDefaults()
+        {
+            contagionPulseIntervalTicks = 500;
+            maxContagionTargetsPerPulse = 3;
+            corpseContaminationIntervalTicks = 750;
+            maxCorpsesPerPulse = 2;
+            tacticalRetargetIntervalTicks = 6;
+            infightingCheckIntervalTicks = 1000;
+            lordCleanupIntervalTicks = 250;
+            infectedStateMaintenanceIntervalTicks = 2500;
+            reanimationProcessIntervalTicks = 2500;
+            maxPendingReanimationsPerTick = 24;
         }
     }
 
@@ -191,6 +911,7 @@ namespace TheMarkedMen
         private static PawnKindDef stalker;
         private static PawnKindDef screamer;
         private static PawnKindDef alpha;
+        private static PawnKindDef child;
         private static TattooDef crossedFaceTattoo;
         private static IncidentDef crossedRaid;
         private static IncidentDef crossedHorde;
@@ -214,6 +935,7 @@ namespace TheMarkedMen
         public static PawnKindDef Stalker => stalker ?? (stalker = DefDatabase<PawnKindDef>.GetNamedSilentFail("CA_CrossedStalker"));
         public static PawnKindDef Screamer => screamer ?? (screamer = DefDatabase<PawnKindDef>.GetNamedSilentFail("CA_CrossedScreamer"));
         public static PawnKindDef Alpha => alpha ?? (alpha = DefDatabase<PawnKindDef>.GetNamedSilentFail("CA_CrossedAlpha"));
+        public static PawnKindDef Child => child ?? (child = DefDatabase<PawnKindDef>.GetNamedSilentFail("CA_CrossedChild"));
         public static TattooDef CrossedFaceTattoo => crossedFaceTattoo ?? (crossedFaceTattoo = DefDatabase<TattooDef>.GetNamedSilentFail("CA_Face_CrossedRash"));
         public static IncidentDef CrossedRaid => crossedRaid ?? (crossedRaid = DefDatabase<IncidentDef>.GetNamedSilentFail("CA_CrossedRaid"));
         public static IncidentDef CrossedHorde => crossedHorde ?? (crossedHorde = DefDatabase<IncidentDef>.GetNamedSilentFail("CA_CrossedHorde"));
@@ -244,6 +966,7 @@ namespace TheMarkedMen
 
         private readonly Game game;
         private int nextMaintenanceTick;
+        private int nextReanimationProcessTick;
         private int nextRaidMonitorTick;
         private int nextRaidTick;
         private int nextHordeTick;
@@ -292,7 +1015,9 @@ namespace TheMarkedMen
             InitializeStarterLineageResistance();
             EnsureInfectedStateOnLoadedPawns();
             int ticks = Find.TickManager?.TicksGame ?? 0;
-            if (ticks >= RaidFirstTick)
+            int raidFirstTick = TheMarkedMenSettings.FirstMarkedRaidTick;
+            int hordeFirstTick = CurrentHordeFirstTick;
+            if (ticks >= raidFirstTick)
             {
                 raidScheduleActivated = true;
             }
@@ -301,10 +1026,10 @@ namespace TheMarkedMen
                 raidScheduleActivated = false;
             }
 
-            if (TheMarkedMenSettings.AutomaticMarkedRaidsEnabled)
+            if (TheMarkedMenSettings.WarbandsEnabled)
             {
                 bool raidTimerInvalid = nextRaidTick <= 0
-                    || !raidScheduleActivated && ticks < RaidFirstTick && nextRaidTick != RaidFirstTick
+                    || !raidScheduleActivated && ticks < raidFirstTick && nextRaidTick != raidFirstTick
                     || raidScheduleActivated && nextRaidTick - ticks > CalculateMaxAdjustedRaidIntervalTicks();
                 if (raidTimerInvalid)
                 {
@@ -322,11 +1047,11 @@ namespace TheMarkedMen
 
             raidScheduleVersion = RaidScheduleVersion;
 
-            if (TheMarkedMenSettings.AutomaticMarkedRaidsEnabled)
+            if (TheMarkedMenSettings.HordesEnabled)
             {
                 bool hordeTimerInvalid = nextHordeTick <= 0
-                    || ticks < HordeFirstTick && nextHordeTick != HordeFirstTick
-                    || ticks >= HordeFirstTick && nextHordeTick - ticks > CalculateMaxAdjustedHordeIntervalTicks();
+                    || ticks < hordeFirstTick && nextHordeTick != hordeFirstTick
+                    || ticks >= hordeFirstTick && nextHordeTick - ticks > CalculateMaxAdjustedHordeIntervalTicks();
                 if (hordeTimerInvalid)
                 {
                     ScheduleNextHorde(ticks);
@@ -341,6 +1066,7 @@ namespace TheMarkedMen
         public override void ExposeData()
         {
             Scribe_Values.Look(ref nextMaintenanceTick, "nextMaintenanceTick", 0);
+            Scribe_Values.Look(ref nextReanimationProcessTick, "nextReanimationProcessTick", 0);
             Scribe_Values.Look(ref nextRaidMonitorTick, "nextRaidMonitorTick", 0);
             Scribe_Values.Look(ref nextRaidTick, "nextRaidTick", 0);
             Scribe_Values.Look(ref nextHordeTick, "nextHordeTick", 0);
@@ -401,6 +1127,12 @@ namespace TheMarkedMen
             int ticks = Find.TickManager.TicksGame;
             TryFireScheduledRaid(ticks);
             MonitorActiveRaid(ticks);
+            if (ticks >= nextReanimationProcessTick)
+            {
+                nextReanimationProcessTick = ticks + TheMarkedMenSettings.ReanimationProcessIntervalTicks;
+                ProcessPendingReanimations();
+            }
+
             if (ticks < nextMaintenanceTick)
             {
                 return;
@@ -409,7 +1141,6 @@ namespace TheMarkedMen
             nextMaintenanceTick = ticks + MaintenanceTickInterval;
             InitializeStarterLineageResistance();
             EnsureInfectedStateOnLoadedPawns();
-            ProcessPendingReanimations();
             TryFireScheduledHorde(ticks);
         }
 
@@ -419,7 +1150,7 @@ namespace TheMarkedMen
             ticksUntilRaid = 0;
             targetMap = null;
 
-            if (Find.TickManager == null || activeRaid || CADefOf.CrossedRaid == null || !TheMarkedMenSettings.AutomaticMarkedRaidsEnabled)
+            if (Find.TickManager == null || activeRaid || CADefOf.CrossedRaid == null || !TheMarkedMenSettings.WarbandsEnabled)
             {
                 return false;
             }
@@ -431,9 +1162,10 @@ namespace TheMarkedMen
             }
 
             int ticks = Find.TickManager.TicksGame;
-            if (!raidScheduleActivated && ticks < RaidFirstTick)
+            int raidFirstTick = TheMarkedMenSettings.FirstMarkedRaidTick;
+            if (!raidScheduleActivated && ticks < raidFirstTick)
             {
-                nextTick = RaidFirstTick;
+                nextTick = raidFirstTick;
             }
             else
             {
@@ -462,7 +1194,7 @@ namespace TheMarkedMen
 
         public bool DebugScheduleRaidSoon()
         {
-            if (Find.TickManager == null || CADefOf.CrossedRaid == null || FindRaidTargetMap() == null || !TheMarkedMenSettings.AutomaticMarkedRaidsEnabled)
+            if (Find.TickManager == null || CADefOf.CrossedRaid == null || FindRaidTargetMap() == null || !TheMarkedMenSettings.WarbandsEnabled)
             {
                 return false;
             }
@@ -516,6 +1248,11 @@ namespace TheMarkedMen
 
         public void AddIncident(string text)
         {
+            if (!TheMarkedMenSettings.IncidentLogEnabled)
+            {
+                return;
+            }
+
             if (text.NullOrEmpty())
             {
                 return;
@@ -613,14 +1350,14 @@ namespace TheMarkedMen
 
         public float CalculateEscalatedRaidPoints(float points)
         {
-            float minimum = CADefOf.CrossedRaid?.minThreatPoints ?? 120f;
+            float minimum = Mathf.Max(CADefOf.CrossedRaid?.minThreatPoints ?? 120f, TheMarkedMenMod.Settings?.minimumRaidPoints ?? 120f);
             float basePoints = Mathf.Max(points, minimum);
-            return Mathf.Max(basePoints, basePoints * CurrentRaidEscalationMultiplier());
+            return TheMarkedMenSettings.ApplyRaidPointSettings(Mathf.Max(basePoints, basePoints * CurrentRaidEscalationMultiplier()));
         }
 
         private float CurrentRaidEscalationMultiplier()
         {
-            return 1f + Mathf.Min(totalCrossedRaidsStarted * RaidEscalationPerRaid, RaidEscalationMaxBonus);
+            return 1f + Mathf.Min(totalCrossedRaidsStarted * TheMarkedMenSettings.RaidEscalationPerRaid, TheMarkedMenSettings.RaidEscalationMaxBonus);
         }
 
         private void BeginOrExtendActiveRaid(Map map, List<Pawn> spawnedPawns, float points)
@@ -939,16 +1676,29 @@ namespace TheMarkedMen
                 return;
             }
 
+            if (!Rand.Chance(TheMarkedMenSettings.ReanimationChance))
+            {
+                CrossedUtility.MarkDiedFromMarkedVirus(pawn);
+                return;
+            }
+
             pendingReanimationPawns.Add(pawn);
-            pendingReanimationTicks.Add((Find.TickManager?.TicksGame ?? 0) + ReanimationDelayTicks);
+            pendingReanimationTicks.Add((Find.TickManager?.TicksGame ?? 0) + TheMarkedMenSettings.ReanimationDelayTicks);
             NotifyReanimationQueued(pawn);
         }
 
         private void ProcessPendingReanimations()
         {
             int ticks = Find.TickManager?.TicksGame ?? 0;
+            int processed = 0;
+            int maxProcessed = TheMarkedMenSettings.MaxPendingReanimationsPerTick;
             for (int i = pendingReanimationPawns.Count - 1; i >= 0; i--)
             {
+                if (processed >= maxProcessed)
+                {
+                    return;
+                }
+
                 Pawn pawn = pendingReanimationPawns[i];
                 int readyTick = i < pendingReanimationTicks.Count ? pendingReanimationTicks[i] : 0;
                 if (ticks < readyTick)
@@ -972,10 +1722,12 @@ namespace TheMarkedMen
                 if (TryReanimatePawn(pawn))
                 {
                     RemovePendingReanimationAt(i);
+                    processed++;
                 }
                 else
                 {
-                    pendingReanimationTicks[i] = ticks + MaintenanceTickInterval;
+                    pendingReanimationTicks[i] = ticks + TheMarkedMenSettings.ReanimationProcessIntervalTicks;
+                    processed++;
                 }
             }
         }
@@ -990,7 +1742,7 @@ namespace TheMarkedMen
                     removeDiedThoughts = false,
                     restoreMissingParts = false,
                     canPickUpOpportunisticWeapons = true,
-                    canTimeoutOrFlee = false,
+                    canTimeoutOrFlee = TheMarkedMenSettings.MarkedCanTimeoutOrFlee,
                     canKidnap = false,
                     canSteal = false,
                     useAvoidGridSmart = false
@@ -1026,7 +1778,7 @@ namespace TheMarkedMen
 
         private void TryFireScheduledRaid(int ticks)
         {
-            if (!TheMarkedMenSettings.AutomaticMarkedRaidsEnabled)
+            if (!TheMarkedMenSettings.WarbandsEnabled)
             {
                 nextRaidTick = 0;
                 return;
@@ -1034,9 +1786,10 @@ namespace TheMarkedMen
 
             if (!raidScheduleActivated)
             {
-                if (ticks < RaidFirstTick)
+                int raidFirstTick = TheMarkedMenSettings.FirstMarkedRaidTick;
+                if (ticks < raidFirstTick)
                 {
-                    nextRaidTick = RaidFirstTick;
+                    nextRaidTick = raidFirstTick;
                     return;
                 }
 
@@ -1079,7 +1832,7 @@ namespace TheMarkedMen
             parms.pawnGroupKind = PawnGroupKindDefOf.Combat;
             parms.canKidnap = false;
             parms.canSteal = false;
-            parms.canTimeoutOrFlee = false;
+            parms.canTimeoutOrFlee = TheMarkedMenSettings.MarkedCanTimeoutOrFlee;
             parms.forced = true;
             ApplyMarkedRaidArrivalPattern(parms);
 
@@ -1088,18 +1841,19 @@ namespace TheMarkedMen
 
         private void ScheduleNextRaid(int fromTick)
         {
-            if (!TheMarkedMenSettings.AutomaticMarkedRaidsEnabled)
+            if (!TheMarkedMenSettings.WarbandsEnabled)
             {
                 nextRaidTick = 0;
                 return;
             }
 
-            nextRaidTick = !raidScheduleActivated && fromTick < RaidFirstTick ? RaidFirstTick : fromTick + CalculateAdjustedRaidIntervalTicks(true);
+            int raidFirstTick = TheMarkedMenSettings.FirstMarkedRaidTick;
+            nextRaidTick = !raidScheduleActivated && fromTick < raidFirstTick ? raidFirstTick : fromTick + CalculateAdjustedRaidIntervalTicks(true);
         }
 
         private void MigrateRaidSchedule(int ticks)
         {
-            if (!raidScheduleActivated || ticks < RaidFirstTick || nextRaidTick <= ticks)
+            if (!raidScheduleActivated || ticks < TheMarkedMenSettings.FirstMarkedRaidTick || nextRaidTick <= ticks)
             {
                 return;
             }
@@ -1117,9 +1871,11 @@ namespace TheMarkedMen
             return FindHordeTargetMap();
         }
 
+        private static int CurrentHordeFirstTick => TheMarkedMenSettings.FirstMarkedRaidTick + HordeBaseIntervalTicks;
+
         private static float CalculateStorytellerRaidPoints(Map map, IncidentDef raidDef, float existingPoints)
         {
-            float minimum = raidDef == null ? 120f : raidDef.minThreatPoints;
+            float minimum = Mathf.Max(raidDef == null ? 120f : raidDef.minThreatPoints, TheMarkedMenMod.Settings?.minimumRaidPoints ?? 120f);
             float storytellerPoints = map == null ? minimum : StorytellerUtility.DefaultThreatPointsNow(map);
             float points = Mathf.Max(existingPoints, storytellerPoints, minimum);
             float pressure = Mathf.InverseLerp(120f, 3600f, points);
@@ -1128,15 +1884,16 @@ namespace TheMarkedMen
 
         private void TryFireScheduledHorde(int ticks)
         {
-            if (!TheMarkedMenSettings.AutomaticMarkedRaidsEnabled)
+            if (!TheMarkedMenSettings.HordesEnabled)
             {
                 nextHordeTick = 0;
                 return;
             }
 
-            if (ticks < HordeFirstTick)
+            int hordeFirstTick = CurrentHordeFirstTick;
+            if (ticks < hordeFirstTick)
             {
-                nextHordeTick = HordeFirstTick;
+                nextHordeTick = hordeFirstTick;
                 return;
             }
 
@@ -1178,7 +1935,7 @@ namespace TheMarkedMen
             parms.pawnGroupKind = PawnGroupKindDefOf.Combat;
             parms.canKidnap = false;
             parms.canSteal = false;
-            parms.canTimeoutOrFlee = false;
+            parms.canTimeoutOrFlee = TheMarkedMenSettings.MarkedCanTimeoutOrFlee;
             parms.forced = false;
             ApplyMarkedRaidArrivalPattern(parms);
 
@@ -1202,7 +1959,7 @@ namespace TheMarkedMen
             parms.pawnGroupKind = PawnGroupKindDefOf.Combat;
             parms.canKidnap = false;
             parms.canSteal = false;
-            parms.canTimeoutOrFlee = false;
+            parms.canTimeoutOrFlee = TheMarkedMenSettings.MarkedCanTimeoutOrFlee;
             parms.forced = force;
             ApplyMarkedRaidArrivalPattern(parms);
 
@@ -1251,16 +2008,29 @@ namespace TheMarkedMen
         private static PawnsArrivalModeDef ChooseMarkedRaidArrivalMode(IncidentParms parms)
         {
             PawnsArrivalModeDef fallback = PawnsArrivalModeDefOf.EdgeWalkInGroups;
-            if (!TheMarkedMenSettings.RandomizeMarkedRaids)
+            TheMarkedMenSettings settings = TheMarkedMenMod.Settings;
+            if (!TheMarkedMenSettings.RandomizeMarkedRaids && (settings == null || settings.allowGroupedEdgeArrival))
             {
                 return fallback;
             }
 
             List<PawnsArrivalModeDef> candidates = new List<PawnsArrivalModeDef>(4);
-            AddArrivalCandidate(candidates, PawnsArrivalModeDefOf.EdgeWalkInGroups, parms);
-            AddArrivalCandidate(candidates, PawnsArrivalModeDefOf.EdgeWalkInDistributedGroups, parms);
-            AddArrivalCandidate(candidates, PawnsArrivalModeDefOf.EdgeWalkInDistributed, parms);
-            AddArrivalCandidate(candidates, PawnsArrivalModeDefOf.EdgeWalkIn, parms);
+            if (settings == null || settings.allowGroupedEdgeArrival)
+            {
+                AddArrivalCandidate(candidates, PawnsArrivalModeDefOf.EdgeWalkInGroups, parms);
+            }
+            if (settings == null || settings.allowDistributedGroupArrival)
+            {
+                AddArrivalCandidate(candidates, PawnsArrivalModeDefOf.EdgeWalkInDistributedGroups, parms);
+            }
+            if (settings == null || settings.allowDistributedArrival)
+            {
+                AddArrivalCandidate(candidates, PawnsArrivalModeDefOf.EdgeWalkInDistributed, parms);
+            }
+            if (settings == null || settings.allowSingleEdgeArrival)
+            {
+                AddArrivalCandidate(candidates, PawnsArrivalModeDefOf.EdgeWalkIn, parms);
+            }
 
             if (candidates.Count == 0)
             {
@@ -1285,13 +2055,14 @@ namespace TheMarkedMen
 
         private void ScheduleNextHorde(int fromTick)
         {
-            if (!TheMarkedMenSettings.AutomaticMarkedRaidsEnabled)
+            if (!TheMarkedMenSettings.HordesEnabled)
             {
                 nextHordeTick = 0;
                 return;
             }
 
-            nextHordeTick = fromTick < HordeFirstTick ? HordeFirstTick : fromTick + CalculateAdjustedHordeIntervalTicks(FindHordeTargetMap(), true);
+            int hordeFirstTick = CurrentHordeFirstTick;
+            nextHordeTick = fromTick < hordeFirstTick ? hordeFirstTick : fromTick + CalculateAdjustedHordeIntervalTicks(FindHordeTargetMap(), true);
         }
 
         private void InitializeStarterLineageResistance()
@@ -1343,13 +2114,13 @@ namespace TheMarkedMen
 
         private static int CalculateAdjustedRaidIntervalTicks(bool allowRandomize)
         {
-            int adjusted = ApplyRaidFrequencyToInterval(RaidIntervalTicks, RaidMinimumIntervalTicks);
+            int adjusted = ApplyRaidFrequencyToInterval(RaidIntervalTicks, RaidMinimumIntervalTicks, TheMarkedMenSettings.WarbandFrequencyMultiplier);
             return ApplyRaidRandomization(adjusted, RaidMinimumIntervalTicks, allowRandomize);
         }
 
         private static int CalculateMaxAdjustedRaidIntervalTicks()
         {
-            int adjusted = ApplyRaidFrequencyToInterval(RaidIntervalTicks, RaidMinimumIntervalTicks);
+            int adjusted = ApplyRaidFrequencyToInterval(RaidIntervalTicks, RaidMinimumIntervalTicks, TheMarkedMenSettings.WarbandFrequencyMultiplier);
             return ApplyRaidRandomizationMax(adjusted, RaidMinimumIntervalTicks);
         }
 
@@ -1362,19 +2133,18 @@ namespace TheMarkedMen
             float difficultyFactor = Mathf.Clamp(1f / Mathf.Sqrt(threatScale), 0.75f, 1f);
             int adjusted = Mathf.RoundToInt(HordeBaseIntervalTicks * pressureFactor * difficultyFactor);
             adjusted = Mathf.Clamp(adjusted, HordeMinIntervalTicks, HordeMaxIntervalTicks);
-            adjusted = ApplyRaidFrequencyToInterval(adjusted, RaidMinimumIntervalTicks);
+            adjusted = ApplyRaidFrequencyToInterval(adjusted, RaidMinimumIntervalTicks, TheMarkedMenSettings.HordeFrequencyMultiplier);
             return ApplyRaidRandomization(adjusted, RaidMinimumIntervalTicks, allowRandomize);
         }
 
         private static int CalculateMaxAdjustedHordeIntervalTicks()
         {
-            int adjusted = ApplyRaidFrequencyToInterval(HordeMaxIntervalTicks, RaidMinimumIntervalTicks);
+            int adjusted = ApplyRaidFrequencyToInterval(HordeMaxIntervalTicks, RaidMinimumIntervalTicks, TheMarkedMenSettings.HordeFrequencyMultiplier);
             return ApplyRaidRandomizationMax(adjusted, RaidMinimumIntervalTicks);
         }
 
-        private static int ApplyRaidFrequencyToInterval(int intervalTicks, int minimumTicks)
+        private static int ApplyRaidFrequencyToInterval(int intervalTicks, int minimumTicks, float multiplier)
         {
-            float multiplier = TheMarkedMenSettings.CurrentMarkedRaidFrequencyMultiplier;
             if (multiplier <= 0.001f)
             {
                 return int.MaxValue;
@@ -1401,7 +2171,7 @@ namespace TheMarkedMen
 
         private static float CalculateStorytellerHordePoints(Map map, IncidentDef hordeDef, float existingPoints)
         {
-            float minimum = hordeDef == null ? 120f : hordeDef.minThreatPoints;
+            float minimum = Mathf.Max(hordeDef == null ? 120f : hordeDef.minThreatPoints, TheMarkedMenMod.Settings?.minimumRaidPoints ?? 120f);
             float storytellerPoints = map == null ? minimum : StorytellerUtility.DefaultThreatPointsNow(map);
             float points = Mathf.Max(existingPoints, storytellerPoints, minimum);
             float pressure = Mathf.InverseLerp(120f, 3600f, points);
@@ -1473,7 +2243,7 @@ namespace TheMarkedMen
             get
             {
                 TheMarkedMenGameComponent component = Current.Game?.GetComponent<TheMarkedMenGameComponent>();
-                if (component != null && component.TryGetRaidCountdownForAlert(out int _, out int ticksUntilRaid, out Map _) && ticksUntilRaid <= GenDate.TicksPerDay)
+                if (component != null && component.TryGetRaidCountdownForAlert(out int _, out int ticksUntilRaid, out Map _) && ticksUntilRaid <= Mathf.RoundToInt(TheMarkedMenSettings.RaidCountdownHighPriorityDays * GenDate.TicksPerDay))
                 {
                     return AlertPriority.High;
                 }
@@ -1485,7 +2255,12 @@ namespace TheMarkedMen
         public override AlertReport GetReport()
         {
             TheMarkedMenGameComponent component = Current.Game?.GetComponent<TheMarkedMenGameComponent>();
-            if (component == null || !component.TryGetRaidCountdownForAlert(out int _, out int _, out Map targetMap))
+            if (!TheMarkedMenSettings.RaidCountdownAlertEnabled || component == null || !component.TryGetRaidCountdownForAlert(out int _, out int ticksUntilRaid, out Map targetMap))
+            {
+                return AlertReport.Inactive;
+            }
+
+            if (ticksUntilRaid > Mathf.RoundToInt(TheMarkedMenSettings.RaidCountdownVisibleDays * GenDate.TicksPerDay))
             {
                 return AlertReport.Inactive;
             }
@@ -1694,7 +2469,8 @@ namespace TheMarkedMen
             if (!incubationResolved && elapsed >= symptomOnsetTicks)
             {
                 incubationResolved = true;
-                if (Rand.Chance(Mathf.Clamp01(Props.immunityChance)))
+                float immunityChance = Mathf.Clamp01(TheMarkedMenMod.Settings?.immunitySurvivalChance ?? Props.immunityChance);
+                if (Rand.Chance(immunityChance))
                 {
                     CrossedUtility.GrantCrossVirusImmunity(pawn);
                     CrossedUtility.Component?.NotifyIncubationSurvived(pawn);
@@ -1737,7 +2513,7 @@ namespace TheMarkedMen
 
             if (terminalOutcome == TerminalOutcomeUnset)
             {
-                terminalOutcome = Rand.Chance(Mathf.Clamp01(Props.terminalTransformationChance))
+                terminalOutcome = Rand.Chance(TheMarkedMenSettings.CurrentTerminalTransformationChance(Props))
                     ? TerminalOutcomeTransformation
                     : TerminalOutcomeDeath;
             }
@@ -1757,7 +2533,7 @@ namespace TheMarkedMen
 
             min = Mathf.Max(1, min);
             max = Mathf.Max(min, max);
-            return Rand.RangeInclusive(min, max);
+            return TheMarkedMenSettings.AdjustInfectionTicks(Rand.RangeInclusive(min, max));
         }
 
         private int MaxConfiguredTransformationTicks()
@@ -1768,7 +2544,7 @@ namespace TheMarkedMen
                 max = Props.incubationTicks;
             }
 
-            return Mathf.Max(1, max);
+            return TheMarkedMenSettings.AdjustInfectionTicks(Mathf.Max(1, max));
         }
 
         private float InitialSeverityFloor()
@@ -1810,10 +2586,9 @@ namespace TheMarkedMen
         private const string MarkedVillageFounderTag = "CA_MarkedVillageFounder";
         private const string PersistentCrossedRashTag = "CA_PersistentCrossedRashTattoo";
         private const string MarkedVillageRashRolledTag = "CA_MarkedVillageRashRolled";
-        private const float StarterLineageBreakthroughExposureChance = 0.04f;
         private const float MarkedVillageRashChance = 0.5f;
 
-        private static readonly List<PawnKindDef> TransformationKinds = new List<PawnKindDef>();
+        private static readonly List<KeyValuePair<PawnKindDef, float>> TransformationKinds = new List<KeyValuePair<PawnKindDef, float>>();
 
         public static TheMarkedMenGameComponent Component => Current.Game?.GetComponent<TheMarkedMenGameComponent>();
 
@@ -1873,6 +2648,12 @@ namespace TheMarkedMen
 
         public static void EnsureFearlessCrossedState(Pawn pawn)
         {
+            if (!TheMarkedMenSettings.MarkedAlwaysAssault || TheMarkedMenSettings.MarkedCanTimeoutOrFlee)
+            {
+                RestoreFleeStateForMarkedPawn(pawn);
+                return;
+            }
+
             if (!IsInfectedPawn(pawn) || pawn.mindState == null)
             {
                 return;
@@ -1907,6 +2688,22 @@ namespace TheMarkedMen
             Pawn_MindState mindState = pawn.mindState;
             mindState.canFleeIndividual = true;
             MentalStateHandler handler = mindState.mentalStateHandler;
+            if (handler != null)
+            {
+                handler.neverFleeIndividual = false;
+            }
+        }
+
+        private static void RestoreFleeStateForMarkedPawn(Pawn pawn)
+        {
+            if (pawn?.mindState == null)
+            {
+                return;
+            }
+
+            RemoveFearlessDueToCrossVirusTag(pawn);
+            pawn.mindState.canFleeIndividual = true;
+            MentalStateHandler handler = pawn.mindState.mentalStateHandler;
             if (handler != null)
             {
                 handler.neverFleeIndividual = false;
@@ -2265,7 +3062,7 @@ namespace TheMarkedMen
             float effectiveChance = Mathf.Clamp01(chance);
             if (starterLineageBreakthrough)
             {
-                effectiveChance *= StarterLineageBreakthroughExposureChance;
+                effectiveChance *= TheMarkedMenSettings.StarterLineageBreakthroughChance;
             }
 
             if (!Rand.Chance(effectiveChance))
@@ -2337,6 +3134,92 @@ namespace TheMarkedMen
             }
 
             Component?.NotifyTransformation(pawn);
+        }
+
+        public static void ApplyGeneratedRaidKindTuning(List<Pawn> pawns)
+        {
+            if (pawns == null || pawns.Count == 0)
+            {
+                return;
+            }
+
+            TheMarkedMenSettings settings = TheMarkedMenMod.Settings;
+            int maxAlphas = Mathf.Clamp(settings?.maximumAlphasPerRaid ?? 99, 0, 99);
+            bool allowChildren = settings?.allowMarkedChildren == true;
+            int alphaCount = 0;
+            for (int i = 0; i < pawns.Count; i++)
+            {
+                Pawn pawn = pawns[i];
+                if (pawn == null || pawn.Dead)
+                {
+                    continue;
+                }
+
+                bool replace = false;
+                if (pawn.kindDef == CADefOf.Alpha)
+                {
+                    alphaCount++;
+                    replace = alphaCount > maxAlphas || TheMarkedMenSettings.AdjustKindWeight(CADefOf.Alpha, 1f) <= 0f;
+                }
+                else if (pawn.kindDef == CADefOf.Child)
+                {
+                    replace = !allowChildren;
+                }
+
+                if (replace)
+                {
+                    PawnKindDef replacement = PickReplacementMarkedKind();
+                    if (replacement != null && replacement != pawn.kindDef)
+                    {
+                        pawn.ChangeKind(replacement);
+                        RemoveClassHediffs(pawn);
+                        ApplyClassHediffs(pawn);
+                        ApplyInfectedTattoo(pawn);
+                    }
+                }
+            }
+        }
+
+        private static PawnKindDef PickReplacementMarkedKind()
+        {
+            PawnKindDef selected = null;
+            float totalWeight = 0f;
+            AddReplacementKind(ref selected, ref totalWeight, CADefOf.Berserker, 12f);
+            AddReplacementKind(ref selected, ref totalWeight, CADefOf.Hunter, 8f);
+            AddReplacementKind(ref selected, ref totalWeight, CADefOf.Stalker, 4f);
+            AddReplacementKind(ref selected, ref totalWeight, CADefOf.Screamer, 3f);
+            AddReplacementKind(ref selected, ref totalWeight, CADefOf.Brute, 2f);
+            return selected ?? CADefOf.Berserker ?? CADefOf.Hunter ?? CADefOf.Stalker ?? CADefOf.Screamer ?? CADefOf.Brute;
+        }
+
+        private static void AddReplacementKind(ref PawnKindDef selected, ref float totalWeight, PawnKindDef kind, float baseWeight)
+        {
+            float weight = TheMarkedMenSettings.AdjustKindWeight(kind, baseWeight);
+            if (kind == null || weight <= 0f)
+            {
+                return;
+            }
+
+            totalWeight += weight;
+            if (Rand.Value * totalWeight <= weight)
+            {
+                selected = kind;
+            }
+        }
+
+        private static void RemoveClassHediffs(Pawn pawn)
+        {
+            RemoveHediffIfPresent(pawn, CADefOf.BloodRush);
+            RemoveHediffIfPresent(pawn, CADefOf.CommandAura);
+        }
+
+        private static void RemoveHediffIfPresent(Pawn pawn, HediffDef def)
+        {
+            Hediff existing = def == null ? null : pawn?.health?.hediffSet?.GetFirstHediffOfDef(def);
+            if (existing != null)
+            {
+                pawn.health.RemoveHediff(existing);
+            }
         }
 
         public static void ApplyClassHediffs(Pawn pawn)
@@ -2536,9 +3419,15 @@ namespace TheMarkedMen
                 return;
             }
 
+            float effectiveRadius = Mathf.Max(0f, radius * Mathf.Sqrt(TheMarkedMenSettings.SocialTerrorStrength));
+            if (effectiveRadius <= 0f)
+            {
+                return;
+            }
+
             foreach (Pawn pawn in map.mapPawns.FreeColonistsAndPrisonersSpawned)
             {
-                if (pawn.Position.InHorDistOf(origin, radius) && !pawn.health.hediffSet.HasHediff(panic))
+                if (pawn.Position.InHorDistOf(origin, effectiveRadius) && !pawn.health.hediffSet.HasHediff(panic))
                 {
                     pawn.health.AddHediff(panic);
                 }
@@ -2548,17 +3437,21 @@ namespace TheMarkedMen
         private static PawnKindDef PickTransformationKind(Pawn pawn)
         {
             TransformationKinds.Clear();
-            AddKind(CADefOf.Berserker);
-            AddKind(CADefOf.Hunter);
-            AddKind(CADefOf.Stalker);
-            AddKind(CADefOf.Screamer);
+            AddKind(CADefOf.Berserker, 1f);
+            AddKind(CADefOf.Hunter, 1f);
+            AddKind(CADefOf.Stalker, 1f);
+            AddKind(CADefOf.Screamer, 1f);
             if (Rand.Chance(0.12f))
             {
-                AddKind(CADefOf.Brute);
+                AddKind(CADefOf.Brute, 1f);
             }
             if (Rand.Chance(0.02f))
             {
-                AddKind(CADefOf.Alpha);
+                AddKind(CADefOf.Alpha, 1f);
+            }
+            if (TheMarkedMenMod.Settings?.allowMarkedChildren == true && pawn?.ageTracker != null && pawn.ageTracker.AgeBiologicalYearsFloat < 13f)
+            {
+                AddKind(CADefOf.Child, 1f);
             }
 
             if (TransformationKinds.Count == 0)
@@ -2566,15 +3459,42 @@ namespace TheMarkedMen
                 return pawn.kindDef;
             }
 
-            return TransformationKinds.RandomElement();
+            return PickWeightedKind(TransformationKinds) ?? pawn.kindDef;
         }
 
-        private static void AddKind(PawnKindDef kind)
+        private static void AddKind(PawnKindDef kind, float baseWeight)
         {
-            if (kind != null)
+            float weight = TheMarkedMenSettings.AdjustKindWeight(kind, baseWeight);
+            if (kind != null && weight > 0f)
             {
-                TransformationKinds.Add(kind);
+                TransformationKinds.Add(new KeyValuePair<PawnKindDef, float>(kind, weight));
             }
+        }
+
+        private static PawnKindDef PickWeightedKind(List<KeyValuePair<PawnKindDef, float>> kinds)
+        {
+            float totalWeight = 0f;
+            for (int i = 0; i < kinds.Count; i++)
+            {
+                totalWeight += Mathf.Max(0f, kinds[i].Value);
+            }
+
+            if (totalWeight <= 0f)
+            {
+                return null;
+            }
+
+            float pick = Rand.Value * totalWeight;
+            for (int i = 0; i < kinds.Count; i++)
+            {
+                pick -= Mathf.Max(0f, kinds[i].Value);
+                if (pick <= 0f)
+                {
+                    return kinds[i].Key;
+                }
+            }
+
+            return kinds[kinds.Count - 1].Key;
         }
     }
 
@@ -2645,7 +3565,12 @@ namespace TheMarkedMen
                 return TryAssignAttackJob(pawn, bestNonInfected, true);
             }
 
-            if (!pawn.IsHashIntervalTick(TacticalRetargetInterval) || IsAttackJob(currentJobDef))
+            if (!pawn.IsHashIntervalTick(TheMarkedMenSettings.TacticalRetargetIntervalTicks) || IsAttackJob(currentJobDef))
+            {
+                return false;
+            }
+
+            if (!TheMarkedMenSettings.PriorityTargetingEnabled && !TheMarkedMenSettings.DoorTargetingEnabled)
             {
                 return false;
             }
@@ -2722,7 +3647,7 @@ namespace TheMarkedMen
 
         private static bool TryStartInfighting(Pawn pawn, JobDef currentJobDef, Pawn currentPawnTarget)
         {
-            if (!pawn.IsHashIntervalTick(InfightingCheckInterval) || !Rand.Chance(InfightingChance))
+            if (!pawn.IsHashIntervalTick(TheMarkedMenSettings.InfightingCheckIntervalTicks) || !Rand.Chance(TheMarkedMenSettings.InfightingChance))
             {
                 return false;
             }
@@ -2758,9 +3683,9 @@ namespace TheMarkedMen
             job.expiryInterval = TacticalJobExpiryTicks;
             job.checkOverrideOnExpire = true;
             job.killIncappedTarget = !(target is Pawn attackPawnTarget && TheMarkedMenRjwCompatibility.ShouldKeepIncapacitatedTargetForIntercourse(pawn, attackPawnTarget));
-            job.canBashDoors = true;
+            job.canBashDoors = TheMarkedMenSettings.DoorTargetingEnabled;
             job.canBashFences = true;
-            job.attackDoorIfTargetLost = true;
+            job.attackDoorIfTargetLost = TheMarkedMenSettings.DoorTargetingEnabled;
             job.locomotionUrgency = LocomotionUrgency.Sprint;
             return TryTakeTacticalJob(pawn, job, forceCurrentJob);
         }
@@ -2773,9 +3698,9 @@ namespace TheMarkedMen
                 attackJob.expiryInterval = TacticalJobExpiryTicks;
                 attackJob.checkOverrideOnExpire = true;
                 attackJob.killIncappedTarget = !(target is Pawn attackPawnTarget && TheMarkedMenRjwCompatibility.ShouldKeepIncapacitatedTargetForIntercourse(pawn, attackPawnTarget));
-                attackJob.canBashDoors = true;
+                attackJob.canBashDoors = TheMarkedMenSettings.DoorTargetingEnabled;
                 attackJob.canBashFences = true;
-                attackJob.attackDoorIfTargetLost = true;
+                attackJob.attackDoorIfTargetLost = TheMarkedMenSettings.DoorTargetingEnabled;
                 attackJob.locomotionUrgency = LocomotionUrgency.Sprint;
                 return TryTakeTacticalJob(pawn, attackJob, forceCurrentJob);
             }
@@ -2788,9 +3713,9 @@ namespace TheMarkedMen
             Job moveJob = JobMaker.MakeJob(JobDefOf.Goto, castPosition, target);
             moveJob.expiryInterval = TacticalMoveExpiryTicks;
             moveJob.checkOverrideOnExpire = true;
-            moveJob.canBashDoors = true;
+            moveJob.canBashDoors = TheMarkedMenSettings.DoorTargetingEnabled;
             moveJob.canBashFences = true;
-            moveJob.attackDoorIfTargetLost = true;
+            moveJob.attackDoorIfTargetLost = TheMarkedMenSettings.DoorTargetingEnabled;
             moveJob.locomotionUrgency = LocomotionUrgency.Sprint;
             return TryTakeTacticalJob(pawn, moveJob, forceCurrentJob);
         }
@@ -2987,7 +3912,7 @@ namespace TheMarkedMen
             }
 
             SkillRecord medicine = target.skills?.GetSkill(SkillDefOf.Medicine);
-            if (medicine != null && medicine.Level >= 8)
+            if (TheMarkedMenSettings.PriorityTargetingEnabled && medicine != null && medicine.Level >= 8)
             {
                 score += 45f;
             }
@@ -3097,6 +4022,8 @@ namespace TheMarkedMen
                 && !pawn.Downed
                 && pawn.Map != null
                 && CrossedUtility.IsInfectedPawn(pawn)
+                && TheMarkedMenSettings.MarkedAlwaysAssault
+                && TheMarkedMenSettings.TacticalRetargetingEnabled
                 && !TheMarkedMenRjwCompatibility.ShouldPreserveCurrentRjwJob(pawn);
         }
 
@@ -3142,32 +4069,32 @@ namespace TheMarkedMen
             string label = target.Label ?? string.Empty;
             float score = 0f;
 
-            if (target.TryGetComp<CompPowerTrader>() != null)
+            if (TheMarkedMenSettings.PriorityTargetingEnabled && target.TryGetComp<CompPowerTrader>() != null)
             {
                 score += 90f;
             }
 
-            if (ContainsAny(defName, "Battery", "Generator", "Solar", "Geothermal", "Power", "Comms", "Console"))
+            if (TheMarkedMenSettings.PriorityTargetingEnabled && ContainsAny(defName, "Battery", "Generator", "Solar", "Geothermal", "Power", "Comms", "Console"))
             {
                 score += 70f;
             }
 
-            if (ContainsAny(defName, "Hospital", "Bed", "Research", "Lab", "Scanner"))
+            if (TheMarkedMenSettings.PriorityTargetingEnabled && ContainsAny(defName, "Hospital", "Bed", "Research", "Lab", "Scanner"))
             {
                 score += 60f;
             }
 
-            if (ContainsAny(defName, "Nutrient", "Hydroponics", "Cooler", "Freezer", "Food") || label.IndexOf("food", StringComparison.OrdinalIgnoreCase) >= 0)
+            if (TheMarkedMenSettings.PriorityTargetingEnabled && (ContainsAny(defName, "Nutrient", "Hydroponics", "Cooler", "Freezer", "Food") || label.IndexOf("food", StringComparison.OrdinalIgnoreCase) >= 0))
             {
                 score += 45f;
             }
 
-            if (ContainsAny(defName, "Turret", "Mortar"))
+            if (TheMarkedMenSettings.PriorityTargetingEnabled && ContainsAny(defName, "Turret", "Mortar"))
             {
                 score += 55f;
             }
 
-            if (ContainsAny(defName, "Door", "Wall", "Gate"))
+            if (TheMarkedMenSettings.DoorTargetingEnabled && ContainsAny(defName, "Door", "Wall", "Gate"))
             {
                 score += 30f;
             }
@@ -3214,7 +4141,8 @@ namespace TheMarkedMen
                 return;
             }
 
-            if (!source.IsHashIntervalTick(ContagionPulseIntervalTicks))
+            int maxTargets = TheMarkedMenSettings.MaxContagionTargetsPerPulse;
+            if (maxTargets <= 0 || !source.IsHashIntervalTick(TheMarkedMenSettings.ContagionPulseIntervalTicks))
             {
                 return;
             }
@@ -3234,10 +4162,10 @@ namespace TheMarkedMen
                     continue;
                 }
 
-                if (CrossedUtility.TryExpose(target, TheMarkedMenSettings.InfectionTransmissionChance, "contagious Marked Virus contact", source))
+                if (CrossedUtility.TryExpose(target, TheMarkedMenSettings.CloseContactExposureChance, "contagious Marked Virus contact", source))
                 {
                     exposedTargets++;
-                    if (exposedTargets >= MaxContagionTargetsPerPulse)
+                    if (exposedTargets >= maxTargets)
                     {
                         return;
                     }
@@ -3286,7 +4214,8 @@ namespace TheMarkedMen
                 return;
             }
 
-            if (!source.IsHashIntervalTick(CorpseContaminationIntervalTicks))
+            int maxCorpses = TheMarkedMenSettings.MaxCorpsesPerPulse;
+            if (maxCorpses <= 0 || !source.IsHashIntervalTick(TheMarkedMenSettings.CorpseContaminationIntervalTicks))
             {
                 return;
             }
@@ -3306,10 +4235,10 @@ namespace TheMarkedMen
                     continue;
                 }
 
-                if (TryContaminateCorpse(source, corpse))
+                if (Rand.Chance(TheMarkedMenSettings.CorpseContaminationChance) && TryContaminateCorpse(source, corpse))
                 {
                     contaminated++;
-                    if (contaminated >= MaxCorpsesPerPulse)
+                    if (contaminated >= maxCorpses)
                     {
                         return;
                     }
@@ -3381,12 +4310,13 @@ namespace TheMarkedMen
                 return;
             }
 
-            if (!initiator.IsHashIntervalTick(SocialPulseInterval))
+            float socialStrength = TheMarkedMenSettings.SocialTerrorStrength;
+            if (socialStrength <= 0f || !initiator.IsHashIntervalTick(SocialPulseInterval))
             {
                 return;
             }
 
-            float chance = initiator.kindDef == CADefOf.Alpha || initiator.kindDef == CADefOf.Screamer ? SocialPulseLeaderChance : SocialPulseBaseChance;
+            float chance = Mathf.Clamp01((initiator.kindDef == CADefOf.Alpha || initiator.kindDef == CADefOf.Screamer ? SocialPulseLeaderChance : SocialPulseBaseChance) * socialStrength);
             if (!Rand.Chance(chance))
             {
                 return;
@@ -3423,6 +4353,11 @@ namespace TheMarkedMen
         public static void ApplyCrossedSocialEffect(Pawn initiator, Pawn recipient, InteractionDef interactionDef)
         {
             if (!CanCrossedSocialInteract(initiator, recipient))
+            {
+                return;
+            }
+
+            if (TheMarkedMenSettings.SocialTerrorStrength <= 0f)
             {
                 return;
             }
@@ -3609,6 +4544,11 @@ namespace TheMarkedMen
             string text = baseText.NullOrEmpty()
                 ? "A group of infected Marked Men has reached the colony."
                 : baseText;
+
+            if (!TheMarkedMenSettings.DetailedRaidLetters)
+            {
+                return text;
+            }
 
             List<string> details = new List<string>();
             details.Add("Detected infected: " + CountActivePawns(pawns));
@@ -3869,7 +4809,7 @@ namespace TheMarkedMen
 
             int ticks = Find.TickManager?.TicksGame ?? 0;
             int hash = lord.GetHashCode() & int.MaxValue;
-            if ((ticks + hash) % CleanupIntervalTicks != 0)
+            if ((ticks + hash) % TheMarkedMenSettings.LordCleanupIntervalTicks != 0)
             {
                 return;
             }
@@ -3944,7 +4884,7 @@ namespace TheMarkedMen
     {
         public override float ChanceFactorNow(IIncidentTarget target)
         {
-            return base.ChanceFactorNow(target) * TheMarkedMenSettings.CurrentMarkedRaidFrequencyMultiplier;
+            return base.ChanceFactorNow(target) * TheMarkedMenSettings.WarbandFrequencyMultiplier;
         }
 
         protected override bool CanFireNowSub(IncidentParms parms)
@@ -3982,7 +4922,7 @@ namespace TheMarkedMen
             parms.pawnGroupKind = PawnGroupKindDefOf.Combat;
             parms.canKidnap = false;
             parms.canSteal = false;
-            parms.canTimeoutOrFlee = false;
+            parms.canTimeoutOrFlee = TheMarkedMenSettings.MarkedCanTimeoutOrFlee;
             TheMarkedMenGameComponent.ApplyMarkedRaidArrivalPattern(parms);
 
             bool result = base.TryExecuteWorker(parms);
@@ -3990,6 +4930,7 @@ namespace TheMarkedMen
             {
                 List<Pawn> spawned = FindNewCrossed(map, existingCrossed);
                 MarkSpawnedCrossed(spawned);
+                CrossedUtility.ApplyGeneratedRaidKindTuning(spawned);
                 ForceImmediateAssaultLord(crossed, map, spawned, parms.points);
                 component?.NotifyRaidLaunched(parms.points, spawned, map);
             }
@@ -4072,7 +5013,7 @@ namespace TheMarkedMen
                 return;
             }
 
-            LordMaker.MakeNewLord(faction, new LordJob_AssaultColony(faction, false, false, false, false, false, points >= 700f, true), map, attackers);
+            LordMaker.MakeNewLord(faction, new LordJob_AssaultColony(faction, false, TheMarkedMenSettings.MarkedCanTimeoutOrFlee, false, false, false, points >= 700f, true), map, attackers);
             for (int i = 0; i < attackers.Count; i++)
             {
                 Pawn pawn = attackers[i];
@@ -4100,7 +5041,7 @@ namespace TheMarkedMen
 
         public override float ChanceFactorNow(IIncidentTarget target)
         {
-            return base.ChanceFactorNow(target) * TheMarkedMenSettings.CurrentMarkedRaidFrequencyMultiplier;
+            return base.ChanceFactorNow(target) * TheMarkedMenSettings.HordeFrequencyMultiplier;
         }
 
         protected override bool CanFireNowSub(IncidentParms parms)
@@ -4132,7 +5073,7 @@ namespace TheMarkedMen
             parms.pawnGroupKind = PawnGroupKindDefOf.Combat;
             parms.canKidnap = false;
             parms.canSteal = false;
-            parms.canTimeoutOrFlee = false;
+            parms.canTimeoutOrFlee = TheMarkedMenSettings.MarkedCanTimeoutOrFlee;
             TheMarkedMenGameComponent.ApplyMarkedRaidArrivalPattern(parms);
             parms.points = CalculateIncidentHordePoints(map, parms.points, def.minThreatPoints);
 
@@ -4157,7 +5098,7 @@ namespace TheMarkedMen
             }
 
             parms.pawnCount = pawns.Count;
-            LordMaker.MakeNewLord(crossed, new LordJob_AssaultColony(crossed, false, false, false, false, false, parms.points >= 700f, true), map, pawns);
+            LordMaker.MakeNewLord(crossed, new LordJob_AssaultColony(crossed, false, TheMarkedMenSettings.MarkedCanTimeoutOrFlee, false, false, false, parms.points >= 700f, true), map, pawns);
             CrossedUtility.Component?.NotifyHordeLaunched(pawns.Count, parms.points);
             SendHordeLetter(pawns, parms);
             return true;
@@ -4165,19 +5106,24 @@ namespace TheMarkedMen
 
         private static int CalculateHordeCount(float points, int requestedCount, Map map)
         {
+            TheMarkedMenSettings settings = TheMarkedMenMod.Settings;
+            int minCount = settings?.minimumHordeSize ?? MinHordeCount;
+            int maxCount = settings?.maximumHordeSize ?? MaxHordeCount;
+            minCount = Mathf.Clamp(minCount, 1, 50);
+            maxCount = Mathf.Clamp(maxCount, minCount, 100);
             if (requestedCount > 0)
             {
-                return Mathf.Clamp(requestedCount, MinHordeCount, MaxHordeCount);
+                return Mathf.Clamp(requestedCount, minCount, maxCount);
             }
 
             float normalizedThreat = Mathf.InverseLerp(120f, 3600f, points);
             float threatScale = CurrentThreatScale();
             float storytellerCountFactor = Mathf.Clamp(Mathf.Sqrt(threatScale), 0.7f, 1.35f);
-            int expected = Mathf.RoundToInt(Mathf.Lerp(MinHordeCount, MaxHordeCount, normalizedThreat) * storytellerCountFactor);
-            int threatFloor = Mathf.RoundToInt(Mathf.Lerp(MinHordeCount, 10f, normalizedThreat));
-            expected = Mathf.Clamp(Mathf.Max(expected, threatFloor), MinHordeCount, MaxHordeCount);
+            int expected = Mathf.RoundToInt(Mathf.Lerp(minCount, maxCount, normalizedThreat) * storytellerCountFactor);
+            int threatFloor = Mathf.RoundToInt(Mathf.Lerp(minCount, Mathf.Min(maxCount, 10f), normalizedThreat));
+            expected = Mathf.Clamp(Mathf.Max(expected, threatFloor), minCount, maxCount);
             int variance = Mathf.Clamp(Mathf.RoundToInt(expected * 0.18f), 1, 5);
-            return Rand.RangeInclusive(Mathf.Max(MinHordeCount, expected - variance), Mathf.Min(MaxHordeCount, expected + variance));
+            return Rand.RangeInclusive(Mathf.Max(minCount, expected - variance), Mathf.Min(maxCount, expected + variance));
         }
 
         private static float CalculateIncidentHordePoints(Map map, float existingPoints, float minThreatPoints)
@@ -4185,7 +5131,7 @@ namespace TheMarkedMen
             float storytellerPoints = map == null ? minThreatPoints : StorytellerUtility.DefaultThreatPointsNow(map);
             float points = Mathf.Max(existingPoints, storytellerPoints, minThreatPoints);
             float pressure = Mathf.InverseLerp(120f, 3600f, points);
-            return Mathf.Max(minThreatPoints, points * Mathf.Lerp(0.95f, 1.18f, pressure));
+            return TheMarkedMenSettings.ApplyRaidPointSettings(Mathf.Max(minThreatPoints, points * Mathf.Lerp(0.95f, 1.18f, pressure)));
         }
 
         private static float CurrentThreatScale()
@@ -4218,6 +5164,7 @@ namespace TheMarkedMen
                 pawns.Add(pawn);
             }
 
+            CrossedUtility.ApplyGeneratedRaidKindTuning(pawns);
             return pawns;
         }
 
@@ -4233,12 +5180,14 @@ namespace TheMarkedMen
             AddWeightedKind(ref selected, ref totalWeight, CADefOf.Screamer, points >= 300f ? 3.5f : 1.25f);
             AddWeightedKind(ref selected, ref totalWeight, CADefOf.Brute, points >= 500f ? Mathf.Lerp(1f, 4.5f, Mathf.InverseLerp(500f, 2400f, points)) : 0f);
             AddWeightedKind(ref selected, ref totalWeight, CADefOf.Alpha, allowAlpha && count >= 10 && points >= 1200f ? 0.55f : 0f);
+            AddWeightedKind(ref selected, ref totalWeight, CADefOf.Child, TheMarkedMenMod.Settings?.allowMarkedChildren == true && points < 500f ? 0.35f : 0f);
 
             return selected ?? CADefOf.Berserker ?? CADefOf.Hunter ?? CADefOf.Stalker;
         }
 
         private static void AddWeightedKind(ref PawnKindDef selected, ref float totalWeight, PawnKindDef kind, float weight)
         {
+            weight = TheMarkedMenSettings.AdjustKindWeight(kind, weight);
             if (kind == null || weight <= 0f)
             {
                 return;
@@ -4278,7 +5227,7 @@ namespace TheMarkedMen
 
         public override float ChanceFactorNow(IIncidentTarget target)
         {
-            return base.ChanceFactorNow(target) * TheMarkedMenSettings.CurrentMarkedRaidFrequencyMultiplier;
+            return base.ChanceFactorNow(target) * TheMarkedMenSettings.ProbeFrequencyMultiplier;
         }
 
         protected override bool CanFireNowSub(IncidentParms parms)
@@ -4304,7 +5253,7 @@ namespace TheMarkedMen
             parms.pawnGroupKind = PawnGroupKindDefOf.Combat;
             parms.canKidnap = false;
             parms.canSteal = false;
-            parms.canTimeoutOrFlee = false;
+            parms.canTimeoutOrFlee = TheMarkedMenSettings.MarkedCanTimeoutOrFlee;
             TheMarkedMenGameComponent.ApplyMarkedRaidArrivalPattern(parms);
             parms.points = CalculateProbePoints(map, parms.points, def.minThreatPoints);
 
@@ -4329,7 +5278,7 @@ namespace TheMarkedMen
             }
 
             parms.pawnCount = pawns.Count;
-            LordMaker.MakeNewLord(crossed, new LordJob_AssaultColony(crossed, false, false, false, false, false, false, true), map, pawns);
+            LordMaker.MakeNewLord(crossed, new LordJob_AssaultColony(crossed, false, TheMarkedMenSettings.MarkedCanTimeoutOrFlee, false, false, false, false, true), map, pawns);
             CrossedUtility.Component?.NotifyProbeLaunched(pawns.Count, parms.points);
             SendProbeLetter(pawns, parms);
             return true;
@@ -4339,20 +5288,25 @@ namespace TheMarkedMen
         {
             float storytellerPoints = map == null ? minThreatPoints : StorytellerUtility.DefaultThreatPointsNow(map);
             float points = Mathf.Max(existingPoints, storytellerPoints * 0.45f, minThreatPoints);
-            return Mathf.Clamp(points, minThreatPoints, 650f);
+            return TheMarkedMenSettings.ApplyRaidPointSettings(Mathf.Clamp(points, minThreatPoints, 650f));
         }
 
         private static int CalculateProbeCount(float points, int requestedCount)
         {
+            TheMarkedMenSettings settings = TheMarkedMenMod.Settings;
+            int minCount = settings?.minimumProbeSize ?? MinProbeCount;
+            int maxCount = settings?.maximumProbeSize ?? MaxProbeCount;
+            minCount = Mathf.Clamp(minCount, 1, 20);
+            maxCount = Mathf.Clamp(maxCount, minCount, 30);
             if (requestedCount > 0)
             {
-                return Mathf.Clamp(requestedCount, MinProbeCount, MaxProbeCount);
+                return Mathf.Clamp(requestedCount, minCount, maxCount);
             }
 
             float normalizedThreat = Mathf.InverseLerp(80f, 650f, points);
-            int expected = Mathf.RoundToInt(Mathf.Lerp(MinProbeCount, MaxProbeCount, normalizedThreat));
+            int expected = Mathf.RoundToInt(Mathf.Lerp(minCount, maxCount, normalizedThreat));
             int variance = Mathf.Clamp(Mathf.RoundToInt(expected * 0.2f), 1, 2);
-            return Rand.RangeInclusive(Mathf.Max(MinProbeCount, expected - variance), Mathf.Min(MaxProbeCount, expected + variance));
+            return Rand.RangeInclusive(Mathf.Max(minCount, expected - variance), Mathf.Min(maxCount, expected + variance));
         }
 
         private static List<Pawn> GenerateProbePawns(int count, float points, Faction faction, Map map)
@@ -4377,6 +5331,7 @@ namespace TheMarkedMen
                 pawns.Add(pawn);
             }
 
+            CrossedUtility.ApplyGeneratedRaidKindTuning(pawns);
             return pawns;
         }
 
@@ -4391,12 +5346,14 @@ namespace TheMarkedMen
             AddWeightedKind(ref selected, ref totalWeight, CADefOf.Berserker, 3f);
             AddWeightedKind(ref selected, ref totalWeight, CADefOf.Screamer, points >= 220f ? Mathf.Lerp(0.5f, 1.75f, normalizedThreat) : 0f);
             AddWeightedKind(ref selected, ref totalWeight, CADefOf.Brute, points >= 500f ? 0.35f : 0f);
+            AddWeightedKind(ref selected, ref totalWeight, CADefOf.Child, TheMarkedMenMod.Settings?.allowMarkedChildren == true && points < 220f ? 0.35f : 0f);
 
             return selected ?? CADefOf.Stalker ?? CADefOf.Hunter ?? CADefOf.Berserker;
         }
 
         private static void AddWeightedKind(ref PawnKindDef selected, ref float totalWeight, PawnKindDef kind, float weight)
         {
+            weight = TheMarkedMenSettings.AdjustKindWeight(kind, weight);
             if (kind == null || weight <= 0f)
             {
                 return;
@@ -4436,24 +5393,48 @@ namespace TheMarkedMen
         [DebugAction(DebugCategory, "Start scheduled raid now", allowedGameStates = AllowedGameStates.PlayingOnMap, actionType = DebugActionType.Action, displayPriority = 1000)]
         public static void StartScheduledRaidNow()
         {
+            if (!TheMarkedMenSettings.DebugActionsEnabled)
+            {
+                Report(false, null, "DevMode: The Marked Men debug actions are disabled in mod settings.");
+                return;
+            }
+
             Report(Component?.DebugFireRaidNow() ?? false, "DevMode: Started a Marked Men raid now.", "DevMode: Could not start Marked Men raid. Load a player home map with free colonists.");
         }
 
         [DebugAction(DebugCategory, "Move next raid to 1 hour", allowedGameStates = AllowedGameStates.PlayingOnMap, actionType = DebugActionType.Action, displayPriority = 990)]
         public static void MoveNextRaidToOneHour()
         {
+            if (!TheMarkedMenSettings.DebugActionsEnabled)
+            {
+                Report(false, null, "DevMode: The Marked Men debug actions are disabled in mod settings.");
+                return;
+            }
+
             Report(Component?.DebugScheduleRaidSoon() ?? false, "DevMode: Next Marked Men raid will start in one in-game hour.", "DevMode: Could not move raid timer. Load a player home map with free colonists.");
         }
 
         [DebugAction(DebugCategory, "Start scouting pack event now", allowedGameStates = AllowedGameStates.PlayingOnMap, actionType = DebugActionType.Action, displayPriority = 980)]
         public static void StartScoutingPackNow()
         {
+            if (!TheMarkedMenSettings.DebugActionsEnabled)
+            {
+                Report(false, null, "DevMode: The Marked Men debug actions are disabled in mod settings.");
+                return;
+            }
+
             Report(Component?.DebugFireProbeNow() ?? false, "DevMode: Started a Marked Men scouting pack event now.", "DevMode: Could not start scouting pack. Load a player home map with free colonists.");
         }
 
         [DebugAction(DebugCategory, "Start horde event now", allowedGameStates = AllowedGameStates.PlayingOnMap, actionType = DebugActionType.Action, displayPriority = 970)]
         public static void StartHordeNow()
         {
+            if (!TheMarkedMenSettings.DebugActionsEnabled)
+            {
+                Report(false, null, "DevMode: The Marked Men debug actions are disabled in mod settings.");
+                return;
+            }
+
             Report(Component?.DebugFireHordeNow() ?? false, "DevMode: Started a Marked Men horde event now.", "DevMode: Could not start horde. Load a player home map with free colonists.");
         }
 
