@@ -4,13 +4,16 @@ using System.Reflection;
 using HarmonyLib;
 using RimWorld.Planet;
 using Unity.Collections;
+using UnityEngine;
 using Verse;
 
 namespace TheMarkedMen
 {
     public static class TheMarkedMenWorldbuilderCompatibility
     {
+        private const string WorldbuilderCreateWorldParamsPatchTypeName = "Worldbuilder.Page_CreateWorldParams_DoWindowContents_Patch";
         private const string WorldbuilderGuardTypeName = "Worldbuilder.WorldGridReachabilityGuard";
+        private const string WorldbuilderPreviewMethodName = "getWorldCameraPreview";
 
         private static readonly FieldInfo PlanetTileLayerIdField = AccessTools.Field(typeof(PlanetTile), "layerId");
         private static readonly FieldInfo PlanetLayerNeighborOffsetsField = AccessTools.Field(typeof(PlanetLayer), "tileIDToNeighbors_offsets");
@@ -19,8 +22,12 @@ namespace TheMarkedMen
         private static readonly FieldInfo WorldFloodFillerTraversalDistanceField = AccessTools.Field(typeof(WorldFloodFiller), "traversalDistance");
         private static readonly MethodInfo CalculateTileNeighborsMethod = AccessTools.Method(typeof(PlanetLayer), "CalculateTileNeighbors");
 
+        private static FieldInfo worldbuilderPreviewDirtyField;
+        private static FieldInfo worldbuilderPreviewTextureField;
+        private static Texture2D fallbackWorldPreviewTexture;
         private static bool delayedRetryScheduled;
         private static bool patchApplied;
+        private static bool previewWarningLogged;
         private static bool warningLogged;
 
         public static void Apply(Harmony harmony)
@@ -48,35 +55,48 @@ namespace TheMarkedMen
 
             try
             {
+                bool appliedAnyPatch = false;
+
                 Type guardType = AccessTools.TypeByName(WorldbuilderGuardTypeName);
-                if (guardType == null)
+                if (guardType != null)
                 {
-                    return false;
+                    MethodInfo fixTileBackReferences = AccessTools.Method(guardType, "FixTileBackReferences");
+                    MethodInfo prefix = AccessTools.Method(typeof(TheMarkedMenWorldbuilderCompatibility), nameof(Prefix_FixTileBackReferences));
+                    if (fixTileBackReferences == null || prefix == null)
+                    {
+                        LogWarningOnce("Worldbuilder compatibility skipped: reachability back-reference method was not found.");
+                    }
+                    else
+                    {
+                        harmony.Patch(fixTileBackReferences, prefix: new HarmonyMethod(prefix));
+                        appliedAnyPatch = true;
+                    }
+
+                    MethodInfo ensureSafeForReachability = AccessTools.Method(guardType, "EnsureSafeForReachability", new[] { typeof(World) });
+                    MethodInfo ensurePrefix = AccessTools.Method(typeof(TheMarkedMenWorldbuilderCompatibility), nameof(Prefix_EnsureSafeForReachability));
+                    MethodInfo finalizer = AccessTools.Method(typeof(TheMarkedMenWorldbuilderCompatibility), nameof(Finalizer_EnsureSafeForReachability));
+                    if (ensureSafeForReachability != null)
+                    {
+                        harmony.Patch(
+                            ensureSafeForReachability,
+                            prefix: ensurePrefix == null ? null : new HarmonyMethod(ensurePrefix),
+                            finalizer: finalizer == null ? null : new HarmonyMethod(finalizer));
+                        appliedAnyPatch = true;
+                    }
                 }
 
-                MethodInfo fixTileBackReferences = AccessTools.Method(guardType, "FixTileBackReferences");
-                MethodInfo prefix = AccessTools.Method(typeof(TheMarkedMenWorldbuilderCompatibility), nameof(Prefix_FixTileBackReferences));
-                if (fixTileBackReferences == null || prefix == null)
+                if (TryPatchWorldPreviewCapture(harmony))
                 {
-                    LogWarningOnce("Worldbuilder compatibility skipped: reachability back-reference method was not found.");
-                    return false;
+                    appliedAnyPatch = true;
                 }
 
-                harmony.Patch(fixTileBackReferences, prefix: new HarmonyMethod(prefix));
-
-                MethodInfo ensureSafeForReachability = AccessTools.Method(guardType, "EnsureSafeForReachability", new[] { typeof(World) });
-                MethodInfo ensurePrefix = AccessTools.Method(typeof(TheMarkedMenWorldbuilderCompatibility), nameof(Prefix_EnsureSafeForReachability));
-                MethodInfo finalizer = AccessTools.Method(typeof(TheMarkedMenWorldbuilderCompatibility), nameof(Finalizer_EnsureSafeForReachability));
-                if (ensureSafeForReachability != null)
+                if (!appliedAnyPatch)
                 {
-                    harmony.Patch(
-                        ensureSafeForReachability,
-                        prefix: ensurePrefix == null ? null : new HarmonyMethod(ensurePrefix),
-                        finalizer: finalizer == null ? null : new HarmonyMethod(finalizer));
+                    return false;
                 }
 
                 patchApplied = true;
-                LogVerbose("[The Marked Men] Worldbuilder reachability guard compatibility active.");
+                LogVerbose("[The Marked Men] Worldbuilder compatibility active.");
                 return true;
             }
             catch (Exception ex)
@@ -84,6 +104,37 @@ namespace TheMarkedMen
                 LogWarningOnce("Worldbuilder compatibility skipped: " + ex.Message);
                 return false;
             }
+        }
+
+        private static bool TryPatchWorldPreviewCapture(Harmony harmony)
+        {
+            Type previewType = AccessTools.TypeByName(WorldbuilderCreateWorldParamsPatchTypeName);
+            if (previewType == null)
+            {
+                return false;
+            }
+
+            MethodInfo getWorldCameraPreview = AccessTools.Method(previewType, WorldbuilderPreviewMethodName, new[] { typeof(int), typeof(int) });
+            MethodInfo prefix = AccessTools.Method(typeof(TheMarkedMenWorldbuilderCompatibility), nameof(Prefix_GetWorldCameraPreview));
+            if (getWorldCameraPreview == null || prefix == null)
+            {
+                LogWarningOnce("Worldbuilder preview compatibility skipped: preview capture method was not found.");
+                return false;
+            }
+
+            worldbuilderPreviewDirtyField = AccessTools.Field(previewType, "dirty");
+            worldbuilderPreviewTextureField = AccessTools.Field(previewType, "worldPreview");
+            harmony.Patch(getWorldCameraPreview, prefix: new HarmonyMethod(prefix));
+            return true;
+        }
+
+        public static bool Prefix_GetWorldCameraPreview(int width, int height, ref Texture2D __result)
+        {
+            __result = GetFallbackWorldPreviewTexture();
+            TrySetWorldbuilderPreviewState(__result);
+            TryResetWorldCameraPreviewState();
+            LogPreviewWarningOnce("Worldbuilder world preview capture was disabled to avoid a Unity Texture2D.ReadPixels crash during new-world setup. World generation remains available; only the preview thumbnail is replaced.");
+            return false;
         }
 
         public static bool Prefix_FixTileBackReferences(PlanetLayer layer, ref int __result)
@@ -541,6 +592,87 @@ namespace TheMarkedMen
             }
         }
 
+        private static Texture2D GetFallbackWorldPreviewTexture()
+        {
+            if (fallbackWorldPreviewTexture != null)
+            {
+                return fallbackWorldPreviewTexture;
+            }
+
+            const int size = 2;
+            Color color = new Color(0.12f, 0.12f, 0.12f, 1f);
+            fallbackWorldPreviewTexture = new Texture2D(size, size, TextureFormat.RGBA32, false)
+            {
+                name = "TheMarkedMen_WorldbuilderPreviewDisabled"
+            };
+
+            Color[] pixels = new Color[size * size];
+            for (int i = 0; i < pixels.Length; i++)
+            {
+                pixels[i] = color;
+            }
+
+            fallbackWorldPreviewTexture.SetPixels(pixels);
+            fallbackWorldPreviewTexture.Apply(false, false);
+            return fallbackWorldPreviewTexture;
+        }
+
+        private static void TrySetWorldbuilderPreviewState(Texture2D previewTexture)
+        {
+            try
+            {
+                worldbuilderPreviewTextureField?.SetValue(null, previewTexture);
+                worldbuilderPreviewDirtyField?.SetValue(null, false);
+            }
+            catch
+            {
+            }
+        }
+
+        private static void TryResetWorldCameraPreviewState()
+        {
+            try
+            {
+                if (Find.WorldCamera != null)
+                {
+                    Find.WorldCamera.targetTexture = null;
+                }
+            }
+            catch
+            {
+            }
+
+            try
+            {
+                RenderTexture.active = null;
+            }
+            catch
+            {
+            }
+
+            try
+            {
+                if (Find.WorldCamera?.gameObject != null)
+                {
+                    Find.WorldCamera.gameObject.SetActive(false);
+                }
+            }
+            catch
+            {
+            }
+
+            try
+            {
+                if (Find.World?.renderer != null)
+                {
+                    Find.World.renderer.wantedMode = WorldRenderMode.None;
+                }
+            }
+            catch
+            {
+            }
+        }
+
         private static void LogVerbose(string message)
         {
             if (TheMarkedMenMod.Settings?.verboseCompatibilityLogging == true)
@@ -557,6 +689,17 @@ namespace TheMarkedMen
             }
 
             warningLogged = true;
+            Log.Warning("[The Marked Men] " + message);
+        }
+
+        private static void LogPreviewWarningOnce(string message)
+        {
+            if (previewWarningLogged)
+            {
+                return;
+            }
+
+            previewWarningLogged = true;
             Log.Warning("[The Marked Men] " + message);
         }
 
