@@ -916,6 +916,7 @@ namespace TheMarkedMen
         private static IncidentDef crossedRaid;
         private static IncidentDef crossedHorde;
         private static IncidentDef crossedProbe;
+        private static StatDef toxicEnvironmentResistance;
 
         public static HediffDef CrossVirus => crossVirus ?? (crossVirus = DefDatabase<HediffDef>.GetNamedSilentFail("CA_CrossVirus"));
         public static HediffDef CrossVirusImmunity => crossVirusImmunity ?? (crossVirusImmunity = DefDatabase<HediffDef>.GetNamedSilentFail("CA_CrossVirusImmunity"));
@@ -940,6 +941,7 @@ namespace TheMarkedMen
         public static IncidentDef CrossedRaid => crossedRaid ?? (crossedRaid = DefDatabase<IncidentDef>.GetNamedSilentFail("CA_CrossedRaid"));
         public static IncidentDef CrossedHorde => crossedHorde ?? (crossedHorde = DefDatabase<IncidentDef>.GetNamedSilentFail("CA_CrossedHorde"));
         public static IncidentDef CrossedProbe => crossedProbe ?? (crossedProbe = DefDatabase<IncidentDef>.GetNamedSilentFail("CA_CrossedProbe"));
+        public static StatDef ToxicEnvironmentResistance => toxicEnvironmentResistance ?? (toxicEnvironmentResistance = DefDatabase<StatDef>.GetNamedSilentFail("ToxicEnvironmentResistance"));
     }
 
     public sealed class TheMarkedMenGameComponent : GameComponent
@@ -2351,6 +2353,24 @@ namespace TheMarkedMen
         }
     }
 
+    public sealed class MarkedVirusProtectionExtension : DefModExtension
+    {
+        public float resistance;
+        public bool sealedAgainstMarkedVirus;
+    }
+
+    public struct MarkedVirusApparelProtection
+    {
+        public float resistance;
+        public bool sealedAgainstMarkedVirus;
+
+        public MarkedVirusApparelProtection(float resistance, bool sealedAgainstMarkedVirus)
+        {
+            this.resistance = Mathf.Clamp01(resistance);
+            this.sealedAgainstMarkedVirus = sealedAgainstMarkedVirus && this.resistance > 0f;
+        }
+    }
+
     public sealed class HediffComp_CrossVirus : HediffComp
     {
         private const int ProgressTickInterval = 250;
@@ -2366,6 +2386,9 @@ namespace TheMarkedMen
         private int nextProgressTick;
         private int terminalOutcome = TerminalOutcomeUnset;
         private Pawn originalInfector;
+        private float apparelResistanceAtExposure;
+        private bool sealedApparelAtExposure;
+        private float progressionDelayFactor = 1f;
 
         private HediffCompProperties_CrossVirus Props => (HediffCompProperties_CrossVirus)props;
 
@@ -2374,6 +2397,33 @@ namespace TheMarkedMen
             if (infector != null && infector != parent?.pawn)
             {
                 originalInfector = infector;
+            }
+        }
+
+        public void NotifyExposureProtection(float resistance, bool sealedAgainstMarkedVirus)
+        {
+            resistance = Mathf.Clamp01(resistance);
+            if (resistance <= 0f)
+            {
+                return;
+            }
+
+            float oldDelayFactor = CurrentProgressionDelayFactor();
+            float candidateDelayFactor = ProgressionDelayFactorFor(resistance, sealedAgainstMarkedVirus);
+            if (resistance > apparelResistanceAtExposure)
+            {
+                apparelResistanceAtExposure = resistance;
+                sealedApparelAtExposure = sealedAgainstMarkedVirus;
+            }
+            else if (Mathf.Approximately(resistance, apparelResistanceAtExposure))
+            {
+                sealedApparelAtExposure = sealedApparelAtExposure || sealedAgainstMarkedVirus;
+            }
+
+            float newDelayFactor = Mathf.Max(oldDelayFactor, Mathf.Max(candidateDelayFactor, ProgressionDelayFactorFor(apparelResistanceAtExposure, sealedApparelAtExposure)));
+            if (newDelayFactor > oldDelayFactor)
+            {
+                ApplyProgressionDelayIncrease(oldDelayFactor, newDelayFactor);
             }
         }
 
@@ -2386,10 +2436,15 @@ namespace TheMarkedMen
             Scribe_Values.Look(ref symptomOnsetTicks, "symptomOnsetTicks", -1);
             Scribe_Values.Look(ref nextProgressTick, "nextProgressTick", 0);
             Scribe_Values.Look(ref terminalOutcome, "terminalOutcome", TerminalOutcomeUnset);
+            Scribe_Values.Look(ref apparelResistanceAtExposure, "apparelResistanceAtExposure", 0f);
+            Scribe_Values.Look(ref sealedApparelAtExposure, "sealedApparelAtExposure", false);
+            Scribe_Values.Look(ref progressionDelayFactor, "progressionDelayFactor", 1f);
             Scribe_References.Look(ref originalInfector, "originalInfector");
 
             if (Scribe.mode == LoadSaveMode.PostLoadInit && parent?.pawn != null)
             {
+                apparelResistanceAtExposure = Mathf.Clamp01(apparelResistanceAtExposure);
+                progressionDelayFactor = Mathf.Max(1f, progressionDelayFactor);
                 EnsureProgressionTimers(Find.TickManager?.TicksGame ?? infectionTick);
             }
         }
@@ -2470,6 +2525,7 @@ namespace TheMarkedMen
             {
                 incubationResolved = true;
                 float immunityChance = Mathf.Clamp01(TheMarkedMenMod.Settings?.immunitySurvivalChance ?? Props.immunityChance);
+                immunityChance = AdjustedIncubationSurvivalChance(immunityChance);
                 if (Rand.Chance(immunityChance))
                 {
                     CrossedUtility.GrantCrossVirusImmunity(pawn);
@@ -2533,7 +2589,7 @@ namespace TheMarkedMen
 
             min = Mathf.Max(1, min);
             max = Mathf.Max(min, max);
-            return TheMarkedMenSettings.AdjustInfectionTicks(Rand.RangeInclusive(min, max));
+            return Mathf.Max(1, Mathf.RoundToInt(TheMarkedMenSettings.AdjustInfectionTicks(Rand.RangeInclusive(min, max)) * CurrentProgressionDelayFactor()));
         }
 
         private int MaxConfiguredTransformationTicks()
@@ -2544,7 +2600,59 @@ namespace TheMarkedMen
                 max = Props.incubationTicks;
             }
 
-            return TheMarkedMenSettings.AdjustInfectionTicks(Mathf.Max(1, max));
+            return Mathf.Max(1, Mathf.RoundToInt(TheMarkedMenSettings.AdjustInfectionTicks(Mathf.Max(1, max)) * CurrentProgressionDelayFactor()));
+        }
+
+        private void ApplyProgressionDelayIncrease(float oldDelayFactor, float newDelayFactor)
+        {
+            progressionDelayFactor = Mathf.Max(1f, newDelayFactor);
+            int ticks = Find.TickManager?.TicksGame ?? infectionTick;
+            if (infectionTick < 0)
+            {
+                infectionTick = ticks;
+            }
+
+            EnsureProgressionTimers(ticks);
+            int elapsed = Mathf.Max(0, ticks - infectionTick);
+            int remaining = Mathf.Max(1, transformationTicks - elapsed);
+            float scale = newDelayFactor / Mathf.Max(1f, oldDelayFactor);
+            transformationTicks = Mathf.Max(elapsed + 1, elapsed + Mathf.RoundToInt(remaining * scale));
+
+            if (!incubationResolved)
+            {
+                int onset = Mathf.RoundToInt(transformationTicks * Mathf.Clamp01(Props.symptomOnsetFraction));
+                symptomOnsetTicks = Mathf.Clamp(onset, 1, Mathf.Max(1, transformationTicks));
+            }
+        }
+
+        private float CurrentProgressionDelayFactor()
+        {
+            float factorFromExposure = ProgressionDelayFactorFor(apparelResistanceAtExposure, sealedApparelAtExposure);
+            return Mathf.Max(1f, Mathf.Max(progressionDelayFactor, factorFromExposure));
+        }
+
+        private static float ProgressionDelayFactorFor(float resistance, bool sealedAgainstMarkedVirus)
+        {
+            resistance = Mathf.Clamp01(resistance);
+            if (resistance <= 0f)
+            {
+                return 1f;
+            }
+
+            float delayScale = sealedAgainstMarkedVirus ? 4f : 1.5f;
+            return Mathf.Clamp(1f + resistance * delayScale, 1f, 6f);
+        }
+
+        private float AdjustedIncubationSurvivalChance(float baseChance)
+        {
+            float resistance = Mathf.Clamp01(apparelResistanceAtExposure);
+            if (resistance <= 0f)
+            {
+                return Mathf.Clamp01(baseChance);
+            }
+
+            float bonusScale = sealedApparelAtExposure ? 0.25f : 0.10f;
+            return Mathf.Clamp01(baseChance + resistance * bonusScale);
         }
 
         private float InitialSeverityFloor()
@@ -2582,6 +2690,7 @@ namespace TheMarkedMen
         private const string MarkedVirusFatalityQuestTag = "CA_MarkedVirusFatalityNoReanimation";
         private const string ArmorStripDueTagPrefix = "CA_CrossedArmorStripDue:";
         private const string FearlessDueToCrossVirusTag = "CA_FearlessDueToCrossVirus";
+        private const float DefaultApparelVirusResistance = 0.10f;
         private const string StarterLineageResistanceTag = "CA_StarterLineageResistance";
         private const string MarkedVillageFounderTag = "CA_MarkedVillageFounder";
         private const string PersistentCrossedRashTag = "CA_PersistentCrossedRashTattoo";
@@ -3059,10 +3168,25 @@ namespace TheMarkedMen
                 return false;
             }
 
+            MarkedVirusApparelProtection exposureProtection = default(MarkedVirusApparelProtection);
             float effectiveChance = Mathf.Clamp01(chance);
             if (starterLineageBreakthrough)
             {
                 effectiveChance *= TheMarkedMenSettings.StarterLineageBreakthroughChance;
+            }
+
+            if (CanApparelReduceMarkedVirusExposure(source))
+            {
+                exposureProtection = GetMarkedVirusExposureProtection(pawn);
+                if (exposureProtection.resistance > 0f)
+                {
+                    effectiveChance *= 1f - exposureProtection.resistance;
+                }
+            }
+
+            if (effectiveChance <= 0f)
+            {
+                return false;
             }
 
             if (!Rand.Chance(effectiveChance))
@@ -3089,6 +3213,7 @@ namespace TheMarkedMen
 
             HediffComp_CrossVirus comp = existing.TryGetComp<HediffComp_CrossVirus>();
             comp?.NotifyInfector(infector);
+            comp?.NotifyExposureProtection(exposureProtection.resistance, exposureProtection.sealedAgainstMarkedVirus);
             EnsureInfectedState(pawn);
             if (newlyInfected)
             {
@@ -3096,6 +3221,284 @@ namespace TheMarkedMen
             }
 
             return true;
+        }
+
+        public static float GetMarkedVirusApparelResistance(Pawn pawn)
+        {
+            return GetMarkedVirusExposureProtection(pawn).resistance;
+        }
+
+        public static MarkedVirusApparelProtection GetMarkedVirusExposureProtection(Pawn pawn)
+        {
+            MarkedVirusApparelProtection apparelProtection = GetMarkedVirusApparelProtection(pawn);
+            float toxicResistance = GetPawnToxicEnvironmentResistance(pawn);
+            float resistance = Mathf.Max(apparelProtection.resistance, toxicResistance);
+            return new MarkedVirusApparelProtection(resistance, apparelProtection.sealedAgainstMarkedVirus);
+        }
+
+        public static MarkedVirusApparelProtection GetMarkedVirusApparelProtection(Pawn pawn)
+        {
+            List<Apparel> wornApparel = pawn?.apparel?.WornApparel;
+            if (wornApparel == null || wornApparel.Count == 0)
+            {
+                return default(MarkedVirusApparelProtection);
+            }
+
+            float resistance = 0f;
+            bool sealedAgainstMarkedVirus = false;
+            for (int i = 0; i < wornApparel.Count; i++)
+            {
+                MarkedVirusApparelProtection apparelProtection = GetMarkedVirusProtectionForApparelDef(wornApparel[i]?.def);
+                if (apparelProtection.resistance <= 0f)
+                {
+                    continue;
+                }
+
+                if (apparelProtection.resistance > resistance)
+                {
+                    resistance = apparelProtection.resistance;
+                    sealedAgainstMarkedVirus = apparelProtection.sealedAgainstMarkedVirus;
+                }
+                else if (Mathf.Approximately(apparelProtection.resistance, resistance))
+                {
+                    sealedAgainstMarkedVirus = sealedAgainstMarkedVirus || apparelProtection.sealedAgainstMarkedVirus;
+                }
+            }
+
+            return new MarkedVirusApparelProtection(resistance, sealedAgainstMarkedVirus);
+        }
+
+        public static MarkedVirusApparelProtection GetMarkedVirusApparelProtection(ThingDef apparelDef)
+        {
+            return GetMarkedVirusProtectionForApparelDef(apparelDef);
+        }
+
+        public static float GetMarkedVirusToxicResistanceForApparel(ThingDef apparelDef)
+        {
+            if (apparelDef?.apparel == null)
+            {
+                return 0f;
+            }
+
+            MarkedVirusApparelProtection protection = GetMarkedVirusProtectionForApparelDef(apparelDef);
+            float toxicResistance = EquippedStatOffset(apparelDef, "ToxicEnvironmentResistance");
+            return Mathf.Clamp01(Mathf.Max(protection.resistance, toxicResistance));
+        }
+
+        private static float GetPawnToxicEnvironmentResistance(Pawn pawn)
+        {
+            StatDef toxicResistance = CADefOf.ToxicEnvironmentResistance;
+            if (pawn == null || toxicResistance == null)
+            {
+                return 0f;
+            }
+
+            try
+            {
+                return Mathf.Clamp01(pawn.GetStatValue(toxicResistance));
+            }
+            catch (Exception ex)
+            {
+                Log.Warning("[The Marked Men] Failed to read toxic environment resistance for Marked Virus exposure: " + ex.Message);
+                return 0f;
+            }
+        }
+
+        private static MarkedVirusApparelProtection GetMarkedVirusProtectionForApparelDef(ThingDef apparelDef)
+        {
+            if (apparelDef?.apparel == null)
+            {
+                return default(MarkedVirusApparelProtection);
+            }
+
+            MarkedVirusProtectionExtension extension = apparelDef.GetModExtension<MarkedVirusProtectionExtension>();
+            if (extension != null)
+            {
+                return new MarkedVirusApparelProtection(extension.resistance, extension.sealedAgainstMarkedVirus);
+            }
+
+            return InferMarkedVirusApparelProtection(apparelDef);
+        }
+
+        private static MarkedVirusApparelProtection InferMarkedVirusApparelProtection(ThingDef apparelDef)
+        {
+            string defName = apparelDef.defName ?? string.Empty;
+            string label = apparelDef.label ?? string.Empty;
+            bool fullHead = ApparelCoversBodyPartGroup(apparelDef, "FullHead");
+            bool torso = ApparelCoversBodyPartGroup(apparelDef, "Torso");
+            bool toxGasImmune = apparelDef.apparel?.immuneToToxGasExposure == true;
+            float toxicEnvironmentResistance = EquippedStatOffset(apparelDef, "ToxicEnvironmentResistance");
+            float vacuumResistance = EquippedStatOffset(apparelDef, "VacuumResistance");
+
+            if (ContainsOrdinalIgnoreCase(defName, "Warcasket") && torso && !ContainsOrdinalIgnoreCase(defName, "Shoulders") && !ContainsOrdinalIgnoreCase(defName, "Bodysuit"))
+            {
+                return new MarkedVirusApparelProtection(0.90f, true);
+            }
+
+            if (ContainsOrdinalIgnoreCase(defName, "HAZMAT") && (ContainsOrdinalIgnoreCase(defName, "Suit") || ContainsOrdinalIgnoreCase(label, "suit") || torso))
+            {
+                return new MarkedVirusApparelProtection(0.80f, true);
+            }
+
+            if ((ContainsOrdinalIgnoreCase(defName, "Vacsuit") || ContainsOrdinalIgnoreCase(label, "vacsuit") || ContainsOrdinalIgnoreCase(defName, "EVAsuit") || ContainsOrdinalIgnoreCase(label, "EVA suit")) && torso)
+            {
+                return new MarkedVirusApparelProtection(0.75f, true);
+            }
+
+            if ((ContainsOrdinalIgnoreCase(defName, "Sealed") || ContainsOrdinalIgnoreCase(label, "sealed") || ContainsOrdinalIgnoreCase(defName, "AstroSuit") || ContainsOrdinalIgnoreCase(label, "astrosuit")) && torso)
+            {
+                return new MarkedVirusApparelProtection(0.65f, true);
+            }
+
+            if ((ContainsOrdinalIgnoreCase(defName, "VacsuitHelmet") || ContainsOrdinalIgnoreCase(label, "vacsuit helmet")) && fullHead)
+            {
+                return new MarkedVirusApparelProtection(0.70f, true);
+            }
+
+            if (toxGasImmune || ContainsOrdinalIgnoreCase(defName, "GasMask") || ContainsOrdinalIgnoreCase(label, "gas mask") || ContainsOrdinalIgnoreCase(defName, "HAZMATMask") || ContainsOrdinalIgnoreCase(defName, "WarcasketHelmet") || ContainsOrdinalIgnoreCase(defName, "AstroMask"))
+            {
+                return new MarkedVirusApparelProtection(0.50f, true);
+            }
+
+            if (toxicEnvironmentResistance >= 0.75f && fullHead)
+            {
+                return new MarkedVirusApparelProtection(0.50f, true);
+            }
+
+            if (vacuumResistance >= 0.30f && torso)
+            {
+                return new MarkedVirusApparelProtection(0.65f, true);
+            }
+
+            if (IsPoweredArmorHelmet(defName) || IsPoweredArmorHelmet(label))
+            {
+                return new MarkedVirusApparelProtection(0.30f, false);
+            }
+
+            if (IsPoweredArmorBody(defName) || IsPoweredArmorBody(label))
+            {
+                return new MarkedVirusApparelProtection(0.35f, false);
+            }
+
+            if (ContainsOrdinalIgnoreCase(defName, "PlagueMask") || ContainsOrdinalIgnoreCase(label, "plague mask"))
+            {
+                return new MarkedVirusApparelProtection(0.25f, false);
+            }
+
+            if (ContainsOrdinalIgnoreCase(defName, "ClothMask") || ContainsOrdinalIgnoreCase(defName, "SurgicalMask") || ContainsOrdinalIgnoreCase(label, "surgical mask") || ContainsOrdinalIgnoreCase(label, "face mask"))
+            {
+                return new MarkedVirusApparelProtection(0.20f, false);
+            }
+
+            if (IsArmorOrSuit(defName) || IsArmorOrSuit(label))
+            {
+                return new MarkedVirusApparelProtection(0.15f, false);
+            }
+
+            if (ContainsOrdinalIgnoreCase(defName, "Mask") || ContainsOrdinalIgnoreCase(label, "mask"))
+            {
+                return new MarkedVirusApparelProtection(0.10f, false);
+            }
+
+            if (ContainsOrdinalIgnoreCase(defName, "Helmet") || ContainsOrdinalIgnoreCase(label, "helmet"))
+            {
+                return new MarkedVirusApparelProtection(0.10f, false);
+            }
+
+            return new MarkedVirusApparelProtection(DefaultApparelVirusResistance, false);
+        }
+
+        private static bool IsPoweredArmorBody(string text)
+        {
+            return ContainsOrdinalIgnoreCase(text, "PowerArmor")
+                || ContainsOrdinalIgnoreCase(text, "ArmorRecon")
+                || ContainsOrdinalIgnoreCase(text, "ArmorMarine")
+                || ContainsOrdinalIgnoreCase(text, "ArmorCataphract")
+                || ContainsOrdinalIgnoreCase(text, "ArmorLocust")
+                || ContainsOrdinalIgnoreCase(text, "ArmorPhoenix")
+                || ContainsOrdinalIgnoreCase(text, "MechlordSuit")
+                || ContainsOrdinalIgnoreCase(text, "ArmorAbsolver")
+                || ContainsOrdinalIgnoreCase(text, "ArmorDeserter")
+                || ContainsOrdinalIgnoreCase(text, "privateer armor");
+        }
+
+        private static bool IsPoweredArmorHelmet(string text)
+        {
+            return ContainsOrdinalIgnoreCase(text, "PowerArmorHelmet")
+                || ContainsOrdinalIgnoreCase(text, "ArmorHelmetRecon")
+                || ContainsOrdinalIgnoreCase(text, "ArmorHelmetCataphract")
+                || ContainsOrdinalIgnoreCase(text, "ArmorMarineHelmet")
+                || ContainsOrdinalIgnoreCase(text, "ArmorHelmetMech")
+                || ContainsOrdinalIgnoreCase(text, "AbsolverHelmet")
+                || ContainsOrdinalIgnoreCase(text, "DeserterHelmet")
+                || ContainsOrdinalIgnoreCase(text, "JanissaryHelmet")
+                || ContainsOrdinalIgnoreCase(text, "power armor helmet")
+                || ContainsOrdinalIgnoreCase(text, "marine helmet")
+                || ContainsOrdinalIgnoreCase(text, "recon helmet")
+                || ContainsOrdinalIgnoreCase(text, "cataphract helmet");
+        }
+
+        private static bool IsArmorOrSuit(string text)
+        {
+            return ContainsOrdinalIgnoreCase(text, "Suit")
+                || ContainsOrdinalIgnoreCase(text, "Armor")
+                || ContainsOrdinalIgnoreCase(text, "Armour")
+                || ContainsOrdinalIgnoreCase(text, "Cuirass")
+                || ContainsOrdinalIgnoreCase(text, "Flak")
+                || ContainsOrdinalIgnoreCase(text, "WarcasketShoulders")
+                || ContainsOrdinalIgnoreCase(text, "warcasket shoulders");
+        }
+
+        private static bool ApparelCoversBodyPartGroup(ThingDef apparelDef, string bodyPartGroupDefName)
+        {
+            List<BodyPartGroupDef> bodyPartGroups = apparelDef?.apparel?.bodyPartGroups;
+            if (bodyPartGroups == null)
+            {
+                return false;
+            }
+
+            for (int i = 0; i < bodyPartGroups.Count; i++)
+            {
+                if (string.Equals(bodyPartGroups[i]?.defName, bodyPartGroupDefName, StringComparison.OrdinalIgnoreCase))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private static float EquippedStatOffset(ThingDef apparelDef, string statDefName)
+        {
+            List<StatModifier> offsets = apparelDef?.equippedStatOffsets;
+            if (offsets == null)
+            {
+                return 0f;
+            }
+
+            float value = 0f;
+            for (int i = 0; i < offsets.Count; i++)
+            {
+                StatDef stat = offsets[i].stat;
+                if (string.Equals(stat?.defName, statDefName, StringComparison.OrdinalIgnoreCase))
+                {
+                    value += offsets[i].value;
+                }
+            }
+
+            return value;
+        }
+
+        private static bool ContainsOrdinalIgnoreCase(string text, string value)
+        {
+            return !string.IsNullOrEmpty(text)
+                && !string.IsNullOrEmpty(value)
+                && text.IndexOf(value, StringComparison.OrdinalIgnoreCase) >= 0;
+        }
+
+        private static bool CanApparelReduceMarkedVirusExposure(string source)
+        {
+            return string.IsNullOrEmpty(source) || source.IndexOf("food", StringComparison.OrdinalIgnoreCase) < 0;
         }
 
         public static void TransformPawn(Pawn pawn, bool suppressNotification = false, Pawn infector = null)

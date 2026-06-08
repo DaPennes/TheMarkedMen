@@ -1,0 +1,227 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Patch>
+  <Operation Class="PatchOperationSequence">
+    <operations>
+      <!-- Add modExtension containers to apparel that does not already define one. Resistance is only added by the rules below. -->
+      <li Class="PatchOperationConditional">
+        <xpath>/Defs/*[apparel and not(modExtensions)]</xpath>
+        <match Class="PatchOperationAdd">
+          <xpath>/Defs/*[apparel and not(modExtensions)]</xpath>
+          <value>
+            <modExtensions />
+          </value>
+        </match>
+      </li>
+
+      <!-- Worn warcasket torso shells represent a fully enclosed combat casket. -->
+      <li Class="PatchOperationConditional">
+        <xpath>/Defs/*[apparel and modExtensions and contains(defName, "Warcasket") and apparel/bodyPartGroups/li="Torso" and not(contains(defName, "Shoulders")) and not(contains(defName, "Bodysuit")) and not(modExtensions/li[@Class="TheMarkedMen.MarkedVirusProtectionExtension"])]</xpath>
+        <match Class="PatchOperationAdd">
+          <xpath>/Defs/*[apparel and modExtensions and contains(defName, "Warcasket") and apparel/bodyPartGroups/li="Torso" and not(contains(defName, "Shoulders")) and not(contains(defName, "Bodysuit")) and not(modExtensions/li[@Class="TheMarkedMen.MarkedVirusProtectionExtension"])]/modExtensions</xpath>
+          <value>
+            <li Class="TheMarkedMen.MarkedVirusProtectionExtension">
+              <resistance>0.90</resistance>
+              <sealedAgainstMarkedVirus>true</sealedAgainstMarkedVirus>
+            </li>
+          </value>
+        </match>
+      </li>
+
+      <!-- HAZMAT suits are purpose-built biological protection, but not perfect in melee. -->
+      <li Class="PatchOperationConditional">
+        <xpath>/Defs/*[apparel and modExtensions and defName="VAE_Apparel_HAZMATSuit" and not(modExtensions/li[@Class="TheMarkedMen.MarkedVirusProtectionExtension"])]</xpath>
+        <match Class="PatchOperationAdd">
+          <xpath>/Defs/*[apparel and modExtensions and defName="VAE_Apparel_HAZMATSuit" and not(modExtensions/li[@Class="TheMarkedMen.MarkedVirusProtectionExtension"])]/modExtensions</xpath>
+          <value>
+            <li Class="TheMarkedMen.MarkedVirusProtectionExtension">
+              <resistance>0.80</resistance>
+              <sealedAgainstMarkedVirus>true</sealedAgainstMarkedVirus>
+            </li>
+          </value>
+        </match>
+      </li>
+
+      <!-- Space and EVA suits give strong environmental sealing without matching warcasket containment. -->
+      <li Class="PatchOperationConditional">
+        <xpath>/Defs/*[apparel and modExtensions and (defName="Apparel_Vacsuit" or defName="Apparel_VacsuitChildren" or defName="VGE_Apparel_Vacsuit_Prestige" or defName="Apparel_EVAsuit") and not(modExtensions/li[@Class="TheMarkedMen.MarkedVirusProtectionExtension"])]</xpath>
+        <match Class="PatchOperationAdd">
+          <xpath>/Defs/*[apparel and modExtensions and (defName="Apparel_Vacsuit" or defName="Apparel_VacsuitChildren" or defName="VGE_Apparel_Vacsuit_Prestige" or defName="Apparel_EVAsuit") and not(modExtensions/li[@Class="TheMarkedMen.MarkedVirusProtectionExtension"])]/modExtensions</xpath>
+          <value>
+            <li Class="TheMarkedMen.MarkedVirusProtectionExtension">
+              <resistance>0.75</resistance>
+              <sealedAgainstMarkedVirus>true</sealedAgainstMarkedVirus>
+            </li>
+          </value>
+        </match>
+      </li>
+
+      <!-- Sealed undersuits and sealed orbital armor are protective but still need a mask/helmet for best results. -->
+      <li Class="PatchOperationConditional">
+        <xpath>/Defs/*[apparel and modExtensions and (defName="Apparel_SealedUndersuit" or defName="Apparel_AstroSuit" or defName="Apparel_SecurityArmor" or defName="Apparel_OrbitalArmor") and not(modExtensions/li[@Class="TheMarkedMen.MarkedVirusProtectionExtension"])]</xpath>
+        <match Class="PatchOperationAdd">
+          <xpath>/Defs/*[apparel and modExtensions and (defName="Apparel_SealedUndersuit" or defName="Apparel_AstroSuit" or defName="Apparel_SecurityArmor" or defName="Apparel_OrbitalArmor") and not(modExtensions/li[@Class="TheMarkedMen.MarkedVirusProtectionExtension"])]/modExtensions</xpath>
+          <value>
+            <li Class="TheMarkedMen.MarkedVirusProtectionExtension">
+              <resistance>0.65</resistance>
+              <sealedAgainstMarkedVirus>true</sealedAgainstMarkedVirus>
+            </li>
+          </value>
+        </match>
+      </li>
+
+      <!-- Vacsuit helmets are better sealed than simple filters, but still expose the body. -->
+      <li Class="PatchOperationConditional">
+        <xpath>/Defs/*[apparel and modExtensions and (defName="Apparel_VacsuitHelmet" or defName="VGE_Apparel_VacsuitHelmet_Prestige") and not(modExtensions/li[@Class="TheMarkedMen.MarkedVirusProtectionExtension"])]</xpath>
+        <match Class="PatchOperationAdd">
+          <xpath>/Defs/*[apparel and modExtensions and (defName="Apparel_VacsuitHelmet" or defName="VGE_Apparel_VacsuitHelmet_Prestige") and not(modExtensions/li[@Class="TheMarkedMen.MarkedVirusProtectionExtension"])]/modExtensions</xpath>
+          <value>
+            <li Class="TheMarkedMen.MarkedVirusProtectionExtension">
+              <resistance>0.70</resistance>
+              <sealedAgainstMarkedVirus>true</sealedAgainstMarkedVirus>
+            </li>
+          </value>
+        </match>
+      </li>
+
+      <!-- Gas masks, HAZMAT masks, astromasks, and warcasket helmets halve airborne/contact exposure risk. -->
+      <li Class="PatchOperationConditional">
+        <xpath>/Defs/*[apparel and modExtensions and (defName="Apparel_GasMask" or contains(defName, "GasMask") or defName="VAE_Headgear_HAZMATMask" or contains(defName, "WarcasketHelmet") or defName="Apparel_AstroMask") and not(modExtensions/li[@Class="TheMarkedMen.MarkedVirusProtectionExtension"])]</xpath>
+        <match Class="PatchOperationAdd">
+          <xpath>/Defs/*[apparel and modExtensions and (defName="Apparel_GasMask" or contains(defName, "GasMask") or defName="VAE_Headgear_HAZMATMask" or contains(defName, "WarcasketHelmet") or defName="Apparel_AstroMask") and not(modExtensions/li[@Class="TheMarkedMen.MarkedVirusProtectionExtension"])]/modExtensions</xpath>
+          <value>
+            <li Class="TheMarkedMen.MarkedVirusProtectionExtension">
+              <resistance>0.50</resistance>
+              <sealedAgainstMarkedVirus>true</sealedAgainstMarkedVirus>
+            </li>
+          </value>
+        </match>
+      </li>
+
+      <!-- Compatibility fallback for other mods that explicitly mark apparel as immune to tox-gas exposure. -->
+      <li Class="PatchOperationConditional">
+        <xpath>/Defs/*[apparel and modExtensions and apparel/immuneToToxGasExposure="true" and not(modExtensions/li[@Class="TheMarkedMen.MarkedVirusProtectionExtension"])]</xpath>
+        <match Class="PatchOperationAdd">
+          <xpath>/Defs/*[apparel and modExtensions and apparel/immuneToToxGasExposure="true" and not(modExtensions/li[@Class="TheMarkedMen.MarkedVirusProtectionExtension"])]/modExtensions</xpath>
+          <value>
+            <li Class="TheMarkedMen.MarkedVirusProtectionExtension">
+              <resistance>0.50</resistance>
+              <sealedAgainstMarkedVirus>true</sealedAgainstMarkedVirus>
+            </li>
+          </value>
+        </match>
+      </li>
+
+      <!-- Powered spacer armor is enclosed enough to slow contact exposure, but it is not a biosealed suit. -->
+      <li Class="PatchOperationConditional">
+        <xpath>/Defs/*[apparel and modExtensions and (contains(defName, "PowerArmor") or contains(defName, "ArmorRecon") or contains(defName, "ArmorMarine") or contains(defName, "ArmorCataphract") or contains(defName, "ArmorLocust") or contains(defName, "ArmorPhoenix") or contains(defName, "MechlordSuit") or contains(defName, "ArmorAbsolver") or contains(defName, "ArmorDeserter") or defName="VFEP_Apparel_Privateer") and not(contains(defName, "Helmet")) and not(modExtensions/li[@Class="TheMarkedMen.MarkedVirusProtectionExtension"])]</xpath>
+        <match Class="PatchOperationAdd">
+          <xpath>/Defs/*[apparel and modExtensions and (contains(defName, "PowerArmor") or contains(defName, "ArmorRecon") or contains(defName, "ArmorMarine") or contains(defName, "ArmorCataphract") or contains(defName, "ArmorLocust") or contains(defName, "ArmorPhoenix") or contains(defName, "MechlordSuit") or contains(defName, "ArmorAbsolver") or contains(defName, "ArmorDeserter") or defName="VFEP_Apparel_Privateer") and not(contains(defName, "Helmet")) and not(modExtensions/li[@Class="TheMarkedMen.MarkedVirusProtectionExtension"])]/modExtensions</xpath>
+          <value>
+            <li Class="TheMarkedMen.MarkedVirusProtectionExtension">
+              <resistance>0.35</resistance>
+              <sealedAgainstMarkedVirus>false</sealedAgainstMarkedVirus>
+            </li>
+          </value>
+        </match>
+      </li>
+
+      <!-- Enclosed spacer helmets help more than open helmets, but less than respirator gear. -->
+      <li Class="PatchOperationConditional">
+        <xpath>/Defs/*[apparel and modExtensions and (contains(defName, "PowerArmorHelmet") or contains(defName, "ArmorHelmetRecon") or contains(defName, "ArmorHelmetCataphract") or contains(defName, "ArmorMarineHelmet") or contains(defName, "ArmorHelmetMech") or contains(defName, "AbsolverHelmet") or contains(defName, "DeserterHelmet") or contains(defName, "JanissaryHelmet")) and not(modExtensions/li[@Class="TheMarkedMen.MarkedVirusProtectionExtension"])]</xpath>
+        <match Class="PatchOperationAdd">
+          <xpath>/Defs/*[apparel and modExtensions and (contains(defName, "PowerArmorHelmet") or contains(defName, "ArmorHelmetRecon") or contains(defName, "ArmorHelmetCataphract") or contains(defName, "ArmorMarineHelmet") or contains(defName, "ArmorHelmetMech") or contains(defName, "AbsolverHelmet") or contains(defName, "DeserterHelmet") or contains(defName, "JanissaryHelmet")) and not(modExtensions/li[@Class="TheMarkedMen.MarkedVirusProtectionExtension"])]/modExtensions</xpath>
+          <value>
+            <li Class="TheMarkedMen.MarkedVirusProtectionExtension">
+              <resistance>0.30</resistance>
+              <sealedAgainstMarkedVirus>false</sealedAgainstMarkedVirus>
+            </li>
+          </value>
+        </match>
+      </li>
+
+      <!-- Plague masks are designed for disease fear but are primitive and not sealed. -->
+      <li Class="PatchOperationConditional">
+        <xpath>/Defs/*[apparel and modExtensions and (contains(defName, "PlagueMask") or contains(label, "plague mask")) and not(modExtensions/li[@Class="TheMarkedMen.MarkedVirusProtectionExtension"])]</xpath>
+        <match Class="PatchOperationAdd">
+          <xpath>/Defs/*[apparel and modExtensions and (contains(defName, "PlagueMask") or contains(label, "plague mask")) and not(modExtensions/li[@Class="TheMarkedMen.MarkedVirusProtectionExtension"])]/modExtensions</xpath>
+          <value>
+            <li Class="TheMarkedMen.MarkedVirusProtectionExtension">
+              <resistance>0.25</resistance>
+              <sealedAgainstMarkedVirus>false</sealedAgainstMarkedVirus>
+            </li>
+          </value>
+        </match>
+      </li>
+
+      <!-- Cloth and medical masks are useful against droplets, but they are far below respirator protection. -->
+      <li Class="PatchOperationConditional">
+        <xpath>/Defs/*[apparel and modExtensions and (defName="Apparel_ClothMask" or contains(defName, "SurgicalMask") or contains(label, "surgical mask") or contains(label, "face mask")) and not(modExtensions/li[@Class="TheMarkedMen.MarkedVirusProtectionExtension"])]</xpath>
+        <match Class="PatchOperationAdd">
+          <xpath>/Defs/*[apparel and modExtensions and (defName="Apparel_ClothMask" or contains(defName, "SurgicalMask") or contains(label, "surgical mask") or contains(label, "face mask")) and not(modExtensions/li[@Class="TheMarkedMen.MarkedVirusProtectionExtension"])]/modExtensions</xpath>
+          <value>
+            <li Class="TheMarkedMen.MarkedVirusProtectionExtension">
+              <resistance>0.20</resistance>
+              <sealedAgainstMarkedVirus>false</sealedAgainstMarkedVirus>
+            </li>
+          </value>
+        </match>
+      </li>
+
+      <!-- Remaining suits and body armor give limited splash/contact protection. -->
+      <li Class="PatchOperationConditional">
+        <xpath>/Defs/*[apparel and modExtensions and (contains(defName, "Suit") or contains(label, "suit") or contains(defName, "Armor") or contains(defName, "Armour") or contains(label, "armor") or contains(label, "armour") or contains(defName, "Cuirass") or contains(label, "cuirass") or contains(defName, "Flak") or contains(label, "flak") or contains(defName, "WarcasketShoulders") or contains(label, "warcasket shoulders")) and not(contains(defName, "Helmet")) and not(contains(label, "helmet")) and not(modExtensions/li[@Class="TheMarkedMen.MarkedVirusProtectionExtension"])]</xpath>
+        <match Class="PatchOperationAdd">
+          <xpath>/Defs/*[apparel and modExtensions and (contains(defName, "Suit") or contains(label, "suit") or contains(defName, "Armor") or contains(defName, "Armour") or contains(label, "armor") or contains(label, "armour") or contains(defName, "Cuirass") or contains(label, "cuirass") or contains(defName, "Flak") or contains(label, "flak") or contains(defName, "WarcasketShoulders") or contains(label, "warcasket shoulders")) and not(contains(defName, "Helmet")) and not(contains(label, "helmet")) and not(modExtensions/li[@Class="TheMarkedMen.MarkedVirusProtectionExtension"])]/modExtensions</xpath>
+          <value>
+            <li Class="TheMarkedMen.MarkedVirusProtectionExtension">
+              <resistance>0.15</resistance>
+              <sealedAgainstMarkedVirus>false</sealedAgainstMarkedVirus>
+            </li>
+          </value>
+        </match>
+      </li>
+
+      <!-- Cloth, ritual, and decorative masks reduce splatter exposure slightly but are not sealed respirators. -->
+      <li Class="PatchOperationConditional">
+        <xpath>/Defs/*[apparel and modExtensions and (contains(defName, "Mask") or contains(label, "mask")) and not(modExtensions/li[@Class="TheMarkedMen.MarkedVirusProtectionExtension"])]</xpath>
+        <match Class="PatchOperationAdd">
+          <xpath>/Defs/*[apparel and modExtensions and (contains(defName, "Mask") or contains(label, "mask")) and not(modExtensions/li[@Class="TheMarkedMen.MarkedVirusProtectionExtension"])]/modExtensions</xpath>
+          <value>
+            <li Class="TheMarkedMen.MarkedVirusProtectionExtension">
+              <resistance>0.10</resistance>
+              <sealedAgainstMarkedVirus>false</sealedAgainstMarkedVirus>
+            </li>
+          </value>
+        </match>
+      </li>
+
+      <!-- Basic helmets slow direct splatter exposure a little, but open helmets are not virus PPE. -->
+      <li Class="PatchOperationConditional">
+        <xpath>/Defs/*[apparel and modExtensions and (contains(defName, "Helmet") or contains(label, "helmet")) and not(modExtensions/li[@Class="TheMarkedMen.MarkedVirusProtectionExtension"])]</xpath>
+        <match Class="PatchOperationAdd">
+          <xpath>/Defs/*[apparel and modExtensions and (contains(defName, "Helmet") or contains(label, "helmet")) and not(modExtensions/li[@Class="TheMarkedMen.MarkedVirusProtectionExtension"])]/modExtensions</xpath>
+          <value>
+            <li Class="TheMarkedMen.MarkedVirusProtectionExtension">
+              <resistance>0.10</resistance>
+              <sealedAgainstMarkedVirus>false</sealedAgainstMarkedVirus>
+            </li>
+          </value>
+        </match>
+      </li>
+
+      <!-- Universal fallback: any worn apparel gives at least a small barrier against direct splatter/contact exposure. -->
+      <li Class="PatchOperationConditional">
+        <xpath>/Defs/*[apparel and modExtensions and not(modExtensions/li[@Class="TheMarkedMen.MarkedVirusProtectionExtension"])]</xpath>
+        <match Class="PatchOperationAdd">
+          <xpath>/Defs/*[apparel and modExtensions and not(modExtensions/li[@Class="TheMarkedMen.MarkedVirusProtectionExtension"])]/modExtensions</xpath>
+          <value>
+            <li Class="TheMarkedMen.MarkedVirusProtectionExtension">
+              <resistance>0.10</resistance>
+              <sealedAgainstMarkedVirus>false</sealedAgainstMarkedVirus>
+            </li>
+          </value>
+        </match>
+      </li>
+    </operations>
+  </Operation>
+</Patch>

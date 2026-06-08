@@ -3,7 +3,7 @@
   <HediffDef>
     <defName>CA_CrossVirus</defName>
     <label>Marked Virus</label>
-    <description>A contagious neurological blood-borne disease spread by close contact with infected bodily fluids, contaminated blood, and tainted food. The virus usually overwhelms a victim quickly. A very small number of survivors develop lasting immune resistance; most terminal cases either transform into Marked Men or die from viral collapse.</description>
+    <description>A contagious neurological blood-borne disease spread by close contact with infected bodily fluids, contaminated blood, and tainted food. Toxic environment resistance from masks, sealed suits, and armor can reduce exposure risk and delay breakthrough infections, but it does not guarantee safety. The virus usually overwhelms a victim quickly. A very small number of survivors develop lasting immune resistance; most terminal cases either transform into Marked Men or die from viral collapse.</description>
     <hediffClass>HediffWithComps</hediffClass>
     <initialSeverity>0.08</initialSeverity>
     <maxSeverity>1</maxSeverity>
@@ -111,12 +111,12 @@
     </stages>
     <comps>
       <li Class="TheMarkedMen.HediffCompProperties_CrossVirus">
-        <incubationTicks>180</incubationTicks>
-        <commonTransformationMinTicks>180</commonTransformationMinTicks>
-        <commonTransformationMaxTicks>480</commonTransformationMaxTicks>
+        <incubationTicks>600</incubationTicks>
+        <commonTransformationMinTicks>900</commonTransformationMinTicks>
+        <commonTransformationMaxTicks>2400</commonTransformationMaxTicks>
         <rareSlowProgressionChance>0.02</rareSlowProgressionChance>
-        <rareTransformationMinTicks>600</rareTransformationMinTicks>
-        <rareTransformationMaxTicks>900</rareTransformationMaxTicks>
+        <rareTransformationMinTicks>3600</rareTransformationMinTicks>
+        <rareTransformationMaxTicks>7200</rareTransformationMaxTicks>
         <symptomOnsetFraction>0.15</symptomOnsetFraction>
         <immunityChance>0.02</immunityChance>
         <terminalTransformationChance>0.55</terminalTransformationChance>

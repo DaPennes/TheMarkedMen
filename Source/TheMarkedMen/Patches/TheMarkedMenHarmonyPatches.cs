@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Reflection;
 using HarmonyLib;
 using RimWorld;
@@ -7,6 +8,58 @@ using Verse.AI.Group;
 
 namespace TheMarkedMen
 {
+    [HarmonyPatch(typeof(ThingDef), nameof(ThingDef.SpecialDisplayStats))]
+    public static class Patch_MarkedVirusToxicResistanceApparelInfoCard
+    {
+        public static void Postfix(ThingDef __instance, StatRequest req, ref IEnumerable<StatDrawEntry> __result)
+        {
+            if (__instance?.apparel == null || CADefOf.ToxicEnvironmentResistance == null)
+            {
+                return;
+            }
+
+            __result = AppendToxicResistance(__result, __instance, req);
+        }
+
+        private static IEnumerable<StatDrawEntry> AppendToxicResistance(IEnumerable<StatDrawEntry> originalEntries, ThingDef apparelDef, StatRequest req)
+        {
+            bool alreadyPresent = false;
+            if (originalEntries != null)
+            {
+                foreach (StatDrawEntry entry in originalEntries)
+                {
+                    if (entry.stat == CADefOf.ToxicEnvironmentResistance)
+                    {
+                        alreadyPresent = true;
+                    }
+
+                    yield return entry;
+                }
+            }
+
+            if (alreadyPresent)
+            {
+                yield break;
+            }
+
+            float toxicResistance = CrossedUtility.GetMarkedVirusToxicResistanceForApparel(apparelDef);
+            if (toxicResistance <= 0f)
+            {
+                yield break;
+            }
+
+            StatCategoryDef category = StatCategoryDefOf.EquippedStatOffsets ?? StatCategoryDefOf.Apparel;
+            yield return new StatDrawEntry(
+                category,
+                CADefOf.ToxicEnvironmentResistance,
+                toxicResistance,
+                req,
+                ToStringNumberSense.Offset,
+                3450,
+                false);
+        }
+    }
+
     [HarmonyPatch(typeof(Pawn), nameof(Pawn.PostApplyDamage))]
     public static class Patch_BloodExposure
     {

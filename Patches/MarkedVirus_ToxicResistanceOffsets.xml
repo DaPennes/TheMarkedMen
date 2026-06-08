@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Patch>
+  <Operation Class="PatchOperationSequence">
+    <operations>
+      <!-- Use RimWorld's base toxic environment resistance stat for Marked Virus apparel protection display and stat merging. -->
+      <li Class="PatchOperationConditional">
+        <xpath>/Defs/*[apparel and not(equippedStatOffsets)]</xpath>
+        <match Class="PatchOperationAdd">
+          <xpath>/Defs/*[apparel and not(equippedStatOffsets)]</xpath>
+          <value>
+            <equippedStatOffsets />
+          </value>
+        </match>
+      </li>
+
+      <li Class="PatchOperationConditional">
+        <xpath>/Defs/*[apparel and equippedStatOffsets and contains(defName, "Warcasket") and apparel/bodyPartGroups/li="Torso" and not(contains(defName, "Shoulders")) and not(contains(defName, "Bodysuit")) and not(equippedStatOffsets/ToxicEnvironmentResistance)]</xpath>
+        <match Class="PatchOperationAdd">
+          <xpath>/Defs/*[apparel and equippedStatOffsets and contains(defName, "Warcasket") and apparel/bodyPartGroups/li="Torso" and not(contains(defName, "Shoulders")) and not(contains(defName, "Bodysuit")) and not(equippedStatOffsets/ToxicEnvironmentResistance)]/equippedStatOffsets</xpath>
+          <value>
+            <ToxicEnvironmentResistance>0.90</ToxicEnvironmentResistance>
+          </value>
+        </match>
+      </li>
+
+      <li Class="PatchOperationConditional">
+        <xpath>/Defs/*[apparel and equippedStatOffsets and defName="VAE_Apparel_HAZMATSuit" and not(equippedStatOffsets/ToxicEnvironmentResistance)]</xpath>
+        <match Class="PatchOperationAdd">
+          <xpath>/Defs/*[apparel and equippedStatOffsets and defName="VAE_Apparel_HAZMATSuit" and not(equippedStatOffsets/ToxicEnvironmentResistance)]/equippedStatOffsets</xpath>
+          <value>
+            <ToxicEnvironmentResistance>0.80</ToxicEnvironmentResistance>
+          </value>
+        </match>
+      </li>
+
+      <li Class="PatchOperationConditional">
+        <xpath>/Defs/*[apparel and equippedStatOffsets and (defName="Apparel_Vacsuit" or defName="Apparel_VacsuitChildren" or defName="VGE_Apparel_Vacsuit_Prestige" or defName="Apparel_EVAsuit") and not(equippedStatOffsets/ToxicEnvironmentResistance)]</xpath>
+        <match Class="PatchOperationAdd">
+          <xpath>/Defs/*[apparel and equippedStatOffsets and (defName="Apparel_Vacsuit" or defName="Apparel_VacsuitChildren" or defName="VGE_Apparel_Vacsuit_Prestige" or defName="Apparel_EVAsuit") and not(equippedStatOffsets/ToxicEnvironmentResistance)]/equippedStatOffsets</xpath>
+          <value>
+            <ToxicEnvironmentResistance>0.75</ToxicEnvironmentResistance>
+          </value>
+        </match>
+      </li>
+
+      <li Class="PatchOperationConditional">
+        <xpath>/Defs/*[apparel and equippedStatOffsets and (defName="Apparel_SealedUndersuit" or defName="Apparel_AstroSuit" or defName="Apparel_SecurityArmor" or defName="Apparel_OrbitalArmor") and not(equippedStatOffsets/ToxicEnvironmentResistance)]</xpath>
+        <match Class="PatchOperationAdd">
+          <xpath>/Defs/*[apparel and equippedStatOffsets and (defName="Apparel_SealedUndersuit" or defName="Apparel_AstroSuit" or defName="Apparel_SecurityArmor" or defName="Apparel_OrbitalArmor") and not(equippedStatOffsets/ToxicEnvironmentResistance)]/equippedStatOffsets</xpath>
+          <value>
+            <ToxicEnvironmentResistance>0.65</ToxicEnvironmentResistance>
+          </value>
+        </match>
+      </li>
+
+      <li Class="PatchOperationConditional">
+        <xpath>/Defs/*[apparel and equippedStatOffsets and (defName="Apparel_VacsuitHelmet" or defName="VGE_Apparel_VacsuitHelmet_Prestige") and not(equippedStatOffsets/ToxicEnvironmentResistance)]</xpath>
+        <match Class="PatchOperationAdd">
+          <xpath>/Defs/*[apparel and equippedStatOffsets and (defName="Apparel_VacsuitHelmet" or defName="VGE_Apparel_VacsuitHelmet_Prestige") and not(equippedStatOffsets/ToxicEnvironmentResistance)]/equippedStatOffsets</xpath>
+          <value>
+            <ToxicEnvironmentResistance>0.70</ToxicEnvironmentResistance>
+          </value>
+        </match>
+      </li>
+
+      <li Class="PatchOperationConditional">
+        <xpath>/Defs/*[apparel and equippedStatOffsets and (defName="Apparel_GasMask" or contains(defName, "GasMask") or defName="VAE_Headgear_HAZMATMask" or contains(defName, "WarcasketHelmet") or defName="Apparel_AstroMask") and not(equippedStatOffsets/ToxicEnvironmentResistance)]</xpath>
+        <match Class="PatchOperationAdd">
+          <xpath>/Defs/*[apparel and equippedStatOffsets and (defName="Apparel_GasMask" or contains(defName, "GasMask") or defName="VAE_Headgear_HAZMATMask" or contains(defName, "WarcasketHelmet") or defName="Apparel_AstroMask") and not(equippedStatOffsets/ToxicEnvironmentResistance)]/equippedStatOffsets</xpath>
+          <value>
+            <ToxicEnvironmentResistance>0.50</ToxicEnvironmentResistance>
+          </value>
+        </match>
+      </li>
+
+      <li Class="PatchOperationConditional">
+        <xpath>/Defs/*[apparel and equippedStatOffsets and apparel/immuneToToxGasExposure="true" and not(equippedStatOffsets/ToxicEnvironmentResistance)]</xpath>
+        <match Class="PatchOperationAdd">
+          <xpath>/Defs/*[apparel and equippedStatOffsets and apparel/immuneToToxGasExposure="true" and not(equippedStatOffsets/ToxicEnvironmentResistance)]/equippedStatOffsets</xpath>
+          <value>
+            <ToxicEnvironmentResistance>0.50</ToxicEnvironmentResistance>
+          </value>
+        </match>
+      </li>
+
+      <li Class="PatchOperationConditional">
+        <xpath>/Defs/*[apparel and equippedStatOffsets and (contains(defName, "PowerArmorHelmet") or contains(defName, "ArmorHelmetRecon") or contains(defName, "ArmorHelmetCataphract") or contains(defName, "ArmorMarineHelmet") or contains(defName, "ArmorHelmetMech") or contains(defName, "AbsolverHelmet") or contains(defName, "DeserterHelmet") or contains(defName, "JanissaryHelmet")) and not(equippedStatOffsets/ToxicEnvironmentResistance)]</xpath>
+        <match Class="PatchOperationAdd">
+          <xpath>/Defs/*[apparel and equippedStatOffsets and (contains(defName, "PowerArmorHelmet") or contains(defName, "ArmorHelmetRecon") or contains(defName, "ArmorHelmetCataphract") or contains(defName, "ArmorMarineHelmet") or contains(defName, "ArmorHelmetMech") or contains(defName, "AbsolverHelmet") or contains(defName, "DeserterHelmet") or contains(defName, "JanissaryHelmet")) and not(equippedStatOffsets/ToxicEnvironmentResistance)]/equippedStatOffsets</xpath>
+          <value>
+            <ToxicEnvironmentResistance>0.30</ToxicEnvironmentResistance>
+          </value>
+        </match>
+      </li>
+
+      <li Class="PatchOperationConditional">
+        <xpath>/Defs/*[apparel and equippedStatOffsets and (contains(defName, "PowerArmor") or contains(defName, "ArmorRecon") or contains(defName, "ArmorMarine") or contains(defName, "ArmorCataphract") or contains(defName, "ArmorLocust") or contains(defName, "ArmorPhoenix") or contains(defName, "MechlordSuit") or contains(defName, "ArmorAbsolver") or contains(defName, "ArmorDeserter") or defName="VFEP_Apparel_Privateer") and not(contains(defName, "Helmet")) and not(equippedStatOffsets/ToxicEnvironmentResistance)]</xpath>
+        <match Class="PatchOperationAdd">
+          <xpath>/Defs/*[apparel and equippedStatOffsets and (contains(defName, "PowerArmor") or contains(defName, "ArmorRecon") or contains(defName, "ArmorMarine") or contains(defName, "ArmorCataphract") or contains(defName, "ArmorLocust") or contains(defName, "ArmorPhoenix") or contains(defName, "MechlordSuit") or contains(defName, "ArmorAbsolver") or contains(defName, "ArmorDeserter") or defName="VFEP_Apparel_Privateer") and not(contains(defName, "Helmet")) and not(equippedStatOffsets/ToxicEnvironmentResistance)]/equippedStatOffsets</xpath>
+          <value>
+            <ToxicEnvironmentResistance>0.35</ToxicEnvironmentResistance>
+          </value>
+        </match>
+      </li>
+
+      <li Class="PatchOperationConditional">
+        <xpath>/Defs/*[apparel and equippedStatOffsets and (contains(defName, "PlagueMask") or contains(label, "plague mask")) and not(equippedStatOffsets/ToxicEnvironmentResistance)]</xpath>
+        <match Class="PatchOperationAdd">
+          <xpath>/Defs/*[apparel and equippedStatOffsets and (contains(defName, "PlagueMask") or contains(label, "plague mask")) and not(equippedStatOffsets/ToxicEnvironmentResistance)]/equippedStatOffsets</xpath>
+          <value>
+            <ToxicEnvironmentResistance>0.25</ToxicEnvironmentResistance>
+          </value>
+        </match>
+      </li>
+
+      <li Class="PatchOperationConditional">
+        <xpath>/Defs/*[apparel and equippedStatOffsets and (defName="Apparel_ClothMask" or contains(defName, "SurgicalMask") or contains(label, "surgical mask") or contains(label, "face mask")) and not(equippedStatOffsets/ToxicEnvironmentResistance)]</xpath>
+        <match Class="PatchOperationAdd">
+          <xpath>/Defs/*[apparel and equippedStatOffsets and (defName="Apparel_ClothMask" or contains(defName, "SurgicalMask") or contains(label, "surgical mask") or contains(label, "face mask")) and not(equippedStatOffsets/ToxicEnvironmentResistance)]/equippedStatOffsets</xpath>
+          <value>
+            <ToxicEnvironmentResistance>0.20</ToxicEnvironmentResistance>
+          </value>
+        </match>
+      </li>
+
+      <li Class="PatchOperationConditional">
+        <xpath>/Defs/*[apparel and equippedStatOffsets and (contains(defName, "Suit") or contains(label, "suit") or contains(defName, "Armor") or contains(defName, "Armour") or contains(label, "armor") or contains(label, "armour") or contains(defName, "Cuirass") or contains(label, "cuirass") or contains(defName, "Flak") or contains(label, "flak") or contains(defName, "WarcasketShoulders") or contains(label, "warcasket shoulders")) and not(contains(defName, "Helmet")) and not(contains(label, "helmet")) and not(equippedStatOffsets/ToxicEnvironmentResistance)]</xpath>
+        <match Class="PatchOperationAdd">
+          <xpath>/Defs/*[apparel and equippedStatOffsets and (contains(defName, "Suit") or contains(label, "suit") or contains(defName, "Armor") or contains(defName, "Armour") or contains(label, "armor") or contains(label, "armour") or contains(defName, "Cuirass") or contains(label, "cuirass") or contains(defName, "Flak") or contains(label, "flak") or contains(defName, "WarcasketShoulders") or contains(label, "warcasket shoulders")) and not(contains(defName, "Helmet")) and not(contains(label, "helmet")) and not(equippedStatOffsets/ToxicEnvironmentResistance)]/equippedStatOffsets</xpath>
+          <value>
+            <ToxicEnvironmentResistance>0.15</ToxicEnvironmentResistance>
+          </value>
+        </match>
+      </li>
+
+      <li Class="PatchOperationConditional">
+        <xpath>/Defs/*[apparel and equippedStatOffsets and (contains(defName, "Mask") or contains(label, "mask")) and not(equippedStatOffsets/ToxicEnvironmentResistance)]</xpath>
+        <match Class="PatchOperationAdd">
+          <xpath>/Defs/*[apparel and equippedStatOffsets and (contains(defName, "Mask") or contains(label, "mask")) and not(equippedStatOffsets/ToxicEnvironmentResistance)]/equippedStatOffsets</xpath>
+          <value>
+            <ToxicEnvironmentResistance>0.10</ToxicEnvironmentResistance>
+          </value>
+        </match>
+      </li>
+
+      <li Class="PatchOperationConditional">
+        <xpath>/Defs/*[apparel and equippedStatOffsets and (contains(defName, "Helmet") or contains(label, "helmet")) and not(equippedStatOffsets/ToxicEnvironmentResistance)]</xpath>
+        <match Class="PatchOperationAdd">
+          <xpath>/Defs/*[apparel and equippedStatOffsets and (contains(defName, "Helmet") or contains(label, "helmet")) and not(equippedStatOffsets/ToxicEnvironmentResistance)]/equippedStatOffsets</xpath>
+          <value>
+            <ToxicEnvironmentResistance>0.10</ToxicEnvironmentResistance>
+          </value>
+        </match>
+      </li>
+
+      <li Class="PatchOperationConditional">
+        <xpath>/Defs/*[apparel and equippedStatOffsets and not(equippedStatOffsets/ToxicEnvironmentResistance)]</xpath>
+        <match Class="PatchOperationAdd">
+          <xpath>/Defs/*[apparel and equippedStatOffsets and not(equippedStatOffsets/ToxicEnvironmentResistance)]/equippedStatOffsets</xpath>
+          <value>
+            <ToxicEnvironmentResistance>0.10</ToxicEnvironmentResistance>
+          </value>
+        </match>
+      </li>
+    </operations>
+  </Operation>
+</Patch>
