@@ -137,6 +137,14 @@ namespace TheMarkedMen
         private string currentPreset = "Default";
         private Vector2 scrollPosition;
         private readonly Dictionary<string, string> numericBuffers = new Dictionary<string, string>();
+        private bool coreRulesExpanded = true;
+        private bool raidScheduleExpanded = true;
+        private bool enemyMixExpanded = true;
+        private bool virusCorpsesExpanded = true;
+        private bool infectedAIExpanded = true;
+        private bool messagesDevExpanded = true;
+        private bool performanceExpanded = true;
+        private bool rjwBridgeExpanded = true;
 
         public float EffectiveMarkedRaidFrequencyMultiplier => Mathf.Clamp(markedRaidFrequencyMultiplier, MinMarkedRaidFrequencyMultiplier, MaxMarkedRaidFrequencyMultiplier);
 
@@ -313,6 +321,14 @@ namespace TheMarkedMen
             Scribe_Values.Look(ref reanimationProcessIntervalTicks, "reanimationProcessIntervalTicks", 2500);
             Scribe_Values.Look(ref maxPendingReanimationsPerTick, "maxPendingReanimationsPerTick", 24);
             Scribe_Values.Look(ref currentPreset, "currentPreset", "Default");
+            Scribe_Values.Look(ref coreRulesExpanded, "coreRulesExpanded", true);
+            Scribe_Values.Look(ref raidScheduleExpanded, "raidScheduleExpanded", true);
+            Scribe_Values.Look(ref enemyMixExpanded, "enemyMixExpanded", true);
+            Scribe_Values.Look(ref virusCorpsesExpanded, "virusCorpsesExpanded", true);
+            Scribe_Values.Look(ref infectedAIExpanded, "infectedAIExpanded", true);
+            Scribe_Values.Look(ref messagesDevExpanded, "messagesDevExpanded", true);
+            Scribe_Values.Look(ref performanceExpanded, "performanceExpanded", true);
+            Scribe_Values.Look(ref rjwBridgeExpanded, "rjwBridgeExpanded", true);
             if (Scribe.mode == LoadSaveMode.PostLoadInit && loadedSettingsVersion < CurrentSettingsVersion)
             {
                 if (loadedSettingsVersion < 3)
@@ -420,95 +436,119 @@ namespace TheMarkedMen
             DrawSettingsIntro(listing);
             DrawPresetControls(listing);
 
-            DrawSectionHeader(listing, "Core Rules", "Global switches for infection and compatibility diagnostics. These do not remove existing hediffs from a save.");
-            DrawCheckbox(listing, "Allow new Marked Virus infections", ref infectionEnabled, "When disabled, this mod stops creating new Marked Virus exposure events. Existing infections continue to run normally.");
-            DrawCheckbox(listing, "Log detected compatibility mods on load", ref verboseCompatibilityLogging, "Writes a short compatibility scan to the RimWorld log after loading. Leave this off unless you are troubleshooting.");
+            DrawSectionHeader(listing, "Core Rules", "Global switches for infection and compatibility diagnostics. These do not remove existing hediffs from a save.", ref coreRulesExpanded);
+            if (coreRulesExpanded)
+            {
+                DrawCheckbox(listing, "Allow new Marked Virus infections", ref infectionEnabled, "When disabled, this mod stops creating new Marked Virus exposure events. Existing infections continue to run normally.");
+                DrawCheckbox(listing, "Log detected compatibility mods on load", ref verboseCompatibilityLogging, "Writes a short compatibility scan to the RimWorld log after loading. Leave this off unless you are troubleshooting.");
+            }
 
-            DrawSectionHeader(listing, "Raid Schedule", "Controls when Marked Men incidents appear and how hard scheduled attacks scale.");
-            DrawCheckbox(listing, "Enable scheduled warbands", ref scheduledWarbandsEnabled, "Allows the main timed Marked Men raids that escalate over the colony timeline.");
-            DrawCheckbox(listing, "Enable scheduled hordes", ref scheduledHordesEnabled, "Allows larger moving horde events in addition to the main warband schedule.");
-            DrawCheckbox(listing, "Enable scouting probes", ref scoutingProbesEnabled, "Allows small scouting packs that test the colony before larger attacks arrive.");
-            DrawCheckbox(listing, "Randomize raid timing and arrival patterns", ref randomizeMarkedRaids, "Adds uncertainty to raid intervals and arrival modes. Disable this for predictable testing or calmer pacing.");
-            DrawInt(listing, "First scheduled raid day", ref firstMarkedRaidDay, 1, 600, "firstMarkedRaidDay", "Earliest colony day when scheduled Marked Men raids can begin.");
-            DrawFloat(listing, "Global event frequency multiplier", ref markedRaidFrequencyMultiplier, MinMarkedRaidFrequencyMultiplier, MaxMarkedRaidFrequencyMultiplier, "markedRaidFrequencyMultiplier", "Master multiplier for warbands, hordes, and probes. Set this to 0 to stop all scheduled Marked Men incidents.");
-            DrawFloat(listing, "Warband frequency multiplier", ref warbandFrequencyMultiplier, 0f, MaxMarkedRaidFrequencyMultiplier, "warbandFrequencyMultiplier", "Multiplier for main warband raids after the global multiplier is applied.");
-            DrawFloat(listing, "Horde frequency multiplier", ref hordeFrequencyMultiplier, 0f, MaxMarkedRaidFrequencyMultiplier, "hordeFrequencyMultiplier", "Multiplier for horde events after the global multiplier is applied.");
-            DrawFloat(listing, "Scouting probe frequency multiplier", ref probeFrequencyMultiplier, 0f, MaxMarkedRaidFrequencyMultiplier, "probeFrequencyMultiplier", "Multiplier for small probe incidents after the global multiplier is applied.");
-            DrawHelp(listing, "Effective frequencies: warbands " + MultiplierText(EffectiveWarbandFrequencyMultiplier) + ", hordes " + MultiplierText(EffectiveHordeFrequencyMultiplier) + ", probes " + MultiplierText(EffectiveProbeFrequencyMultiplier) + ".");
-            DrawFloat(listing, "Raid strength multiplier", ref raidPointsMultiplier, 0.05f, 10f, "raidPointsMultiplier", "Scales incident points after the minimum point floor is applied.");
-            DrawFloat(listing, "Minimum raid points", ref minimumRaidPoints, 0f, 10000f, "minimumRaidPoints", "Point floor for generated Marked Men attacks. Higher values make even early raids larger.");
-            DrawFloat(listing, "Maximum raid points", ref maximumRaidPoints, 0f, 50000f, "maximumRaidPoints", "Point cap for Marked Men attacks. Use 0 for no cap.");
-            DrawFloat(listing, "Escalation gained per warband", ref raidEscalationPerRaid, 0f, 2f, "raidEscalationPerRaid", "Extra raid strength added after each scheduled warband starts.");
-            DrawFloat(listing, "Escalation maximum bonus", ref raidEscalationMaxBonus, 0f, 20f, "raidEscalationMaxBonus", "Maximum accumulated escalation bonus from repeated warbands.");
-            DrawCheckbox(listing, "Allow grouped edge arrivals", ref allowGroupedEdgeArrival, "Allows raiders to enter together from one map edge.");
-            DrawCheckbox(listing, "Allow split group edge arrivals", ref allowDistributedGroupArrival, "Allows several groups to enter from different edge positions.");
-            DrawCheckbox(listing, "Allow scattered edge arrivals", ref allowDistributedArrival, "Allows a wider scattered edge arrival pattern.");
-            DrawCheckbox(listing, "Allow single pawn edge arrivals", ref allowSingleEdgeArrival, "Allows single-file edge entry when the incident worker selects it.");
+            DrawSectionHeader(listing, "Raid Schedule", "Controls when Marked Men incidents appear and how hard scheduled attacks scale.", ref raidScheduleExpanded);
+            if (raidScheduleExpanded)
+            {
+                DrawCheckbox(listing, "Enable scheduled warbands", ref scheduledWarbandsEnabled, "Allows the main timed Marked Men raids that escalate over the colony timeline.");
+                DrawCheckbox(listing, "Enable scheduled hordes", ref scheduledHordesEnabled, "Allows larger moving horde events in addition to the main warband schedule.");
+                DrawCheckbox(listing, "Enable scouting probes", ref scoutingProbesEnabled, "Allows small scouting packs that test the colony before larger attacks arrive.");
+                DrawCheckbox(listing, "Randomize raid timing and arrival patterns", ref randomizeMarkedRaids, "Adds uncertainty to raid intervals and arrival modes. Disable this for predictable testing or calmer pacing.");
+                DrawInt(listing, "First scheduled raid day", ref firstMarkedRaidDay, 1, 600, "firstMarkedRaidDay", "Earliest colony day when scheduled Marked Men raids can begin.");
+                DrawFloat(listing, "Global event frequency multiplier", ref markedRaidFrequencyMultiplier, MinMarkedRaidFrequencyMultiplier, MaxMarkedRaidFrequencyMultiplier, "markedRaidFrequencyMultiplier", "Master multiplier for warbands, hordes, and probes. Set this to 0 to stop all scheduled Marked Men incidents.");
+                DrawFloat(listing, "Warband frequency multiplier", ref warbandFrequencyMultiplier, 0f, MaxMarkedRaidFrequencyMultiplier, "warbandFrequencyMultiplier", "Multiplier for main warband raids after the global multiplier is applied.");
+                DrawFloat(listing, "Horde frequency multiplier", ref hordeFrequencyMultiplier, 0f, MaxMarkedRaidFrequencyMultiplier, "hordeFrequencyMultiplier", "Multiplier for horde events after the global multiplier is applied.");
+                DrawFloat(listing, "Scouting probe frequency multiplier", ref probeFrequencyMultiplier, 0f, MaxMarkedRaidFrequencyMultiplier, "probeFrequencyMultiplier", "Multiplier for small probe incidents after the global multiplier is applied.");
+                DrawHelp(listing, "Effective frequencies: warbands " + MultiplierText(EffectiveWarbandFrequencyMultiplier) + ", hordes " + MultiplierText(EffectiveHordeFrequencyMultiplier) + ", probes " + MultiplierText(EffectiveProbeFrequencyMultiplier) + ".");
+                DrawFloat(listing, "Raid strength multiplier", ref raidPointsMultiplier, 0.05f, 10f, "raidPointsMultiplier", "Scales incident points after the minimum point floor is applied.");
+                DrawFloat(listing, "Minimum raid points", ref minimumRaidPoints, 0f, 10000f, "minimumRaidPoints", "Point floor for generated Marked Men attacks. Higher values make even early raids larger.");
+                DrawFloat(listing, "Maximum raid points", ref maximumRaidPoints, 0f, 50000f, "maximumRaidPoints", "Point cap for Marked Men attacks. Use 0 for no cap.");
+                DrawFloat(listing, "Escalation gained per warband", ref raidEscalationPerRaid, 0f, 2f, "raidEscalationPerRaid", "Extra raid strength added after each scheduled warband starts.");
+                DrawFloat(listing, "Escalation maximum bonus", ref raidEscalationMaxBonus, 0f, 20f, "raidEscalationMaxBonus", "Maximum accumulated escalation bonus from repeated warbands.");
+                DrawCheckbox(listing, "Allow grouped edge arrivals", ref allowGroupedEdgeArrival, "Allows raiders to enter together from one map edge.");
+                DrawCheckbox(listing, "Allow split group edge arrivals", ref allowDistributedGroupArrival, "Allows several groups to enter from different edge positions.");
+                DrawCheckbox(listing, "Allow scattered edge arrivals", ref allowDistributedArrival, "Allows a wider scattered edge arrival pattern.");
+                DrawCheckbox(listing, "Allow single pawn edge arrivals", ref allowSingleEdgeArrival, "Allows single-file edge entry when the incident worker selects it.");
+            }
 
-            DrawSectionHeader(listing, "Enemy Mix", "Controls which infected pawn types appear. Weight 0 disables that type; weight 1 is normal; higher values make that type more common.");
-            DrawFloat(listing, "Berserker weight", ref berserkerWeightMultiplier, 0f, 5f, "berserkerWeightMultiplier", "Basic aggressive infected. This is the safest fallback type when other weights are low.");
-            DrawFloat(listing, "Hunter weight", ref hunterWeightMultiplier, 0f, 5f, "hunterWeightMultiplier", "Fast pressure unit used more often as raid points rise.");
-            DrawFloat(listing, "Stalker weight", ref stalkerWeightMultiplier, 0f, 5f, "stalkerWeightMultiplier", "Flanking and probe-focused infected.");
-            DrawFloat(listing, "Screamer weight", ref screamerWeightMultiplier, 0f, 5f, "screamerWeightMultiplier", "Disruptive infected used in stronger attacks.");
-            DrawFloat(listing, "Brute weight", ref bruteWeightMultiplier, 0f, 5f, "bruteWeightMultiplier", "Heavy infected. Usually appears only when raid points are high enough.");
-            DrawFloat(listing, "Alpha weight", ref alphaWeightMultiplier, 0f, 5f, "alphaWeightMultiplier", "Command infected that strengthens nearby Marked Men. Also limited by the maximum alpha setting.");
-            DrawCheckbox(listing, "Allow child Marked pawns", ref allowMarkedChildren, "Allows child infected pawn kinds in eligible low-point raids. Disable this if you do not want child enemies.");
-            DrawInt(listing, "Minimum horde size", ref minimumHordeSize, 1, 50, "minimumHordeSize", "Smallest horde size when a horde incident does not request a specific count.");
-            DrawInt(listing, "Maximum horde size", ref maximumHordeSize, 1, 100, "maximumHordeSize", "Largest horde size after threat scaling and variance.");
-            DrawInt(listing, "Minimum scouting probe size", ref minimumProbeSize, 1, 20, "minimumProbeSize", "Smallest scouting pack size when the incident does not request a specific count.");
-            DrawInt(listing, "Maximum scouting probe size", ref maximumProbeSize, 1, 30, "maximumProbeSize", "Largest scouting pack size after threat scaling and variance.");
-            DrawInt(listing, "Maximum alphas per raid", ref maximumAlphasPerRaid, 0, 99, "maximumAlphasPerRaid", "Hard cap for alpha infected in generated raids. Set to 0 to prevent alphas from spawning.");
+            DrawSectionHeader(listing, "Enemy Mix", "Controls which infected pawn types appear. Weight 0 disables that type; weight 1 is normal; higher values make that type more common.", ref enemyMixExpanded);
+            if (enemyMixExpanded)
+            {
+                DrawFloat(listing, "Berserker weight", ref berserkerWeightMultiplier, 0f, 5f, "berserkerWeightMultiplier", "Basic aggressive infected. This is the safest fallback type when other weights are low.");
+                DrawFloat(listing, "Hunter weight", ref hunterWeightMultiplier, 0f, 5f, "hunterWeightMultiplier", "Fast pressure unit used more often as raid points rise.");
+                DrawFloat(listing, "Stalker weight", ref stalkerWeightMultiplier, 0f, 5f, "stalkerWeightMultiplier", "Flanking and probe-focused infected.");
+                DrawFloat(listing, "Screamer weight", ref screamerWeightMultiplier, 0f, 5f, "screamerWeightMultiplier", "Disruptive infected used in stronger attacks.");
+                DrawFloat(listing, "Brute weight", ref bruteWeightMultiplier, 0f, 5f, "bruteWeightMultiplier", "Heavy infected. Usually appears only when raid points are high enough.");
+                DrawFloat(listing, "Alpha weight", ref alphaWeightMultiplier, 0f, 5f, "alphaWeightMultiplier", "Command infected that strengthens nearby Marked Men. Also limited by the maximum alpha setting.");
+                DrawCheckbox(listing, "Allow child Marked pawns", ref allowMarkedChildren, "Allows child infected pawn kinds in eligible low-point raids. Disable this if you do not want child enemies.");
+                DrawInt(listing, "Minimum horde size", ref minimumHordeSize, 1, 50, "minimumHordeSize", "Smallest horde size when a horde incident does not request a specific count.");
+                DrawInt(listing, "Maximum horde size", ref maximumHordeSize, 1, 100, "maximumHordeSize", "Largest horde size after threat scaling and variance.");
+                DrawInt(listing, "Minimum scouting probe size", ref minimumProbeSize, 1, 20, "minimumProbeSize", "Smallest scouting pack size when the incident does not request a specific count.");
+                DrawInt(listing, "Maximum scouting probe size", ref maximumProbeSize, 1, 30, "maximumProbeSize", "Largest scouting pack size after threat scaling and variance.");
+                DrawInt(listing, "Maximum alphas per raid", ref maximumAlphasPerRaid, 0, 99, "maximumAlphasPerRaid", "Hard cap for alpha infected in generated raids. Set to 0 to prevent alphas from spawning.");
+            }
 
-            DrawSectionHeader(listing, "Virus And Corpses", "Controls exposure chances, infection timing, terminal outcomes, and infected corpse reanimation.");
-            DrawFloat(listing, "Blood exposure chance", ref bloodExposureChance, 0f, 1f, "bloodExposureChance", "Chance that infected blood exposure creates a Marked Virus exposure event.");
-            DrawFloat(listing, "Contaminated food exposure chance", ref foodExposureChance, 0f, 1f, "foodExposureChance", "Chance that eating contaminated food creates a Marked Virus exposure event.");
-            DrawFloat(listing, "Infected melee contact chance", ref infectedAssaultExposureChance, 0f, 1f, "infectedAssaultExposureChance", "Chance that direct infected assault contact creates a Marked Virus exposure event.");
-            DrawFloat(listing, "Close-contact contagion chance", ref closeContactExposureChance, 0f, 1f, "closeContactExposureChance", "Chance per valid nearby target during a contagion pulse from an infected pawn.");
-            DrawFloat(listing, "Corpse contamination chance", ref corpseContaminationChance, 0f, 1f, "corpseContaminationChance", "Chance that an infected pawn contaminates a nearby corpse during a corpse contamination pulse.");
-            DrawFloat(listing, "Infection progression speed", ref infectionProgressionSpeedMultiplier, 0.05f, 10f, "infectionProgressionSpeedMultiplier", "Higher values make the disease advance faster. Lower values give victims more time.");
-            DrawFloat(listing, "Incubation duration multiplier", ref incubationDurationMultiplier, 0.05f, 10f, "incubationDurationMultiplier", "Multiplies infection stage durations before progression speed is applied.");
-            DrawFloat(listing, "Immune survivor chance", ref immunitySurvivalChance, 0f, 1f, "immunitySurvivalChance", "Chance that a terminal infection ends in lasting immunity instead of transformation or viral death.");
-            DrawFloat(listing, "Terminal transformation weight", ref terminalTransformationWeight, 0f, 10f, "terminalTransformationWeight", "Relative weight for becoming one of the Marked Men when immunity does not save the pawn.");
-            DrawFloat(listing, "Terminal death weight", ref terminalDeathWeight, 0f, 10f, "terminalDeathWeight", "Relative weight for dying from viral collapse when immunity does not save the pawn.");
-            DrawHelp(listing, "Current terminal outcome after the immunity roll: " + PercentText(CurrentTerminalTransformationChance(null)) + " transform, " + PercentText(1f - CurrentTerminalTransformationChance(null)) + " die.");
-            DrawFloat(listing, "Corpse reanimation chance", ref reanimationChance, 0f, 1f, "reanimationChance", "Chance that a valid infected corpse queues for reanimation after death.");
-            DrawInt(listing, "Corpse reanimation delay ticks", ref reanimationDelayTicks, 60, GenDate.TicksPerDay * 30, "reanimationDelayTicks", "Delay before queued infected corpses can reanimate. 60,000 ticks equals one in-game day.");
-            DrawFloat(listing, "Founder-lineage breakthrough chance", ref starterLineageBreakthroughChance, 0f, 1f, "starterLineageBreakthroughChance", "Chance that special starter-lineage resistance fails after direct exposure.");
+            DrawSectionHeader(listing, "Virus And Corpses", "Controls exposure chances, infection timing, terminal outcomes, and infected corpse reanimation.", ref virusCorpsesExpanded);
+            if (virusCorpsesExpanded)
+            {
+                DrawFloat(listing, "Blood exposure chance", ref bloodExposureChance, 0f, 1f, "bloodExposureChance", "Chance that infected blood exposure creates a Marked Virus exposure event.");
+                DrawFloat(listing, "Contaminated food exposure chance", ref foodExposureChance, 0f, 1f, "foodExposureChance", "Chance that eating contaminated food creates a Marked Virus exposure event.");
+                DrawFloat(listing, "Infected melee contact chance", ref infectedAssaultExposureChance, 0f, 1f, "infectedAssaultExposureChance", "Chance that direct infected assault contact creates a Marked Virus exposure event.");
+                DrawFloat(listing, "Close-contact contagion chance", ref closeContactExposureChance, 0f, 1f, "closeContactExposureChance", "Chance per valid nearby target during a contagion pulse from an infected pawn.");
+                DrawFloat(listing, "Corpse contamination chance", ref corpseContaminationChance, 0f, 1f, "corpseContaminationChance", "Chance that an infected pawn contaminates a nearby corpse during a corpse contamination pulse.");
+                DrawFloat(listing, "Infection progression speed", ref infectionProgressionSpeedMultiplier, 0.05f, 10f, "infectionProgressionSpeedMultiplier", "Higher values make the disease advance faster. Lower values give victims more time.");
+                DrawFloat(listing, "Incubation duration multiplier", ref incubationDurationMultiplier, 0.05f, 10f, "incubationDurationMultiplier", "Multiplies infection stage durations before progression speed is applied.");
+                DrawFloat(listing, "Immune survivor chance", ref immunitySurvivalChance, 0f, 1f, "immunitySurvivalChance", "Chance that a terminal infection ends in lasting immunity instead of transformation or viral death.");
+                DrawFloat(listing, "Terminal transformation weight", ref terminalTransformationWeight, 0f, 10f, "terminalTransformationWeight", "Relative weight for becoming one of the Marked Men when immunity does not save the pawn.");
+                DrawFloat(listing, "Terminal death weight", ref terminalDeathWeight, 0f, 10f, "terminalDeathWeight", "Relative weight for dying from viral collapse when immunity does not save the pawn.");
+                DrawHelp(listing, "Current terminal outcome after the immunity roll: " + PercentText(CurrentTerminalTransformationChance(null)) + " transform, " + PercentText(1f - CurrentTerminalTransformationChance(null)) + " die.");
+                DrawFloat(listing, "Corpse reanimation chance", ref reanimationChance, 0f, 1f, "reanimationChance", "Chance that a valid infected corpse queues for reanimation after death.");
+                DrawInt(listing, "Corpse reanimation delay ticks", ref reanimationDelayTicks, 60, GenDate.TicksPerDay * 30, "reanimationDelayTicks", "Delay before queued infected corpses can reanimate. 60,000 ticks equals one in-game day.");
+                DrawFloat(listing, "Founder-lineage breakthrough chance", ref starterLineageBreakthroughChance, 0f, 1f, "starterLineageBreakthroughChance", "Chance that special starter-lineage resistance fails after direct exposure.");
+            }
 
-            DrawSectionHeader(listing, "Infected AI", "Controls how aggressively Marked Men attack, retarget, breach, and terrorize nearby pawns.");
-            DrawCheckbox(listing, "Force Marked pawns to keep assaulting", ref markedAlwaysAssault, "Keeps generated Marked Men focused on attacking instead of behaving like ordinary raiders.");
-            DrawCheckbox(listing, "Allow Marked pawns to time out or flee", ref markedCanTimeoutOrFlee, "Allows Marked Men lords to retreat or time out. Leave disabled for relentless pressure.");
-            DrawCheckbox(listing, "Enable tactical retargeting", ref tacticalRetargetingEnabled, "Lets infected pawns periodically switch to better tactical targets.");
-            DrawCheckbox(listing, "Enable priority targeting", ref priorityTargetingEnabled, "Lets infected pawns prefer power, food, medical, research, and turret targets when appropriate.");
-            DrawCheckbox(listing, "Enable door and wall targeting", ref doorTargetingEnabled, "Allows infected pawns to bash or target barriers when pursuing a colony.");
-            DrawFloat(listing, "Marked infighting chance", ref infightingChance, 0f, 1f, "infightingChance", "Chance during each infighting check that infected pawns may turn on each other.");
-            DrawFloat(listing, "Panic and social terror strength", ref socialTerrorStrength, 0f, 5f, "socialTerrorStrength", "Scales the radius and strength of Marked Men terror effects. Set to 0 to disable these effects.");
+            DrawSectionHeader(listing, "Infected AI", "Controls how aggressively Marked Men attack, retarget, breach, and terrorize nearby pawns.", ref infectedAIExpanded);
+            if (infectedAIExpanded)
+            {
+                DrawCheckbox(listing, "Force Marked pawns to keep assaulting", ref markedAlwaysAssault, "Keeps generated Marked Men focused on attacking instead of behaving like ordinary raiders.");
+                DrawCheckbox(listing, "Allow Marked pawns to time out or flee", ref markedCanTimeoutOrFlee, "Allows Marked Men lords to retreat or time out. Leave disabled for relentless pressure.");
+                DrawCheckbox(listing, "Enable tactical retargeting", ref tacticalRetargetingEnabled, "Lets infected pawns periodically switch to better tactical targets.");
+                DrawCheckbox(listing, "Enable priority targeting", ref priorityTargetingEnabled, "Lets infected pawns prefer power, food, medical, research, and turret targets when appropriate.");
+                DrawCheckbox(listing, "Enable door and wall targeting", ref doorTargetingEnabled, "Allows infected pawns to bash or target barriers when pursuing a colony.");
+                DrawFloat(listing, "Marked infighting chance", ref infightingChance, 0f, 1f, "infightingChance", "Chance during each infighting check that infected pawns may turn on each other.");
+                DrawFloat(listing, "Panic and social terror strength", ref socialTerrorStrength, 0f, 5f, "socialTerrorStrength", "Scales the radius and strength of Marked Men terror effects. Set to 0 to disable these effects.");
+            }
 
-            DrawSectionHeader(listing, "Messages And Dev Tools", "Controls player-facing alerts, incident history, and optional debug actions.");
-            DrawCheckbox(listing, "Show raid countdown alert", ref raidCountdownAlertEnabled, "Shows a gizmo alert when a scheduled Marked Men raid is approaching.");
-            DrawFloat(listing, "Countdown visible days", ref raidCountdownVisibleDays, 0f, 999f, "raidCountdownVisibleDays", "How many in-game days before a scheduled raid the countdown alert becomes visible.");
-            DrawFloat(listing, "High-priority countdown days", ref raidCountdownHighPriorityDays, 0f, 30f, "raidCountdownHighPriorityDays", "How many in-game days before a scheduled raid the alert becomes high priority.");
-            DrawCheckbox(listing, "Use detailed raid letters", ref detailedRaidLetters, "Adds richer raid letter text with pawn counts, points, arrival mode, and tactical warning details.");
-            DrawCheckbox(listing, "Record incident log entries", ref incidentLogEnabled, "Stores Marked Men incident history in the game component for debugging and future review.");
-            DrawCheckbox(listing, "Enable Dev Mode debug actions", ref debugActionsEnabled, "Adds Dev Mode actions for starting or rescheduling Marked Men incidents while testing.");
+            DrawSectionHeader(listing, "Messages And Dev Tools", "Controls player-facing alerts, incident history, and optional debug actions.", ref messagesDevExpanded);
+            if (messagesDevExpanded)
+            {
+                DrawCheckbox(listing, "Show raid countdown alert", ref raidCountdownAlertEnabled, "Shows a gizmo alert when a scheduled Marked Men raid is approaching.");
+                DrawFloat(listing, "Countdown visible days", ref raidCountdownVisibleDays, 0f, 999f, "raidCountdownVisibleDays", "How many in-game days before a scheduled raid the countdown alert becomes visible.");
+                DrawFloat(listing, "High-priority countdown days", ref raidCountdownHighPriorityDays, 0f, 30f, "raidCountdownHighPriorityDays", "How many in-game days before a scheduled raid the alert becomes high priority.");
+                DrawCheckbox(listing, "Use detailed raid letters", ref detailedRaidLetters, "Adds richer raid letter text with pawn counts, points, arrival mode, and tactical warning details.");
+                DrawCheckbox(listing, "Record incident log entries", ref incidentLogEnabled, "Stores Marked Men incident history in the game component for debugging and future review.");
+                DrawCheckbox(listing, "Enable Dev Mode debug actions", ref debugActionsEnabled, "Adds Dev Mode actions for starting or rescheduling Marked Men incidents while testing.");
+            }
 
-            DrawSectionHeader(listing, "Performance", "Controls how often background systems run. Higher intervals reduce CPU work but make reactions less immediate.");
-            DrawInt(listing, "Ticks between contagion pulses", ref contagionPulseIntervalTicks, 60, GenDate.TicksPerDay, "contagionPulseIntervalTicks", "How often infected pawns try nearby close-contact exposure checks.");
-            DrawInt(listing, "Max contagion targets per pulse", ref maxContagionTargetsPerPulse, 0, 50, "maxContagionTargetsPerPulse", "Maximum nearby pawns checked by each contagion pulse. Set to 0 to disable pulse-based close-contact spread.");
-            DrawInt(listing, "Ticks between corpse contamination pulses", ref corpseContaminationIntervalTicks, 60, GenDate.TicksPerDay, "corpseContaminationIntervalTicks", "How often infected pawns try to contaminate nearby corpses.");
-            DrawInt(listing, "Max corpses checked per pulse", ref maxCorpsesPerPulse, 0, 50, "maxCorpsesPerPulse", "Maximum nearby corpses checked during each corpse contamination pulse. Set to 0 to disable corpse contamination.");
-            DrawInt(listing, "Ticks between tactical retarget checks", ref tacticalRetargetIntervalTicks, 1, 2500, "tacticalRetargetIntervalTicks", "How often infected pawns can reconsider tactical targets.");
-            DrawInt(listing, "Ticks between infighting checks", ref infightingCheckIntervalTicks, 60, GenDate.TicksPerDay, "infightingCheckIntervalTicks", "How often infected pawns can roll for infighting behavior.");
-            DrawInt(listing, "Ticks between lord cleanup checks", ref lordCleanupIntervalTicks, 60, GenDate.TicksPerDay, "lordCleanupIntervalTicks", "How often the mod cleans up invalid raid lord state.");
-            DrawInt(listing, "Ticks between infected-state maintenance", ref infectedStateMaintenanceIntervalTicks, 60, GenDate.TicksPerDay, "infectedStateMaintenanceIntervalTicks", "How often infected pawns refresh state such as faction-specific visuals.");
-            DrawInt(listing, "Ticks between reanimation processing", ref reanimationProcessIntervalTicks, 60, GenDate.TicksPerDay, "reanimationProcessIntervalTicks", "How often queued corpse reanimations are processed.");
-            DrawInt(listing, "Max queued reanimations processed per tick", ref maxPendingReanimationsPerTick, 1, 500, "maxPendingReanimationsPerTick", "Limits burst work when many infected corpses are waiting to reanimate.");
+            DrawSectionHeader(listing, "Performance", "Controls how often background systems run. Higher intervals reduce CPU work but make reactions less immediate.", ref performanceExpanded);
+            if (performanceExpanded)
+            {
+                DrawInt(listing, "Ticks between contagion pulses", ref contagionPulseIntervalTicks, 60, GenDate.TicksPerDay, "contagionPulseIntervalTicks", "How often infected pawns try nearby close-contact exposure checks.");
+                DrawInt(listing, "Max contagion targets per pulse", ref maxContagionTargetsPerPulse, 0, 50, "maxContagionTargetsPerPulse", "Maximum nearby pawns checked by each contagion pulse. Set to 0 to disable pulse-based close-contact spread.");
+                DrawInt(listing, "Ticks between corpse contamination pulses", ref corpseContaminationIntervalTicks, 60, GenDate.TicksPerDay, "corpseContaminationIntervalTicks", "How often infected pawns try to contaminate nearby corpses.");
+                DrawInt(listing, "Max corpses checked per pulse", ref maxCorpsesPerPulse, 0, 50, "maxCorpsesPerPulse", "Maximum nearby corpses checked during each corpse contamination pulse. Set to 0 to disable corpse contamination.");
+                DrawInt(listing, "Ticks between tactical retarget checks", ref tacticalRetargetIntervalTicks, 1, 2500, "tacticalRetargetIntervalTicks", "How often infected pawns can reconsider tactical targets.");
+                DrawInt(listing, "Ticks between infighting checks", ref infightingCheckIntervalTicks, 60, GenDate.TicksPerDay, "infightingCheckIntervalTicks", "How often infected pawns can roll for infighting behavior.");
+                DrawInt(listing, "Ticks between lord cleanup checks", ref lordCleanupIntervalTicks, 60, GenDate.TicksPerDay, "lordCleanupIntervalTicks", "How often the mod cleans up invalid raid lord state.");
+                DrawInt(listing, "Ticks between infected-state maintenance", ref infectedStateMaintenanceIntervalTicks, 60, GenDate.TicksPerDay, "infectedStateMaintenanceIntervalTicks", "How often infected pawns refresh state such as faction-specific visuals.");
+                DrawInt(listing, "Ticks between reanimation processing", ref reanimationProcessIntervalTicks, 60, GenDate.TicksPerDay, "reanimationProcessIntervalTicks", "How often queued corpse reanimations are processed.");
+                DrawInt(listing, "Max queued reanimations processed per tick", ref maxPendingReanimationsPerTick, 1, 500, "maxPendingReanimationsPerTick", "Limits burst work when many infected corpses are waiting to reanimate.");
+            }
 
-            DrawSectionHeader(listing, "Optional RimJobWorld Bridge", "Only applies when RimJobWorld is installed. The bridge adds no hard dependency.");
-            DrawHelp(listing, "RimJobWorld detected right now: " + (TheMarkedMenRjwCompatibility.IsRjwLoaded() ? "yes" : "no") + ".");
-            DrawCheckbox(listing, "Auto-enable the RimJobWorld bridge when detected", ref rjwAutoEnableWhenInstalled, "Automatically turns on the bridge after RimJobWorld is found in the active mod list.");
-            DrawCheckbox(listing, "Enable RimJobWorld Marked Virus bridge", ref rjwIntegrationEnabled, "Allows adult RJW close-contact events to transmit Marked Virus and lets valid infected adults use RJW enemy assault jobs.");
-            DrawFloat(listing, "RimJobWorld exposure chance", ref rjwExposureChance, 0f, 1f, "rjwExposureChance", "Chance that a valid RJW close-contact event involving one infected pawn exposes the other pawn.");
+            DrawSectionHeader(listing, "Optional RimJobWorld Bridge", "Only applies when RimJobWorld is installed. The bridge adds no hard dependency.", ref rjwBridgeExpanded);
+            if (rjwBridgeExpanded)
+            {
+                DrawHelp(listing, "RimJobWorld detected right now: " + (TheMarkedMenRjwCompatibility.IsRjwLoaded() ? "yes" : "no") + ".");
+                DrawCheckbox(listing, "Auto-enable the RimJobWorld bridge when detected", ref rjwAutoEnableWhenInstalled, "Automatically turns on the bridge after RimJobWorld is found in the active mod list.");
+                DrawCheckbox(listing, "Enable RimJobWorld Marked Virus bridge", ref rjwIntegrationEnabled, "Allows adult RJW close-contact events to transmit Marked Virus and lets valid infected adults use RJW enemy assault jobs.");
+                DrawFloat(listing, "RimJobWorld exposure chance", ref rjwExposureChance, 0f, 1f, "rjwExposureChance", "Chance that a valid RJW close-contact event involving one infected pawn exposes the other pawn.");
+            }
             listing.End();
             Widgets.EndScrollView();
             ClampSettings();
@@ -642,15 +682,25 @@ namespace TheMarkedMen
             TooltipHandler.TipRegion(rect, new TipSignal(tooltip));
         }
 
-        private void DrawSectionHeader(Listing_Standard listing, string title, string description)
+        private void DrawSectionHeader(Listing_Standard listing, string title, string description, ref bool expanded)
         {
             listing.Gap(10f);
             listing.GapLine(6f);
-            GameFont oldFont = Text.Font;
+            Rect headerRect = listing.GetRect(30f);
+            string label = expanded ? "[-] " : "[+] ";
+            label += title;
             Text.Font = GameFont.Medium;
-            listing.Label(title);
-            Text.Font = oldFont;
-            DrawHelp(listing, description);
+            Widgets.Label(headerRect, label);
+            Widgets.DrawHighlightIfMouseover(headerRect);
+            if (Widgets.ButtonInvisible(headerRect))
+            {
+                expanded = !expanded;
+            }
+            Text.Font = GameFont.Small;
+            if (expanded && !string.IsNullOrEmpty(description))
+            {
+                DrawHelp(listing, description);
+            }
         }
 
         private void DrawHelp(Listing_Standard listing, string text)
@@ -660,13 +710,9 @@ namespace TheMarkedMen
                 return;
             }
 
-            Color oldColor = GUI.color;
-            GameFont oldFont = Text.Font;
             GUI.color = HelpTextColor;
-            Text.Font = GameFont.Small;
             listing.Label(text);
-            Text.Font = oldFont;
-            GUI.color = oldColor;
+            GUI.color = Color.white;
             listing.Gap(2f);
         }
 
@@ -678,36 +724,48 @@ namespace TheMarkedMen
             {
                 NoteManualChange();
             }
-
-            DrawHelp(listing, help);
         }
 
         private void DrawFloat(Listing_Standard listing, string label, ref float value, float min, float max, string key, string help)
         {
             float before = value;
             string buffer = GetBuffer(key);
-            listing.TextFieldNumericLabeled(label, ref value, ref buffer, min, max);
+            float labelHeight = Text.CalcHeight(label, listing.ColumnWidth * 0.42f);
+            Rect rowRect = listing.GetRect(labelHeight);
+            Rect labelRect = rowRect.LeftPartPixels(listing.ColumnWidth * 0.42f).Rounded();
+            Rect fieldRect = rowRect.RightPartPixels(listing.ColumnWidth - listing.ColumnWidth * 0.42f).Rounded();
+            TextAnchor anchor = Text.Anchor;
+            Text.Anchor = TextAnchor.MiddleLeft;
+            Widgets.Label(labelRect, label);
+            Text.Anchor = anchor;
+            Widgets.TextFieldNumeric(fieldRect, ref value, ref buffer, min, max);
+            TooltipHandler.TipRegion(rowRect, help + " Current value: " + FloatValueText(value, min, max) + ".");
             numericBuffers[key] = buffer;
             if (!Mathf.Approximately(before, value))
             {
                 NoteManualChange();
             }
-
-            DrawHelp(listing, help + " Current value: " + FloatValueText(value, min, max) + ".");
         }
 
         private void DrawInt(Listing_Standard listing, string label, ref int value, int min, int max, string key, string help)
         {
             int before = value;
             string buffer = GetBuffer(key);
-            listing.TextFieldNumericLabeled(label, ref value, ref buffer, min, max);
+            float labelHeight = Text.CalcHeight(label, listing.ColumnWidth * 0.42f);
+            Rect rowRect = listing.GetRect(labelHeight);
+            Rect labelRect = rowRect.LeftPartPixels(listing.ColumnWidth * 0.42f).Rounded();
+            Rect fieldRect = rowRect.RightPartPixels(listing.ColumnWidth - listing.ColumnWidth * 0.42f).Rounded();
+            TextAnchor anchor = Text.Anchor;
+            Text.Anchor = TextAnchor.MiddleLeft;
+            Widgets.Label(labelRect, label);
+            Text.Anchor = anchor;
+            Widgets.TextFieldNumeric(fieldRect, ref value, ref buffer, min, max);
+            TooltipHandler.TipRegion(rowRect, help + " Current value: " + IntValueText(value, max) + ".");
             numericBuffers[key] = buffer;
             if (before != value)
             {
                 NoteManualChange();
             }
-
-            DrawHelp(listing, help + " Current value: " + IntValueText(value, max) + ".");
         }
 
         private string GetBuffer(string key)
