@@ -78,7 +78,7 @@ namespace TheMarkedMen
         public static void Postfix(Pawn __instance)
         {
             CrossedUtility.ApplyInfectedTattoo(__instance);
-            CrossedUtility.Component?.QueueCrossedReanimation(__instance);
+            CrossedReanimationManager.QueueCrossedReanimation(__instance);
         }
     }
 
@@ -195,6 +195,20 @@ namespace TheMarkedMen
     public static class CrossedOptionalHarmonyPatches
     {
         private static bool setFactionDirectWarningLogged;
+        private static readonly MethodInfo CachedSetFactionDirectTarget;
+        private static readonly MethodInfo CachedSetFactionDirectPostfix;
+
+        static CrossedOptionalHarmonyPatches()
+        {
+            try
+            {
+                CachedSetFactionDirectTarget = AccessTools.Method(typeof(Thing), "SetFactionDirect", new[] { typeof(Faction) });
+                CachedSetFactionDirectPostfix = AccessTools.Method(typeof(CrossedOptionalHarmonyPatches), nameof(Postfix_SetFactionDirect));
+            }
+            catch
+            {
+            }
+        }
 
         public static void Apply(Harmony harmony)
         {
@@ -205,11 +219,9 @@ namespace TheMarkedMen
 
             try
             {
-                MethodInfo target = AccessTools.Method(typeof(Thing), "SetFactionDirect", new[] { typeof(Faction) });
-                MethodInfo postfix = AccessTools.Method(typeof(CrossedOptionalHarmonyPatches), nameof(Postfix_SetFactionDirect));
-                if (target != null && postfix != null)
+                if (CachedSetFactionDirectTarget != null && CachedSetFactionDirectPostfix != null)
                 {
-                    harmony.Patch(target, postfix: new HarmonyMethod(postfix));
+                    harmony.Patch(CachedSetFactionDirectTarget, postfix: new HarmonyMethod(CachedSetFactionDirectPostfix));
                 }
             }
             catch (Exception ex)
