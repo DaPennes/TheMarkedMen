@@ -301,6 +301,12 @@ namespace TheMarkedMen
                 return;
             }
 
+            if (CrossedUtility.IsFullyProtectedFromCrossVirusExposure(pawn))
+            {
+                pawn.health.RemoveHediff(parent);
+                return;
+            }
+
             transformed = true;
             parent.Severity = Props.transformedSeverity;
             if (terminalOutcome == TerminalOutcomeDeath)

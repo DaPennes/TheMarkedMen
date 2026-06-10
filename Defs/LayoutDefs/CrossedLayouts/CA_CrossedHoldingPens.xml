@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+  <KCSG.StructureLayoutDef MayRequire="OskarPotocki.VanillaFactionsExpanded.Core">
+    <defName>CA_CrossedHolding1</defName>
+    <layouts>
+      <li>
+        <li>Wall_Steel,Wall_Steel,Wall_Steel,Wall_Steel,Wall_Steel,Wall_Steel,Wall_Steel,Wall_Steel,Wall_Steel,Wall_Steel</li>
+        <li>Wall_Steel,SleepingSpot_East,SleepingSpot_East,.,.,.,.,SleepingSpot_West,SleepingSpot_West,Wall_Steel</li>
+        <li>Wall_Steel,.,.,.,.,.,.,.,.,Wall_Steel</li>
+        <li>Wall_Steel,SleepingSpot_East,SleepingSpot_East,.,.,.,.,SleepingSpot_West,SleepingSpot_West,Wall_Steel</li>
+        <li>Wall_Steel,.,.,.,.,.,.,.,.,Wall_Steel</li>
+        <li>Wall_Steel,Door_Steel,Wall_Steel,Wall_Steel,Wall_Steel,Wall_Steel,Wall_Steel,Wall_Steel,Door_Steel,Wall_Steel</li>
+        <li>Wall_Steel,.,.,.,.,.,.,.,.,Wall_Steel</li>
+        <li>Wall_Steel,SleepingSpot_East,SleepingSpot_East,.,.,.,.,SleepingSpot_West,SleepingSpot_West,Wall_Steel</li>
+        <li>Wall_Steel,.,.,.,.,.,.,.,.,Wall_Steel</li>
+        <li>Wall_Steel,SleepingSpot_East,SleepingSpot_East,.,.,.,.,SleepingSpot_West,SleepingSpot_West,Wall_Steel</li>
+        <li>Wall_Steel,.,.,.,.,.,.,.,.,Wall_Steel</li>
+        <li>Wall_Steel,Wall_Steel,Wall_Steel,Wall_Steel,Wall_Steel,Door_Steel,Wall_Steel,Wall_Steel,Wall_Steel,Wall_Steel</li>
+      </li>
+    </layouts>
+    <roofGrid>
+      <li>1,1,1,1,1,1,1,1,1,1</li>
+      <li>1,1,1,1,1,1,1,1,1,1</li>
+      <li>1,1,1,1,1,1,1,1,1,1</li>
+      <li>1,1,1,1,1,1,1,1,1,1</li>
+      <li>1,1,1,1,1,1,1,1,1,1</li>
+      <li>1,1,1,1,1,1,1,1,1,1</li>
+      <li>1,1,1,1,1,1,1,1,1,1</li>
+      <li>1,1,1,1,1,1,1,1,1,1</li>
+      <li>1,1,1,1,1,1,1,1,1,1</li>
+      <li>1,1,1,1,1,1,1,1,1,1</li>
+      <li>1,1,1,1,1,1,1,1,1,1</li>
+      <li>1,1,1,1,1,1,1,1,1,1</li>
+    </roofGrid>
+    <terrainGrid>
+      <li>Concrete,Concrete,Concrete,Concrete,Concrete,Concrete,Concrete,Concrete,Concrete,Concrete</li>
+      <li>Concrete,Concrete,Concrete,Concrete,Concrete,Concrete,Concrete,Concrete,Concrete,Concrete</li>
+      <li>Concrete,Concrete,Concrete,Concrete,Concrete,Concrete,Concrete,Concrete,Concrete,Concrete</li>
+      <li>Concrete,Concrete,Concrete,Concrete,Concrete,Concrete,Concrete,Concrete,Concrete,Concrete</li>
+      <li>Concrete,Concrete,Concrete,Concrete,Concrete,Concrete,Concrete,Concrete,Concrete,Concrete</li>
+      <li>Concrete,Concrete,Concrete,Concrete,Concrete,Concrete,Concrete,Concrete,Concrete,Concrete</li>
+      <li>Concrete,Concrete,Concrete,Concrete,Concrete,Concrete,Concrete,Concrete,Concrete,Concrete</li>
+      <li>Concrete,Concrete,Concrete,Concrete,Concrete,Concrete,Concrete,Concrete,Concrete,Concrete</li>
+      <li>Concrete,Concrete,Concrete,Concrete,Concrete,Concrete,Concrete,Concrete,Concrete,Concrete</li>
+      <li>Concrete,Concrete,Concrete,Concrete,Concrete,Concrete,Concrete,Concrete,Concrete,Concrete</li>
+      <li>Concrete,Concrete,Concrete,Concrete,Concrete,Concrete,Concrete,Concrete,Concrete,Concrete</li>
+      <li>Concrete,Concrete,Concrete,Concrete,Concrete,Concrete,Concrete,Concrete,Concrete,Concrete</li>
+    </terrainGrid>
+    <tags>
+      <li>CA_CrossedHolding</li>
+    </tags>
+  </KCSG.StructureLayoutDef>
+</Defs>
