@@ -29,27 +29,32 @@ namespace TheMarkedMen
                 return;
             }
 
-            IReadOnlyList<Pawn> pawns = source.Map.mapPawns?.AllPawnsSpawned;
-            if (pawns == null)
-            {
-                return;
-            }
-
             int exposedTargets = 0;
-            for (int i = 0; i < pawns.Count; i++)
+            int numCells = GenRadial.NumCellsInRadius(ContagionRadius);
+            for (int cellIndex = 0; cellIndex < numCells; cellIndex++)
             {
-                Pawn target = pawns[i];
-                if (!CanContagionReach(source, target))
+                IntVec3 cell = source.Position + GenRadial.ManualRadialPattern[cellIndex];
+                if (!cell.InBounds(source.Map))
                 {
                     continue;
                 }
 
-                if (CrossedUtility.TryExpose(target, TheMarkedMenSettings.CloseContactExposureChance, "contagious Marked Virus contact", source))
+                List<Thing> things = source.Map.thingGrid.ThingsListAt(cell);
+                for (int thingIndex = 0; thingIndex < things.Count; thingIndex++)
                 {
-                    exposedTargets++;
-                    if (exposedTargets >= maxTargets)
+                    Pawn target = things[thingIndex] as Pawn;
+                    if (!CanContagionReach(source, target))
                     {
-                        return;
+                        continue;
+                    }
+
+                    if (CrossedUtility.TryExpose(target, TheMarkedMenSettings.CloseContactExposureChance, "contagious Marked Virus contact", source))
+                    {
+                        exposedTargets++;
+                        if (exposedTargets >= maxTargets)
+                        {
+                            return;
+                        }
                     }
                 }
             }

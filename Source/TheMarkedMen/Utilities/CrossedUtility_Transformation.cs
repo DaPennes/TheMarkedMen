@@ -241,13 +241,23 @@ namespace TheMarkedMen
             if (infected?.Map == null) return;
             if (infector != null && infector.Spawned && infector.Map == infected.Map && IsInfectedPawn(infector))
                 CrossedTacticalAI.TryRetargetAwayFromPawn(infector, infected, true);
-            IReadOnlyList<Pawn> pawns = infected.Map.mapPawns?.AllPawnsSpawned;
-            if (pawns == null) return;
-            for (int i = 0; i < pawns.Count; i++)
+            Map map = infected.Map;
+            int numCells = GenRadial.NumCellsInRadius(12f);
+            for (int cellIndex = 0; cellIndex < numCells; cellIndex++)
             {
-                Pawn pawn = pawns[i];
-                if (pawn != null && pawn != infector && IsInfectedPawn(pawn))
-                    CrossedTacticalAI.TryRetargetAwayFromPawn(pawn, infected, false);
+                IntVec3 cell = infected.Position + GenRadial.ManualRadialPattern[cellIndex];
+                if (!cell.InBounds(map))
+                {
+                    continue;
+                }
+
+                List<Thing> things = map.thingGrid.ThingsListAt(cell);
+                for (int thingIndex = 0; thingIndex < things.Count; thingIndex++)
+                {
+                    Pawn pawn = things[thingIndex] as Pawn;
+                    if (pawn != null && pawn != infector && pawn != infected && IsInfectedPawn(pawn))
+                        CrossedTacticalAI.TryRetargetAwayFromPawn(pawn, infected, false);
+                }
             }
         }
     }

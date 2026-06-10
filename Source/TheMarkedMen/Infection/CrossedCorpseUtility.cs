@@ -33,27 +33,32 @@ namespace TheMarkedMen
                 return;
             }
 
-            List<Thing> corpses = source.Map.listerThings?.ThingsInGroup(ThingRequestGroup.Corpse);
-            if (corpses == null || corpses.Count == 0)
-            {
-                return;
-            }
-
             int contaminated = 0;
-            for (int i = 0; i < corpses.Count; i++)
+            int numCells = GenRadial.NumCellsInRadius(CorpseContaminationRadius);
+            for (int cellIndex = 0; cellIndex < numCells; cellIndex++)
             {
-                Corpse corpse = corpses[i] as Corpse;
-                if (!CanContaminateCorpse(source, corpse))
+                IntVec3 cell = source.Position + GenRadial.ManualRadialPattern[cellIndex];
+                if (!cell.InBounds(source.Map))
                 {
                     continue;
                 }
 
-                if (Rand.Chance(TheMarkedMenSettings.CorpseContaminationChance) && TryContaminateCorpse(source, corpse))
+                List<Thing> things = source.Map.thingGrid.ThingsListAt(cell);
+                for (int thingIndex = 0; thingIndex < things.Count; thingIndex++)
                 {
-                    contaminated++;
-                    if (contaminated >= maxCorpses)
+                    Corpse corpse = things[thingIndex] as Corpse;
+                    if (corpse == null || !CanContaminateCorpse(source, corpse))
                     {
-                        return;
+                        continue;
+                    }
+
+                    if (Rand.Chance(TheMarkedMenSettings.CorpseContaminationChance) && TryContaminateCorpse(source, corpse))
+                    {
+                        contaminated++;
+                        if (contaminated >= maxCorpses)
+                        {
+                            return;
+                        }
                     }
                 }
             }
@@ -99,16 +104,15 @@ namespace TheMarkedMen
             }
 
             List<Thing> corpses = map.listerThings.ThingsInGroup(ThingRequestGroup.Corpse);
-            IReadOnlyList<Pawn> pawns = map.mapPawns.AllPawnsSpawned;
-            if (corpses == null || corpses.Count == 0 || pawns == null || pawns.Count == 0)
+            if (corpses == null || corpses.Count == 0)
             {
                 return;
             }
 
-            HashSet<Pawn> observedTargets = new HashSet<Pawn>();
             int currentTick = Find.TickManager?.TicksGame ?? 0;
             int observedTicks = Mathf.Min(TheMarkedMenSettings.CorpseContaminationIntervalTicks, CorpseLingeringMaxObservedTicksPerPulse);
             int exposedTargets = 0;
+            int numCells = GenRadial.NumCellsInRadius(CorpseLingeringExposureRadius);
             for (int corpseIndex = 0; corpseIndex < corpses.Count; corpseIndex++)
             {
                 Corpse corpse = corpses[corpseIndex] as Corpse;
@@ -117,26 +121,36 @@ namespace TheMarkedMen
                     continue;
                 }
 
-                for (int pawnIndex = 0; pawnIndex < pawns.Count; pawnIndex++)
+                for (int cellIndex = 0; cellIndex < numCells; cellIndex++)
                 {
-                    Pawn target = pawns[pawnIndex];
-                    if (!CanCorpseExposePawn(corpse, target))
+                    IntVec3 cell = corpse.Position + GenRadial.ManualRadialPattern[cellIndex];
+                    if (!cell.InBounds(map))
                     {
                         continue;
                     }
 
-                    if (!observedTargets.Add(target) || !component.NoteCorpseLingering(target, currentTick, observedTicks))
+                    List<Thing> things = map.thingGrid.ThingsListAt(cell);
+                    for (int thingIndex = 0; thingIndex < things.Count; thingIndex++)
                     {
-                        continue;
-                    }
-
-                    component.ResetCorpseLingering(target);
-                    if (CrossedUtility.TryExpose(target, CorpseLingeringExposureChance, "lingering near infected corpse", corpse.InnerPawn))
-                    {
-                        exposedTargets++;
-                        if (exposedTargets >= maxTargets)
+                        Pawn target = things[thingIndex] as Pawn;
+                        if (!CanCorpseExposePawn(corpse, target))
                         {
-                            return;
+                            continue;
+                        }
+
+                        if (!component.NoteCorpseLingering(target, currentTick, observedTicks))
+                        {
+                            continue;
+                        }
+
+                        component.ResetCorpseLingering(target);
+                        if (CrossedUtility.TryExpose(target, CorpseLingeringExposureChance, "lingering near infected corpse", corpse.InnerPawn))
+                        {
+                            exposedTargets++;
+                            if (exposedTargets >= maxTargets)
+                            {
+                                return;
+                            }
                         }
                     }
                 }

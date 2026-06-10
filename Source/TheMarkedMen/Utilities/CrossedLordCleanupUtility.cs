@@ -29,7 +29,7 @@ namespace TheMarkedMen
 
         public static void RemoveInvalidOwnedPawns(Lord lord)
         {
-            if (lord?.ownedPawns == null || lord.ownedPawns.Count == 0)
+            if (lord?.ownedPawns == null || lord.ownedPawns.Count == 0 || !IsCrossedLord(lord))
             {
                 return;
             }
@@ -37,11 +37,6 @@ namespace TheMarkedMen
             int ticks = Find.TickManager?.TicksGame ?? 0;
             int hash = lord.GetHashCode() & int.MaxValue;
             if ((ticks + hash) % TheMarkedMenSettings.LordCleanupIntervalTicks != 0)
-            {
-                return;
-            }
-
-            if (!IsCrossedLord(lord))
             {
                 return;
             }
@@ -79,25 +74,7 @@ namespace TheMarkedMen
 
         private static bool IsCrossedLord(Lord lord)
         {
-            if (lord?.faction?.def == CADefOf.CrossedFaction)
-            {
-                return true;
-            }
-
-            if (lord?.ownedPawns == null)
-            {
-                return false;
-            }
-
-            for (int i = 0; i < lord.ownedPawns.Count; i++)
-            {
-                if (lord.ownedPawns[i]?.Faction?.def == CADefOf.CrossedFaction)
-                {
-                    return true;
-                }
-            }
-
-            return false;
+            return lord?.faction?.def == CADefOf.CrossedFaction;
         }
 
         public static bool HasRecoveryWaitJob(Pawn pawn)

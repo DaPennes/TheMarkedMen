@@ -40,7 +40,6 @@ namespace TheMarkedMen
             {
                 pawn.style.FaceTattoo = tattoo;
                 pawn.style.Notify_StyleItemChanged();
-                pawn.Drawer?.renderer?.SetAllGraphicsDirty();
             }
         }
     }

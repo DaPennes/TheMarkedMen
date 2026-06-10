@@ -48,8 +48,8 @@ namespace TheMarkedMen
         public const float DefaultRaidEscalationPerRaid = 0.18f;
         public const float DefaultRaidEscalationMaxBonus = 5f;
         public const float DefaultImmunitySurvivalChance = 0.05f;
-        public const float DefaultTerminalTransformationWeight = 0.75f;
-        public const float DefaultTerminalDeathWeight = 0.20f;
+        public const float DefaultTerminalTransformationWeight = 0.85f;
+        public const float DefaultTerminalDeathWeight = 0.15f;
         public const float DefaultTerminalTransformationChance = DefaultTerminalTransformationWeight / (DefaultTerminalTransformationWeight + DefaultTerminalDeathWeight);
         private const float LegacyDefaultImmunitySurvivalChance = 0.02f;
         private const float LegacyDefaultTerminalTransformationWeight = 0.55f;
@@ -939,8 +939,8 @@ namespace TheMarkedMen
             corpseContaminationChance = 0.35f;
             infectionProgressionSpeedMultiplier = 0.55f;
             immunitySurvivalChance = 0.08f;
-            terminalTransformationWeight = 0.35f;
-            terminalDeathWeight = 0.65f;
+            terminalTransformationWeight = 0.85f;
+            terminalDeathWeight = 0.15f;
             reanimationChance = 0.35f;
             minimumHordeSize = 2;
             maximumHordeSize = 6;
@@ -991,8 +991,8 @@ namespace TheMarkedMen
             corpseContaminationChance = 1f;
             infectionProgressionSpeedMultiplier = 1.5f;
             immunitySurvivalChance = 0.01f;
-            terminalTransformationWeight = 0.75f;
-            terminalDeathWeight = 0.25f;
+            terminalTransformationWeight = 0.85f;
+            terminalDeathWeight = 0.15f;
             reanimationChance = 1f;
             reanimationDelayTicks = 600;
             starterLineageBreakthroughChance = 0.08f;
@@ -1029,8 +1029,8 @@ namespace TheMarkedMen
             corpseContaminationChance = 1f;
             infectionProgressionSpeedMultiplier = 2.2f;
             immunitySurvivalChance = 0.005f;
-            terminalTransformationWeight = 0.9f;
-            terminalDeathWeight = 0.1f;
+            terminalTransformationWeight = 0.85f;
+            terminalDeathWeight = 0.15f;
             reanimationChance = 1f;
             reanimationDelayTicks = 300;
             starterLineageBreakthroughChance = 0.12f;

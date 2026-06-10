@@ -314,6 +314,11 @@ namespace TheMarkedMen
             for (int i = 0; i < candidates.Count; i++)
             {
                 Pawn candidate = candidates[i];
+                if (candidate == pawn || candidate.RaceProps == null || !candidate.RaceProps.Humanlike)
+                {
+                    continue;
+                }
+
                 float score = ScorePawnTarget(pawn, candidate);
                 if (score > bestScore)
                 {
@@ -338,6 +343,11 @@ namespace TheMarkedMen
             for (int i = 0; i < candidates.Count; i++)
             {
                 Pawn candidate = candidates[i];
+                if (candidate == pawn || candidate.RaceProps == null || !candidate.RaceProps.Humanlike)
+                {
+                    continue;
+                }
+
                 float score = ScoreInfightingTarget(pawn, candidate);
                 if (score > bestScore)
                 {
@@ -359,6 +369,11 @@ namespace TheMarkedMen
             for (int i = 0; i < vulnerablePawns.Count; i++)
             {
                 Pawn candidate = vulnerablePawns[i];
+                if (candidate == pawn || candidate.RaceProps == null || !candidate.RaceProps.Humanlike)
+                {
+                    continue;
+                }
+
                 float score = ScorePawnTarget(pawn, candidate);
                 if (score > bestScore)
                 {
@@ -442,30 +457,51 @@ namespace TheMarkedMen
 
         private static bool IsIsolatedTarget(Pawn searcher, Pawn target)
         {
-            IReadOnlyList<Pawn> pawns = searcher.Map?.mapPawns?.AllPawnsSpawned;
-            if (pawns == null)
+            Map map = searcher.Map;
+            if (map == null)
             {
                 return false;
             }
 
-            const float allyRadiusSquared = 64f;
-            for (int i = 0; i < pawns.Count; i++)
+            const int allyRadius = 8;
+            IntVec3 root = target.Position;
+            int minX = root.x - allyRadius;
+            int maxX = root.x + allyRadius;
+            int minZ = root.z - allyRadius;
+            int maxZ = root.z + allyRadius;
+            int radiusSq = allyRadius * allyRadius;
+            for (int x = minX; x <= maxX; x++)
             {
-                Pawn other = pawns[i];
-                if (other == null || other == target || other.Dead || other.Downed || other.Map != target.Map || CrossedUtility.IsInfectedPawn(other))
+                for (int z = minZ; z <= maxZ; z++)
                 {
-                    continue;
-                }
+                    int dx = x - root.x;
+                    int dz = z - root.z;
+                    if (dx * dx + dz * dz > radiusSq)
+                    {
+                        continue;
+                    }
 
-                if (other.RaceProps == null || !other.RaceProps.Humanlike)
-                {
-                    continue;
-                }
+                    IntVec3 cell = new IntVec3(x, 0, z);
+                    if (!cell.InBounds(map))
+                    {
+                        continue;
+                    }
 
-                bool allied = other.Faction == target.Faction || other.HostFaction == target.Faction || target.HostFaction == other.Faction;
-                if (allied && other.Position.DistanceToSquared(target.Position) <= allyRadiusSquared)
-                {
-                    return false;
+                    List<Thing> things = map.thingGrid.ThingsListAt(cell);
+                    for (int j = 0; j < things.Count; j++)
+                    {
+                        Pawn other = things[j] as Pawn;
+                        if (other == null || other == target || other.Dead || other.Downed || !other.RaceProps.Humanlike || CrossedUtility.IsInfectedPawn(other))
+                        {
+                            continue;
+                        }
+
+                        bool allied = other.Faction == target.Faction || other.HostFaction == target.Faction || target.HostFaction == other.Faction;
+                        if (allied)
+                        {
+                            return false;
+                        }
+                    }
                 }
             }
 

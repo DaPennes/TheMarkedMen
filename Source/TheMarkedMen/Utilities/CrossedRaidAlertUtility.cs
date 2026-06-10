@@ -53,7 +53,7 @@ namespace TheMarkedMen
 
             details.Add("Containment: keep wounded and doctors away from melee contact, isolate infected blood, and hold sealed fallback doors.");
 
-            return text + "\n\n" + string.Join("\n", details.ToArray());
+            return text + "\n\n" + string.Join("\n", details);
         }
 
         public static string DescribeThreatTier(float points)
@@ -167,7 +167,7 @@ namespace TheMarkedMen
             AddKindCount(parts, pawns, CADefOf.Stalker, "Stalker");
             AddKindCount(parts, pawns, CADefOf.Hunter, "Hunter");
             AddKindCount(parts, pawns, CADefOf.Berserker, "Berserker");
-            return parts.Count == 0 ? "unclassified infected" : string.Join(", ", parts.ToArray());
+            return parts.Count == 0 ? "unclassified infected" : string.Join(", ", parts);
         }
 
         private static void AddKindCount(List<string> parts, List<Pawn> pawns, PawnKindDef kind, string label)
@@ -206,7 +206,7 @@ namespace TheMarkedMen
             if (hasAlpha) priorities.Add("Alphas coordinating nearby infected");
             if (hasScreamer) priorities.Add("Screamers disrupting morale");
             if (hasBrute) priorities.Add("Brutes breaching doors and lines");
-            return priorities.Count == 0 ? "closest armed infected and exposed flankers" : string.Join("; ", priorities.ToArray());
+            return priorities.Count == 0 ? "closest armed infected and exposed flankers" : string.Join("; ", priorities);
         }
 
         private static bool HasKind(List<Pawn> pawns, PawnKindDef kind)

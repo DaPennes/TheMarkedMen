@@ -247,23 +247,19 @@ namespace TheMarkedMen
         public static void RemoveCrossedRashVisualsIfNotSuccumbed(Pawn pawn)
         {
             if (pawn == null || ShouldShowCrossedRash(pawn)) return;
-            bool changed = false;
             if (pawn.style != null)
             {
                 TattooDef noFaceTattoo = TattooDefOf.NoTattoo_Face;
                 if (CADefOf.IsCrossedFaceTattoo(pawn.style.nextFaceTattooDef))
                 {
                     pawn.style.nextFaceTattooDef = noFaceTattoo;
-                    changed = true;
                 }
                 if (CADefOf.IsCrossedFaceTattoo(pawn.style.FaceTattoo))
                 {
                     pawn.style.FaceTattoo = noFaceTattoo;
                     pawn.style.Notify_StyleItemChanged();
-                    changed = true;
                 }
             }
-            if (changed) pawn.Drawer?.renderer?.SetAllGraphicsDirty();
         }
 
         private static float InitialCrossVirusSeverity(HediffDef virus)

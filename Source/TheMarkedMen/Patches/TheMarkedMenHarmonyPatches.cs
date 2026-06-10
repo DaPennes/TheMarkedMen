@@ -77,6 +77,11 @@ namespace TheMarkedMen
     {
         public static void Postfix(Pawn __instance)
         {
+            if (__instance == null || !CrossedUtility.HasMarkedVirusHediff(__instance))
+            {
+                return;
+            }
+
             CrossedUtility.ApplyInfectedTattoo(__instance);
             CrossedReanimationManager.QueueCrossedReanimation(__instance);
         }
@@ -87,7 +92,7 @@ namespace TheMarkedMen
     {
         public static void Postfix(Pawn __instance)
         {
-            if (__instance == null)
+            if (__instance == null || __instance.RaceProps == null || !__instance.RaceProps.Humanlike)
             {
                 return;
             }

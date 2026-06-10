@@ -119,7 +119,7 @@
         <rareTransformationMaxTicks>7200</rareTransformationMaxTicks>
         <symptomOnsetFraction>0.15</symptomOnsetFraction>
         <immunityChance>0.05</immunityChance>
-        <terminalTransformationChance>0.7894737</terminalTransformationChance>
+        <terminalTransformationChance>0.85</terminalTransformationChance>
         <transformedSeverity>1</transformedSeverity>
       </li>
       <li Class="HediffCompProperties_TendDuration">

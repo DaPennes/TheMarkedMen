@@ -118,6 +118,11 @@ namespace TheMarkedMen
             for (int i = 0; i < pawns.Count; i++)
             {
                 Pawn candidate = pawns[i];
+                if (candidate == initiator || candidate.RaceProps == null || !candidate.RaceProps.Humanlike)
+                {
+                    continue;
+                }
+
                 if (!CanCrossedSocialInteract(initiator, candidate))
                 {
                     continue;

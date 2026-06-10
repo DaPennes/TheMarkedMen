@@ -172,8 +172,6 @@ namespace TheMarkedMen
             }
             if (ticks < nextMaintenanceTick) return;
             nextMaintenanceTick = ticks + MaintenanceTickInterval;
-            InitializeStarterLineageResistance();
-            EnsureInfectedStateOnLoadedPawns();
             TryFireScheduledHorde(ticks);
         }
 

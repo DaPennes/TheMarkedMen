@@ -86,7 +86,7 @@ namespace TheMarkedMen
                     }
                 }
 
-                Log.Message("[The Marked Men] Compatibility scan detected: " + (detected.Count == 0 ? "no tracked packages" : string.Join(", ", detected.ToArray())));
+                Log.Message("[The Marked Men] Compatibility scan detected: " + (detected.Count == 0 ? "no tracked packages" : string.Join(", ", detected)));
             }
             catch (Exception ex)
             {
