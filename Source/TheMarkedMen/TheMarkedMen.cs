@@ -88,6 +88,10 @@ namespace TheMarkedMen
         public float screamerWeightMultiplier = 1f;
         public float bruteWeightMultiplier = 1f;
         public float alphaWeightMultiplier = 1f;
+        public float chargerWeightMultiplier = 1f;
+        public float spitterWeightMultiplier = 1f;
+        public float bomberWeightMultiplier = 1f;
+        public float alphaPsychicWeightMultiplier = 1f;
         public bool allowMarkedChildren;
         public int minimumHordeSize = 3;
         public int maximumHordeSize = 12;
@@ -630,6 +634,26 @@ namespace TheMarkedMen
             if (kind == CADefOf.Child)
             {
                 return allowMarkedChildren ? Mathf.Max(0.01f, berserkerWeightMultiplier) : 0f;
+            }
+
+            if (kind == CADefOf.Charger)
+            {
+                return chargerWeightMultiplier;
+            }
+
+            if (kind == CADefOf.Spitter)
+            {
+                return spitterWeightMultiplier;
+            }
+
+            if (kind == CADefOf.Bomber)
+            {
+                return bomberWeightMultiplier;
+            }
+
+            if (kind == CADefOf.AlphaPsychic)
+            {
+                return alphaPsychicWeightMultiplier;
             }
 
             return 1f;

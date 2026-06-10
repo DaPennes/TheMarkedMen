@@ -151,8 +151,12 @@ namespace TheMarkedMen
             AddWeightedKind(ref selected, ref totalWeight, CADefOf.Hunter, Mathf.Lerp(2.5f, 8.5f, normalizedThreat));
             AddWeightedKind(ref selected, ref totalWeight, CADefOf.Stalker, points >= 220f ? Mathf.Lerp(1.5f, 4.5f, normalizedThreat) : 0.75f);
             AddWeightedKind(ref selected, ref totalWeight, CADefOf.Screamer, points >= 300f ? 3.5f : 1.25f);
+            AddWeightedKind(ref selected, ref totalWeight, CADefOf.Spitter, points >= 250f ? Mathf.Lerp(1f, 3f, normalizedThreat) : 0.5f);
+            AddWeightedKind(ref selected, ref totalWeight, CADefOf.Charger, points >= 300f ? Mathf.Lerp(1f, 3f, normalizedThreat) : 0.5f);
+            AddWeightedKind(ref selected, ref totalWeight, CADefOf.Bomber, points >= 400f ? Mathf.Lerp(0.5f, 2f, normalizedThreat) : 0f);
             AddWeightedKind(ref selected, ref totalWeight, CADefOf.Brute, points >= 500f ? Mathf.Lerp(1f, 4.5f, Mathf.InverseLerp(500f, 2400f, points)) : 0f);
             AddWeightedKind(ref selected, ref totalWeight, CADefOf.Alpha, allowAlpha && count >= 10 && points >= 1200f ? 0.55f : 0f);
+            AddWeightedKind(ref selected, ref totalWeight, CADefOf.AlphaPsychic, allowAlpha && count >= 12 && points >= 2000f ? 0.25f : 0f);
             AddWeightedKind(ref selected, ref totalWeight, CADefOf.Child, TheMarkedMenMod.Settings?.allowMarkedChildren == true && points < 500f ? 0.35f : 0f);
 
             return selected ?? CADefOf.Berserker ?? CADefOf.Hunter ?? CADefOf.Stalker;

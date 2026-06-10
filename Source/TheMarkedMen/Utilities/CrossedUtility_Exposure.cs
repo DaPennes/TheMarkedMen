@@ -9,7 +9,7 @@ namespace TheMarkedMen
     public static partial class CrossedUtility
     {
         private const float DefaultApparelVirusResistance = 0.02f;
-        private const float MaxWornMarkedVirusResistance = 0.45f;
+        private const float MaxWornMarkedVirusResistance = 0.90f;
 
         public static bool TryExpose(Pawn pawn, float chance, string source, Pawn infector = null)
         {
@@ -204,23 +204,23 @@ namespace TheMarkedMen
             bool toxGasImmune = apparelDef.apparel?.immuneToToxGasExposure == true;
             float toxicEnvironmentResistance = EquippedStatOffset(apparelDef, "ToxicEnvironmentResistance");
             float vacuumResistance = EquippedStatOffset(apparelDef, "VacuumResistance");
-            if (IsMarkedVirusFullSealApparel(apparelDef)) return new MarkedVirusApparelProtection(1f, true, true);
+            if (IsMarkedVirusFullSealApparel(apparelDef)) return new MarkedVirusApparelProtection(0.85f, true, false);
             if (IsMarkedVirusVacsuitBody(apparelDef)) return new MarkedVirusApparelProtection(0.30f, true);
             if ((ContainsOrdinalIgnoreCase(defName, "Sealed") || ContainsOrdinalIgnoreCase(label, "sealed") || ContainsOrdinalIgnoreCase(defName, "AstroSuit") || ContainsOrdinalIgnoreCase(label, "astrosuit")) && torso)
                 return new MarkedVirusApparelProtection(0.25f, true);
             if (IsMarkedVirusVacsuitHelmet(apparelDef)) return new MarkedVirusApparelProtection(0.25f, true);
             if (toxGasImmune || ContainsOrdinalIgnoreCase(defName, "GasMask") || ContainsOrdinalIgnoreCase(label, "gas mask") || ContainsOrdinalIgnoreCase(defName, "HAZMATMask") || ContainsOrdinalIgnoreCase(defName, "WarcasketHelmet") || ContainsOrdinalIgnoreCase(defName, "AstroMask"))
-                return new MarkedVirusApparelProtection(0.20f, true);
+                return new MarkedVirusApparelProtection(0.25f, true);
             if (toxicEnvironmentResistance >= 0.75f && fullHead) return new MarkedVirusApparelProtection(0.20f, true);
             if (vacuumResistance >= 0.30f && torso) return new MarkedVirusApparelProtection(0.25f, true);
-            if (IsPoweredArmorHelmet(defName) || IsPoweredArmorHelmet(label)) return new MarkedVirusApparelProtection(0.10f, false);
-            if (IsPoweredArmorBody(defName) || IsPoweredArmorBody(label)) return new MarkedVirusApparelProtection(0.15f, false);
-            if (ContainsOrdinalIgnoreCase(defName, "PlagueMask") || ContainsOrdinalIgnoreCase(label, "plague mask")) return new MarkedVirusApparelProtection(0.08f, false);
+            if (IsPoweredArmorHelmet(defName) || IsPoweredArmorHelmet(label)) return new MarkedVirusApparelProtection(0.20f, false);
+            if (IsPoweredArmorBody(defName) || IsPoweredArmorBody(label)) return new MarkedVirusApparelProtection(0.25f, false);
+            if (ContainsOrdinalIgnoreCase(defName, "PlagueMask") || ContainsOrdinalIgnoreCase(label, "plague mask")) return new MarkedVirusApparelProtection(0.10f, false);
             if (ContainsOrdinalIgnoreCase(defName, "ClothMask") || ContainsOrdinalIgnoreCase(defName, "SurgicalMask") || ContainsOrdinalIgnoreCase(label, "surgical mask") || ContainsOrdinalIgnoreCase(label, "face mask"))
-                return new MarkedVirusApparelProtection(0.05f, false);
-            if (IsArmorOrSuit(defName) || IsArmorOrSuit(label)) return new MarkedVirusApparelProtection(0.05f, false);
-            if (ContainsOrdinalIgnoreCase(defName, "Mask") || ContainsOrdinalIgnoreCase(label, "mask")) return new MarkedVirusApparelProtection(0.03f, false);
-            if (ContainsOrdinalIgnoreCase(defName, "Helmet") || ContainsOrdinalIgnoreCase(label, "helmet")) return new MarkedVirusApparelProtection(0.03f, false);
+                return new MarkedVirusApparelProtection(0.06f, false);
+            if (IsArmorOrSuit(defName) || IsArmorOrSuit(label)) return new MarkedVirusApparelProtection(0.08f, false);
+            if (ContainsOrdinalIgnoreCase(defName, "Mask") || ContainsOrdinalIgnoreCase(label, "mask")) return new MarkedVirusApparelProtection(0.05f, false);
+            if (ContainsOrdinalIgnoreCase(defName, "Helmet") || ContainsOrdinalIgnoreCase(label, "helmet")) return new MarkedVirusApparelProtection(0.05f, false);
             return new MarkedVirusApparelProtection(DefaultApparelVirusResistance, false);
         }
 

@@ -19,7 +19,10 @@
       <li>Violent</li>
     </requiredWorkTags>
     <forcedTraits>
-      <Bloodlust>0</Bloodlust>
+      <li>
+        <trait>Bloodlust</trait>
+        <degree>0</degree>
+      </li>
     </forcedTraits>
     <disallowedTraits>
       <li>Kind</li>
@@ -43,7 +46,10 @@
       <li>MedievalMeleeDecent</li>
     </weaponTags>
     <forcedTraits>
-      <Brawler>0</Brawler>
+      <li>
+        <trait>Brawler</trait>
+        <degree>0</degree>
+      </li>
     </forcedTraits>
   </PawnKindDef>
 
@@ -59,7 +65,10 @@
       <li>IndustrialGunAdvanced</li>
     </weaponTags>
     <forcedTraits>
-      <ShootingAccuracy>1</ShootingAccuracy>
+      <li>
+        <trait>CarefulShooter</trait>
+        <degree>0</degree>
+      </li>
     </forcedTraits>
   </PawnKindDef>
 
@@ -80,7 +89,10 @@
       <li>MedievalMeleeBasic</li>
     </weaponTags>
     <forcedTraits>
-      <Tough>0</Tough>
+      <li>
+        <trait>Tough</trait>
+        <degree>0</degree>
+      </li>
     </forcedTraits>
   </PawnKindDef>
 
@@ -96,7 +108,10 @@
       <li>Gun</li>
     </weaponTags>
     <forcedTraits>
-      <Nimble>0</Nimble>
+      <li>
+        <trait>Nimble</trait>
+        <degree>0</degree>
+      </li>
     </forcedTraits>
   </PawnKindDef>
 
@@ -112,7 +127,10 @@
       <li>MedievalMeleeBasic</li>
     </weaponTags>
     <forcedTraits>
-      <Psychopath>0</Psychopath>
+      <li>
+        <trait>Psychopath</trait>
+        <degree>0</degree>
+      </li>
     </forcedTraits>
   </PawnKindDef>
 
@@ -136,7 +154,10 @@
     <combatEnhancingDrugsChance>0.5</combatEnhancingDrugsChance>
     <combatEnhancingDrugsCount>1~2</combatEnhancingDrugsCount>
     <forcedTraits>
-      <Tough>0</Tough>
+      <li>
+        <trait>Tough</trait>
+        <degree>0</degree>
+      </li>
     </forcedTraits>
     <techHediffsChance>0.2</techHediffsChance>
     <techHediffsMoney>300~2500</techHediffsMoney>
@@ -144,6 +165,93 @@
       <li>Simple</li>
       <li>Advanced</li>
     </techHediffsTags>
+  </PawnKindDef>
+
+  <PawnKindDef ParentName="CA_CrossedBase">
+    <defName>CA_CrossedCharger</defName>
+    <label>Marked Man charger</label>
+    <labelPlural>Marked Men chargers</labelPlural>
+    <combatPower>300</combatPower>
+    <apparelMoney>120~240</apparelMoney>
+    <weaponMoney>100~300</weaponMoney>
+    <weaponTags>
+      <li>MedievalMeleeDecent</li>
+      <li>NeolithicMeleeBasic</li>
+    </weaponTags>
+    <forcedTraits>
+      <li>
+        <trait>Brawler</trait>
+        <degree>0</degree>
+      </li>
+    </forcedTraits>
+  </PawnKindDef>
+
+  <PawnKindDef ParentName="CA_CrossedBase">
+    <defName>CA_CrossedSpitter</defName>
+    <label>Marked Man spitter</label>
+    <labelPlural>Marked Men spitters</labelPlural>
+    <combatPower>250</combatPower>
+    <apparelMoney>100~220</apparelMoney>
+    <weaponMoney>140~280</weaponMoney>
+    <weaponTags>
+      <li>Gun</li>
+    </weaponTags>
+    <forcedTraits>
+      <li>
+        <trait>Nimble</trait>
+        <degree>0</degree>
+      </li>
+    </forcedTraits>
+  </PawnKindDef>
+
+  <PawnKindDef ParentName="CA_CrossedBase">
+    <defName>CA_CrossedBomber</defName>
+    <label>Marked Man bomber</label>
+    <labelPlural>Marked Men bombers</labelPlural>
+    <combatPower>280</combatPower>
+    <apparelMoney>80~200</apparelMoney>
+    <weaponMoney>120~280</weaponMoney>
+    <weaponTags>
+      <li>MedievalMeleeDecent</li>
+    </weaponTags>
+    <forcedTraits>
+      <li>
+        <trait>Psychopath</trait>
+        <degree>0</degree>
+      </li>
+      <li>
+        <trait>Brawler</trait>
+        <degree>0</degree>
+      </li>
+    </forcedTraits>
+  </PawnKindDef>
+
+  <PawnKindDef ParentName="CA_CrossedBase">
+    <defName>CA_CrossedAlphaPsychic</defName>
+    <label>Marked Man alpha psychic</label>
+    <labelPlural>Marked Men alpha psychics</labelPlural>
+    <combatPower>1000</combatPower>
+    <maxGenerationAge>65</maxGenerationAge>
+    <apparelMoney>250~500</apparelMoney>
+    <weaponMoney>600~1500</weaponMoney>
+    <weaponTags>
+      <li>IndustrialGunAdvanced</li>
+      <li>SpacerGun</li>
+    </weaponTags>
+    <combatEnhancingDrugsChance>0.5</combatEnhancingDrugsChance>
+    <combatEnhancingDrugsCount>1~2</combatEnhancingDrugsCount>
+    <techHediffsChance>0.3</techHediffsChance>
+    <techHediffsMoney>300~2500</techHediffsMoney>
+    <techHediffsTags>
+      <li>Simple</li>
+      <li>Advanced</li>
+    </techHediffsTags>
+    <forcedTraits>
+      <li>
+        <trait>Tough</trait>
+        <degree>0</degree>
+      </li>
+    </forcedTraits>
   </PawnKindDef>
 
   <PawnKindDef ParentName="CA_CrossedBase" MayRequire="Ludeon.RimWorld.Biotech">

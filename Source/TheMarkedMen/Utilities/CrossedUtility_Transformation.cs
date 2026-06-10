@@ -45,10 +45,10 @@ namespace TheMarkedMen
                 Pawn pawn = pawns[i];
                 if (pawn == null || pawn.Dead) continue;
                 bool replace = false;
-                if (pawn.kindDef == CADefOf.Alpha)
+                if (pawn.kindDef == CADefOf.Alpha || pawn.kindDef == CADefOf.AlphaPsychic)
                 {
                     alphaCount++;
-                    replace = alphaCount > maxAlphas || TheMarkedMenSettings.AdjustKindWeight(CADefOf.Alpha, 1f) <= 0f;
+                    replace = alphaCount > maxAlphas || TheMarkedMenSettings.AdjustKindWeight(pawn.kindDef, 1f) <= 0f;
                 }
                 else if (pawn.kindDef == CADefOf.Child)
                 {
@@ -76,8 +76,13 @@ namespace TheMarkedMen
             AddReplacementKind(ref selected, ref totalWeight, CADefOf.Hunter, 8f);
             AddReplacementKind(ref selected, ref totalWeight, CADefOf.Stalker, 4f);
             AddReplacementKind(ref selected, ref totalWeight, CADefOf.Screamer, 3f);
+            AddReplacementKind(ref selected, ref totalWeight, CADefOf.Charger, 3f);
+            AddReplacementKind(ref selected, ref totalWeight, CADefOf.Spitter, 2.5f);
+            AddReplacementKind(ref selected, ref totalWeight, CADefOf.Bomber, 2f);
             AddReplacementKind(ref selected, ref totalWeight, CADefOf.Brute, 2f);
-            return selected ?? CADefOf.Berserker ?? CADefOf.Hunter ?? CADefOf.Stalker ?? CADefOf.Screamer ?? CADefOf.Brute;
+            AddReplacementKind(ref selected, ref totalWeight, CADefOf.Alpha, 0.5f);
+            AddReplacementKind(ref selected, ref totalWeight, CADefOf.AlphaPsychic, 0.25f);
+            return selected ?? CADefOf.Berserker ?? CADefOf.Hunter ?? CADefOf.Stalker ?? CADefOf.Screamer ?? CADefOf.Charger ?? CADefOf.Brute;
         }
 
         private static void AddReplacementKind(ref PawnKindDef selected, ref float totalWeight, PawnKindDef kind, float baseWeight)
@@ -93,6 +98,7 @@ namespace TheMarkedMen
         {
             RemoveHediffIfPresent(pawn, CADefOf.BloodRush);
             RemoveHediffIfPresent(pawn, CADefOf.CommandAura);
+            RemoveHediffIfPresent(pawn, CADefOf.BomberCharge);
         }
 
         private static void RemoveHediffIfPresent(Pawn pawn, HediffDef def)
@@ -124,6 +130,10 @@ namespace TheMarkedMen
             if (pawn.kindDef == CADefOf.Berserker && CADefOf.BloodRush != null && !pawn.health.hediffSet.HasHediff(CADefOf.BloodRush))
                 pawn.health.AddHediff(CADefOf.BloodRush);
             else if (pawn.kindDef == CADefOf.Alpha && CADefOf.CommandAura != null && !pawn.health.hediffSet.HasHediff(CADefOf.CommandAura))
+                pawn.health.AddHediff(CADefOf.CommandAura);
+            else if (pawn.kindDef == CADefOf.Bomber && CADefOf.BomberCharge != null && !pawn.health.hediffSet.HasHediff(CADefOf.BomberCharge))
+                pawn.health.AddHediff(CADefOf.BomberCharge);
+            else if (pawn.kindDef == CADefOf.AlphaPsychic && CADefOf.CommandAura != null && !pawn.health.hediffSet.HasHediff(CADefOf.CommandAura))
                 pawn.health.AddHediff(CADefOf.CommandAura);
             ApplyInfectedTattoo(pawn);
             EnsureCrossedBasicClothingOnly(pawn);
@@ -168,8 +178,16 @@ namespace TheMarkedMen
             AddKind(CADefOf.Screamer, 1f);
             if (Rand.Chance(0.12f))
                 AddKind(CADefOf.Brute, 1f);
+            if (Rand.Chance(0.08f))
+                AddKind(CADefOf.Charger, 1f);
+            if (Rand.Chance(0.06f))
+                AddKind(CADefOf.Spitter, 1f);
+            if (Rand.Chance(0.04f))
+                AddKind(CADefOf.Bomber, 1f);
             if (Rand.Chance(0.02f))
                 AddKind(CADefOf.Alpha, 1f);
+            if (Rand.Chance(0.01f))
+                AddKind(CADefOf.AlphaPsychic, 1f);
             if (TheMarkedMenMod.Settings?.allowMarkedChildren == true && pawn?.ageTracker != null && pawn.ageTracker.AgeBiologicalYearsFloat < 13f)
                 AddKind(CADefOf.Child, 1f);
             if (TransformationKinds.Count == 0)

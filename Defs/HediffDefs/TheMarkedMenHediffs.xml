@@ -216,6 +216,36 @@
   </HediffDef>
 
   <HediffDef>
+    <defName>CA_BomberCharge</defName>
+    <label>volatile charge</label>
+    <description>The bomber's system is primed with unstable compounds. On death, the payload detonates.</description>
+    <hediffClass>HediffWithComps</hediffClass>
+    <isBad>false</isBad>
+    <tendable>false</tendable>
+    <scenarioCanAdd>false</scenarioCanAdd>
+    <stages>
+      <li>
+        <label>primed</label>
+        <statFactors>
+          <MoveSpeed>1.12</MoveSpeed>
+          <MeleeCooldownFactor>0.85</MeleeCooldownFactor>
+        </statFactors>
+        <statOffsets>
+          <MeleeHitChance>1</MeleeHitChance>
+        </statOffsets>
+      </li>
+    </stages>
+    <comps>
+      <li Class="TheMarkedMen.HediffCompProperties_DeathExplosion">
+        <radius>2.5</radius>
+        <damageAmount>25</damageAmount>
+        <armorPenetration>20</armorPenetration>
+        <chanceToStartFire>0.5</chanceToStartFire>
+      </li>
+    </comps>
+  </HediffDef>
+
+  <HediffDef>
     <defName>CA_CrossedPanic</defName>
     <label>marked panic</label>
     <description>Recent contact with Marked Men voices, laughter, or coordinated threats has destabilized this pawn.</description>

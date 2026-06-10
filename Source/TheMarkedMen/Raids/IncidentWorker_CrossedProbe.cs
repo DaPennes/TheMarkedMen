@@ -132,6 +132,8 @@ namespace TheMarkedMen
             AddWeightedKind(ref selected, ref totalWeight, CADefOf.Hunter, Mathf.Lerp(3f, 5f, normalizedThreat));
             AddWeightedKind(ref selected, ref totalWeight, CADefOf.Berserker, 3f);
             AddWeightedKind(ref selected, ref totalWeight, CADefOf.Screamer, points >= 220f ? Mathf.Lerp(0.5f, 1.75f, normalizedThreat) : 0f);
+            AddWeightedKind(ref selected, ref totalWeight, CADefOf.Spitter, points >= 180f ? Mathf.Lerp(0.5f, 1.5f, normalizedThreat) : 0f);
+            AddWeightedKind(ref selected, ref totalWeight, CADefOf.Charger, points >= 200f ? Mathf.Lerp(0.5f, 1f, normalizedThreat) : 0f);
             AddWeightedKind(ref selected, ref totalWeight, CADefOf.Brute, points >= 500f ? 0.35f : 0f);
             AddWeightedKind(ref selected, ref totalWeight, CADefOf.Child, TheMarkedMenMod.Settings?.allowMarkedChildren == true && points < 220f ? 0.35f : 0f);
 

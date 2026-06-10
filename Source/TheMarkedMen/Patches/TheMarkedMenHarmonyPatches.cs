@@ -77,7 +77,16 @@ namespace TheMarkedMen
     {
         public static void Postfix(Pawn __instance)
         {
-            if (__instance == null || !CrossedUtility.HasMarkedVirusHediff(__instance))
+            if (__instance == null) return;
+
+            Hediff bomberCharge = __instance.health?.hediffSet?.GetFirstHediffOfDef(CADefOf.BomberCharge);
+            if (bomberCharge != null)
+            {
+                HediffComp_DeathExplosion comp = bomberCharge.TryGetComp<HediffComp_DeathExplosion>();
+                comp?.Detonate(__instance);
+            }
+
+            if (!CrossedUtility.HasMarkedVirusHediff(__instance))
             {
                 return;
             }

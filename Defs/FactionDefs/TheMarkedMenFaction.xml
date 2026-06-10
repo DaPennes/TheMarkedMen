@@ -134,8 +134,12 @@
           <CA_CrossedHunter>8.5</CA_CrossedHunter>
           <CA_CrossedStalker>4</CA_CrossedStalker>
           <CA_CrossedScreamer>3</CA_CrossedScreamer>
+          <CA_CrossedCharger>3</CA_CrossedCharger>
+          <CA_CrossedSpitter>2.5</CA_CrossedSpitter>
+          <CA_CrossedBomber>2</CA_CrossedBomber>
           <CA_CrossedBrute>2.25</CA_CrossedBrute>
           <CA_CrossedAlpha>0.35</CA_CrossedAlpha>
+          <CA_CrossedAlphaPsychic>0.15</CA_CrossedAlphaPsychic>
         </options>
       </li>
       <li>
@@ -145,8 +149,12 @@
           <CA_CrossedHunter>10</CA_CrossedHunter>
           <CA_CrossedStalker>8</CA_CrossedStalker>
           <CA_CrossedScreamer>3</CA_CrossedScreamer>
+          <CA_CrossedCharger>3</CA_CrossedCharger>
+          <CA_CrossedSpitter>2.5</CA_CrossedSpitter>
+          <CA_CrossedBomber>2</CA_CrossedBomber>
           <CA_CrossedBerserker>6</CA_CrossedBerserker>
           <CA_CrossedAlpha>0.55</CA_CrossedAlpha>
+          <CA_CrossedAlphaPsychic>0.2</CA_CrossedAlphaPsychic>
         </options>
       </li>
       <li>
@@ -156,8 +164,11 @@
           <CA_CrossedBrute>8</CA_CrossedBrute>
           <CA_CrossedBerserker>12</CA_CrossedBerserker>
           <CA_CrossedScreamer>4</CA_CrossedScreamer>
+          <CA_CrossedCharger>4</CA_CrossedCharger>
+          <CA_CrossedBomber>3</CA_CrossedBomber>
           <CA_CrossedHunter>3</CA_CrossedHunter>
           <CA_CrossedAlpha>0.75</CA_CrossedAlpha>
+          <CA_CrossedAlphaPsychic>0.3</CA_CrossedAlphaPsychic>
         </options>
       </li>
       <li>
@@ -168,8 +179,12 @@
           <CA_CrossedHunter>8</CA_CrossedHunter>
           <CA_CrossedStalker>4</CA_CrossedStalker>
           <CA_CrossedScreamer>5</CA_CrossedScreamer>
+          <CA_CrossedCharger>4</CA_CrossedCharger>
+          <CA_CrossedSpitter>3</CA_CrossedSpitter>
+          <CA_CrossedBomber>2.5</CA_CrossedBomber>
           <CA_CrossedBrute>4</CA_CrossedBrute>
           <CA_CrossedAlpha>1.25</CA_CrossedAlpha>
+          <CA_CrossedAlphaPsychic>0.5</CA_CrossedAlphaPsychic>
         </options>
       </li>
     </pawnGroupMakers>

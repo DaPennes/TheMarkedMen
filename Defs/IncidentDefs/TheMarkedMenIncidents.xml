@@ -39,6 +39,78 @@
   </IncidentDef>
 
   <IncidentDef>
+    <defName>CA_CrossedDownedSurvivor</defName>
+    <label>Marked downed survivor</label>
+    <targetTags>
+      <li>Map_PlayerHome</li>
+    </targetTags>
+    <workerClass>TheMarkedMen.IncidentWorker_CrossedDownedSurvivor</workerClass>
+    <baseChance>0.30</baseChance>
+    <minRefireDays>8</minRefireDays>
+    <earliestDay>8</earliestDay>
+    <category>ThreatSmall</category>
+    <pointsScaleable>true</pointsScaleable>
+    <minThreatPoints>60</minThreatPoints>
+    <letterLabel>Infected survivor downed</letterLabel>
+    <letterText>A critically infected survivor has collapsed near the colony. They are carrying the Marked Virus and may turn at any moment. Rescue them or put them down before they become a threat.</letterText>
+    <letterDef>ThreatSmall</letterDef>
+  </IncidentDef>
+
+  <IncidentDef>
+    <defName>CA_CrossedInfectedCaravan</defName>
+    <label>Marked infected caravan</label>
+    <targetTags>
+      <li>Map_PlayerHome</li>
+    </targetTags>
+    <workerClass>TheMarkedMen.IncidentWorker_CrossedInfectedCaravan</workerClass>
+    <baseChance>0</baseChance>
+    <minRefireDays>14</minRefireDays>
+    <earliestDay>30</earliestDay>
+    <category>ThreatSmall</category>
+    <pointsScaleable>true</pointsScaleable>
+    <minThreatPoints>100</minThreatPoints>
+    <letterLabel>Suspicious travelers approaching</letterLabel>
+    <letterText>A group of travelers approaches the colony. Something is wrong with them — their movements are too coordinated, their gazes too fixed. They are not here to trade.</letterText>
+    <letterDef>ThreatSmall</letterDef>
+  </IncidentDef>
+
+  <IncidentDef>
+    <defName>CA_CrossedPlagueShip</defName>
+    <label>Marked plague ship</label>
+    <targetTags>
+      <li>Map_PlayerHome</li>
+    </targetTags>
+    <workerClass>TheMarkedMen.IncidentWorker_CrossedPlagueShip</workerClass>
+    <baseChance>0</baseChance>
+    <minRefireDays>20</minRefireDays>
+    <earliestDay>20</earliestDay>
+    <category>ThreatBig</category>
+    <pointsScaleable>true</pointsScaleable>
+    <minThreatPoints>150</minThreatPoints>
+    <letterLabel>Crashed plague vessel</letterLabel>
+    <letterText>A contaminated vessel has crashed on the map perimeter. The wreckage is leaking the Marked Virus into the surrounding area. Approach with extreme caution — exposure near the wreck is likely.</letterText>
+    <letterDef>ThreatBig</letterDef>
+  </IncidentDef>
+
+  <IncidentDef>
+    <defName>CA_CrossedSiege</defName>
+    <label>Marked Men siege</label>
+    <targetTags>
+      <li>Map_PlayerHome</li>
+    </targetTags>
+    <workerClass>TheMarkedMen.IncidentWorker_CrossedSiege</workerClass>
+    <baseChance>0</baseChance>
+    <minRefireDays>6</minRefireDays>
+    <earliestDay>30</earliestDay>
+    <category>ThreatBig</category>
+    <pointsScaleable>true</pointsScaleable>
+    <minThreatPoints>200</minThreatPoints>
+    <letterLabel>Marked Men siege camp</letterLabel>
+    <letterText>A group of Marked Men is setting up a siege camp outside the colony. They are constructing mortars and will begin shelling the base soon. Break the siege before the bombardment becomes unbearable.</letterText>
+    <letterDef>ThreatBig</letterDef>
+  </IncidentDef>
+
+  <IncidentDef>
     <defName>CA_CrossedHorde</defName>
     <label>Marked Men horde</label>
     <targetTags>

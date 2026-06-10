@@ -26,6 +26,11 @@ namespace TheMarkedMen
         private const int CorpseLingeringRequiredTicks = 2500;
         private const float RandomRaidIntervalMinFactor = 0.6f;
         private const float RandomRaidIntervalMaxFactor = 1.6f;
+        private const int CaravanIntervalTicks = GenDate.TicksPerDay * 10;
+        private const int SiegeFirstTick = GenDate.TicksPerDay * 30;
+        private const int SiegeIntervalTicks = GenDate.TicksPerDay * 15;
+        private const int PlagueShipFirstTick = GenDate.TicksPerDay * 20;
+        private const int PlagueShipIntervalTicks = GenDate.TicksPerDay * 30;
 
         private readonly Game game;
         private int nextMaintenanceTick;
@@ -33,6 +38,9 @@ namespace TheMarkedMen
         private int nextCorpseExposureTick;
         private int nextRaidTick;
         private int nextHordeTick;
+        private int nextCaravanTick;
+        private int nextPlagueShipTick;
+        private int nextSiegeTick;
         private bool raidScheduleActivated;
         private int raidScheduleVersion;
         private bool starterLineageInitialized;
@@ -69,6 +77,9 @@ namespace TheMarkedMen
             starterLineageInitialized = false;
             ScheduleNextRaid(Find.TickManager?.TicksGame ?? 0);
             ScheduleNextHorde(Find.TickManager?.TicksGame ?? 0);
+            ScheduleNextCaravan(Find.TickManager?.TicksGame ?? 0);
+            ScheduleNextSiege(Find.TickManager?.TicksGame ?? 0);
+            ScheduleNextPlagueShip(Find.TickManager?.TicksGame ?? 0);
             InitializeStarterLineageResistance();
             AddIncident("Emergency broadcast: Marked Virus quarantine advisory initialized.");
         }
@@ -108,6 +119,15 @@ namespace TheMarkedMen
             }
             else
                 nextHordeTick = 0;
+            if (TheMarkedMenSettings.HordesEnabled)
+            {
+                if (nextCaravanTick <= 0)
+                    ScheduleNextCaravan(ticks);
+                if (nextPlagueShipTick <= 0)
+                    ScheduleNextPlagueShip(ticks);
+                if (nextSiegeTick <= 0)
+                    ScheduleNextSiege(ticks);
+            }
         }
 
         public override void ExposeData()
@@ -118,6 +138,9 @@ namespace TheMarkedMen
             Scribe_Values.Look(ref nextCorpseExposureTick, "nextCorpseExposureTick", 0);
             Scribe_Values.Look(ref nextRaidTick, "nextRaidTick", 0);
             Scribe_Values.Look(ref nextHordeTick, "nextHordeTick", 0);
+            Scribe_Values.Look(ref nextCaravanTick, "nextCaravanTick", 0);
+            Scribe_Values.Look(ref nextPlagueShipTick, "nextPlagueShipTick", 0);
+            Scribe_Values.Look(ref nextSiegeTick, "nextSiegeTick", 0);
             Scribe_Values.Look(ref raidScheduleActivated, "raidScheduleActivated", false);
             Scribe_Values.Look(ref raidScheduleVersion, "raidScheduleVersion", 0);
             Scribe_Values.Look(ref starterLineageInitialized, "starterLineageInitialized", false);
@@ -163,11 +186,15 @@ namespace TheMarkedMen
             int ticks = Find.TickManager.TicksGame;
             CrossedReanimationManager.Tick(ticks, TheMarkedMenSettings.ReanimationProcessIntervalTicks);
             TryFireScheduledRaid(ticks);
+            TryFireScheduledCaravan(ticks);
+            TryFireScheduledSiege(ticks);
+            TryFireScheduledPlagueShip(ticks);
             MonitorActiveRaid(ticks);
             if (ticks >= nextCorpseExposureTick)
             {
                 nextCorpseExposureTick = ticks + TheMarkedMenSettings.CorpseContaminationIntervalTicks;
                 CrossedCorpseUtility.TryExposeNearbyPawnsToInfectedCorpses();
+                TryPlagueShipExposure();
                 PruneCorpseLingeringTrackers(ticks);
             }
             if (ticks < nextMaintenanceTick) return;
@@ -790,6 +817,94 @@ namespace TheMarkedMen
             nextHordeTick = fromTick < hordeFirstTick ? hordeFirstTick : fromTick + CalculateAdjustedHordeIntervalTicks(FindHordeTargetMap(), true);
         }
 
+        private void ScheduleNextCaravan(int fromTick)
+        {
+            nextCaravanTick = fromTick + CaravanIntervalTicks;
+        }
+
+        private void ScheduleNextSiege(int fromTick)
+        {
+            nextSiegeTick = Mathf.Max(fromTick, SiegeFirstTick) + SiegeIntervalTicks;
+        }
+
+        private void ScheduleNextPlagueShip(int fromTick)
+        {
+            nextPlagueShipTick = Mathf.Max(fromTick, PlagueShipFirstTick) + PlagueShipIntervalTicks;
+        }
+
+        private void TryFireScheduledCaravan(int ticks)
+        {
+            if (nextCaravanTick <= 0 || ticks < nextCaravanTick) return;
+            TryFireCaravanIncident();
+            ScheduleNextCaravan(ticks);
+        }
+
+        private void TryFireScheduledSiege(int ticks)
+        {
+            if (nextSiegeTick <= 0 || ticks < nextSiegeTick) return;
+            TryFireSiegeIncident();
+            ScheduleNextSiege(ticks);
+        }
+
+        private void TryFireScheduledPlagueShip(int ticks)
+        {
+            if (nextPlagueShipTick <= 0 || ticks < nextPlagueShipTick) return;
+            TryFirePlagueShipIncident();
+            ScheduleNextPlagueShip(ticks);
+        }
+
+        private bool TryFireCaravanIncident()
+        {
+            IncidentDef def = CADefOf.CrossedInfectedCaravan;
+            Map map = FindHordeTargetMap();
+            Faction crossed = EnsureCrossedFaction();
+            if (def == null || map == null || crossed == null) return false;
+            IncidentParms parms = StorytellerUtility.DefaultParmsNow(def.category, map);
+            parms.target = map;
+            parms.faction = crossed;
+            parms.points = Mathf.Max(def.minThreatPoints, StorytellerUtility.DefaultThreatPointsNow(map) * 0.5f);
+            parms.pawnGroupKind = PawnGroupKindDefOf.Combat;
+            parms.canKidnap = false;
+            parms.canSteal = false;
+            parms.canTimeoutOrFlee = TheMarkedMenSettings.MarkedCanTimeoutOrFlee;
+            parms.forced = true;
+            parms.raidArrivalMode = PawnsArrivalModeDefOf.EdgeWalkIn;
+            return def.Worker.TryExecute(parms);
+        }
+
+        private bool TryFireSiegeIncident()
+        {
+            IncidentDef def = CADefOf.CrossedSiege;
+            Map map = FindHordeTargetMap();
+            Faction crossed = EnsureCrossedFaction();
+            if (def == null || map == null || crossed == null) return false;
+            IncidentParms parms = StorytellerUtility.DefaultParmsNow(def.category, map);
+            parms.target = map;
+            parms.faction = crossed;
+            parms.points = Mathf.Max(def.minThreatPoints, StorytellerUtility.DefaultThreatPointsNow(map));
+            parms.pawnGroupKind = PawnGroupKindDefOf.Combat;
+            parms.canKidnap = false;
+            parms.canSteal = false;
+            parms.canTimeoutOrFlee = false;
+            parms.forced = true;
+            parms.raidArrivalMode = PawnsArrivalModeDefOf.EdgeWalkIn;
+            return def.Worker.TryExecute(parms);
+        }
+
+        private bool TryFirePlagueShipIncident()
+        {
+            IncidentDef def = CADefOf.CrossedPlagueShip;
+            Map map = FindHordeTargetMap();
+            Faction crossed = EnsureCrossedFaction();
+            if (def == null || map == null || crossed == null) return false;
+            IncidentParms parms = StorytellerUtility.DefaultParmsNow(def.category, map);
+            parms.target = map;
+            parms.faction = crossed;
+            parms.points = Mathf.Max(def.minThreatPoints, StorytellerUtility.DefaultThreatPointsNow(map) * 0.8f);
+            parms.forced = true;
+            return def.Worker.TryExecute(parms);
+        }
+
         private void InitializeStarterLineageResistance()
         {
             if (starterLineageInitialized) return;
@@ -874,6 +989,49 @@ namespace TheMarkedMen
             float points = Mathf.Max(existingPoints, storytellerPoints, minimum);
             float pressure = Mathf.InverseLerp(120f, 3600f, points);
             return Mathf.Max(minimum, points * Mathf.Lerp(0.95f, 1.18f, pressure));
+        }
+
+        private static readonly Dictionary<Map, List<Thing>> plagueShipChunks = new Dictionary<Map, List<Thing>>();
+
+        public void RegisterPlagueShipChunk(Thing chunk, Map map)
+        {
+            if (chunk == null || map == null) return;
+            if (!plagueShipChunks.TryGetValue(map, out List<Thing> chunks))
+            {
+                chunks = new List<Thing>();
+                plagueShipChunks[map] = chunks;
+            }
+            if (!chunks.Contains(chunk))
+                chunks.Add(chunk);
+        }
+
+        public List<Thing> GetPlagueShipChunks(Map map)
+        {
+            if (map == null || !plagueShipChunks.TryGetValue(map, out List<Thing> chunks))
+                return null;
+            PrunePlagueShipChunks(chunks);
+            return chunks.Count > 0 ? chunks : null;
+        }
+
+        private static void PrunePlagueShipChunks(List<Thing> chunks)
+        {
+            for (int i = chunks.Count - 1; i >= 0; i--)
+            {
+                if (chunks[i] == null || chunks[i].Destroyed)
+                    chunks.RemoveAt(i);
+            }
+        }
+
+        private static void TryPlagueShipExposure()
+        {
+            if (Find.Maps == null) return;
+            int ticks = Find.TickManager?.TicksGame ?? 0;
+            for (int i = 0; i < Find.Maps.Count; i++)
+            {
+                Map map = Find.Maps[i];
+                if (map == null || map.mapPawns == null) continue;
+                IncidentWorker_CrossedPlagueShip.TryContaminateNearby(map, ticks);
+            }
         }
 
         private static float CurrentThreatScale()
