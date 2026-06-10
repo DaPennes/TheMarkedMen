@@ -1,0 +1,307 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+  <StorytellerDef ParentName="BaseStoryteller">
+    <defName>CA_TheMarkedMan</defName>
+    <label>The Marked Man</label>
+    <description>The Marked Man is not a person. It is the pressure behind the outbreak - a hunting consciousness that directs the infected, accelerates the spread, and ensures no survivor rests long enough to recover. It does not negotiate, does not tire, and does not forget a colony's location after the first scout returns home.\n\nThreats arrive fast, overlap, and escalate without mercy. The Marked Virus raids are relentless, vanilla threats hit harder and more often, and the adaptation system assumes you will lose people. This storyteller is designed for players who want the full outbreak experience: no breathing room, no safe weeks, and a world that is actively trying to mark every last survivor.</description>
+    <portraitLarge>UI/Storyteller/TheMarkedManStoryTeller</portraitLarge>
+    <portraitTiny>UI/Storyteller/TheMarkedManStoryTellerTiny</portraitTiny>
+    <listOrder>10</listOrder>
+
+    <populationIntentFactorFromPopCurve>
+      <points>
+        <li>0,  15.0</li>
+        <li>1,  6.0</li>
+        <li>3,  2.5</li>
+        <li>6,  1.2</li>
+        <li>10, 0.5</li>
+        <li>15, 0.0</li>
+        <li>20,-3.0</li>
+      </points>
+    </populationIntentFactorFromPopCurve>
+    <populationIntentFactorFromPopAdaptDaysCurve>
+      <points>
+        <li>( 0, 0)</li>
+        <li>( 3, 1)</li>
+      </points>
+    </populationIntentFactorFromPopAdaptDaysCurve>
+    <pointsFactorFromDaysPassed>
+      <points>
+        <li>( 3, 0.90)</li>
+        <li>(10, 1.40)</li>
+        <li>(25, 2.00)</li>
+        <li>(50, 3.00)</li>
+        <li>(90, 4.50)</li>
+        <li>(150, 6.00)</li>
+      </points>
+    </pointsFactorFromDaysPassed>
+    <adaptDaysMin>-180</adaptDaysMin>
+    <adaptDaysMax>180</adaptDaysMax>
+    <adaptDaysGameStartGraceDays>8</adaptDaysGameStartGraceDays>
+    <adaptDaysLossFromColonistLostByPostPopulation>
+      <points>
+        <li>( 0, 60)</li>
+        <li>( 5, 50)</li>
+        <li>(11, 40)</li>
+        <li>(20, 30)</li>
+      </points>
+    </adaptDaysLossFromColonistLostByPostPopulation>
+    <adaptDaysLossFromColonistViolentlyDownedByPopulation>
+      <points>
+        <li>(1,  15)</li>
+        <li>(2,  12)</li>
+        <li>(3,  10)</li>
+        <li>(11, 8)</li>
+        <li>(20, 6)</li>
+      </points>
+    </adaptDaysLossFromColonistViolentlyDownedByPopulation>
+    <adaptDaysGrowthRateCurve>
+      <points>
+        <li>(-60,   10)</li>
+        <li>(-30,   6)</li>
+        <li>(-0.01, 6)</li>
+        <li>(0,     2.5)</li>
+        <li>(20,    2.5)</li>
+        <li>(20.01, 1.5)</li>
+        <li>(40,    1.5)</li>
+        <li>(40.01, 0.8)</li>
+        <li>(60,    0.8)</li>
+        <li>(60.01, 0.3)</li>
+        <li>(120,   0.3)</li>
+        <li>(120.01,0.1)</li>
+      </points>
+    </adaptDaysGrowthRateCurve>
+    <pointsFactorFromAdaptDays>
+      <points>
+        <li>(-60, 0.15)</li>
+        <li>(-30, 0.40)</li>
+        <li>(  0, 0.85)</li>
+        <li>( 15, 1.20)</li>
+        <li>( 30, 1.50)</li>
+        <li>( 60, 2.20)</li>
+        <li>(120, 3.50)</li>
+      </points>
+    </pointsFactorFromAdaptDays>
+
+    <comps>
+      <li Class="StorytellerCompProperties_ClassicIntro"/>
+      <li Class="TheMarkedMen.StorytellerCompProperties_CrossedStoryteller"/>
+
+      <!-- Marked Men probe - constant scouting pressure -->
+      <li Class="StorytellerCompProperties_OnOffCycle">
+        <incident>CA_CrossedProbe</incident>
+        <minDaysPassed>6</minDaysPassed>
+        <onDays>2.5</onDays>
+        <offDays>1.0</offDays>
+        <minSpacingDays>1.5</minSpacingDays>
+        <numIncidentsRange>1~1</numIncidentsRange>
+        <allowedTargetTags>
+          <li>Map_PlayerHome</li>
+        </allowedTargetTags>
+      </li>
+
+      <!-- Marked Men raid - coordinated assault -->
+      <li Class="StorytellerCompProperties_OnOffCycle">
+        <incident>CA_CrossedRaid</incident>
+        <minDaysPassed>25</minDaysPassed>
+        <onDays>5.0</onDays>
+        <offDays>2.5</offDays>
+        <minSpacingDays>4.0</minSpacingDays>
+        <numIncidentsRange>1~1</numIncidentsRange>
+        <forceRaidEnemyBeforeDaysPassed>30</forceRaidEnemyBeforeDaysPassed>
+        <allowedTargetTags>
+          <li>Map_PlayerHome</li>
+        </allowedTargetTags>
+      </li>
+
+      <!-- Marked Men horde - apocalyptic wave -->
+      <li Class="StorytellerCompProperties_OnOffCycle">
+        <incident>CA_CrossedHorde</incident>
+        <minDaysPassed>30</minDaysPassed>
+        <onDays>10.0</onDays>
+        <offDays>4.0</offDays>
+        <minSpacingDays>8.9</minSpacingDays>
+        <numIncidentsRange>1~1</numIncidentsRange>
+        <allowedTargetTags>
+          <li>Map_PlayerHome</li>
+        </allowedTargetTags>
+      </li>
+
+      <!-- Infected survivor - spread pressure -->
+      <li Class="StorytellerCompProperties_OnOffCycle">
+        <incident>CA_CrossedDownedSurvivor</incident>
+        <minDaysPassed>4</minDaysPassed>
+        <onDays>3.5</onDays>
+        <offDays>2.5</offDays>
+        <minSpacingDays>2.5</minSpacingDays>
+        <numIncidentsRange>1~1</numIncidentsRange>
+        <allowedTargetTags>
+          <li>Map_PlayerHome</li>
+        </allowedTargetTags>
+      </li>
+
+      <!-- Random chaos core - everything hits without warning -->
+      <li Class="StorytellerCompProperties_RandomMain">
+        <allowedTargetTags>
+          <li>Map_PlayerHome</li>
+        </allowedTargetTags>
+        <minDaysPassed>1</minDaysPassed>
+        <mtbDays>0.7</mtbDays>
+        <spaceMtbDayFactor>3</spaceMtbDayFactor>
+        <spaceMinSpacingDays>1.5</spaceMinSpacingDays>
+        <maxThreatBigIntervalDays>4</maxThreatBigIntervalDays>
+        <minIncChancePopulationIntentFactor>0.05</minIncChancePopulationIntentFactor>
+        <randomPointsFactorRange>0.7~2.0</randomPointsFactorRange>
+        <skipThreatBigIfRaidBeacon>true</skipThreatBigIfRaidBeacon>
+        <categoryWeights>
+          <ThreatBig>3.5</ThreatBig>
+          <ThreatSmall>2.5</ThreatSmall>
+          <Misc>0.8</Misc>
+          <ShipChunkDrop>0.25</ShipChunkDrop>
+          <OrbitalVisitor>0.15</OrbitalVisitor>
+          <FactionArrival>0.3</FactionArrival>
+        </categoryWeights>
+      </li>
+
+      <!-- Raid beacon handling -->
+      <li Class="StorytellerCompProperties_ThreatsGenerator">
+        <allowedTargetTags>
+          <li>Map_RaidBeacon</li>
+        </allowedTargetTags>
+        <parms>
+          <allowedThreats>Raids</allowedThreats>
+          <onDays>1.0</onDays>
+          <offDays>0.2</offDays>
+          <minSpacingDays>0.04</minSpacingDays>
+          <numIncidentsRange>1~4</numIncidentsRange>
+          <minThreatPoints>200</minThreatPoints>
+        </parms>
+      </li>
+
+      <!-- Ruthless disease pressure -->
+      <li Class="StorytellerCompProperties_Disease">
+        <category>DiseaseHuman</category>
+        <minDaysPassed>3</minDaysPassed>
+      </li>
+      <li Class="StorytellerCompProperties_Disease">
+        <category>DiseaseAnimal</category>
+        <minDaysPassed>3</minDaysPassed>
+      </li>
+
+      <!-- Ally aid rare but possible -->
+      <li Class="StorytellerCompProperties_FactionInteraction">
+        <incident>RaidFriendly</incident>
+        <baseIncidentsPerYear>6</baseIncidentsPerYear>
+        <minSpacingDays>0.8</minSpacingDays>
+        <fullAlliesOnly>true</fullAlliesOnly>
+        <minDanger>High</minDanger>
+      </li>
+
+      <!-- Traders and visitors - nearly nonexistent -->
+      <li Class="StorytellerCompProperties_FactionInteraction">
+        <incident>TraderCaravanArrival</incident>
+        <minDaysPassed>12</minDaysPassed>
+        <baseIncidentsPerYear>1.5</baseIncidentsPerYear>
+        <minSpacingDays>14</minSpacingDays>
+        <allowedTargetTags>
+          <li>Map_PlayerHome</li>
+        </allowedTargetTags>
+      </li>
+      <li Class="StorytellerCompProperties_FactionInteraction">
+        <incident>VisitorGroup</incident>
+        <minDaysPassed>10</minDaysPassed>
+        <baseIncidentsPerYear>0.5</baseIncidentsPerYear>
+        <minSpacingDays>20</minSpacingDays>
+        <allowedTargetTags>
+          <li>Map_PlayerHome</li>
+        </allowedTargetTags>
+      </li>
+      <li Class="StorytellerCompProperties_FactionInteraction">
+        <incident>TravelerGroup</incident>
+        <minDaysPassed>6</minDaysPassed>
+        <baseIncidentsPerYear>1</baseIncidentsPerYear>
+        <minSpacingDays>10</minSpacingDays>
+        <allowedTargetTags>
+          <li>Map_PlayerHome</li>
+        </allowedTargetTags>
+      </li>
+
+      <!-- Caravan threats -->
+      <li Class="StorytellerCompProperties_CategoryIndividualMTBByBiome">
+        <category>Misc</category>
+        <allowedTargetTags>
+          <li>Caravan</li>
+          <li>Map_TempIncident</li>
+        </allowedTargetTags>
+      </li>
+      <li Class="StorytellerCompProperties_CategoryIndividualMTBByBiome">
+        <category>ThreatSmall</category>
+        <applyCaravanVisibility>true</applyCaravanVisibility>
+        <allowedTargetTags>
+          <li>Caravan</li>
+          <li>Map_TempIncident</li>
+        </allowedTargetTags>
+      </li>
+      <li Class="StorytellerCompProperties_CategoryIndividualMTBByBiome">
+        <category>ThreatBig</category>
+        <applyCaravanVisibility>true</applyCaravanVisibility>
+        <allowedTargetTags>
+          <li>Caravan</li>
+          <li>Map_TempIncident</li>
+        </allowedTargetTags>
+      </li>
+
+      <!-- Quests - heavily delayed and scarce -->
+      <li Class="StorytellerCompProperties_RandomQuest">
+        <category>GiveQuest</category>
+        <allowedTargetTags>
+          <li>World</li>
+        </allowedTargetTags>
+        <onDays>25</onDays>
+        <numIncidentsRange>1</numIncidentsRange>
+        <acceptFractionByDaysPassedCurve>
+          <points>
+            <li>(15, 0)</li>
+            <li>(30, 1)</li>
+          </points>
+        </acceptFractionByDaysPassedCurve>
+        <minSpacingDays>8</minSpacingDays>
+        <disableIfAnyModActive>
+          <li>Ludeon.RimWorld.Royalty</li>
+        </disableIfAnyModActive>
+      </li>
+      <li Class="StorytellerCompProperties_RandomQuest">
+        <category>GiveQuest</category>
+        <allowedTargetTags>
+          <li>World</li>
+        </allowedTargetTags>
+        <onDays>20</onDays>
+        <numIncidentsRange>1~2</numIncidentsRange>
+        <acceptFractionByDaysPassedCurve>
+          <points>
+            <li>(15, 0)</li>
+            <li>(30, 1)</li>
+          </points>
+        </acceptFractionByDaysPassedCurve>
+        <minSpacingDays>8</minSpacingDays>
+        <enableIfAnyModActive>
+          <li>Ludeon.RimWorld.Royalty</li>
+        </enableIfAnyModActive>
+      </li>
+
+      <!-- Orbital trader - very rare -->
+      <li Class="StorytellerCompProperties_OnOffCycle">
+        <incident>OrbitalTraderArrival</incident>
+        <onDays>4</onDays>
+        <offDays>25</offDays>
+        <numIncidentsRange>1</numIncidentsRange>
+      </li>
+
+      <!-- Triggered -->
+      <li Class="StorytellerCompProperties_Triggered">
+        <incident>StrangerInBlackJoin</incident>
+        <delayTicks>180</delayTicks>
+      </li>
+    </comps>
+  </StorytellerDef>
+</Defs>

@@ -86,7 +86,7 @@ namespace TheMarkedMen
             InitializeStarterLineageResistance();
             EnsureInfectedStateOnLoadedPawns();
             int ticks = Find.TickManager?.TicksGame ?? 0;
-            int raidFirstTick = TheMarkedMenSettings.FirstMarkedRaidTick;
+            int raidFirstTick = CrossedStorytellerUtility.EffectiveFirstMarkedRaidTick;
             int hordeFirstTick = CurrentHordeFirstTick;
             raidScheduleActivated = ticks >= raidFirstTick;
             if (TheMarkedMenSettings.WarbandsEnabled)
@@ -241,7 +241,7 @@ namespace TheMarkedMen
             targetMap = FindRaidTargetMap();
             if (targetMap == null) return false;
             int ticks = Find.TickManager.TicksGame;
-            int raidFirstTick = TheMarkedMenSettings.FirstMarkedRaidTick;
+            int raidFirstTick = CrossedStorytellerUtility.EffectiveFirstMarkedRaidTick;
             nextTick = !raidScheduleActivated && ticks < raidFirstTick ? raidFirstTick : nextRaidTick;
             if (nextTick <= 0)
                 nextTick = ticks + CalculateAdjustedRaidIntervalTicks(false);
@@ -598,7 +598,7 @@ namespace TheMarkedMen
             }
             if (!raidScheduleActivated)
             {
-                int raidFirstTick = TheMarkedMenSettings.FirstMarkedRaidTick;
+                int raidFirstTick = CrossedStorytellerUtility.EffectiveFirstMarkedRaidTick;
                 if (ticks < raidFirstTick)
                 {
                     nextRaidTick = raidFirstTick;
@@ -644,13 +644,13 @@ namespace TheMarkedMen
                 nextRaidTick = 0;
                 return;
             }
-            int raidFirstTick = TheMarkedMenSettings.FirstMarkedRaidTick;
+            int raidFirstTick = CrossedStorytellerUtility.EffectiveFirstMarkedRaidTick;
             nextRaidTick = !raidScheduleActivated && fromTick < raidFirstTick ? raidFirstTick : fromTick + CalculateAdjustedRaidIntervalTicks(true);
         }
 
         private void MigrateRaidSchedule(int ticks)
         {
-            if (!raidScheduleActivated || ticks < TheMarkedMenSettings.FirstMarkedRaidTick || nextRaidTick <= ticks) return;
+            if (!raidScheduleActivated || ticks < CrossedStorytellerUtility.EffectiveFirstMarkedRaidTick || nextRaidTick <= ticks) return;
             int ticksUntilRaid = nextRaidTick - ticks;
             int adjustedInterval = CalculateAdjustedRaidIntervalTicks(false);
             if (ticksUntilRaid < adjustedInterval)
@@ -662,7 +662,7 @@ namespace TheMarkedMen
             return FindHordeTargetMap();
         }
 
-        private static int CurrentHordeFirstTick => TheMarkedMenSettings.FirstMarkedRaidTick + HordeBaseIntervalTicks;
+        private static int CurrentHordeFirstTick => CrossedStorytellerUtility.EffectiveFirstMarkedRaidTick + HordeBaseIntervalTicks;
 
         private static float CalculateStorytellerRaidPoints(Map map, IncidentDef raidDef, float existingPoints)
         {
