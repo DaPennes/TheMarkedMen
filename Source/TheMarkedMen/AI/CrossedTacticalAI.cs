@@ -45,7 +45,10 @@ namespace TheMarkedMen
 
             if (IsAttackJob(currentJobDef) && IsValidNonInfectedPawnTarget(currentPawnTarget, pawn))
             {
-                return false;
+                if (currentJobDef != JobDefOf.AttackMelee || GetRangedVerb(pawn) == null)
+                {
+                    return false;
+                }
             }
 
             if (IsTacticalRangedMoveJob(pawn.CurJob, currentPawnTarget) && IsValidNonInfectedPawnTarget(currentPawnTarget, pawn))
@@ -181,7 +184,10 @@ namespace TheMarkedMen
             Verb rangedVerb = GetRangedVerb(pawn);
             if (rangedVerb != null)
             {
-                return TryAssignRangedAttackJob(pawn, target, rangedVerb, forceCurrentJob);
+                if (TryAssignRangedAttackJob(pawn, target, rangedVerb, forceCurrentJob))
+                {
+                    return true;
+                }
             }
 
             if (!pawn.CanReach(target, PathEndMode.Touch, Danger.Deadly, true, true))
