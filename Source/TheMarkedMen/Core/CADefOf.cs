@@ -11,6 +11,7 @@ namespace TheMarkedMen
         private static HediffDef bloodRush;
         private static HediffDef commandAura;
         private static HediffDef panic;
+        private static HediffDef spitterGlands;
         private static ThoughtDef crossedSocialTerror;
         private static FactionDef crossedFaction;
         private static InteractionDef crossedPredatoryTaunt;
@@ -29,10 +30,9 @@ namespace TheMarkedMen
         private static PawnKindDef bomber;
         private static PawnKindDef alphaPsychic;
         private static HediffDef bomberCharge;
+        private static HediffDef psychicAura;
         private static IncidentDef crossedDownedSurvivor;
-        private static IncidentDef crossedInfectedCaravan;
-        private static IncidentDef crossedPlagueShip;
-        private static IncidentDef crossedSiege;
+
         private static TattooDef crossedFaceTattoo;
         private static TattooDef crossedFaceTattooStage1;
         private static TattooDef crossedFaceTattooStage2;
@@ -49,6 +49,7 @@ namespace TheMarkedMen
         public static HediffDef BloodRush => bloodRush ?? (bloodRush = DefDatabase<HediffDef>.GetNamedSilentFail("CA_BloodRush"));
         public static HediffDef CommandAura => commandAura ?? (commandAura = DefDatabase<HediffDef>.GetNamedSilentFail("CA_CommandAura"));
         public static HediffDef Panic => panic ?? (panic = DefDatabase<HediffDef>.GetNamedSilentFail("CA_CrossedPanic"));
+        public static HediffDef SpitterGlands => spitterGlands ?? (spitterGlands = DefDatabase<HediffDef>.GetNamedSilentFail("CA_SpitterGlands"));
         public static ThoughtDef CrossedSocialTerror => crossedSocialTerror ?? (crossedSocialTerror = DefDatabase<ThoughtDef>.GetNamedSilentFail("CA_CrossedSocialTerror"));
         public static FactionDef CrossedFaction => crossedFaction ?? (crossedFaction = DefDatabase<FactionDef>.GetNamedSilentFail("CA_CrossedFaction"));
         public static InteractionDef CrossedPredatoryTaunt => crossedPredatoryTaunt ?? (crossedPredatoryTaunt = DefDatabase<InteractionDef>.GetNamedSilentFail("CA_CrossedPredatoryTaunt"));
@@ -67,10 +68,9 @@ namespace TheMarkedMen
         public static PawnKindDef Bomber => bomber ?? (bomber = DefDatabase<PawnKindDef>.GetNamedSilentFail("CA_CrossedBomber"));
         public static PawnKindDef AlphaPsychic => alphaPsychic ?? (alphaPsychic = DefDatabase<PawnKindDef>.GetNamedSilentFail("CA_CrossedAlphaPsychic"));
         public static HediffDef BomberCharge => bomberCharge ?? (bomberCharge = DefDatabase<HediffDef>.GetNamedSilentFail("CA_BomberCharge"));
+        public static HediffDef PsychicAura => psychicAura ?? (psychicAura = DefDatabase<HediffDef>.GetNamedSilentFail("CA_PsychicAura"));
         public static IncidentDef CrossedDownedSurvivor => crossedDownedSurvivor ?? (crossedDownedSurvivor = DefDatabase<IncidentDef>.GetNamedSilentFail("CA_CrossedDownedSurvivor"));
-        public static IncidentDef CrossedInfectedCaravan => crossedInfectedCaravan ?? (crossedInfectedCaravan = DefDatabase<IncidentDef>.GetNamedSilentFail("CA_CrossedInfectedCaravan"));
-        public static IncidentDef CrossedPlagueShip => crossedPlagueShip ?? (crossedPlagueShip = DefDatabase<IncidentDef>.GetNamedSilentFail("CA_CrossedPlagueShip"));
-        public static IncidentDef CrossedSiege => crossedSiege ?? (crossedSiege = DefDatabase<IncidentDef>.GetNamedSilentFail("CA_CrossedSiege"));
+
         public static TattooDef CrossedFaceTattoo => crossedFaceTattoo ?? (crossedFaceTattoo = DefDatabase<TattooDef>.GetNamedSilentFail("CA_Face_CrossedRash"));
         public static TattooDef CrossedFaceTattooStage1 => crossedFaceTattooStage1 ?? (crossedFaceTattooStage1 = DefDatabase<TattooDef>.GetNamedSilentFail("CA_Face_CrossedRashStage1"));
         public static TattooDef CrossedFaceTattooStage2 => crossedFaceTattooStage2 ?? (crossedFaceTattooStage2 = DefDatabase<TattooDef>.GetNamedSilentFail("CA_Face_CrossedRashStage2"));

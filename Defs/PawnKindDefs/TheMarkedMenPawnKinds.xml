@@ -18,12 +18,6 @@
     <requiredWorkTags>
       <li>Violent</li>
     </requiredWorkTags>
-    <forcedTraits>
-      <li>
-        <trait>Bloodlust</trait>
-        <degree>0</degree>
-      </li>
-    </forcedTraits>
     <disallowedTraits>
       <li>Kind</li>
       <li>Wimp</li>
@@ -45,12 +39,6 @@
       <li>MedievalMeleeBasic</li>
       <li>MedievalMeleeDecent</li>
     </weaponTags>
-    <forcedTraits>
-      <li>
-        <trait>Brawler</trait>
-        <degree>0</degree>
-      </li>
-    </forcedTraits>
   </PawnKindDef>
 
   <PawnKindDef ParentName="CA_CrossedBase">
@@ -64,12 +52,6 @@
       <li>Gun</li>
       <li>IndustrialGunAdvanced</li>
     </weaponTags>
-    <forcedTraits>
-      <li>
-        <trait>CarefulShooter</trait>
-        <degree>0</degree>
-      </li>
-    </forcedTraits>
   </PawnKindDef>
 
   <PawnKindDef ParentName="CA_CrossedBase">
@@ -88,12 +70,6 @@
       <li>MedievalMeleeAdvanced</li>
       <li>MedievalMeleeBasic</li>
     </weaponTags>
-    <forcedTraits>
-      <li>
-        <trait>Tough</trait>
-        <degree>0</degree>
-      </li>
-    </forcedTraits>
   </PawnKindDef>
 
   <PawnKindDef ParentName="CA_CrossedBase">
@@ -107,12 +83,6 @@
       <li>MedievalMeleeDecent</li>
       <li>Gun</li>
     </weaponTags>
-    <forcedTraits>
-      <li>
-        <trait>Nimble</trait>
-        <degree>0</degree>
-      </li>
-    </forcedTraits>
   </PawnKindDef>
 
   <PawnKindDef ParentName="CA_CrossedBase">
@@ -126,12 +96,6 @@
       <li>NeolithicMeleeBasic</li>
       <li>MedievalMeleeBasic</li>
     </weaponTags>
-    <forcedTraits>
-      <li>
-        <trait>Psychopath</trait>
-        <degree>0</degree>
-      </li>
-    </forcedTraits>
   </PawnKindDef>
 
   <PawnKindDef ParentName="CA_CrossedBase">
@@ -153,12 +117,6 @@
     </weaponTags>
     <combatEnhancingDrugsChance>0.5</combatEnhancingDrugsChance>
     <combatEnhancingDrugsCount>1~2</combatEnhancingDrugsCount>
-    <forcedTraits>
-      <li>
-        <trait>Tough</trait>
-        <degree>0</degree>
-      </li>
-    </forcedTraits>
     <techHediffsChance>0.2</techHediffsChance>
     <techHediffsMoney>300~2500</techHediffsMoney>
     <techHediffsTags>
@@ -178,12 +136,6 @@
       <li>MedievalMeleeDecent</li>
       <li>NeolithicMeleeBasic</li>
     </weaponTags>
-    <forcedTraits>
-      <li>
-        <trait>Brawler</trait>
-        <degree>0</degree>
-      </li>
-    </forcedTraits>
   </PawnKindDef>
 
   <PawnKindDef ParentName="CA_CrossedBase">
@@ -196,12 +148,6 @@
     <weaponTags>
       <li>Gun</li>
     </weaponTags>
-    <forcedTraits>
-      <li>
-        <trait>Nimble</trait>
-        <degree>0</degree>
-      </li>
-    </forcedTraits>
   </PawnKindDef>
 
   <PawnKindDef ParentName="CA_CrossedBase">
@@ -214,16 +160,6 @@
     <weaponTags>
       <li>MedievalMeleeDecent</li>
     </weaponTags>
-    <forcedTraits>
-      <li>
-        <trait>Psychopath</trait>
-        <degree>0</degree>
-      </li>
-      <li>
-        <trait>Brawler</trait>
-        <degree>0</degree>
-      </li>
-    </forcedTraits>
   </PawnKindDef>
 
   <PawnKindDef ParentName="CA_CrossedBase">
@@ -246,12 +182,6 @@
       <li>Simple</li>
       <li>Advanced</li>
     </techHediffsTags>
-    <forcedTraits>
-      <li>
-        <trait>Tough</trait>
-        <degree>0</degree>
-      </li>
-    </forcedTraits>
   </PawnKindDef>
 
   <PawnKindDef ParentName="CA_CrossedBase" MayRequire="Ludeon.RimWorld.Biotech">

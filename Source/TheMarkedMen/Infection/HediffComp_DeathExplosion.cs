@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using RimWorld;
 using UnityEngine;
 using Verse;
@@ -32,11 +33,16 @@ namespace TheMarkedMen
         public void Detonate(Pawn pawn)
         {
             if (detonated) return;
+            if (pawn == null || pawn.Map == null)
+            {
+                return;
+            }
             detonated = true;
+            float radius = Props.radius;
             GenExplosion.DoExplosion(
                 pawn.Position,
                 pawn.Map,
-                Props.radius,
+                radius,
                 Props.damageDef ?? DamageDefOf.Bomb,
                 pawn,
                 Mathf.RoundToInt(Props.damageAmount),
@@ -70,6 +76,34 @@ namespace TheMarkedMen
                 overrideCells: null,
                 postExplosionSpawnSingleThingDef: null,
                 preExplosionSpawnSingleThingDef: null);
+            TryContaminateExplosionRadius(pawn, radius);
+        }
+
+        private static void TryContaminateExplosionRadius(Pawn pawn, float radius)
+        {
+            Map map = pawn.Map;
+            if (map == null) return;
+            int numCells = GenRadial.NumCellsInRadius(radius);
+            float exposureChance = TheMarkedMenMod.Settings?.bloodExposureChance ?? 0.45f;
+            for (int cellIndex = 0; cellIndex < numCells; cellIndex++)
+            {
+                IntVec3 cell = pawn.Position + GenRadial.ManualRadialPattern[cellIndex];
+                if (!cell.InBounds(map)) continue;
+                List<Thing> things = map.thingGrid.ThingsListAt(cell);
+                for (int thingIndex = 0; thingIndex < things.Count; thingIndex++)
+                {
+                    Pawn target = things[thingIndex] as Pawn;
+                    if (target == null || target == pawn || target.Dead || !target.RaceProps.Humanlike)
+                    {
+                        continue;
+                    }
+                    if (CrossedUtility.IsInfectedPawn(target) || CrossedUtility.IsFullyProtectedFromCrossVirusExposure(target))
+                    {
+                        continue;
+                    }
+                    CrossedUtility.TryExpose(target, exposureChance, "bomber explosion contamination", pawn);
+                }
+            }
         }
     }
 }

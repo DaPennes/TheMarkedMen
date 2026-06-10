@@ -23,6 +23,7 @@ namespace TheMarkedMen
             Pawn instigatorPawn = dinfo.Instigator as Pawn;
             TryExposeInstigatorToInfectedBlood(__instance, instigatorPawn);
             TryExposeVictimToInfectedAssault(__instance, instigatorPawn);
+            TryExposeVictimToSpitterAcid(__instance, instigatorPawn);
         }
 
         private static void TryExposeInstigatorToInfectedBlood(Pawn damagedPawn, Pawn instigatorPawn)
@@ -70,12 +71,37 @@ namespace TheMarkedMen
 
             CrossedUtility.TryExpose(damagedPawn, TheMarkedMenSettings.InfectedAssaultExposureChance, "infected assault contact", instigatorPawn);
         }
+
+        private static void TryExposeVictimToSpitterAcid(Pawn damagedPawn, Pawn instigatorPawn)
+        {
+            if (damagedPawn == null || instigatorPawn == null || damagedPawn == instigatorPawn)
+            {
+                return;
+            }
+
+            if (instigatorPawn.health?.hediffSet?.HasHediff(CADefOf.SpitterGlands) != true)
+            {
+                return;
+            }
+
+            if (damagedPawn.Dead || damagedPawn.RaceProps == null || !damagedPawn.RaceProps.Humanlike)
+            {
+                return;
+            }
+
+            if (CrossedUtility.IsInfectedPawn(damagedPawn) || CrossedUtility.IsFullyProtectedFromCrossVirusExposure(damagedPawn))
+            {
+                return;
+            }
+
+            CrossedUtility.TryExpose(damagedPawn, 1f, "spitter acid attack", instigatorPawn);
+        }
     }
 
     [HarmonyPatch(typeof(Pawn), nameof(Pawn.Kill))]
     public static class Patch_InfectedDeathReanimation
     {
-        public static void Postfix(Pawn __instance)
+        public static void Prefix(Pawn __instance)
         {
             if (__instance == null) return;
 
@@ -85,6 +111,11 @@ namespace TheMarkedMen
                 HediffComp_DeathExplosion comp = bomberCharge.TryGetComp<HediffComp_DeathExplosion>();
                 comp?.Detonate(__instance);
             }
+        }
+
+        public static void Postfix(Pawn __instance)
+        {
+            if (__instance == null) return;
 
             if (!CrossedUtility.HasMarkedVirusHediff(__instance))
             {
@@ -294,6 +325,48 @@ namespace TheMarkedMen
             {
                 float chance = TheMarkedMenMod.Settings?.foodExposureChance ?? TheMarkedMenSettings.InfectionTransmissionChance;
                 CrossedUtility.TryExpose(pawn, chance, "contaminated food");
+            }
+        }
+    }
+
+    [HarmonyPatch(typeof(PawnGenerator), "GenerateTraits")]
+    public static class Patch_CrossedForcedTraits
+    {
+        private static readonly Dictionary<string, List<(string defName, int degree)>> KindTraits = new Dictionary<string, List<(string, int)>>
+        {
+            { "CA_CrossedBerserker", new List<(string, int)> { ("Bloodlust", 0) } },
+            { "CA_CrossedHunter", new List<(string, int)> { ("Bloodlust", 0), ("CarefulShooter", 0) } },
+            { "CA_CrossedBrute", new List<(string, int)> { ("Bloodlust", 0), ("Tough", 0) } },
+            { "CA_CrossedStalker", new List<(string, int)> { ("Bloodlust", 0), ("Nimble", 0) } },
+            { "CA_CrossedScreamer", new List<(string, int)> { ("Bloodlust", 0), ("Psychopath", 0) } },
+            { "CA_CrossedAlpha", new List<(string, int)> { ("Bloodlust", 0), ("Tough", 0) } },
+            { "CA_CrossedCharger", new List<(string, int)> { ("Bloodlust", 0), ("Brawler", 0) } },
+            { "CA_CrossedSpitter", new List<(string, int)> { ("Bloodlust", 0), ("Nimble", 0) } },
+            { "CA_CrossedBomber", new List<(string, int)> { ("Bloodlust", 0), ("Psychopath", 0), ("Brawler", 0) } },
+            { "CA_CrossedAlphaPsychic", new List<(string, int)> { ("Bloodlust", 0), ("Tough", 0) } },
+        };
+
+        public static void Postfix(Pawn pawn)
+        {
+            if (pawn?.story?.traits == null || pawn.kindDef?.defName == null)
+            {
+                return;
+            }
+            if (!KindTraits.TryGetValue(pawn.kindDef.defName, out var traits))
+            {
+                return;
+            }
+            foreach (var (defName, degree) in traits)
+            {
+                TraitDef traitDef = DefDatabase<TraitDef>.GetNamedSilentFail(defName);
+                if (traitDef == null)
+                {
+                    continue;
+                }
+                if (!pawn.story.traits.HasTrait(traitDef))
+                {
+                    pawn.story.traits.GainTrait(new Trait(traitDef, degree));
+                }
             }
         }
     }

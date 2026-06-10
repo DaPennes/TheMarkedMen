@@ -61,24 +61,32 @@ namespace TheMarkedMen
                 return true;
             }
 
-            Pawn bestNonInfected = FindBestNonInfectedPawnTarget(pawn);
-            if (bestNonInfected != null)
+            if (pawn.IsHashIntervalTick(TheMarkedMenSettings.TacticalRetargetIntervalTicks))
             {
-                bool isAttackJob = IsAttackJob(currentJobDef);
-                if (isAttackJob && currentPawnTarget == bestNonInfected && IsValidNonInfectedPawnTarget(currentPawnTarget, pawn))
+                Pawn bestNonInfected = FindBestNonInfectedPawnTarget(pawn);
+                if (bestNonInfected != null)
                 {
-                    return false;
-                }
+                    bool isAttackJob = IsAttackJob(currentJobDef);
+                    if (isAttackJob && currentPawnTarget == bestNonInfected && IsValidNonInfectedPawnTarget(currentPawnTarget, pawn))
+                    {
+                        return false;
+                    }
 
-                if (IsTacticalRangedMoveJob(pawn.CurJob, bestNonInfected) && IsValidNonInfectedPawnTarget(bestNonInfected, pawn))
-                {
-                    return false;
-                }
+                    if (IsTacticalRangedMoveJob(pawn.CurJob, bestNonInfected) && IsValidNonInfectedPawnTarget(bestNonInfected, pawn))
+                    {
+                        return false;
+                    }
 
-                return TryAssignAttackJob(pawn, bestNonInfected, true);
+                    return TryAssignAttackJob(pawn, bestNonInfected, true);
+                }
             }
 
-            if (!pawn.IsHashIntervalTick(TheMarkedMenSettings.TacticalRetargetIntervalTicks) || IsAttackJob(currentJobDef))
+            if (IsAttackJob(currentJobDef))
+            {
+                return false;
+            }
+
+            if (!pawn.IsHashIntervalTick(TheMarkedMenSettings.TacticalRetargetIntervalTicks))
             {
                 return false;
             }

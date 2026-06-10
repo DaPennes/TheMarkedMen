@@ -216,6 +216,37 @@
   </HediffDef>
 
   <HediffDef>
+    <defName>CA_PsychicAura</defName>
+    <label>psychic aura</label>
+    <description>The Alpha Psychic's mind emanates a destabilizing field that triggers panic in nearby non-infected humans.</description>
+    <hediffClass>HediffWithComps</hediffClass>
+    <isBad>false</isBad>
+    <stages>
+      <li>
+        <statFactors>
+          <MoveSpeed>1.15</MoveSpeed>
+          <PsychicSensitivity>0.4</PsychicSensitivity>
+          <StaggerDurationFactor>0.3</StaggerDurationFactor>
+        </statFactors>
+        <statOffsets>
+          <ShootingAccuracyPawn>3</ShootingAccuracyPawn>
+          <MeleeHitChance>2</MeleeHitChance>
+          <MeleeDodgeChance>1</MeleeDodgeChance>
+          <AimingDelayFactor>-0.3</AimingDelayFactor>
+          <PainShockThreshold>0.35</PainShockThreshold>
+          <MentalBreakThreshold>-0.35</MentalBreakThreshold>
+        </statOffsets>
+      </li>
+    </stages>
+    <comps>
+      <li Class="TheMarkedMen.HediffCompProperties_PsychicPulse">
+        <radius>14</radius>
+        <pulseIntervalTicks>500</pulseIntervalTicks>
+      </li>
+    </comps>
+  </HediffDef>
+
+  <HediffDef>
     <defName>CA_BomberCharge</defName>
     <label>volatile charge</label>
     <description>The bomber's system is primed with unstable compounds. On death, the payload detonates.</description>
@@ -243,6 +274,14 @@
         <chanceToStartFire>0.5</chanceToStartFire>
       </li>
     </comps>
+  </HediffDef>
+
+  <HediffDef>
+    <defName>CA_SpitterGlands</defName>
+    <label>acid glands</label>
+    <description>This spitter's system produces corrosive compounds that seep into wounds, transmitting the Marked Virus.</description>
+    <hediffClass>HediffWithComps</hediffClass>
+    <isBad>false</isBad>
   </HediffDef>
 
   <HediffDef>

@@ -98,6 +98,8 @@ namespace TheMarkedMen
         {
             RemoveHediffIfPresent(pawn, CADefOf.BloodRush);
             RemoveHediffIfPresent(pawn, CADefOf.CommandAura);
+            RemoveHediffIfPresent(pawn, CADefOf.PsychicAura);
+            RemoveHediffIfPresent(pawn, CADefOf.SpitterGlands);
             RemoveHediffIfPresent(pawn, CADefOf.BomberCharge);
         }
 
@@ -131,10 +133,15 @@ namespace TheMarkedMen
                 pawn.health.AddHediff(CADefOf.BloodRush);
             else if (pawn.kindDef == CADefOf.Alpha && CADefOf.CommandAura != null && !pawn.health.hediffSet.HasHediff(CADefOf.CommandAura))
                 pawn.health.AddHediff(CADefOf.CommandAura);
+            else if (pawn.kindDef == CADefOf.AlphaPsychic && CADefOf.PsychicAura != null && !pawn.health.hediffSet.HasHediff(CADefOf.PsychicAura))
+            {
+                pawn.health.AddHediff(CADefOf.PsychicAura);
+                VPECompat.TryApplyPsylink(pawn);
+            }
+            else if (pawn.kindDef == CADefOf.Spitter && CADefOf.SpitterGlands != null && !pawn.health.hediffSet.HasHediff(CADefOf.SpitterGlands))
+                pawn.health.AddHediff(CADefOf.SpitterGlands);
             else if (pawn.kindDef == CADefOf.Bomber && CADefOf.BomberCharge != null && !pawn.health.hediffSet.HasHediff(CADefOf.BomberCharge))
                 pawn.health.AddHediff(CADefOf.BomberCharge);
-            else if (pawn.kindDef == CADefOf.AlphaPsychic && CADefOf.CommandAura != null && !pawn.health.hediffSet.HasHediff(CADefOf.CommandAura))
-                pawn.health.AddHediff(CADefOf.CommandAura);
             ApplyInfectedTattoo(pawn);
             EnsureCrossedBasicClothingOnly(pawn);
         }

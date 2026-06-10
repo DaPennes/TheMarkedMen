@@ -35,7 +35,6 @@
     <naturalEnemy>true</naturalEnemy>
     <hostileToFactionlessHumanlikes>true</hostileToFactionlessHumanlikes>
     <autoFlee>false</autoFlee>
-    <canSiege>true</canSiege>
     <canStageAttacks>true</canStageAttacks>
     <canUseAvoidGrid>false</canUseAvoidGrid>
     <canRequestTraders>false</canRequestTraders>

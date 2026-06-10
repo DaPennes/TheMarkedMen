@@ -25,6 +25,7 @@ namespace TheMarkedMen
             LongEventHandler.ExecuteWhenFinished(() => Settings?.AutoEnableRjwIntegrationIfInstalled());
             LongEventHandler.ExecuteWhenFinished(CrossedUtility.ApplyMarkedVirusResistanceEquippedStatOffsets);
             LongEventHandler.ExecuteWhenFinished(CrossedCompatibility.LogDetectedMods);
+            LongEventHandler.ExecuteWhenFinished(VPECompat.Initialize);
         }
 
         public override string SettingsCategory()
@@ -40,7 +41,7 @@ namespace TheMarkedMen
 
     public sealed class TheMarkedMenSettings : ModSettings
     {
-        private const int CurrentSettingsVersion = 8;
+        private const int CurrentSettingsVersion = 9;
         public const float InfectionTransmissionChance = 0.45f;
         public const float DefaultMarkedRaidFrequencyMultiplier = 1f;
         public const float MinMarkedRaidFrequencyMultiplier = 0f;
@@ -280,6 +281,10 @@ namespace TheMarkedMen
             Scribe_Values.Look(ref screamerWeightMultiplier, "screamerWeightMultiplier", 1f);
             Scribe_Values.Look(ref bruteWeightMultiplier, "bruteWeightMultiplier", 1f);
             Scribe_Values.Look(ref alphaWeightMultiplier, "alphaWeightMultiplier", 1f);
+            Scribe_Values.Look(ref chargerWeightMultiplier, "chargerWeightMultiplier", 1f);
+            Scribe_Values.Look(ref spitterWeightMultiplier, "spitterWeightMultiplier", 1f);
+            Scribe_Values.Look(ref bomberWeightMultiplier, "bomberWeightMultiplier", 1f);
+            Scribe_Values.Look(ref alphaPsychicWeightMultiplier, "alphaPsychicWeightMultiplier", 1f);
             Scribe_Values.Look(ref allowMarkedChildren, "allowMarkedChildren", false);
             Scribe_Values.Look(ref minimumHordeSize, "minimumHordeSize", 3);
             Scribe_Values.Look(ref maximumHordeSize, "maximumHordeSize", 12);
@@ -405,6 +410,12 @@ namespace TheMarkedMen
                     terminalDeathWeight = DefaultTerminalDeathWeight;
                 }
 
+                if (loadedSettingsVersion < 9)
+                {
+                    // Version 9: removed Infected Caravan, Plague Ship, and Siege events.
+                    // No settings migration required — these were hardcoded events.
+                }
+
                 settingsVersion = CurrentSettingsVersion;
             }
 
@@ -480,6 +491,10 @@ namespace TheMarkedMen
                 DrawFloat(listing, "Screamer weight", ref screamerWeightMultiplier, 0f, 5f, "screamerWeightMultiplier", "Disruptive infected used in stronger attacks.");
                 DrawFloat(listing, "Brute weight", ref bruteWeightMultiplier, 0f, 5f, "bruteWeightMultiplier", "Heavy infected. Usually appears only when raid points are high enough.");
                 DrawFloat(listing, "Alpha weight", ref alphaWeightMultiplier, 0f, 5f, "alphaWeightMultiplier", "Command infected that strengthens nearby Marked Men. Also limited by the maximum alpha setting.");
+                DrawFloat(listing, "Charger weight", ref chargerWeightMultiplier, 0f, 5f, "chargerWeightMultiplier", "Fast melee rusher that closes distance quickly.");
+                DrawFloat(listing, "Spitter weight", ref spitterWeightMultiplier, 0f, 5f, "spitterWeightMultiplier", "Ranged infected that exposes victims to the Marked Virus on hit.");
+                DrawFloat(listing, "Bomber weight", ref bomberWeightMultiplier, 0f, 5f, "bomberWeightMultiplier", "Explosive infected that detonates on death, spreading the virus.");
+                DrawFloat(listing, "Alpha Psychic weight", ref alphaPsychicWeightMultiplier, 0f, 5f, "alphaPsychicWeightMultiplier", "Psychic alpha that periodically induces panic in nearby enemies.");
                 DrawCheckbox(listing, "Allow child Marked pawns", ref allowMarkedChildren, "Allows child infected pawn kinds in eligible low-point raids. Disable this if you do not want child enemies.");
                 DrawInt(listing, "Minimum horde size", ref minimumHordeSize, 1, 50, "minimumHordeSize", "Smallest horde size when a horde incident does not request a specific count.");
                 DrawInt(listing, "Maximum horde size", ref maximumHordeSize, 1, 100, "maximumHordeSize", "Largest horde size after threat scaling and variance.");
@@ -860,6 +875,10 @@ namespace TheMarkedMen
             screamerWeightMultiplier = Mathf.Clamp(screamerWeightMultiplier, 0f, 5f);
             bruteWeightMultiplier = Mathf.Clamp(bruteWeightMultiplier, 0f, 5f);
             alphaWeightMultiplier = Mathf.Clamp(alphaWeightMultiplier, 0f, 5f);
+            chargerWeightMultiplier = Mathf.Clamp(chargerWeightMultiplier, 0f, 5f);
+            spitterWeightMultiplier = Mathf.Clamp(spitterWeightMultiplier, 0f, 5f);
+            bomberWeightMultiplier = Mathf.Clamp(bomberWeightMultiplier, 0f, 5f);
+            alphaPsychicWeightMultiplier = Mathf.Clamp(alphaPsychicWeightMultiplier, 0f, 5f);
             minimumHordeSize = Mathf.Clamp(minimumHordeSize, 1, 50);
             maximumHordeSize = Mathf.Clamp(maximumHordeSize, minimumHordeSize, 100);
             minimumProbeSize = Mathf.Clamp(minimumProbeSize, 1, 20);

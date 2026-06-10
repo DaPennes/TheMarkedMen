@@ -33,6 +33,7 @@ namespace TheMarkedMen
             "v1024.visibleerrorlogs",
             "imranfish.patchoperationstacktraces",
             "mlie.logafterdeferror",
+            "vanillaexpanded.vpsycastse",
             "ludeon.rimworld.royalty",
             "ludeon.rimworld.ideology",
             "ludeon.rimworld.biotech",
