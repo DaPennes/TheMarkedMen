@@ -138,10 +138,11 @@
     </weaponTags>
   </PawnKindDef>
 
-  <PawnKindDef ParentName="CA_CrossedBase">
+  <PawnKindDef ParentName="CA_CrossedBase" MayRequire="Ludeon.RimWorld.Biotech">
     <defName>CA_CrossedSpitter</defName>
     <label>Marked Man spitter</label>
     <labelPlural>Marked Men spitters</labelPlural>
+    <defaultXenotype>CA_MarkedOneSpitter</defaultXenotype>
     <combatPower>250</combatPower>
     <apparelMoney>100~220</apparelMoney>
   </PawnKindDef>
