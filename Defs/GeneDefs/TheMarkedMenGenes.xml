@@ -28,32 +28,5 @@
     </statOffsets>
   </GeneDef>
 
-  <GeneDef MayRequire="Ludeon.RimWorld.Biotech">
-    <defName>CA_HyperAggressive</defName>
-    <label>hyper-aggressive</label>
-    <description>The Marked Virus amplifies aggression centers in the host's brain, driving them into a permanent state of violent fury. Melee strikes hit harder, but rational social behavior deteriorates.</description>
-    <iconPath>UI/Genes/MarkedOneGenes</iconPath>
-    <displayCategory>Miscellaneous</displayCategory>
-    <biostatCpx>2</biostatCpx>
-    <biostatMet>-2</biostatMet>
-    <statOffsets>
-      <MeleeDamageFactor>0.35</MeleeDamageFactor>
-      <SocialImpact>-0.30</SocialImpact>
-    </statOffsets>
-  </GeneDef>
-
-  <GeneDef MayRequire="Ludeon.RimWorld.Biotech">
-    <defName>CA_Unstoppable</defName>
-    <label>unstoppable</label>
-    <description>The Marked Virus rewires pain receptors and reinforces muscle tissue, allowing the host to shrug off wounds that would fell a normal person and keep moving relentlessly forward.</description>
-    <iconPath>UI/Genes/MarkedOneGenes</iconPath>
-    <displayCategory>Miscellaneous</displayCategory>
-    <biostatCpx>2</biostatCpx>
-    <biostatMet>-2</biostatMet>
-    <statOffsets>
-      <PainShockThreshold>0.50</PainShockThreshold>
-      <MoveSpeed>0.20</MoveSpeed>
-    </statOffsets>
-  </GeneDef>
 
 </Defs>

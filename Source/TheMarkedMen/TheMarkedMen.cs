@@ -1095,8 +1095,6 @@ namespace TheMarkedMen
         private static IncidentDef crossedHorde;
         private static IncidentDef crossedProbe;
         private static XenotypeDef markedOne;
-        private static GeneDef hyperAggressive;
-        private static GeneDef unstoppable;
         private static StatDef markedVirusResistance;
 
         public static HediffDef CrossVirus => crossVirus ?? (crossVirus = DefDatabase<HediffDef>.GetNamedSilentFail("CA_CrossVirus"));
@@ -1135,8 +1133,6 @@ namespace TheMarkedMen
         public static IncidentDef CrossedHorde => crossedHorde ?? (crossedHorde = DefDatabase<IncidentDef>.GetNamedSilentFail("CA_CrossedHorde"));
         public static IncidentDef CrossedProbe => crossedProbe ?? (crossedProbe = DefDatabase<IncidentDef>.GetNamedSilentFail("CA_CrossedProbe"));
         public static XenotypeDef MarkedOne => markedOne ?? (markedOne = DefDatabase<XenotypeDef>.GetNamedSilentFail("CA_MarkedOne"));
-        public static GeneDef HyperAggressive => hyperAggressive ?? (hyperAggressive = DefDatabase<GeneDef>.GetNamedSilentFail("CA_HyperAggressive"));
-        public static GeneDef Unstoppable => unstoppable ?? (unstoppable = DefDatabase<GeneDef>.GetNamedSilentFail("CA_Unstoppable"));
         public static StatDef MarkedVirusResistance => markedVirusResistance ?? (markedVirusResistance = DefDatabase<StatDef>.GetNamedSilentFail("CA_MarkedVirusResistance"));
 
         public static bool IsCrossedFaceTattoo(TattooDef tattoo)

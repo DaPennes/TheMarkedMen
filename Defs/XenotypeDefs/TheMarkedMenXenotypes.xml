@@ -3,11 +3,12 @@
   <XenotypeDef MayRequire="Ludeon.RimWorld.Biotech">
     <defName>CA_MarkedOne</defName>
     <label>Marked One</label>
-    <description>The Marked Virus has fully consumed its host, leaving behind a hyper-aggressive and unstoppable husk driven by pure rage and viral imperative.</description>
+    <description>The Marked Virus has fully consumed its host, forging an aggressive and resilient predator that lives only to hunt and kill.</description>
     <iconPath>UI/Xenotype/Marked</iconPath>
     <genes>
-      <li>CA_HyperAggressive</li>
-      <li>CA_Unstoppable</li>
+      <li>Aggression_Aggressive</li>
+      <li>Robust</li>
+      <li>KillThirst</li>
     </genes>
   </XenotypeDef>
 </Defs>
