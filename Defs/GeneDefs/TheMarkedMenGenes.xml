@@ -43,6 +43,18 @@
   </GeneDef>
 
   <GeneDef MayRequire="Ludeon.RimWorld.Biotech">
+    <defName>CA_LongjumpLegs</defName>
+    <label>longjump legs</label>
+    <description>Powerful mutated leg muscles allow the host to jump great distances.</description>
+    <iconPath>UI/Genes/MarkedOneGenes</iconPath>
+    <displayCategory>Ability</displayCategory>
+    <abilities>
+      <li>CA_Longjump</li>
+    </abilities>
+    <biostatMet>-2</biostatMet>
+  </GeneDef>
+
+  <GeneDef MayRequire="Ludeon.RimWorld.Biotech">
     <defName>CA_Unstoppable</defName>
     <label>unstoppable</label>
     <description>The Marked Virus rewires pain receptors and reinforces muscle tissue, allowing the host to shrug off wounds that would fell a normal person and keep moving relentlessly forward.</description>

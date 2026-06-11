@@ -29,8 +29,7 @@
     <description>A hulking Marked One with powerful hemogen-enhanced leg muscles that allow it to close distances with shocking speed, trampling anything in its path.</description>
     <iconPath>UI/Xenotype/Marked</iconPath>
     <genes>
-      <li>Hemogenic</li>
-      <li>LongjumpLegs</li>
+      <li>CA_LongjumpLegs</li>
       <li>CA_HyperAggressive</li>
       <li>CA_Unstoppable</li>
     </genes>

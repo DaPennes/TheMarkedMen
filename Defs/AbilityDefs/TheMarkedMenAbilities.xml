@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+  <AbilityDef ParentName="LongJump">
+    <defName>CA_Longjump</defName>
+    <label>longjump</label>
+    <description>Jump to a distant location using super-strong mutated leg muscles.</description>
+    <iconPath>UI/Abilities/Longjump</iconPath>
+    <cooldownTicksRange>90</cooldownTicksRange>
+  </AbilityDef>
+</Defs>

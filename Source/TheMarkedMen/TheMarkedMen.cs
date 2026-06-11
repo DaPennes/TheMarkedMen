@@ -1099,6 +1099,8 @@ namespace TheMarkedMen
         private static XenotypeDef markedOneCharger;
         private static GeneDef hyperAggressive;
         private static GeneDef unstoppable;
+        private static GeneDef longjumpLegs;
+        private static AbilityDef longjumpAbility;
         private static StatDef markedVirusResistance;
 
         public static HediffDef CrossVirus => crossVirus ?? (crossVirus = DefDatabase<HediffDef>.GetNamedSilentFail("CA_CrossVirus"));
@@ -1141,6 +1143,8 @@ namespace TheMarkedMen
         public static XenotypeDef MarkedOneCharger => markedOneCharger ?? (markedOneCharger = DefDatabase<XenotypeDef>.GetNamedSilentFail("CA_MarkedOne_Charger"));
         public static GeneDef HyperAggressive => hyperAggressive ?? (hyperAggressive = DefDatabase<GeneDef>.GetNamedSilentFail("CA_HyperAggressive"));
         public static GeneDef Unstoppable => unstoppable ?? (unstoppable = DefDatabase<GeneDef>.GetNamedSilentFail("CA_Unstoppable"));
+        public static GeneDef LongjumpLegs => longjumpLegs ?? (longjumpLegs = DefDatabase<GeneDef>.GetNamedSilentFail("CA_LongjumpLegs"));
+        public static AbilityDef LongjumpAbility => longjumpAbility ?? (longjumpAbility = DefDatabase<AbilityDef>.GetNamedSilentFail("CA_Longjump"));
         public static StatDef MarkedVirusResistance => markedVirusResistance ?? (markedVirusResistance = DefDatabase<StatDef>.GetNamedSilentFail("CA_MarkedVirusResistance"));
 
         public static bool IsCrossedFaceTattoo(TattooDef tattoo)
@@ -4520,10 +4524,9 @@ namespace TheMarkedMen
                     {
                         pawn.genes.SetXenotypeDirect(CADefOf.MarkedOneCharger);
                     }
-                    GeneDef longjumpLegs = DefDatabase<GeneDef>.GetNamedSilentFail("LongjumpLegs");
-                    if (longjumpLegs != null && !pawn.genes.HasActiveGene(longjumpLegs))
+                    if (CADefOf.LongjumpLegs != null && !pawn.genes.HasActiveGene(CADefOf.LongjumpLegs))
                     {
-                        pawn.genes.AddGene(longjumpLegs, true);
+                        pawn.genes.AddGene(CADefOf.LongjumpLegs, true);
                     }
                 }
                 else if (CADefOf.MarkedOne != null)
@@ -5079,7 +5082,7 @@ namespace TheMarkedMen
         {
             if (pawn?.abilities == null || target == null || target.Destroyed || !ModsConfig.BiotechActive) return false;
 
-            AbilityDef longjumpDef = DefDatabase<AbilityDef>.GetNamedSilentFail("Longjump");
+            AbilityDef longjumpDef = CADefOf.LongjumpAbility;
             if (longjumpDef == null) return false;
 
             Ability longjump = pawn.abilities.GetAbility(longjumpDef);
