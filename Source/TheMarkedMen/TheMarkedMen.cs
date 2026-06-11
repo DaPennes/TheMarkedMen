@@ -55,7 +55,7 @@ namespace TheMarkedMen
         private const float LegacyDefaultImmunitySurvivalChance = 0.02f;
         private const float LegacyDefaultTerminalTransformationWeight = 0.55f;
         private const float LegacyDefaultTerminalDeathWeight = 0.45f;
-        private const float SettingsViewHeight = 5600f;
+        private static float cachedContentHeight;
         private const float PresetButtonHeight = 32f;
         private const float PresetButtonGap = 4f;
         private const string CustomPresetName = "Custom";
@@ -413,11 +413,36 @@ namespace TheMarkedMen
 
         public void DoWindowContents(Rect inRect)
         {
-            Rect viewRect = new Rect(0f, 0f, inRect.width - 16f, SettingsViewHeight);
+            Rect viewRect = new Rect(0f, 0f, inRect.width - 16f, inRect.height);
+
+            if (cachedContentHeight <= 0f)
+            {
+                RemeasureContentHeight(inRect.width);
+            }
+
+            viewRect.height = cachedContentHeight;
             Widgets.BeginScrollView(inRect, ref scrollPosition, viewRect);
             Listing_Standard listing = new Listing_Standard();
             listing.Begin(viewRect);
 
+            DrawAllSettings(listing);
+
+            listing.End();
+            Widgets.EndScrollView();
+            ClampSettings();
+        }
+
+        private void RemeasureContentHeight(float width)
+        {
+            Listing_Standard measure = new Listing_Standard();
+            measure.Begin(new Rect(0f, 0f, width - 16f, 999999f));
+            DrawAllSettings(measure);
+            measure.End();
+            cachedContentHeight = measure.CurHeight + 10f;
+        }
+
+        private void DrawAllSettings(Listing_Standard listing)
+        {
             DrawSettingsIntro(listing);
             DrawPresetControls(listing);
 
@@ -510,9 +535,6 @@ namespace TheMarkedMen
             DrawCheckbox(listing, "Auto-enable the RimJobWorld bridge when detected", ref rjwAutoEnableWhenInstalled, "Automatically turns on the bridge after RimJobWorld is found in the active mod list.");
             DrawCheckbox(listing, "Enable RimJobWorld Marked Virus bridge", ref rjwIntegrationEnabled, "Allows adult RJW close-contact events to transmit Marked Virus and lets valid infected adults use RJW enemy assault jobs.");
             DrawFloat(listing, "RimJobWorld exposure chance", ref rjwExposureChance, 0f, 1f, "rjwExposureChance", "Chance that a valid RJW close-contact event involving one infected pawn exposes the other pawn.");
-            listing.End();
-            Widgets.EndScrollView();
-            ClampSettings();
         }
 
         public static float ApplyRaidPointSettings(float points)
@@ -5002,7 +5024,12 @@ namespace TheMarkedMen
         private static Pawn FindBestNonInfectedPawnTarget(Pawn pawn)
         {
             IReadOnlyList<Pawn> candidates = pawn.Map?.mapPawns?.AllPawnsSpawned;
-            if (candidates == null)
+            if (candidates == null || candidates.Count == 0)
+            {
+                return null;
+            }
+
+            if (!pawn.IsHashIntervalTick(TheMarkedMenSettings.TacticalRetargetIntervalTicks))
             {
                 return null;
             }
@@ -5140,30 +5167,42 @@ namespace TheMarkedMen
 
         private static bool IsIsolatedTarget(Pawn searcher, Pawn target)
         {
-            IReadOnlyList<Pawn> pawns = searcher.Map?.mapPawns?.AllPawnsSpawned;
-            if (pawns == null)
+            Map map = searcher.Map;
+            if (map == null)
             {
                 return false;
             }
 
             const float allyRadiusSquared = 64f;
-            for (int i = 0; i < pawns.Count; i++)
+            int cellRadius = Mathf.CeilToInt(Mathf.Sqrt(allyRadiusSquared));
+            CellRect cells = CellRect.CenteredOn(target.Position, cellRadius);
+            cells.ClipInsideMap(map);
+
+            for (int ci = cells.minZ; ci <= cells.maxZ; ci++)
             {
-                Pawn other = pawns[i];
-                if (other == null || other == target || other.Dead || other.Downed || other.Map != target.Map || CrossedUtility.IsInfectedPawn(other))
+                for (int cj = cells.minX; cj <= cells.maxX; cj++)
                 {
-                    continue;
-                }
+                    IntVec3 cell = new IntVec3(cj, 0, ci);
+                    List<Thing> things = map.thingGrid.ThingsListAt(cell);
+                    for (int t = 0; t < things.Count; t++)
+                    {
+                        Pawn other = things[t] as Pawn;
+                        if (other == null || other == target || other.Dead || other.Downed || CrossedUtility.IsInfectedPawn(other))
+                        {
+                            continue;
+                        }
 
-                if (other.RaceProps == null || !other.RaceProps.Humanlike)
-                {
-                    continue;
-                }
+                        if (other.RaceProps == null || !other.RaceProps.Humanlike)
+                        {
+                            continue;
+                        }
 
-                bool allied = other.Faction == target.Faction || other.HostFaction == target.Faction || target.HostFaction == other.Faction;
-                if (allied && other.Position.DistanceToSquared(target.Position) <= allyRadiusSquared)
-                {
-                    return false;
+                        bool allied = other.Faction == target.Faction || other.HostFaction == target.Faction || target.HostFaction == other.Faction;
+                        if (allied && other.Position.DistanceToSquared(target.Position) <= allyRadiusSquared)
+                        {
+                            return false;
+                        }
+                    }
                 }
             }
 

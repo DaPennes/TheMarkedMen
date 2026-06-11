@@ -21,13 +21,14 @@ namespace TheMarkedMen
             }
 
             Pawn instigatorPawn = dinfo.Instigator as Pawn;
-            TryExposeInstigatorToInfectedBlood(__instance, instigatorPawn);
+            bool victimInfected = CrossedUtility.IsInfectedPawn(__instance);
+            TryExposeInstigatorToInfectedBlood(__instance, instigatorPawn, victimInfected);
             TryExposeVictimToInfectedAssault(__instance, instigatorPawn);
         }
 
-        private static void TryExposeInstigatorToInfectedBlood(Pawn damagedPawn, Pawn instigatorPawn)
+        private static void TryExposeInstigatorToInfectedBlood(Pawn damagedPawn, Pawn instigatorPawn, bool victimInfected)
         {
-            if (!CrossedUtility.IsInfectedPawn(damagedPawn))
+            if (!victimInfected)
             {
                 return;
             }
@@ -87,7 +88,7 @@ namespace TheMarkedMen
     {
         public static void Postfix(Pawn __instance)
         {
-            if (__instance == null)
+            if (__instance == null || !CrossedUtility.IsInfectedPawn(__instance))
             {
                 return;
             }

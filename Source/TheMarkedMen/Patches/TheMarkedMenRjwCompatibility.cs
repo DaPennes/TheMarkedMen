@@ -638,19 +638,39 @@ namespace TheMarkedMen
             return DefaultRjwMaxPartnersPerTarget;
         }
 
+        private static bool? rjwLoadedCache;
+
         public static bool IsRjwLoaded()
         {
+            if (rjwLoadedCache.HasValue)
+            {
+                return rjwLoadedCache.Value;
+            }
+
             if (AccessTools.TypeByName(RjwSexUtilityTypeName) != null)
             {
+                rjwLoadedCache = true;
                 return true;
             }
 
             try
             {
-                return ModsConfig.ActiveModsInLoadOrder.Any(m => string.Equals(m.PackageIdPlayerFacing, RjwPackageId, StringComparison.OrdinalIgnoreCase));
+                bool found = false;
+                foreach (ModMetaData mod in ModsConfig.ActiveModsInLoadOrder)
+                {
+                    if (string.Equals(mod.PackageIdPlayerFacing, RjwPackageId, StringComparison.OrdinalIgnoreCase))
+                    {
+                        found = true;
+                        break;
+                    }
+                }
+
+                rjwLoadedCache = found;
+                return found;
             }
             catch
             {
+                rjwLoadedCache = false;
                 return false;
             }
         }

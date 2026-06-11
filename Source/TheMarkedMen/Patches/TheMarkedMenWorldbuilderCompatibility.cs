@@ -9,6 +9,7 @@ using Verse;
 
 namespace TheMarkedMen
 {
+    [StaticConstructorOnStartup]
     public static class TheMarkedMenWorldbuilderCompatibility
     {
         private const string WorldbuilderCreateWorldParamsPatchTypeName = "Worldbuilder.Page_CreateWorldParams_DoWindowContents_Patch";
