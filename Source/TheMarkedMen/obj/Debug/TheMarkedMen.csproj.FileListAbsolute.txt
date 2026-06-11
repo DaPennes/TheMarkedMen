@@ -1,0 +1,10 @@
+C:\Program Files (x86)\Steam\steamapps\common\RimWorld\Mods\The Marked Men\Assemblies\TheMarkedMen.dll
+C:\Program Files (x86)\Steam\steamapps\common\RimWorld\Mods\The Marked Men\Assemblies\TheMarkedMen.pdb
+C:\Program Files (x86)\Steam\steamapps\common\RimWorld\Mods\The Marked Men\Source\TheMarkedMen\obj\Debug\TheMarkedMen.csproj.AssemblyReference.cache
+C:\Program Files (x86)\Steam\steamapps\common\RimWorld\Mods\The Marked Men\Source\TheMarkedMen\obj\Debug\TheMarkedMen.GeneratedMSBuildEditorConfig.editorconfig
+C:\Program Files (x86)\Steam\steamapps\common\RimWorld\Mods\The Marked Men\Source\TheMarkedMen\obj\Debug\TheMarkedMen.AssemblyInfoInputs.cache
+C:\Program Files (x86)\Steam\steamapps\common\RimWorld\Mods\The Marked Men\Source\TheMarkedMen\obj\Debug\TheMarkedMen.AssemblyInfo.cs
+C:\Program Files (x86)\Steam\steamapps\common\RimWorld\Mods\The Marked Men\Source\TheMarkedMen\obj\Debug\TheMarkedMen.csproj.CoreCompileInputs.cache
+C:\Program Files (x86)\Steam\steamapps\common\RimWorld\Mods\The Marked Men\Source\TheMarkedMen\obj\Debug\TheMarkedMen.sourcelink.json
+C:\Program Files (x86)\Steam\steamapps\common\RimWorld\Mods\The Marked Men\Source\TheMarkedMen\obj\Debug\TheMarkedMen.dll
+C:\Program Files (x86)\Steam\steamapps\common\RimWorld\Mods\The Marked Men\Source\TheMarkedMen\obj\Debug\TheMarkedMen.pdb
