@@ -1095,6 +1095,7 @@ namespace TheMarkedMen
         private static IncidentDef crossedHorde;
         private static IncidentDef crossedProbe;
         private static XenotypeDef markedOne;
+        private static XenotypeDef markedOneSpitter;
         private static StatDef markedVirusResistance;
 
         public static HediffDef CrossVirus => crossVirus ?? (crossVirus = DefDatabase<HediffDef>.GetNamedSilentFail("CA_CrossVirus"));
@@ -1133,6 +1134,7 @@ namespace TheMarkedMen
         public static IncidentDef CrossedHorde => crossedHorde ?? (crossedHorde = DefDatabase<IncidentDef>.GetNamedSilentFail("CA_CrossedHorde"));
         public static IncidentDef CrossedProbe => crossedProbe ?? (crossedProbe = DefDatabase<IncidentDef>.GetNamedSilentFail("CA_CrossedProbe"));
         public static XenotypeDef MarkedOne => markedOne ?? (markedOne = DefDatabase<XenotypeDef>.GetNamedSilentFail("CA_MarkedOne"));
+        public static XenotypeDef MarkedOneSpitter => markedOneSpitter ?? (markedOneSpitter = DefDatabase<XenotypeDef>.GetNamedSilentFail("CA_MarkedOneSpitter"));
         public static StatDef MarkedVirusResistance => markedVirusResistance ?? (markedVirusResistance = DefDatabase<StatDef>.GetNamedSilentFail("CA_MarkedVirusResistance"));
 
         public static bool IsCrossedFaceTattoo(TattooDef tattoo)
@@ -4492,9 +4494,16 @@ namespace TheMarkedMen
                 pawn.health.AddHediff(CADefOf.ChargeBuff);
             }
 
-            if (ModsConfig.BiotechActive && pawn.genes != null && IsCrossedFactionPawn(pawn) && CADefOf.MarkedOne != null)
+            if (ModsConfig.BiotechActive && pawn.genes != null && IsCrossedFactionPawn(pawn))
             {
-                pawn.genes.SetXenotypeDirect(CADefOf.MarkedOne);
+                if (pawn.kindDef == CADefOf.Spitter && CADefOf.MarkedOneSpitter != null)
+                {
+                    pawn.genes.SetXenotypeDirect(CADefOf.MarkedOneSpitter);
+                }
+                else if (CADefOf.MarkedOne != null)
+                {
+                    pawn.genes.SetXenotypeDirect(CADefOf.MarkedOne);
+                }
             }
 
             RemoveDeprecatedCrossedRashHediff(pawn);
