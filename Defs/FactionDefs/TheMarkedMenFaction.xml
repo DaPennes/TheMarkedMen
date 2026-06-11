@@ -127,47 +127,47 @@
     <pawnGroupMakers>
       <li>
         <kindDef>Combat</kindDef>
-        <commonality>100</commonality>
+        <commonality>140</commonality>
         <options>
-          <CA_CrossedBerserker>12</CA_CrossedBerserker>
-          <CA_CrossedHunter>8.5</CA_CrossedHunter>
-          <CA_CrossedStalker>4</CA_CrossedStalker>
-          <CA_CrossedScreamer>3</CA_CrossedScreamer>
-          <CA_CrossedCharger>3</CA_CrossedCharger>
-          <CA_CrossedSpitter>2.5</CA_CrossedSpitter>
-          <CA_CrossedBomber>2</CA_CrossedBomber>
-          <CA_CrossedBrute>2.25</CA_CrossedBrute>
-          <CA_CrossedAlpha>0.35</CA_CrossedAlpha>
-          <CA_CrossedAlphaPsychic>0.15</CA_CrossedAlphaPsychic>
-        </options>
-      </li>
-      <li>
-        <kindDef>Combat</kindDef>
-        <commonality>35</commonality>
-        <options>
-          <CA_CrossedHunter>10</CA_CrossedHunter>
+          <CA_CrossedBerserker>18</CA_CrossedBerserker>
+          <CA_CrossedHunter>12</CA_CrossedHunter>
           <CA_CrossedStalker>8</CA_CrossedStalker>
-          <CA_CrossedScreamer>3</CA_CrossedScreamer>
-          <CA_CrossedCharger>3</CA_CrossedCharger>
-          <CA_CrossedSpitter>2.5</CA_CrossedSpitter>
-          <CA_CrossedBomber>2</CA_CrossedBomber>
-          <CA_CrossedBerserker>6</CA_CrossedBerserker>
-          <CA_CrossedAlpha>0.55</CA_CrossedAlpha>
-          <CA_CrossedAlphaPsychic>0.2</CA_CrossedAlphaPsychic>
+          <CA_CrossedScreamer>6</CA_CrossedScreamer>
+          <CA_CrossedCharger>6</CA_CrossedCharger>
+          <CA_CrossedSpitter>5</CA_CrossedSpitter>
+          <CA_CrossedBomber>4</CA_CrossedBomber>
+          <CA_CrossedBrute>4</CA_CrossedBrute>
+          <CA_CrossedAlpha>0.6</CA_CrossedAlpha>
+          <CA_CrossedAlphaPsychic>0.35</CA_CrossedAlphaPsychic>
         </options>
       </li>
       <li>
         <kindDef>Combat</kindDef>
-        <commonality>20</commonality>
+        <commonality>50</commonality>
         <options>
-          <CA_CrossedBrute>8</CA_CrossedBrute>
-          <CA_CrossedBerserker>12</CA_CrossedBerserker>
-          <CA_CrossedScreamer>4</CA_CrossedScreamer>
-          <CA_CrossedCharger>4</CA_CrossedCharger>
-          <CA_CrossedBomber>3</CA_CrossedBomber>
-          <CA_CrossedHunter>3</CA_CrossedHunter>
-          <CA_CrossedAlpha>0.75</CA_CrossedAlpha>
-          <CA_CrossedAlphaPsychic>0.3</CA_CrossedAlphaPsychic>
+          <CA_CrossedHunter>14</CA_CrossedHunter>
+          <CA_CrossedStalker>12</CA_CrossedStalker>
+          <CA_CrossedScreamer>6</CA_CrossedScreamer>
+          <CA_CrossedCharger>6</CA_CrossedCharger>
+          <CA_CrossedSpitter>5</CA_CrossedSpitter>
+          <CA_CrossedBomber>4</CA_CrossedBomber>
+          <CA_CrossedBerserker>10</CA_CrossedBerserker>
+          <CA_CrossedAlpha>0.8</CA_CrossedAlpha>
+          <CA_CrossedAlphaPsychic>0.4</CA_CrossedAlphaPsychic>
+        </options>
+      </li>
+      <li>
+        <kindDef>Combat</kindDef>
+        <commonality>30</commonality>
+        <options>
+          <CA_CrossedBrute>12</CA_CrossedBrute>
+          <CA_CrossedBerserker>18</CA_CrossedBerserker>
+          <CA_CrossedScreamer>8</CA_CrossedScreamer>
+          <CA_CrossedCharger>8</CA_CrossedCharger>
+          <CA_CrossedBomber>6</CA_CrossedBomber>
+          <CA_CrossedHunter>6</CA_CrossedHunter>
+          <CA_CrossedAlpha>1.25</CA_CrossedAlpha>
+          <CA_CrossedAlphaPsychic>0.6</CA_CrossedAlphaPsychic>
         </options>
       </li>
       <li>

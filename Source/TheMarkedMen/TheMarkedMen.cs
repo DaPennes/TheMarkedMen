@@ -1065,12 +1065,16 @@ namespace TheMarkedMen
         private static HediffDef bloodRush;
         private static HediffDef commandAura;
         private static HediffDef panic;
+        private static HediffDef bomberCharge;
+        private static HediffDef spitterGlands;
+        private static HediffDef psychicAura;
         private static ThoughtDef crossedSocialTerror;
         private static FactionDef crossedFaction;
         private static InteractionDef crossedPredatoryTaunt;
         private static InteractionDef crossedFalseMercy;
         private static InteractionDef crossedPackLaughter;
         private static InteractionDef crossedInfectionGloat;
+        private static HediffDef chargeBuff;
         private static PawnKindDef berserker;
         private static PawnKindDef hunter;
         private static PawnKindDef brute;
@@ -1078,6 +1082,10 @@ namespace TheMarkedMen
         private static PawnKindDef screamer;
         private static PawnKindDef alpha;
         private static PawnKindDef child;
+        private static PawnKindDef charger;
+        private static PawnKindDef bomber;
+        private static PawnKindDef spitter;
+        private static PawnKindDef alphaPsychic;
         private static TattooDef crossedFaceTattoo;
         private static TattooDef crossedFaceTattooStage1;
         private static TattooDef crossedFaceTattooStage2;
@@ -1086,6 +1094,7 @@ namespace TheMarkedMen
         private static IncidentDef crossedRaid;
         private static IncidentDef crossedHorde;
         private static IncidentDef crossedProbe;
+        private static XenotypeDef markedOneSpitter;
         private static StatDef markedVirusResistance;
 
         public static HediffDef CrossVirus => crossVirus ?? (crossVirus = DefDatabase<HediffDef>.GetNamedSilentFail("CA_CrossVirus"));
@@ -1094,6 +1103,10 @@ namespace TheMarkedMen
         public static HediffDef BloodRush => bloodRush ?? (bloodRush = DefDatabase<HediffDef>.GetNamedSilentFail("CA_BloodRush"));
         public static HediffDef CommandAura => commandAura ?? (commandAura = DefDatabase<HediffDef>.GetNamedSilentFail("CA_CommandAura"));
         public static HediffDef Panic => panic ?? (panic = DefDatabase<HediffDef>.GetNamedSilentFail("CA_CrossedPanic"));
+        public static HediffDef BomberCharge => bomberCharge ?? (bomberCharge = DefDatabase<HediffDef>.GetNamedSilentFail("CA_BomberCharge"));
+        public static HediffDef SpitterGlands => spitterGlands ?? (spitterGlands = DefDatabase<HediffDef>.GetNamedSilentFail("CA_SpitterGlands"));
+        public static HediffDef PsychicAura => psychicAura ?? (psychicAura = DefDatabase<HediffDef>.GetNamedSilentFail("CA_PsychicAura"));
+        public static HediffDef ChargeBuff => chargeBuff ?? (chargeBuff = DefDatabase<HediffDef>.GetNamedSilentFail("CA_ChargeBuff"));
         public static ThoughtDef CrossedSocialTerror => crossedSocialTerror ?? (crossedSocialTerror = DefDatabase<ThoughtDef>.GetNamedSilentFail("CA_CrossedSocialTerror"));
         public static FactionDef CrossedFaction => crossedFaction ?? (crossedFaction = DefDatabase<FactionDef>.GetNamedSilentFail("CA_CrossedFaction"));
         public static InteractionDef CrossedPredatoryTaunt => crossedPredatoryTaunt ?? (crossedPredatoryTaunt = DefDatabase<InteractionDef>.GetNamedSilentFail("CA_CrossedPredatoryTaunt"));
@@ -1107,6 +1120,10 @@ namespace TheMarkedMen
         public static PawnKindDef Screamer => screamer ?? (screamer = DefDatabase<PawnKindDef>.GetNamedSilentFail("CA_CrossedScreamer"));
         public static PawnKindDef Alpha => alpha ?? (alpha = DefDatabase<PawnKindDef>.GetNamedSilentFail("CA_CrossedAlpha"));
         public static PawnKindDef Child => child ?? (child = DefDatabase<PawnKindDef>.GetNamedSilentFail("CA_CrossedChild"));
+        public static PawnKindDef Bomber => bomber ?? (bomber = DefDatabase<PawnKindDef>.GetNamedSilentFail("CA_CrossedBomber"));
+        public static PawnKindDef Charger => charger ?? (charger = DefDatabase<PawnKindDef>.GetNamedSilentFail("CA_CrossedCharger"));
+        public static PawnKindDef Spitter => spitter ?? (spitter = DefDatabase<PawnKindDef>.GetNamedSilentFail("CA_CrossedSpitter"));
+        public static PawnKindDef AlphaPsychic => alphaPsychic ?? (alphaPsychic = DefDatabase<PawnKindDef>.GetNamedSilentFail("CA_CrossedAlphaPsychic"));
         public static TattooDef CrossedFaceTattoo => crossedFaceTattoo ?? (crossedFaceTattoo = DefDatabase<TattooDef>.GetNamedSilentFail("CA_Face_CrossedRash"));
         public static TattooDef CrossedFaceTattooStage1 => crossedFaceTattooStage1 ?? (crossedFaceTattooStage1 = DefDatabase<TattooDef>.GetNamedSilentFail("CA_Face_CrossedRashStage1"));
         public static TattooDef CrossedFaceTattooStage2 => crossedFaceTattooStage2 ?? (crossedFaceTattooStage2 = DefDatabase<TattooDef>.GetNamedSilentFail("CA_Face_CrossedRashStage2"));
@@ -1115,6 +1132,7 @@ namespace TheMarkedMen
         public static IncidentDef CrossedRaid => crossedRaid ?? (crossedRaid = DefDatabase<IncidentDef>.GetNamedSilentFail("CA_CrossedRaid"));
         public static IncidentDef CrossedHorde => crossedHorde ?? (crossedHorde = DefDatabase<IncidentDef>.GetNamedSilentFail("CA_CrossedHorde"));
         public static IncidentDef CrossedProbe => crossedProbe ?? (crossedProbe = DefDatabase<IncidentDef>.GetNamedSilentFail("CA_CrossedProbe"));
+        public static XenotypeDef MarkedOneSpitter => markedOneSpitter ?? (markedOneSpitter = DefDatabase<XenotypeDef>.GetNamedSilentFail("CA_MarkedOne_Spitter"));
         public static StatDef MarkedVirusResistance => markedVirusResistance ?? (markedVirusResistance = DefDatabase<StatDef>.GetNamedSilentFail("CA_MarkedVirusResistance"));
 
         public static bool IsCrossedFaceTattoo(TattooDef tattoo)
@@ -4440,6 +4458,9 @@ namespace TheMarkedMen
         {
             RemoveHediffIfPresent(pawn, CADefOf.BloodRush);
             RemoveHediffIfPresent(pawn, CADefOf.CommandAura);
+            RemoveHediffIfPresent(pawn, CADefOf.BomberCharge);
+            RemoveHediffIfPresent(pawn, CADefOf.SpitterGlands);
+            RemoveHediffIfPresent(pawn, CADefOf.PsychicAura);
         }
 
         private static void RemoveHediffIfPresent(Pawn pawn, HediffDef def)
@@ -4456,6 +4477,32 @@ namespace TheMarkedMen
             if (pawn == null || pawn.health == null)
             {
                 return;
+            }
+
+            if (pawn.kindDef == CADefOf.Bomber && CADefOf.BomberCharge != null && !pawn.health.hediffSet.HasHediff(CADefOf.BomberCharge))
+            {
+                pawn.health.AddHediff(CADefOf.BomberCharge);
+            }
+            else if (pawn.kindDef == CADefOf.Spitter && CADefOf.SpitterGlands != null && !pawn.health.hediffSet.HasHediff(CADefOf.SpitterGlands))
+            {
+                pawn.health.AddHediff(CADefOf.SpitterGlands);
+            }
+            else if (pawn.kindDef == CADefOf.Charger && CADefOf.ChargeBuff != null && !pawn.health.hediffSet.HasHediff(CADefOf.ChargeBuff))
+            {
+                pawn.health.AddHediff(CADefOf.ChargeBuff);
+            }
+
+            if (pawn.kindDef == CADefOf.Spitter && ModsConfig.BiotechActive && pawn.genes != null)
+            {
+                if (CADefOf.MarkedOneSpitter != null)
+                {
+                    pawn.genes.SetXenotypeDirect(CADefOf.MarkedOneSpitter);
+                }
+                GeneDef acidSpray = DefDatabase<GeneDef>.GetNamedSilentFail("AcidSpray");
+                if (acidSpray != null && !pawn.genes.HasActiveGene(acidSpray))
+                {
+                    pawn.genes.AddGene(acidSpray, true);
+                }
             }
 
             RemoveDeprecatedCrossedRashHediff(pawn);
@@ -4485,8 +4532,71 @@ namespace TheMarkedMen
                 pawn.health.AddHediff(CADefOf.CommandAura);
             }
 
+            if (pawn.kindDef == CADefOf.AlphaPsychic)
+            {
+                if (CADefOf.PsychicAura != null && !pawn.health.hediffSet.HasHediff(CADefOf.PsychicAura))
+                {
+                    pawn.health.AddHediff(CADefOf.PsychicAura);
+                }
+
+                if (pawn.equipment?.Primary != null)
+                {
+                    pawn.equipment.DestroyEquipment(pawn.equipment.Primary);
+                }
+
+                if (ModsConfig.RoyaltyActive)
+                {
+                    HediffDef psylinkDef = DefDatabase<HediffDef>.GetNamedSilentFail("PsychicAmplifier");
+                    if (psylinkDef != null)
+                    {
+                        Hediff existing = pawn.health.hediffSet.GetFirstHediffOfDef(psylinkDef);
+                        if (existing == null)
+                        {
+                            BodyPartRecord brain = pawn.health.hediffSet.GetBrain();
+                            pawn.health.AddHediff(psylinkDef, brain, null, null);
+                        }
+                    }
+
+                    GrantPsycastAbility(pawn, "Psycast_Berserk");
+                    GrantPsycastAbility(pawn, "Psycast_PsychicShock");
+                    GrantPsycastAbility(pawn, "Psycast_Stun");
+                }
+
+                AbilityDef vpeShock = DefDatabase<AbilityDef>.GetNamedSilentFail("VPE_PsychicShock");
+                if (vpeShock != null)
+                {
+                    GrantPsycastAbility(pawn, "VPE_PsychicShock");
+                    GrantPsycastAbility(pawn, "VPE_Berserk");
+                    GrantPsycastAbility(pawn, "VPE_Stun");
+                }
+            }
+
             ApplyInfectedTattoo(pawn);
             EnsureCrossedBasicClothingOnly(pawn);
+        }
+
+        private static void GrantPsycastAbility(Pawn pawn, string abilityDefName)
+        {
+            AbilityDef abilityDef = DefDatabase<AbilityDef>.GetNamedSilentFail(abilityDefName);
+            if (abilityDef == null)
+            {
+                return;
+            }
+
+            if (pawn.abilities == null)
+            {
+                return;
+            }
+
+            foreach (Ability ability in pawn.abilities.AllAbilitiesForReading)
+            {
+                if (ability.def == abilityDef)
+                {
+                    return;
+                }
+            }
+
+            pawn.abilities.GainAbility(abilityDef);
         }
 
         public static void RemoveMarkedVirusHediffFromFullyTurnedPawn(Pawn pawn)
@@ -5079,11 +5189,18 @@ namespace TheMarkedMen
             Map map = pawn.Map;
             Thing best = null;
             float bestScore = 0f;
+            IntVec3 pos = pawn.Position;
+            float maxDistSq = MaxTacticalTargetDistanceSquared;
 
             IReadOnlyList<Pawn> vulnerablePawns = map.mapPawns.AllPawnsSpawned;
             for (int i = 0; i < vulnerablePawns.Count; i++)
             {
                 Pawn candidate = vulnerablePawns[i];
+                if (!candidate.Spawned || candidate.Position.DistanceToSquared(pos) > maxDistSq)
+                {
+                    continue;
+                }
+
                 float score = ScorePawnTarget(pawn, candidate);
                 if (score > bestScore)
                 {
@@ -5096,6 +5213,11 @@ namespace TheMarkedMen
             for (int i = 0; i < buildings.Count; i++)
             {
                 Building candidate = buildings[i];
+                if (!candidate.Spawned || candidate.Position.DistanceToSquared(pos) > maxDistSq)
+                {
+                    continue;
+                }
+
                 float score = ScoreBuildingTarget(pawn, candidate);
                 if (score > bestScore)
                 {
@@ -5394,27 +5516,44 @@ namespace TheMarkedMen
                 return;
             }
 
-            IReadOnlyList<Pawn> pawns = source.Map.mapPawns?.AllPawnsSpawned;
-            if (pawns == null)
-            {
-                return;
-            }
-
+            Map map = source.Map;
+            IntVec3 sourcePos = source.Position;
+            float radiusSq = ContagionRadiusSquared;
+            int radInt = Mathf.CeilToInt(ContagionRadius);
+            CellRect rect = CellRect.CenteredOn(sourcePos, radInt);
             int exposedTargets = 0;
-            for (int i = 0; i < pawns.Count; i++)
-            {
-                Pawn target = pawns[i];
-                if (!CanContagionReach(source, target))
-                {
-                    continue;
-                }
 
-                if (CrossedUtility.TryExpose(target, TheMarkedMenSettings.CloseContactExposureChance, "contagious Marked Virus contact", source))
+            for (int z = rect.minZ; z <= rect.maxZ; z++)
+            {
+                for (int x = rect.minX; x <= rect.maxX; x++)
                 {
-                    exposedTargets++;
-                    if (exposedTargets >= maxTargets)
+                    IntVec3 cell = new IntVec3(x, 0, z);
+                    float dx = cell.x - sourcePos.x;
+                    float dz = cell.z - sourcePos.z;
+                    if (dx * dx + dz * dz > radiusSq)
                     {
-                        return;
+                        continue;
+                    }
+
+                    if (!cell.InBounds(map))
+                    {
+                        continue;
+                    }
+
+                    List<Thing> things = map.thingGrid.ThingsListAt(cell);
+                    for (int t = 0; t < things.Count; t++)
+                    {
+                        if (things[t] is Pawn target && CanContagionReach(source, target))
+                        {
+                            if (CrossedUtility.TryExpose(target, TheMarkedMenSettings.CloseContactExposureChance, "contagious Marked Virus contact", source))
+                            {
+                                exposedTargets++;
+                                if (exposedTargets >= maxTargets)
+                                {
+                                    return;
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -5536,16 +5675,17 @@ namespace TheMarkedMen
             }
 
             List<Thing> corpses = map.listerThings.ThingsInGroup(ThingRequestGroup.Corpse);
-            IReadOnlyList<Pawn> pawns = map.mapPawns.AllPawnsSpawned;
-            if (corpses == null || corpses.Count == 0 || pawns == null || pawns.Count == 0)
+            if (corpses == null || corpses.Count == 0)
             {
                 return;
             }
 
-            HashSet<Pawn> observedTargets = new HashSet<Pawn>();
             int currentTick = Find.TickManager?.TicksGame ?? 0;
             int observedTicks = Mathf.Min(TheMarkedMenSettings.CorpseContaminationIntervalTicks, CorpseLingeringMaxObservedTicksPerPulse);
             int exposedTargets = 0;
+            float radiusSq = CorpseLingeringExposureRadiusSquared;
+            int radInt = Mathf.CeilToInt(CorpseLingeringExposureRadius);
+
             for (int corpseIndex = 0; corpseIndex < corpses.Count; corpseIndex++)
             {
                 Corpse corpse = corpses[corpseIndex] as Corpse;
@@ -5554,26 +5694,46 @@ namespace TheMarkedMen
                     continue;
                 }
 
-                for (int pawnIndex = 0; pawnIndex < pawns.Count; pawnIndex++)
+                IntVec3 corpsePos = corpse.Position;
+                CellRect rect = CellRect.CenteredOn(corpsePos, radInt);
+
+                for (int z = rect.minZ; z <= rect.maxZ; z++)
                 {
-                    Pawn target = pawns[pawnIndex];
-                    if (!CanCorpseExposePawn(corpse, target))
+                    for (int x = rect.minX; x <= rect.maxX; x++)
                     {
-                        continue;
-                    }
-
-                    if (!observedTargets.Add(target) || !component.NoteCorpseLingering(target, currentTick, observedTicks))
-                    {
-                        continue;
-                    }
-
-                    component.ResetCorpseLingering(target);
-                    if (CrossedUtility.TryExpose(target, CorpseLingeringExposureChance, "lingering near infected corpse", corpse.InnerPawn))
-                    {
-                        exposedTargets++;
-                        if (exposedTargets >= maxTargets)
+                        IntVec3 cell = new IntVec3(x, 0, z);
+                        float dx = cell.x - corpsePos.x;
+                        float dz = cell.z - corpsePos.z;
+                        if (dx * dx + dz * dz > radiusSq)
                         {
-                            return;
+                            continue;
+                        }
+
+                        if (!cell.InBounds(map))
+                        {
+                            continue;
+                        }
+
+                        List<Thing> things = map.thingGrid.ThingsListAt(cell);
+                        for (int t = 0; t < things.Count; t++)
+                        {
+                            if (things[t] is Pawn target && CanCorpseExposePawn(corpse, target))
+                            {
+                                if (!component.NoteCorpseLingering(target, currentTick, observedTicks))
+                                {
+                                    continue;
+                                }
+
+                                component.ResetCorpseLingering(target);
+                                if (CrossedUtility.TryExpose(target, CorpseLingeringExposureChance, "lingering near infected corpse", corpse.InnerPawn))
+                                {
+                                    exposedTargets++;
+                                    if (exposedTargets >= maxTargets)
+                                    {
+                                        return;
+                                    }
+                                }
+                            }
                         }
                     }
                 }
@@ -6949,18 +7109,36 @@ namespace TheMarkedMen
             if (map == null) return;
 
             float radius = Props.radius;
-            foreach (Pawn other in map.mapPawns.AllPawnsSpawned)
-            {
-                if (other == pawn || other.Dead || !other.RaceProps.Humanlike) continue;
-                float distance = pawn.Position.DistanceTo(other.Position);
-                if (distance > radius) continue;
+            float radiusSq = radius * radius;
+            int radInt = Mathf.CeilToInt(radius);
+            IntVec3 pos = pawn.Position;
+            CellRect rect = CellRect.CenteredOn(pos, radInt);
 
-                if (CrossedUtility.IsInfectedPawn(other))
+            for (int z = rect.minZ; z <= rect.maxZ; z++)
+            {
+                for (int x = rect.minX; x <= rect.maxX; x++)
                 {
-                    Hediff hediff = other.health?.hediffSet?.GetFirstHediffOfDef(CADefOf.CrossVirus);
-                    if (hediff != null)
+                    IntVec3 cell = new IntVec3(x, 0, z);
+                    if (!cell.InBounds(map)) continue;
+
+                    float dx = cell.x - pos.x;
+                    float dz = cell.z - pos.z;
+                    if (dx * dx + dz * dz > radiusSq)
                     {
-                        hediff.Severity = Mathf.Min(hediff.Severity + 0.01f, 1f);
+                        continue;
+                    }
+
+                    List<Thing> things = map.thingGrid.ThingsListAt(cell);
+                    for (int i = 0; i < things.Count; i++)
+                    {
+                        if (things[i] is Pawn other && other != pawn && !other.Dead && other.RaceProps.Humanlike && CrossedUtility.IsInfectedPawn(other))
+                        {
+                            Hediff hediff = other.health?.hediffSet?.GetFirstHediffOfDef(CADefOf.CrossVirus);
+                            if (hediff != null)
+                            {
+                                hediff.Severity = Mathf.Min(hediff.Severity + 0.01f, 1f);
+                            }
+                        }
                     }
                 }
             }
@@ -6972,7 +7150,8 @@ namespace TheMarkedMen
         public float radius = 2.5f;
         public float damageAmount = 25f;
         public float armorPenetration = 20f;
-        public float chanceToStartFire = 0.5f;
+        public float infectionRadius = 0f;
+        public bool detonateOnDowned = false;
 
         public HediffCompProperties_DeathExplosion()
         {
@@ -6983,20 +7162,66 @@ namespace TheMarkedMen
     public sealed class HediffComp_DeathExplosion : HediffComp
     {
         private HediffCompProperties_DeathExplosion Props => (HediffCompProperties_DeathExplosion)props;
+        private bool detonated;
 
         public override void Notify_PawnDied(DamageInfo? dinfo, Hediff culprit)
         {
+            NotifyKilled();
+        }
+
+        public void NotifyKilled()
+        {
+            if (detonated) return;
+            detonated = true;
+            Detonate();
+        }
+
+        public void NotifyDowned()
+        {
+            if (detonated) return;
+            if (!Props.detonateOnDowned) return;
+            detonated = true;
+            Detonate();
+        }
+
+        public void Detonate()
+        {
             Pawn pawn = parent.pawn;
-            if (pawn == null || !pawn.Spawned) return;
+            if (pawn == null || pawn.Map == null) return;
+
+            Map map = pawn.Map;
+            IntVec3 pos = pawn.Position;
+            float radius = Props.radius;
 
             GenExplosion.DoExplosion(
-                pawn.Position,
-                pawn.Map,
-                Props.radius,
-                DamageDefOf.Bomb,
-                pawn,
-                Mathf.RoundToInt(Props.damageAmount),
-                Props.armorPenetration);
+                pos, map, radius,
+                DamageDefOf.Bomb, pawn,
+                Mathf.RoundToInt(Props.damageAmount), Props.armorPenetration,
+                chanceToStartFire: 0f);
+
+            float infectRadius = Props.infectionRadius;
+            if (infectRadius <= 0f) return;
+
+            float infectRadiusSq = infectRadius * infectRadius;
+            IReadOnlyList<Pawn> allPawns = map.mapPawns.AllPawnsSpawned;
+            for (int i = 0; i < allPawns.Count; i++)
+            {
+                Pawn target = allPawns[i];
+                if (target == pawn || target.Dead || !target.Spawned || target.RaceProps == null || !target.RaceProps.Humanlike)
+                {
+                    continue;
+                }
+
+                if (CrossedUtility.IsInfectedPawn(target) || CrossedUtility.IsFullyProtectedFromCrossVirusExposure(target))
+                {
+                    continue;
+                }
+
+                if (target.Position.DistanceToSquared(pos) <= infectRadiusSq)
+                {
+                    CrossedUtility.TryExpose(target, 1f, "infected explosion", pawn);
+                }
+            }
         }
     }
 

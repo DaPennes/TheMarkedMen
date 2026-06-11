@@ -144,9 +144,9 @@
     <labelPlural>Marked Men spitters</labelPlural>
     <combatPower>250</combatPower>
     <apparelMoney>100~220</apparelMoney>
-    <weaponMoney>140~280</weaponMoney>
+    <weaponMoney>60~120</weaponMoney>
     <weaponTags>
-      <li>Gun</li>
+      <li>NeolithicMeleeBasic</li>
     </weaponTags>
   </PawnKindDef>
 
@@ -169,11 +169,7 @@
     <combatPower>1000</combatPower>
     <maxGenerationAge>65</maxGenerationAge>
     <apparelMoney>250~500</apparelMoney>
-    <weaponMoney>600~1500</weaponMoney>
-    <weaponTags>
-      <li>IndustrialGunAdvanced</li>
-      <li>SpacerGun</li>
-    </weaponTags>
+    <weaponMoney>0</weaponMoney>
     <combatEnhancingDrugsChance>0.5</combatEnhancingDrugsChance>
     <combatEnhancingDrugsCount>1~2</combatEnhancingDrugsCount>
     <techHediffsChance>0.3</techHediffsChance>

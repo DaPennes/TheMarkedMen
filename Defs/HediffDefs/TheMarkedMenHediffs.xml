@@ -247,6 +247,35 @@
   </HediffDef>
 
   <HediffDef>
+    <defName>CA_ChargeBuff</defName>
+    <label>charging rush</label>
+    <description>The infected charger's system floods with combat stimulants, driving a relentless charge into enemy lines.</description>
+    <hediffClass>HediffWithComps</hediffClass>
+    <isBad>false</isBad>
+    <tendable>false</tendable>
+    <scenarioCanAdd>false</scenarioCanAdd>
+    <stages>
+      <li>
+        <label>charging</label>
+        <painFactor>0</painFactor>
+        <blocksMentalBreaks>true</blocksMentalBreaks>
+        <statFactors>
+          <MoveSpeed>1.40</MoveSpeed>
+          <MeleeCooldownFactor>0.65</MeleeCooldownFactor>
+          <IncomingDamageFactor>0.85</IncomingDamageFactor>
+          <StaggerDurationFactor>0.20</StaggerDurationFactor>
+        </statFactors>
+        <statOffsets>
+          <MeleeHitChance>5</MeleeHitChance>
+          <MeleeDodgeChance>3</MeleeDodgeChance>
+          <PainShockThreshold>0.50</PainShockThreshold>
+          <MentalBreakThreshold>-0.35</MentalBreakThreshold>
+        </statOffsets>
+      </li>
+    </stages>
+  </HediffDef>
+
+  <HediffDef>
     <defName>CA_BomberCharge</defName>
     <label>volatile charge</label>
     <description>The bomber's system is primed with unstable compounds. On death, the payload detonates.</description>
@@ -271,7 +300,8 @@
         <radius>2.5</radius>
         <damageAmount>25</damageAmount>
         <armorPenetration>20</armorPenetration>
-        <chanceToStartFire>0.5</chanceToStartFire>
+        <infectionRadius>2.5</infectionRadius>
+        <detonateOnDowned>true</detonateOnDowned>
       </li>
     </comps>
   </HediffDef>
@@ -282,6 +312,14 @@
     <description>This spitter's system produces corrosive compounds that seep into wounds, transmitting the Marked Virus.</description>
     <hediffClass>HediffWithComps</hediffClass>
     <isBad>false</isBad>
+    <comps>
+      <li Class="TheMarkedMen.HediffCompProperties_DeathExplosion">
+        <radius>1.5</radius>
+        <damageAmount>12</damageAmount>
+        <armorPenetration>15</armorPenetration>
+        <infectionRadius>1.5</infectionRadius>
+      </li>
+    </comps>
   </HediffDef>
 
   <HediffDef>

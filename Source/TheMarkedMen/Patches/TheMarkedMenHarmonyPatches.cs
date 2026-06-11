@@ -76,6 +76,24 @@ namespace TheMarkedMen
     [HarmonyPatch(typeof(Pawn), nameof(Pawn.Kill))]
     public static class Patch_InfectedDeathReanimation
     {
+        public static void Prefix(Pawn __instance)
+        {
+            if (__instance == null) return;
+
+            Hediff charge = __instance.health?.hediffSet?.GetFirstHediffOfDef(CADefOf.BomberCharge);
+            if (charge is HediffWithComps hwc)
+            {
+                for (int i = 0; i < hwc.comps.Count; i++)
+                {
+                    if (hwc.comps[i] is HediffComp_DeathExplosion comp)
+                    {
+                        comp.NotifyKilled();
+                        break;
+                    }
+                }
+            }
+        }
+
         public static void Postfix(Pawn __instance)
         {
             CrossedUtility.ApplyInfectedTattoo(__instance);
@@ -250,7 +268,30 @@ namespace TheMarkedMen
     {
         public static void Postfix(Pawn __instance)
         {
+            CrossedUtility.ApplyClassHediffs(__instance);
             CrossedUtility.ApplyInfectedTattooIfInfected(__instance);
+        }
+    }
+
+    [HarmonyPatch(typeof(Pawn), nameof(Pawn.TickRare))]
+    public static class Patch_BomberDownedDetonation
+    {
+        public static void Postfix(Pawn __instance)
+        {
+            if (__instance == null || __instance.Dead || !__instance.Downed) return;
+
+            Hediff charge = __instance.health?.hediffSet?.GetFirstHediffOfDef(CADefOf.BomberCharge);
+            if (charge is HediffWithComps hwc)
+            {
+                for (int i = 0; i < hwc.comps.Count; i++)
+                {
+                    if (hwc.comps[i] is HediffComp_DeathExplosion comp)
+                    {
+                        comp.NotifyDowned();
+                        return;
+                    }
+                }
+            }
         }
     }
 
