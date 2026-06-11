@@ -46,7 +46,7 @@
     <stages>
       <li>
         <label>hunted by Marked Men</label>
-        <description>A Marked Men infected spoke with human intent and made it clear there would be no bargaining, no mercy, and no safe place to hide.</description>
+        <description>A Marked Man spoke with human intent and made it clear there would be no bargaining, no mercy, and no safe place to hide.</description>
         <baseMoodEffect>-10</baseMoodEffect>
       </li>
     </stages>

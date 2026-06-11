@@ -87,15 +87,15 @@
       </li>
       <li>
         <minSeverity>0.95</minSeverity>
-        <label>irreversible marking</label>
+        <label>irreversible mark</label>
         <painFactor>0</painFactor>
         <blocksMentalBreaks>true</blocksMentalBreaks>
         <blocksInspirations>true</blocksInspirations>
         <pctAllThoughtNullification>1</pctAllThoughtNullification>
         <statFactors>
-          <MoveSpeed>1.32</MoveSpeed>
-          <MeleeCooldownFactor>0.58</MeleeCooldownFactor>
-          <IncomingDamageFactor>0.75</IncomingDamageFactor>
+          <MoveSpeed>1.38</MoveSpeed>
+          <MeleeCooldownFactor>0.52</MeleeCooldownFactor>
+          <IncomingDamageFactor>0.70</IncomingDamageFactor>
           <PsychicSensitivity>0.25</PsychicSensitivity>
           <StaggerDurationFactor>0.35</StaggerDurationFactor>
         </statFactors>
@@ -103,7 +103,7 @@
           <MentalBreakThreshold>-0.50</MentalBreakThreshold>
           <PainShockThreshold>0.65</PainShockThreshold>
           <MeleeHitChance>5</MeleeHitChance>
-          <MeleeDodgeChance>3</MeleeDodgeChance>
+          <MeleeDodgeChance>5</MeleeDodgeChance>
           <ShootingAccuracyPawn>2</ShootingAccuracyPawn>
           <AimingDelayFactor>-0.18</AimingDelayFactor>
         </statOffsets>
@@ -131,7 +131,7 @@
   <HediffDef>
     <defName>CA_CrossedRash</defName>
     <label>marked rash</label>
-    <description>Deprecated compatibility marker from older saves. Marked Men pawns now use the marked face tattoo instead of hediff render overlays.</description>
+    <description>A visible red cross-shaped rash that spreads across the face and neck of Marked Virus carriers. The mark deepens as the infection progresses, serving as both a symptom and a warning of the host's transformation into one of the Marked Men.</description>
     <hediffClass>HediffWithComps</hediffClass>
     <isBad>false</isBad>
     <tendable>false</tendable>
@@ -145,7 +145,7 @@
 
   <HediffDef>
     <defName>CA_CrossVirusImmunity</defName>
-    <label>marked-virus immunity</label>
+    <label>marked virus immunity</label>
     <description>This pawn has strong Marked Virus immune memory. Ordinary acquired immunity blocks reinfection; starter-lineage resistance can very rarely fail after direct exposure.</description>
     <hediffClass>HediffWithComps</hediffClass>
     <isBad>false</isBad>
@@ -164,7 +164,7 @@
   <HediffDef>
     <defName>CA_BloodRush</defName>
     <label>blood rush</label>
-    <description>The infected pawn's adrenal system is locked into a sprinting combat state.</description>
+    <description>The berserker's adrenal system is locked into a permanent sprinting combat state, driving relentless melee aggression with no regard for survival.</description>
     <hediffClass>HediffWithComps</hediffClass>
     <isBad>false</isBad>
     <stages>

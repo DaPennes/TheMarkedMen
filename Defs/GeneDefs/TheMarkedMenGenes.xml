@@ -2,7 +2,7 @@
 <Defs>
   <GeneDef MayRequire="Ludeon.RimWorld.Biotech">
     <defName>CA_CrossVirusResistance</defName>
-    <label>marked-virus resistance</label>
+    <label>marked virus resistance</label>
     <description>Unusual immune markers make this person more resistant to the Marked Virus and other blood-borne infections.</description>
     <iconPath>UI/Genes/MarkedOneGenes</iconPath>
     <displayCategory>Miscellaneous</displayCategory>
@@ -15,15 +15,15 @@
 
   <GeneDef MayRequire="Ludeon.RimWorld.Biotech">
     <defName>CA_CrossedAggressionMarker</defName>
-    <label>marked aggression marker</label>
-    <description>A dangerous neurological expression pattern seen in late-stage Marked Virus mutations. It increases movement and melee pressure at the cost of social stability.</description>
+    <label>aggression marker</label>
+    <description>A dangerous neurological expression pattern seen in late-stage Marked Virus mutations. It increases movement speed and melee capability at the cost of social stability.</description>
     <iconPath>UI/Genes/MarkedOneGenes</iconPath>
     <displayCategory>Miscellaneous</displayCategory>
     <biostatCpx>3</biostatCpx>
     <biostatMet>2</biostatMet>
     <statOffsets>
-      <MoveSpeed>0.18</MoveSpeed>
-      <MeleeDodgeChance>0.03</MeleeDodgeChance>
+      <MoveSpeed>0.24</MoveSpeed>
+      <MeleeDodgeChance>0.06</MeleeDodgeChance>
       <SocialImpact>-0.4</SocialImpact>
     </statOffsets>
   </GeneDef>
@@ -37,7 +37,7 @@
     <biostatCpx>2</biostatCpx>
     <biostatMet>-2</biostatMet>
     <statOffsets>
-      <MeleeDamageFactor>0.20</MeleeDamageFactor>
+      <MeleeDamageFactor>0.35</MeleeDamageFactor>
       <SocialImpact>-0.30</SocialImpact>
     </statOffsets>
   </GeneDef>
@@ -51,8 +51,8 @@
     <biostatCpx>2</biostatCpx>
     <biostatMet>-2</biostatMet>
     <statOffsets>
-      <PainShockThreshold>0.30</PainShockThreshold>
-      <MoveSpeed>0.12</MoveSpeed>
+      <PainShockThreshold>0.50</PainShockThreshold>
+      <MoveSpeed>0.20</MoveSpeed>
     </statOffsets>
   </GeneDef>
 
