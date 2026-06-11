@@ -6,5 +6,6 @@
     <description>Jump to a distant location using super-strong mutated leg muscles.</description>
     <iconPath>UI/Abilities/Longjump</iconPath>
     <cooldownTicksRange>90</cooldownTicksRange>
+    <comps />
   </AbilityDef>
 </Defs>
