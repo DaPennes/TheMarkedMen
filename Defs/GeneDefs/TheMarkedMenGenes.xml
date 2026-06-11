@@ -42,7 +42,7 @@
     </statOffsets>
   </GeneDef>
 
-  <GeneDef MayRequire="Ludeon.RimWorld.Biotech">
+  <GeneDef>
     <defName>CA_LongjumpLegs</defName>
     <label>longjump legs</label>
     <description>Powerful mutated leg muscles allow the host to jump great distances.</description>
@@ -51,6 +51,9 @@
     <abilities>
       <li>CA_Longjump</li>
     </abilities>
+    <descriptionHyperlinks>
+      <AbilityDef>CA_Longjump</AbilityDef>
+    </descriptionHyperlinks>
     <biostatMet>-2</biostatMet>
   </GeneDef>
 
