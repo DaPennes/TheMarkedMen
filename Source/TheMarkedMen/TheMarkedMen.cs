@@ -4892,7 +4892,7 @@ namespace TheMarkedMen
         private const float MaxInfightingTargetDistanceSquared = 2500f;
         private const string WaitDownedJobDefName = "Wait_Downed";
         private const float LongjumpMinDistanceSquared = 16f;
-        private const float LongjumpMaxDistanceSquared = 400f;
+        private const float LongjumpMaxDistanceSquared = 396f;
 
         public static bool TryIssueTacticalJob(Pawn pawn)
         {
@@ -5061,6 +5061,7 @@ namespace TheMarkedMen
                 {
                     return false;
                 }
+                return true;
             }
 
             Job job = JobMaker.MakeJob(JobDefOf.AttackMelee, target);
@@ -5083,6 +5084,8 @@ namespace TheMarkedMen
 
             Ability longjump = pawn.abilities.GetAbility(longjumpDef);
             if (longjump == null || !longjump.CanCast) return false;
+
+            if (!GenSight.LineOfSight(pawn.Position, target.Position, pawn.Map)) return false;
 
             float distSq = pawn.Position.DistanceToSquared(target.Position);
             if (distSq < LongjumpMinDistanceSquared || distSq > LongjumpMaxDistanceSquared) return false;
