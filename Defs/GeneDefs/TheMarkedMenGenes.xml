@@ -42,21 +42,6 @@
     </statOffsets>
   </GeneDef>
 
-  <GeneDef>
-    <defName>CA_LongjumpLegs</defName>
-    <label>longjump legs</label>
-    <description>Powerful mutated leg muscles allow the host to jump great distances.</description>
-    <iconPath>UI/Genes/MarkedOneGenes</iconPath>
-    <displayCategory>Ability</displayCategory>
-    <abilities>
-      <li>CA_Longjump</li>
-    </abilities>
-    <descriptionHyperlinks>
-      <AbilityDef>CA_Longjump</AbilityDef>
-    </descriptionHyperlinks>
-    <biostatMet>-2</biostatMet>
-  </GeneDef>
-
   <GeneDef MayRequire="Ludeon.RimWorld.Biotech">
     <defName>CA_Unstoppable</defName>
     <label>unstoppable</label>

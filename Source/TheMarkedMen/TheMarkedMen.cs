@@ -1095,12 +1095,8 @@ namespace TheMarkedMen
         private static IncidentDef crossedHorde;
         private static IncidentDef crossedProbe;
         private static XenotypeDef markedOne;
-        private static XenotypeDef markedOneSpitter;
-        private static XenotypeDef markedOneCharger;
         private static GeneDef hyperAggressive;
         private static GeneDef unstoppable;
-        private static GeneDef longjumpLegs;
-        private static AbilityDef longjumpAbility;
         private static StatDef markedVirusResistance;
 
         public static HediffDef CrossVirus => crossVirus ?? (crossVirus = DefDatabase<HediffDef>.GetNamedSilentFail("CA_CrossVirus"));
@@ -1139,12 +1135,8 @@ namespace TheMarkedMen
         public static IncidentDef CrossedHorde => crossedHorde ?? (crossedHorde = DefDatabase<IncidentDef>.GetNamedSilentFail("CA_CrossedHorde"));
         public static IncidentDef CrossedProbe => crossedProbe ?? (crossedProbe = DefDatabase<IncidentDef>.GetNamedSilentFail("CA_CrossedProbe"));
         public static XenotypeDef MarkedOne => markedOne ?? (markedOne = DefDatabase<XenotypeDef>.GetNamedSilentFail("CA_MarkedOne"));
-        public static XenotypeDef MarkedOneSpitter => markedOneSpitter ?? (markedOneSpitter = DefDatabase<XenotypeDef>.GetNamedSilentFail("CA_MarkedOne_Spitter"));
-        public static XenotypeDef MarkedOneCharger => markedOneCharger ?? (markedOneCharger = DefDatabase<XenotypeDef>.GetNamedSilentFail("CA_MarkedOne_Charger"));
         public static GeneDef HyperAggressive => hyperAggressive ?? (hyperAggressive = DefDatabase<GeneDef>.GetNamedSilentFail("CA_HyperAggressive"));
         public static GeneDef Unstoppable => unstoppable ?? (unstoppable = DefDatabase<GeneDef>.GetNamedSilentFail("CA_Unstoppable"));
-        public static GeneDef LongjumpLegs => longjumpLegs ?? (longjumpLegs = DefDatabase<GeneDef>.GetNamedSilentFail("CA_LongjumpLegs"));
-        public static AbilityDef LongjumpAbility => longjumpAbility ?? (longjumpAbility = DefDatabase<AbilityDef>.GetNamedSilentFail("CA_Longjump"));
         public static StatDef MarkedVirusResistance => markedVirusResistance ?? (markedVirusResistance = DefDatabase<StatDef>.GetNamedSilentFail("CA_MarkedVirusResistance"));
 
         public static bool IsCrossedFaceTattoo(TattooDef tattoo)
@@ -4504,35 +4496,9 @@ namespace TheMarkedMen
                 pawn.health.AddHediff(CADefOf.ChargeBuff);
             }
 
-            if (ModsConfig.BiotechActive && pawn.genes != null && IsCrossedFactionPawn(pawn))
+            if (ModsConfig.BiotechActive && pawn.genes != null && IsCrossedFactionPawn(pawn) && CADefOf.MarkedOne != null)
             {
-                if (pawn.kindDef == CADefOf.Spitter)
-                {
-                    if (CADefOf.MarkedOneSpitter != null)
-                    {
-                        pawn.genes.SetXenotypeDirect(CADefOf.MarkedOneSpitter);
-                    }
-                    GeneDef acidSpray = DefDatabase<GeneDef>.GetNamedSilentFail("AcidSpray");
-                    if (acidSpray != null && !pawn.genes.HasActiveGene(acidSpray))
-                    {
-                        pawn.genes.AddGene(acidSpray, true);
-                    }
-                }
-                else if (pawn.kindDef == CADefOf.Charger)
-                {
-                    if (CADefOf.MarkedOneCharger != null)
-                    {
-                        pawn.genes.SetXenotypeDirect(CADefOf.MarkedOneCharger);
-                    }
-                    if (CADefOf.LongjumpLegs != null && !pawn.genes.HasActiveGene(CADefOf.LongjumpLegs))
-                    {
-                        pawn.genes.AddGene(CADefOf.LongjumpLegs, true);
-                    }
-                }
-                else if (CADefOf.MarkedOne != null)
-                {
-                    pawn.genes.SetXenotypeDirect(CADefOf.MarkedOne);
-                }
+                pawn.genes.SetXenotypeDirect(CADefOf.MarkedOne);
             }
 
             RemoveDeprecatedCrossedRashHediff(pawn);
@@ -4894,8 +4860,6 @@ namespace TheMarkedMen
         private const float InfightingChance = 0.12f;
         private const float MaxInfightingTargetDistanceSquared = 2500f;
         private const string WaitDownedJobDefName = "Wait_Downed";
-        private const float LongjumpMinDistanceSquared = 16f;
-        private const float LongjumpMaxDistanceSquared = 396f;
 
         public static bool TryIssueTacticalJob(Pawn pawn)
         {
@@ -5060,11 +5024,7 @@ namespace TheMarkedMen
 
             if (!pawn.CanReach(target, PathEndMode.Touch, Danger.Deadly, true, true))
             {
-                if (!TryCastLongjump(pawn, target))
-                {
-                    return false;
-                }
-                return true;
+                return false;
             }
 
             Job job = JobMaker.MakeJob(JobDefOf.AttackMelee, target);
@@ -5076,52 +5036,6 @@ namespace TheMarkedMen
             job.attackDoorIfTargetLost = TheMarkedMenSettings.DoorTargetingEnabled;
             job.locomotionUrgency = LocomotionUrgency.Sprint;
             return TryTakeTacticalJob(pawn, job, forceCurrentJob);
-        }
-
-        private static bool TryCastLongjump(Pawn pawn, Thing target)
-        {
-            if (pawn?.abilities == null || target == null || target.Destroyed || !ModsConfig.BiotechActive) return false;
-
-            AbilityDef longjumpDef = CADefOf.LongjumpAbility;
-            if (longjumpDef == null) return false;
-
-            Ability longjump = pawn.abilities.GetAbility(longjumpDef);
-            if (longjump == null || !longjump.CanCast) return false;
-
-            if (!GenSight.LineOfSight(pawn.Position, target.Position, pawn.Map)) return false;
-
-            float distSq = pawn.Position.DistanceToSquared(target.Position);
-            if (distSq < LongjumpMinDistanceSquared || distSq > LongjumpMaxDistanceSquared) return false;
-
-            IntVec3 targetPos = target.PositionHeld;
-            if (!targetPos.IsValid) return false;
-
-            if (pawn.Position == targetPos) return false;
-
-            IntVec3 bestPos = IntVec3.Invalid;
-            float bestDist = float.MaxValue;
-
-            foreach (IntVec3 cell in GenAdjFast.AdjacentCellsCardinal(targetPos))
-            {
-                if (!cell.InBounds(pawn.Map) || !cell.Standable(pawn.Map) || cell.Fogged(pawn.Map)) continue;
-                if (!pawn.CanReach(cell, PathEndMode.OnCell, Danger.Deadly, true, true)) continue;
-
-                float cellDist = cell.DistanceToSquared(pawn.Position);
-                if (cellDist < bestDist)
-                {
-                    bestDist = cellDist;
-                    bestPos = cell;
-                }
-            }
-
-            if (!bestPos.IsValid) return false;
-
-            JobDef castJumpDef = DefDatabase<JobDef>.GetNamedSilentFail("CastJump");
-            if (castJumpDef == null) return false;
-
-            Job job = JobMaker.MakeJob(castJumpDef, new LocalTargetInfo(bestPos));
-            job.ability = longjump;
-            return TryTakeTacticalJob(pawn, job, false);
         }
 
         private static bool TryAssignRangedAttackJob(Pawn pawn, Thing target, Verb verb, bool forceCurrentJob)

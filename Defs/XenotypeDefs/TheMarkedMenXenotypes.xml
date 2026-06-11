@@ -10,28 +10,4 @@
       <li>CA_Unstoppable</li>
     </genes>
   </XenotypeDef>
-
-  <XenotypeDef MayRequire="Ludeon.RimWorld.Biotech">
-    <defName>CA_MarkedOne_Spitter</defName>
-    <label>Marked One - Spitter</label>
-    <description>A Marked One whose body has adapted to produce and store corrosive acid. Spitters can spew burning acid over enemies, transmitting the Marked Virus through chemical burns and dissolved tissue.</description>
-    <iconPath>UI/Xenotype/Marked</iconPath>
-    <genes>
-      <li>AcidSpray</li>
-      <li>CA_HyperAggressive</li>
-      <li>CA_Unstoppable</li>
-    </genes>
-  </XenotypeDef>
-
-  <XenotypeDef MayRequire="Ludeon.RimWorld.Biotech">
-    <defName>CA_MarkedOne_Charger</defName>
-    <label>Marked One - Charger</label>
-    <description>A hulking Marked One with powerful hemogen-enhanced leg muscles that allow it to close distances with shocking speed, trampling anything in its path.</description>
-    <iconPath>UI/Xenotype/Marked</iconPath>
-    <genes>
-      <li>CA_LongjumpLegs</li>
-      <li>CA_HyperAggressive</li>
-      <li>CA_Unstoppable</li>
-    </genes>
-  </XenotypeDef>
 </Defs>
