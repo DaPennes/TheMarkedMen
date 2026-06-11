@@ -144,10 +144,6 @@
     <labelPlural>Marked Men spitters</labelPlural>
     <combatPower>250</combatPower>
     <apparelMoney>100~220</apparelMoney>
-    <weaponMoney>60~120</weaponMoney>
-    <weaponTags>
-      <li>NeolithicMeleeBasic</li>
-    </weaponTags>
   </PawnKindDef>
 
   <PawnKindDef ParentName="CA_CrossedBase">
