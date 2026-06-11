@@ -12,7 +12,7 @@
     <NoWarn>MSB3270</NoWarn>
   </PropertyGroup>
   <PropertyGroup>
-    <RimWorldDir>..\..\..\..\</RimWorldDir>
+    <RimWorldDir>..\..\..\..\..\..\common\RimWorld\</RimWorldDir>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Assembly-CSharp">

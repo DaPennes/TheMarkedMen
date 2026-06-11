@@ -19,6 +19,22 @@ namespace TheMarkedMen
         {
             base.PostGameStart();
             ApplyFounderStateToPlayerStarters();
+            CleanupVirusFromImmuneStarters();
+        }
+
+        private static void CleanupVirusFromImmuneStarters()
+        {
+            if (Find.Maps == null) return;
+            for (int i = 0; i < Find.Maps.Count; i++)
+            {
+                Map map = Find.Maps[i];
+                IReadOnlyList<Pawn> colonists = map?.mapPawns?.FreeColonistsSpawned;
+                if (colonists == null) continue;
+                for (int j = 0; j < colonists.Count; j++)
+                {
+                    CrossedUtility.RemoveCrossVirusIfImmune(colonists[j]);
+                }
+            }
         }
 
         public override IEnumerable<string> GetSummaryListEntries(string tag)
