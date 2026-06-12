@@ -111,13 +111,13 @@ namespace TheMarkedMen
                 return;
             }
 
+            CrossedUtility.EnsureFearlessCrossedState(__instance);
             CrossedTacticalAI.TryIssueTacticalJob(__instance);
             if (!__instance.IsHashIntervalTick(TheMarkedMenSettings.InfectedStateMaintenanceIntervalTicks))
             {
                 return;
             }
 
-            CrossedUtility.EnsureFearlessCrossedState(__instance);
             CrossedUtility.ApplyInfectedTattooIfInfected(__instance);
             CrossedUtility.RemoveMarkedVirusHediffFromFullyTurnedPawn(__instance);
         }

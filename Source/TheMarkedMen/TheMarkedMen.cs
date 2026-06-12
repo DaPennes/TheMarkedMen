@@ -207,9 +207,9 @@ namespace TheMarkedMen
 
         public static int InfectedStateMaintenanceIntervalTicks => Mathf.Clamp(TheMarkedMenMod.Settings?.infectedStateMaintenanceIntervalTicks ?? 2500, 60, GenDate.TicksPerDay);
 
-        public static bool MarkedAlwaysAssault => TheMarkedMenMod.Settings?.markedAlwaysAssault != false;
+        public static bool MarkedAlwaysAssault => true;
 
-        public static bool MarkedCanTimeoutOrFlee => TheMarkedMenMod.Settings?.markedCanTimeoutOrFlee == true;
+        public static bool MarkedCanTimeoutOrFlee => false;
 
         public static bool TacticalRetargetingEnabled => TheMarkedMenMod.Settings?.tacticalRetargetingEnabled != false;
 
@@ -502,8 +502,6 @@ namespace TheMarkedMen
             DrawFloat(listing, "Founder-lineage breakthrough chance", ref starterLineageBreakthroughChance, 0f, 1f, "starterLineageBreakthroughChance", "Chance that special starter-lineage resistance fails after direct exposure.");
 
             DrawSectionHeader(listing, "Infected AI", "Controls how aggressively Marked Men attack, retarget, breach, and terrorize nearby pawns.");
-            DrawCheckbox(listing, "Force Marked pawns to keep assaulting", ref markedAlwaysAssault, "Keeps generated Marked Men focused on attacking instead of behaving like ordinary raiders.");
-            DrawCheckbox(listing, "Allow Marked pawns to time out or flee", ref markedCanTimeoutOrFlee, "Allows Marked Men lords to retreat or time out. Leave disabled for relentless pressure.");
             DrawCheckbox(listing, "Enable tactical retargeting", ref tacticalRetargetingEnabled, "Lets infected pawns periodically switch to better tactical targets.");
             DrawCheckbox(listing, "Enable priority targeting", ref priorityTargetingEnabled, "Lets infected pawns prefer power, food, medical, research, and turret targets when appropriate.");
             DrawCheckbox(listing, "Enable door and wall targeting", ref doorTargetingEnabled, "Allows infected pawns to bash or target barriers when pursuing a colony.");
@@ -1097,6 +1095,7 @@ namespace TheMarkedMen
         private static XenotypeDef markedOne;
         private static XenotypeDef markedOneSpitter;
         private static StatDef markedVirusResistance;
+        private static AbilityDef acidSprayAbility;
 
         public static HediffDef CrossVirus => crossVirus ?? (crossVirus = DefDatabase<HediffDef>.GetNamedSilentFail("CA_CrossVirus"));
         public static HediffDef CrossVirusImmunity => crossVirusImmunity ?? (crossVirusImmunity = DefDatabase<HediffDef>.GetNamedSilentFail("CA_CrossVirusImmunity"));
@@ -1136,6 +1135,7 @@ namespace TheMarkedMen
         public static XenotypeDef MarkedOne => markedOne ?? (markedOne = DefDatabase<XenotypeDef>.GetNamedSilentFail("CA_MarkedOne"));
         public static XenotypeDef MarkedOneSpitter => markedOneSpitter ?? (markedOneSpitter = DefDatabase<XenotypeDef>.GetNamedSilentFail("CA_MarkedOneSpitter"));
         public static StatDef MarkedVirusResistance => markedVirusResistance ?? (markedVirusResistance = DefDatabase<StatDef>.GetNamedSilentFail("CA_MarkedVirusResistance"));
+        public static AbilityDef AcidSprayAbility => acidSprayAbility ?? (acidSprayAbility = DefDatabase<AbilityDef>.GetNamedSilentFail("AcidSpray"));
 
         public static bool IsCrossedFaceTattoo(TattooDef tattoo)
         {
@@ -2328,7 +2328,7 @@ namespace TheMarkedMen
                     removeDiedThoughts = false,
                     restoreMissingParts = false,
                     canPickUpOpportunisticWeapons = true,
-                    canTimeoutOrFlee = TheMarkedMenSettings.MarkedCanTimeoutOrFlee,
+                    canTimeoutOrFlee = false,
                     canKidnap = false,
                     canSteal = false,
                     useAvoidGridSmart = false
@@ -2418,7 +2418,7 @@ namespace TheMarkedMen
             parms.pawnGroupKind = PawnGroupKindDefOf.Combat;
             parms.canKidnap = false;
             parms.canSteal = false;
-            parms.canTimeoutOrFlee = TheMarkedMenSettings.MarkedCanTimeoutOrFlee;
+            parms.canTimeoutOrFlee = false;
             parms.forced = true;
             ApplyMarkedRaidArrivalPattern(parms);
 
@@ -2521,7 +2521,7 @@ namespace TheMarkedMen
             parms.pawnGroupKind = PawnGroupKindDefOf.Combat;
             parms.canKidnap = false;
             parms.canSteal = false;
-            parms.canTimeoutOrFlee = TheMarkedMenSettings.MarkedCanTimeoutOrFlee;
+            parms.canTimeoutOrFlee = false;
             parms.forced = false;
             ApplyMarkedRaidArrivalPattern(parms);
 
@@ -2545,7 +2545,7 @@ namespace TheMarkedMen
             parms.pawnGroupKind = PawnGroupKindDefOf.Combat;
             parms.canKidnap = false;
             parms.canSteal = false;
-            parms.canTimeoutOrFlee = TheMarkedMenSettings.MarkedCanTimeoutOrFlee;
+            parms.canTimeoutOrFlee = false;
             parms.forced = force;
             ApplyMarkedRaidArrivalPattern(parms);
 
@@ -3468,12 +3468,6 @@ namespace TheMarkedMen
 
         public static void EnsureFearlessCrossedState(Pawn pawn)
         {
-            if (!TheMarkedMenSettings.MarkedAlwaysAssault || TheMarkedMenSettings.MarkedCanTimeoutOrFlee)
-            {
-                RestoreFleeStateForMarkedPawn(pawn);
-                return;
-            }
-
             if (!IsInfectedPawn(pawn) || pawn.mindState == null)
             {
                 return;
@@ -4499,6 +4493,7 @@ namespace TheMarkedMen
                 if (pawn.kindDef == CADefOf.Spitter && CADefOf.MarkedOneSpitter != null)
                 {
                     pawn.genes.SetXenotypeDirect(CADefOf.MarkedOneSpitter);
+                    GrantAbility(pawn, CADefOf.AcidSprayAbility);
                 }
                 else if (CADefOf.MarkedOne != null)
                 {
@@ -4585,6 +4580,24 @@ namespace TheMarkedMen
             }
 
             if (pawn.abilities == null)
+            {
+                return;
+            }
+
+            foreach (Ability ability in pawn.abilities.AllAbilitiesForReading)
+            {
+                if (ability.def == abilityDef)
+                {
+                    return;
+                }
+            }
+
+            pawn.abilities.GainAbility(abilityDef);
+        }
+
+        private static void GrantAbility(Pawn pawn, AbilityDef abilityDef)
+        {
+            if (abilityDef == null || pawn.abilities == null)
             {
                 return;
             }
@@ -4873,7 +4886,6 @@ namespace TheMarkedMen
                 return false;
             }
 
-            CrossedUtility.EnsureFearlessCrossedState(pawn);
             if (TheMarkedMenRjwCompatibility.TryStartBestInfectedIntercourseJob(pawn, true))
             {
                 return true;
@@ -4944,7 +4956,6 @@ namespace TheMarkedMen
                 return false;
             }
 
-            CrossedUtility.EnsureFearlessCrossedState(pawn);
             if (allowRjwJob && TheMarkedMenRjwCompatibility.TryStartBestInfectedIntercourseJob(pawn, forceCurrentJob))
             {
                 return true;
@@ -5027,6 +5038,11 @@ namespace TheMarkedMen
                 return TryAssignRangedAttackJob(pawn, target, rangedVerb, forceCurrentJob);
             }
 
+            if (TryAssignAbilityAttackJob(pawn, target, forceCurrentJob))
+            {
+                return true;
+            }
+
             if (!pawn.CanReach(target, PathEndMode.Touch, Danger.Deadly, true, true))
             {
                 return false;
@@ -5071,6 +5087,47 @@ namespace TheMarkedMen
             moveJob.attackDoorIfTargetLost = TheMarkedMenSettings.DoorTargetingEnabled;
             moveJob.locomotionUrgency = LocomotionUrgency.Sprint;
             return TryTakeTacticalJob(pawn, moveJob, forceCurrentJob);
+        }
+
+        private static bool TryAssignAbilityAttackJob(Pawn pawn, Thing target, bool forceCurrentJob)
+        {
+            if (pawn.abilities == null)
+            {
+                return false;
+            }
+
+            foreach (Ability ability in pawn.abilities.AllAbilitiesForReading)
+            {
+                if (ability == null || ability.verb == null || ability.verb.IsMeleeAttack || !ability.CanCast)
+                {
+                    continue;
+                }
+
+                if (ability.def.defName != "AcidSpray")
+                {
+                    continue;
+                }
+
+                if (ability.verb.CanHitTargetFrom(pawn.Position, target))
+                {
+                    Job job = ability.GetJob(target, target);
+                    if (job == null)
+                    {
+                        continue;
+                    }
+
+                    job.expiryInterval = TacticalJobExpiryTicks;
+                    job.checkOverrideOnExpire = true;
+                    job.killIncappedTarget = !(target is Pawn attackPawnTarget && TheMarkedMenRjwCompatibility.ShouldKeepIncapacitatedTargetForIntercourse(pawn, attackPawnTarget));
+                    job.canBashDoors = TheMarkedMenSettings.DoorTargetingEnabled;
+                    job.canBashFences = true;
+                    job.attackDoorIfTargetLost = TheMarkedMenSettings.DoorTargetingEnabled;
+                    job.locomotionUrgency = LocomotionUrgency.Sprint;
+                    return TryTakeTacticalJob(pawn, job, forceCurrentJob);
+                }
+            }
+
+            return false;
         }
 
         private static bool TryTakeTacticalJob(Pawn pawn, Job job, bool forceCurrentJob)
@@ -5404,14 +5461,15 @@ namespace TheMarkedMen
                 && !pawn.Downed
                 && pawn.Map != null
                 && CrossedUtility.IsInfectedPawn(pawn)
-                && TheMarkedMenSettings.MarkedAlwaysAssault
                 && TheMarkedMenSettings.TacticalRetargetingEnabled
                 && !TheMarkedMenRjwCompatibility.ShouldPreserveCurrentRjwJob(pawn);
         }
 
         private static bool IsAttackJob(JobDef jobDef)
         {
-            return jobDef == JobDefOf.AttackMelee || jobDef == JobDefOf.AttackStatic;
+            return jobDef == JobDefOf.AttackMelee
+                || jobDef == JobDefOf.AttackStatic
+                || jobDef == JobDefOf.CastAbilityOnThing;
         }
 
         private static bool CanSafelyInterruptCurrentJob(Pawn pawn)
@@ -6465,7 +6523,7 @@ namespace TheMarkedMen
             parms.pawnGroupKind = PawnGroupKindDefOf.Combat;
             parms.canKidnap = false;
             parms.canSteal = false;
-            parms.canTimeoutOrFlee = TheMarkedMenSettings.MarkedCanTimeoutOrFlee;
+            parms.canTimeoutOrFlee = false;
             TheMarkedMenGameComponent.ApplyMarkedRaidArrivalPattern(parms);
 
             bool result = base.TryExecuteWorker(parms);
@@ -6556,7 +6614,7 @@ namespace TheMarkedMen
                 return;
             }
 
-            LordMaker.MakeNewLord(faction, new LordJob_AssaultColony(faction, false, TheMarkedMenSettings.MarkedCanTimeoutOrFlee, false, false, false, points >= 700f, true), map, attackers);
+            LordMaker.MakeNewLord(faction, new LordJob_AssaultColony(faction, false, false, false, false, false, points >= 700f, true), map, attackers);
             for (int i = 0; i < attackers.Count; i++)
             {
                 Pawn pawn = attackers[i];
@@ -6616,7 +6674,7 @@ namespace TheMarkedMen
             parms.pawnGroupKind = PawnGroupKindDefOf.Combat;
             parms.canKidnap = false;
             parms.canSteal = false;
-            parms.canTimeoutOrFlee = TheMarkedMenSettings.MarkedCanTimeoutOrFlee;
+            parms.canTimeoutOrFlee = false;
             TheMarkedMenGameComponent.ApplyMarkedRaidArrivalPattern(parms);
             parms.points = CalculateIncidentHordePoints(map, parms.points, def.minThreatPoints);
 
@@ -6641,7 +6699,7 @@ namespace TheMarkedMen
             }
 
             parms.pawnCount = pawns.Count;
-            LordMaker.MakeNewLord(crossed, new LordJob_AssaultColony(crossed, false, TheMarkedMenSettings.MarkedCanTimeoutOrFlee, false, false, false, parms.points >= 700f, true), map, pawns);
+            LordMaker.MakeNewLord(crossed, new LordJob_AssaultColony(crossed, false, false, false, false, false, parms.points >= 700f, true), map, pawns);
             CrossedUtility.Component?.NotifyHordeLaunched(pawns.Count, parms.points);
             SendHordeLetter(pawns, parms);
             return true;
@@ -6796,7 +6854,7 @@ namespace TheMarkedMen
             parms.pawnGroupKind = PawnGroupKindDefOf.Combat;
             parms.canKidnap = false;
             parms.canSteal = false;
-            parms.canTimeoutOrFlee = TheMarkedMenSettings.MarkedCanTimeoutOrFlee;
+            parms.canTimeoutOrFlee = false;
             TheMarkedMenGameComponent.ApplyMarkedRaidArrivalPattern(parms);
             parms.points = CalculateProbePoints(map, parms.points, def.minThreatPoints);
 
@@ -6821,7 +6879,7 @@ namespace TheMarkedMen
             }
 
             parms.pawnCount = pawns.Count;
-            LordMaker.MakeNewLord(crossed, new LordJob_AssaultColony(crossed, false, TheMarkedMenSettings.MarkedCanTimeoutOrFlee, false, false, false, false, true), map, pawns);
+            LordMaker.MakeNewLord(crossed, new LordJob_AssaultColony(crossed, false, false, false, false, false, false, true), map, pawns);
             CrossedUtility.Component?.NotifyProbeLaunched(pawns.Count, parms.points);
             SendProbeLetter(pawns, parms);
             return true;
