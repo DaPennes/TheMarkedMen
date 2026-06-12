@@ -62,6 +62,10 @@ namespace TheMarkedMen
         private static readonly Color HelpTextColor = new Color(0.72f, 0.72f, 0.72f);
 
         public bool infectionEnabled = true;
+        public bool warcasketsBlockExposure = true;
+        public bool vacsuitBlockExposure = true;
+        public bool gasMasksBlockExposure = true;
+        public bool sealedArmorBlockExposure = true;
         public bool verboseCompatibilityLogging;
         public bool rjwAutoEnableWhenInstalled = true;
         public bool rjwIntegrationEnabled = true;
@@ -211,6 +215,11 @@ namespace TheMarkedMen
 
         public static bool MarkedCanTimeoutOrFlee => false;
 
+        public static bool WarcasketsBlockExposure => TheMarkedMenMod.Settings?.warcasketsBlockExposure != false;
+        public static bool VacsuitBlockExposure => TheMarkedMenMod.Settings?.vacsuitBlockExposure != false;
+        public static bool GasMasksBlockExposure => TheMarkedMenMod.Settings?.gasMasksBlockExposure != false;
+        public static bool SealedArmorBlockExposure => TheMarkedMenMod.Settings?.sealedArmorBlockExposure != false;
+
         public static bool TacticalRetargetingEnabled => TheMarkedMenMod.Settings?.tacticalRetargetingEnabled != false;
 
         public static bool PriorityTargetingEnabled => TheMarkedMenMod.Settings?.priorityTargetingEnabled != false;
@@ -242,6 +251,10 @@ namespace TheMarkedMen
             Scribe_Values.Look(ref settingsVersion, "settingsVersion", 0);
             int loadedSettingsVersion = settingsVersion;
             Scribe_Values.Look(ref infectionEnabled, "infectionEnabled", true);
+            Scribe_Values.Look(ref warcasketsBlockExposure, "warcasketsBlockExposure", true);
+            Scribe_Values.Look(ref vacsuitBlockExposure, "vacsuitBlockExposure", true);
+            Scribe_Values.Look(ref gasMasksBlockExposure, "gasMasksBlockExposure", true);
+            Scribe_Values.Look(ref sealedArmorBlockExposure, "sealedArmorBlockExposure", true);
             Scribe_Values.Look(ref verboseCompatibilityLogging, "verboseCompatibilityLogging", false);
             Scribe_Values.Look(ref rjwAutoEnableWhenInstalled, "rjwAutoEnableWhenInstalled", true);
             Scribe_Values.Look(ref rjwIntegrationEnabled, "rjwIntegrationEnabled", true);
@@ -500,6 +513,12 @@ namespace TheMarkedMen
             DrawFloat(listing, "Corpse reanimation chance", ref reanimationChance, 0f, 1f, "reanimationChance", "Chance that a valid infected corpse queues for reanimation after death.");
             DrawInt(listing, "Corpse reanimation delay ticks", ref reanimationDelayTicks, 60, GenDate.TicksPerDay * 30, "reanimationDelayTicks", "Delay before queued infected corpses can reanimate. 60,000 ticks equals one in-game day.");
             DrawFloat(listing, "Founder-lineage breakthrough chance", ref starterLineageBreakthroughChance, 0f, 1f, "starterLineageBreakthroughChance", "Chance that special starter-lineage resistance fails after direct exposure.");
+
+            DrawSectionHeader(listing, "Sealed Apparel Protection", "Toggling a category off removes full viral immunity for that apparel type, reverting to partial resistance instead.");
+            DrawCheckbox(listing, "Warcaskets block exposure", ref warcasketsBlockExposure, "When enabled, any warcasket torso shell provides full immunity to direct Marked Virus exposure. Disable this if you want warcasket pawns to still face infection risk.");
+            DrawCheckbox(listing, "Vacsuit/EVA suits block exposure", ref vacsuitBlockExposure, "When enabled, wearing both a vacsuit body and helmet provides full immunity via the sealed combo. Disable to make the combo only give partial resistance.");
+            DrawCheckbox(listing, "Gas masks block exposure", ref gasMasksBlockExposure, "When enabled, gas masks, HAZMAT masks, and toxin-immune headgear provide full immunity. Disable for partial resistance only.");
+            DrawCheckbox(listing, "Sealed armor blocks exposure", ref sealedArmorBlockExposure, "When enabled, HAZMAT suits, sealed undersuits, security armor, and orbital armor provide full immunity. Disable for partial resistance only.");
 
             DrawSectionHeader(listing, "Infected AI", "Controls how aggressively Marked Men attack, retarget, breach, and terrorize nearby pawns.");
             DrawCheckbox(listing, "Enable tactical retargeting", ref tacticalRetargetingEnabled, "Lets infected pawns periodically switch to better tactical targets.");
@@ -866,6 +885,10 @@ namespace TheMarkedMen
             reanimationChance = 1f;
             reanimationDelayTicks = 900;
             starterLineageBreakthroughChance = 0.04f;
+            warcasketsBlockExposure = true;
+            vacsuitBlockExposure = true;
+            gasMasksBlockExposure = true;
+            sealedArmorBlockExposure = true;
             markedAlwaysAssault = true;
             markedCanTimeoutOrFlee = false;
             tacticalRetargetingEnabled = true;
@@ -3987,7 +4010,7 @@ namespace TheMarkedMen
                 }
             }
 
-            if (blocksMarkedVirusExposure || hasVacsuitBody && hasVacsuitHelmet)
+            if (blocksMarkedVirusExposure || hasVacsuitBody && hasVacsuitHelmet && TheMarkedMenSettings.VacsuitBlockExposure)
             {
                 return new MarkedVirusApparelProtection(1f, true, true);
             }
@@ -4123,7 +4146,7 @@ namespace TheMarkedMen
             // HAZMAT suit (XML: 0.90 sealed)
             if (string.Equals(defName, "VAE_Apparel_HAZMATSuit", StringComparison.OrdinalIgnoreCase))
             {
-                return new MarkedVirusApparelProtection(0.90f, true);
+                return new MarkedVirusApparelProtection(0.90f, true, TheMarkedMenSettings.SealedArmorBlockExposure);
             }
 
             // Warcasket torso (XML: 0.85 sealed)
@@ -4131,7 +4154,7 @@ namespace TheMarkedMen
                 && !ContainsOrdinalIgnoreCase(defName, "Shoulders")
                 && !ContainsOrdinalIgnoreCase(defName, "Bodysuit"))
             {
-                return new MarkedVirusApparelProtection(0.85f, true);
+                return new MarkedVirusApparelProtection(0.85f, true, TheMarkedMenSettings.WarcasketsBlockExposure);
             }
 
             // Warcasket bodysuit (XML: 0.70 sealed)
@@ -4171,7 +4194,7 @@ namespace TheMarkedMen
                 || ContainsOrdinalIgnoreCase(defName, "SecurityArmor") || ContainsOrdinalIgnoreCase(label, "security armor")
                 || ContainsOrdinalIgnoreCase(defName, "OrbitalArmor") || ContainsOrdinalIgnoreCase(label, "orbital armor")))
             {
-                return new MarkedVirusApparelProtection(0.25f, true);
+                return new MarkedVirusApparelProtection(0.25f, true, TheMarkedMenSettings.SealedArmorBlockExposure);
             }
 
             // Vacsuit helmet (XML: 0.25 sealed)
@@ -4186,7 +4209,7 @@ namespace TheMarkedMen
                 || ContainsOrdinalIgnoreCase(defName, "HAZMATMask")
                 || ContainsOrdinalIgnoreCase(defName, "AstroMask"))
             {
-                return new MarkedVirusApparelProtection(0.25f, true);
+                return new MarkedVirusApparelProtection(0.25f, true, TheMarkedMenSettings.GasMasksBlockExposure);
             }
 
             // Toxic environment resistance (XML: 0.25 sealed)
