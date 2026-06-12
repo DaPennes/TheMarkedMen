@@ -463,11 +463,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Program Files (x86)\\Steam\\steamapps\\workshop\\content\\294100\\3739467787\\Source\\TheMarkedMen\\TheMarkedMen.csproj",
+      "projectUniqueName": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\RimWorld\\Mods\\The Marked Men\\Source\\TheMarkedMen\\TheMarkedMen.csproj",
       "projectName": "TheMarkedMen",
-      "projectPath": "C:\\Program Files (x86)\\Steam\\steamapps\\workshop\\content\\294100\\3739467787\\Source\\TheMarkedMen\\TheMarkedMen.csproj",
+      "projectPath": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\RimWorld\\Mods\\The Marked Men\\Source\\TheMarkedMen\\TheMarkedMen.csproj",
       "packagesPath": "C:\\Users\\edria\\.nuget\\packages\\",
-      "outputPath": "C:\\Program Files (x86)\\Steam\\steamapps\\workshop\\content\\294100\\3739467787\\Source\\TheMarkedMen\\obj\\",
+      "outputPath": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\RimWorld\\Mods\\The Marked Men\\Source\\TheMarkedMen\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
