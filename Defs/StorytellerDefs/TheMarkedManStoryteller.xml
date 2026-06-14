@@ -264,21 +264,36 @@
         </allowedTargetTags>
       </li>
 
-      <!-- Quests - DLC-agnostic, moderate pacing -->
+      <!-- Quests - frequent offers, DLC-agnostic -->
       <li Class="StorytellerCompProperties_RandomQuest">
         <category>GiveQuest</category>
         <allowedTargetTags>
           <li>World</li>
         </allowedTargetTags>
-        <onDays>10</onDays>
+        <onDays>6</onDays>
         <numIncidentsRange>1~2</numIncidentsRange>
         <acceptFractionByDaysPassedCurve>
           <points>
-            <li>(6, 0)</li>
-            <li>(20, 1)</li>
+            <li>(3, 0)</li>
+            <li>(14, 1)</li>
           </points>
         </acceptFractionByDaysPassedCurve>
-        <minSpacingDays>5</minSpacingDays>
+        <minSpacingDays>3</minSpacingDays>
+      </li>
+      <li Class="StorytellerCompProperties_RandomQuest">
+        <category>GiveQuest</category>
+        <allowedTargetTags>
+          <li>World</li>
+        </allowedTargetTags>
+        <onDays>8</onDays>
+        <numIncidentsRange>1</numIncidentsRange>
+        <acceptFractionByDaysPassedCurve>
+          <points>
+            <li>(3, 0)</li>
+            <li>(14, 1)</li>
+          </points>
+        </acceptFractionByDaysPassedCurve>
+        <minSpacingDays>3</minSpacingDays>
       </li>
 
       <!-- Orbital trader - very rare -->
