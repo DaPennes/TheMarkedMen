@@ -108,7 +108,6 @@
         <offDays>0.5</offDays>
         <minSpacingDays>1.0</minSpacingDays>
         <numIncidentsRange>1~2</numIncidentsRange>
-        <applyCaravanVisibility>true</applyCaravanVisibility>
         <allowedTargetTags>
           <li>Caravan</li>
         </allowedTargetTags>
@@ -278,7 +277,7 @@
             <li>(14, 1)</li>
           </points>
         </acceptFractionByDaysPassedCurve>
-        <minSpacingDays>3</minSpacingDays>
+        <minSpacingDays>2</minSpacingDays>
       </li>
       <li Class="StorytellerCompProperties_RandomQuest">
         <category>GiveQuest</category>
@@ -293,7 +292,7 @@
             <li>(14, 1)</li>
           </points>
         </acceptFractionByDaysPassedCurve>
-        <minSpacingDays>3</minSpacingDays>
+        <minSpacingDays>2</minSpacingDays>
       </li>
 
       <!-- Orbital trader - very rare -->
