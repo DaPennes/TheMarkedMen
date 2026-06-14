@@ -2683,8 +2683,14 @@ namespace TheMarkedMen
                 return;
             }
 
+            starterLineageInitialized = true;
+
+            if (Find.Scenario?.AllParts?.Any(p => p is ScenPart_MarkedSurvivorState) != true)
+            {
+                return;
+            }
+
             int marked = 0;
-            int handledStarterColonists = 0;
             if (Find.Maps != null)
             {
                 for (int i = 0; i < Find.Maps.Count; i++)
@@ -2698,11 +2704,6 @@ namespace TheMarkedMen
                     IReadOnlyList<Pawn> colonists = map.mapPawns.FreeColonistsSpawned;
                     for (int j = 0; j < colonists.Count; j++)
                     {
-                        if (CrossedUtility.CanSafelyProcessInfectedState(colonists[j]) && !CrossedUtility.IsInfectedPawn(colonists[j]))
-                        {
-                            handledStarterColonists++;
-                        }
-
                         if (CrossedUtility.TryMarkStarterLineageResistant(colonists[j]))
                         {
                             marked++;
@@ -2711,12 +2712,6 @@ namespace TheMarkedMen
                 }
             }
 
-            if (handledStarterColonists <= 0)
-            {
-                return;
-            }
-
-            starterLineageInitialized = true;
             if (marked > 0)
             {
                 AddIncident("Starter colonists developed marked-virus lineage resistance.");
