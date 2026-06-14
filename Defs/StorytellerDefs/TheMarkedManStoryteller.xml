@@ -161,8 +161,7 @@
         </allowedTargetTags>
         <minDaysPassed>1</minDaysPassed>
         <mtbDays>0.7</mtbDays>
-        <spaceMtbDayFactor>3</spaceMtbDayFactor>
-        <spaceMinSpacingDays>1.5</spaceMinSpacingDays>
+        <spaceMtbDayFactor>1</spaceMtbDayFactor>
         <maxThreatBigIntervalDays>4</maxThreatBigIntervalDays>
         <minIncChancePopulationIntentFactor>0.05</minIncChancePopulationIntentFactor>
         <randomPointsFactorRange>0.7~2.0</randomPointsFactorRange>
@@ -171,7 +170,7 @@
           <ThreatBig>3.5</ThreatBig>
           <ThreatSmall>2.5</ThreatSmall>
           <Misc>0.8</Misc>
-          <ShipChunkDrop>0.25</ShipChunkDrop>
+          <ShipChunkDrop>0.65</ShipChunkDrop>
           <OrbitalVisitor>0.15</OrbitalVisitor>
           <FactionArrival>0.3</FactionArrival>
         </categoryWeights>
@@ -265,21 +264,21 @@
         </allowedTargetTags>
       </li>
 
-      <!-- Quests - heavily delayed and scarce -->
+      <!-- Quests - delayed but not suppressed -->
       <li Class="StorytellerCompProperties_RandomQuest">
         <category>GiveQuest</category>
         <allowedTargetTags>
           <li>World</li>
         </allowedTargetTags>
-        <onDays>25</onDays>
+        <onDays>12</onDays>
         <numIncidentsRange>1</numIncidentsRange>
         <acceptFractionByDaysPassedCurve>
           <points>
-            <li>(15, 0)</li>
-            <li>(30, 1)</li>
+            <li>(6, 0)</li>
+            <li>(20, 1)</li>
           </points>
         </acceptFractionByDaysPassedCurve>
-        <minSpacingDays>8</minSpacingDays>
+        <minSpacingDays>5</minSpacingDays>
         <disableIfAnyModActive>
           <li>Ludeon.RimWorld.Royalty</li>
         </disableIfAnyModActive>
@@ -289,15 +288,15 @@
         <allowedTargetTags>
           <li>World</li>
         </allowedTargetTags>
-        <onDays>20</onDays>
+        <onDays>10</onDays>
         <numIncidentsRange>1~2</numIncidentsRange>
         <acceptFractionByDaysPassedCurve>
           <points>
-            <li>(15, 0)</li>
-            <li>(30, 1)</li>
+            <li>(6, 0)</li>
+            <li>(20, 1)</li>
           </points>
         </acceptFractionByDaysPassedCurve>
-        <minSpacingDays>8</minSpacingDays>
+        <minSpacingDays>5</minSpacingDays>
         <enableIfAnyModActive>
           <li>Ludeon.RimWorld.Royalty</li>
         </enableIfAnyModActive>
