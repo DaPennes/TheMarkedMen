@@ -264,25 +264,7 @@
         </allowedTargetTags>
       </li>
 
-      <!-- Quests - delayed but not suppressed -->
-      <li Class="StorytellerCompProperties_RandomQuest">
-        <category>GiveQuest</category>
-        <allowedTargetTags>
-          <li>World</li>
-        </allowedTargetTags>
-        <onDays>12</onDays>
-        <numIncidentsRange>1</numIncidentsRange>
-        <acceptFractionByDaysPassedCurve>
-          <points>
-            <li>(6, 0)</li>
-            <li>(20, 1)</li>
-          </points>
-        </acceptFractionByDaysPassedCurve>
-        <minSpacingDays>5</minSpacingDays>
-        <disableIfAnyModActive>
-          <li>Ludeon.RimWorld.Royalty</li>
-        </disableIfAnyModActive>
-      </li>
+      <!-- Quests - DLC-agnostic, moderate pacing -->
       <li Class="StorytellerCompProperties_RandomQuest">
         <category>GiveQuest</category>
         <allowedTargetTags>
@@ -297,9 +279,6 @@
           </points>
         </acceptFractionByDaysPassedCurve>
         <minSpacingDays>5</minSpacingDays>
-        <enableIfAnyModActive>
-          <li>Ludeon.RimWorld.Royalty</li>
-        </enableIfAnyModActive>
       </li>
 
       <!-- Orbital trader - very rare -->
