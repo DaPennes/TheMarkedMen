@@ -1447,8 +1447,8 @@ namespace TheMarkedMen
         private const int CorpseLingeringRequiredTicks = 2500;
         private const float RaidEscalationPerRaid = 0.18f;
         private const float RaidEscalationMaxBonus = 5f;
-        private const float RandomRaidIntervalMinFactor = 0.6f;
-        private const float RandomRaidIntervalMaxFactor = 1.6f;
+        private const float RandomRaidIntervalMinFactor = 0.2f;
+        private const float RandomRaidIntervalMaxFactor = 2.4f;
 
         private readonly Game game;
         private int nextMaintenanceTick;
@@ -6503,6 +6503,9 @@ namespace TheMarkedMen
 
     public sealed class IncidentWorker_CrossedRaid : IncidentWorker_RaidEnemy
     {
+        private const int MinRaidCount = 3;
+        private const int MaxRaidCount = 10;
+
         public override float ChanceFactorNow(IIncidentTarget target)
         {
             return base.ChanceFactorNow(target) * TheMarkedMenSettings.WarbandFrequencyMultiplier;
@@ -6532,7 +6535,11 @@ namespace TheMarkedMen
             }
 
             Map map = parms.target as Map;
-            HashSet<Pawn> existingCrossed = CaptureExistingCrossed(map);
+            if (map == null)
+            {
+                return false;
+            }
+
             TheMarkedMenGameComponent component = CrossedUtility.Component;
             parms.faction = crossed;
             if (component != null)
@@ -6546,69 +6553,105 @@ namespace TheMarkedMen
             parms.canTimeoutOrFlee = false;
             TheMarkedMenGameComponent.ApplyMarkedRaidArrivalPattern(parms);
 
-            bool result = base.TryExecuteWorker(parms);
-            if (result && map != null)
+            int count = Rand.RangeInclusive(MinRaidCount, MaxRaidCount);
+            List<Pawn> pawns = GenerateRaidPawns(count, parms.points, crossed);
+            if (pawns.Count == 0)
             {
-                List<Pawn> spawned = FindNewCrossed(map, existingCrossed);
-                MarkSpawnedCrossed(spawned);
-                CrossedUtility.ApplyGeneratedRaidKindTuning(spawned);
-                ForceImmediateAssaultLord(crossed, map, spawned, parms.points);
-                component?.NotifyRaidLaunched(parms.points, spawned, map);
+                return false;
             }
 
-            return result;
+            parms.pawnCount = pawns.Count;
+            if (parms.raidArrivalMode?.Worker == null || !parms.raidArrivalMode.Worker.CanUseWith(parms))
+            {
+                parms.raidArrivalMode = PawnsArrivalModeDefOf.EdgeWalkIn;
+            }
+
+            parms.raidArrivalMode.Worker.Arrive(pawns, parms);
+            pawns = CrossedLordCleanupUtility.CollectValidSpawnedLordPawns(pawns, map, crossed);
+            if (pawns.Count == 0)
+            {
+                return false;
+            }
+
+            CrossedUtility.ApplyGeneratedRaidKindTuning(pawns);
+            LordJob lordJob = new LordJob_AssaultColony(crossed, false, false, false, false, false, parms.points >= 700f, true);
+            LordMaker.MakeNewLord(crossed, lordJob, map, pawns);
+            SendRaidLetter(pawns, parms);
+            component?.NotifyRaidLaunched(parms.points, pawns, map);
+            return true;
         }
 
-        private static HashSet<Pawn> CaptureExistingCrossed(Map map)
+        private static List<Pawn> GenerateRaidPawns(int count, float points, Faction faction)
         {
-            FactionDef crossed = CADefOf.CrossedFaction;
-            if (map?.mapPawns == null || crossed == null)
+            List<Pawn> pawns = new List<Pawn>(count);
+            bool alphaAdded = false;
+            for (int i = 0; i < count; i++)
             {
-                return new HashSet<Pawn>();
-            }
-
-            HashSet<Pawn> existing = new HashSet<Pawn>();
-            foreach (Pawn pawn in map.mapPawns.AllPawnsSpawned)
-            {
-                if (pawn.Faction?.def == crossed)
+                PawnKindDef kind = PickRaidKind(points, count, !alphaAdded);
+                if (kind == null)
                 {
-                    existing.Add(pawn);
+                    break;
                 }
-            }
 
-            return existing;
-        }
-
-        private static List<Pawn> FindNewCrossed(Map map, HashSet<Pawn> existing)
-        {
-            List<Pawn> spawned = new List<Pawn>();
-            FactionDef crossed = CADefOf.CrossedFaction;
-            if (map?.mapPawns == null || crossed == null)
-            {
-                return spawned;
-            }
-
-            foreach (Pawn pawn in map.mapPawns.AllPawnsSpawned)
-            {
-                if (pawn.Faction?.def == crossed && (existing == null || !existing.Contains(pawn)))
+                Pawn pawn = PawnGenerator.GeneratePawn(kind, faction);
+                if (pawn == null)
                 {
-                    spawned.Add(pawn);
+                    continue;
                 }
+
+                alphaAdded = alphaAdded || kind == CADefOf.Alpha;
+                CrossedUtility.ApplyClassHediffs(pawn);
+                CrossedUtility.ApplyInfectedTattoo(pawn);
+                pawns.Add(pawn);
             }
 
-            return spawned;
+            CrossedUtility.ApplyGeneratedRaidKindTuning(pawns);
+            return pawns;
         }
 
-        private static void MarkSpawnedCrossed(List<Pawn> pawns)
+        private static PawnKindDef PickRaidKind(float points, int count, bool allowAlpha)
         {
-            if (pawns == null)
+            float normalizedThreat = Mathf.InverseLerp(120f, 2400f, points);
+            PawnKindDef selected = null;
+            float totalWeight = 0f;
+
+            AddWeightedKind(ref selected, ref totalWeight, CADefOf.Berserker, 14f);
+            AddWeightedKind(ref selected, ref totalWeight, CADefOf.Hunter, Mathf.Lerp(3f, 10f, normalizedThreat));
+            AddWeightedKind(ref selected, ref totalWeight, CADefOf.Stalker, points >= 180f ? Mathf.Lerp(2f, 6f, normalizedThreat) : 1f);
+            AddWeightedKind(ref selected, ref totalWeight, CADefOf.Screamer, points >= 250f ? Mathf.Lerp(1.5f, 4f, normalizedThreat) : 0.5f);
+            AddWeightedKind(ref selected, ref totalWeight, CADefOf.Charger, points >= 300f ? Mathf.Lerp(1f, 4f, normalizedThreat) : 0f);
+            AddWeightedKind(ref selected, ref totalWeight, CADefOf.Spitter, points >= 350f ? Mathf.Lerp(0.5f, 3f, normalizedThreat) : 0f);
+            AddWeightedKind(ref selected, ref totalWeight, CADefOf.Brute, points >= 400f ? Mathf.Lerp(0.5f, 3.5f, normalizedThreat) : 0f);
+            AddWeightedKind(ref selected, ref totalWeight, CADefOf.Alpha, allowAlpha && count >= 10 && points >= 1200f ? 0.5f : 0f);
+
+            return selected ?? CADefOf.Berserker ?? CADefOf.Hunter ?? CADefOf.Stalker;
+        }
+
+        private void SendRaidLetter(List<Pawn> pawns, IncidentParms parms)
+        {
+            if (pawns == null || pawns.Count == 0)
             {
                 return;
             }
 
-            for (int i = 0; i < pawns.Count; i++)
+            string label = CrossedRaidAlertUtility.BuildRaidLetterLabel(def.letterLabel, null, parms.points);
+            string text = CrossedRaidAlertUtility.BuildRaidLetterText(def.letterText, pawns, parms, false);
+            LetterDef letterDef = def.letterDef ?? LetterDefOf.ThreatBig;
+            Find.LetterStack.ReceiveLetter(label, text, letterDef, pawns[0]);
+        }
+
+        private static void AddWeightedKind(ref PawnKindDef selected, ref float totalWeight, PawnKindDef kind, float weight)
+        {
+            weight = TheMarkedMenSettings.AdjustKindWeight(kind, weight);
+            if (kind == null || weight <= 0f)
             {
-                CrossedUtility.ApplyClassHediffs(pawns[i]);
+                return;
+            }
+
+            totalWeight += weight;
+            if (Rand.Value * totalWeight <= weight)
+            {
+                selected = kind;
             }
         }
 
@@ -7354,8 +7397,8 @@ namespace TheMarkedMen
 
     public sealed class IncidentWorker_CrossedCaravanAmbush : IncidentWorker_Ambush
     {
-        private const int MinAmbushCount = 2;
-        private const int MaxAmbushCount = 8;
+        private const int MinAmbushCount = 3;
+        private const int MaxAmbushCount = 10;
 
         private static bool IsMarkedManStoryteller => Find.Storyteller?.def?.defName == "CA_TheMarkedMan";
 
@@ -7364,9 +7407,9 @@ namespace TheMarkedMen
             float baseChance = base.ChanceFactorNow(target);
             if (IsMarkedManStoryteller)
             {
-                return baseChance * 2.5f;
+                return baseChance * 5f;
             }
-            return baseChance * 1.5f;
+            return baseChance * 3f;
         }
 
         protected override bool CanFireNowSub(IncidentParms parms)
