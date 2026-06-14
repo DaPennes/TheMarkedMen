@@ -1115,6 +1115,7 @@ namespace TheMarkedMen
         private static IncidentDef crossedRaid;
         private static IncidentDef crossedHorde;
         private static IncidentDef crossedProbe;
+        private static IncidentDef crossedCaravanAmbush;
         private static XenotypeDef markedOne;
         private static XenotypeDef markedOneSpitter;
         private static StatDef markedVirusResistance;
@@ -1155,6 +1156,7 @@ namespace TheMarkedMen
         public static IncidentDef CrossedRaid => crossedRaid ?? (crossedRaid = DefDatabase<IncidentDef>.GetNamedSilentFail("CA_CrossedRaid"));
         public static IncidentDef CrossedHorde => crossedHorde ?? (crossedHorde = DefDatabase<IncidentDef>.GetNamedSilentFail("CA_CrossedHorde"));
         public static IncidentDef CrossedProbe => crossedProbe ?? (crossedProbe = DefDatabase<IncidentDef>.GetNamedSilentFail("CA_CrossedProbe"));
+        public static IncidentDef CrossedCaravanAmbush => crossedCaravanAmbush ?? (crossedCaravanAmbush = DefDatabase<IncidentDef>.GetNamedSilentFail("CA_CrossedCaravanAmbush"));
         public static XenotypeDef MarkedOne => markedOne ?? (markedOne = DefDatabase<XenotypeDef>.GetNamedSilentFail("CA_MarkedOne"));
         public static XenotypeDef MarkedOneSpitter => markedOneSpitter ?? (markedOneSpitter = DefDatabase<XenotypeDef>.GetNamedSilentFail("CA_MarkedOneSpitter"));
         public static StatDef MarkedVirusResistance => markedVirusResistance ?? (markedVirusResistance = DefDatabase<StatDef>.GetNamedSilentFail("CA_MarkedVirusResistance"));
@@ -7352,6 +7354,199 @@ namespace TheMarkedMen
             string text = def.letterText ?? "A critically infected survivor has collapsed near the colony.";
             Find.LetterStack.ReceiveLetter(label, text, def.letterDef ?? LetterDefOf.ThreatSmall, new LookTargets(survivor));
             return true;
+        }
+    }
+
+    public sealed class IncidentWorker_CrossedCaravanAmbush : IncidentWorker_Ambush
+    {
+        private const int MinAmbushCount = 2;
+        private const int MaxAmbushCount = 8;
+
+        private static bool IsMarkedManStoryteller => Find.Storyteller?.def?.defName == "CA_TheMarkedMan";
+
+        protected override bool CanFireNowSub(IncidentParms parms)
+        {
+            if (!base.CanFireNowSub(parms))
+            {
+                return false;
+            }
+
+            if (CrossedUtility.Component?.EnsureCrossedFaction() == null)
+            {
+                return false;
+            }
+
+            if (parms.target is Caravan caravan)
+            {
+                if (caravan.PawnsListForReading.Count < 1)
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        protected override List<Pawn> GeneratePawns(IncidentParms parms)
+        {
+            Caravan caravan = parms.target as Caravan;
+            Faction crossed = CrossedUtility.Component?.EnsureCrossedFaction();
+            if (crossed == null)
+            {
+                return new List<Pawn>();
+            }
+
+            float points = CalculateAmbushPoints(parms);
+            parms.points = points;
+            parms.faction = crossed;
+
+            int count = CalculateAmbushCount(points, parms.pawnCount, caravan);
+            List<Pawn> pawns = GenerateAmbushPawns(count, points, crossed);
+            return pawns;
+        }
+
+        protected override void PostProcessGeneratedPawnsAfterSpawning(List<Pawn> generatedPawns)
+        {
+            for (int i = 0; i < generatedPawns.Count; i++)
+            {
+                CrossedUtility.ApplyClassHediffs(generatedPawns[i]);
+                CrossedUtility.ApplyInfectedTattoo(generatedPawns[i]);
+            }
+
+            CrossedUtility.ApplyGeneratedRaidKindTuning(generatedPawns);
+        }
+
+        protected override LordJob CreateLordJob(List<Pawn> generatedPawns, IncidentParms parms)
+        {
+            bool useBreachers = IsMarkedManStoryteller || (parms.points >= 600f);
+            return new LordJob_AssaultColony(parms.faction, false, false, false, false, false, useBreachers, true);
+        }
+
+        protected override string GetLetterLabel(Pawn anyPawn, IncidentParms parms)
+        {
+            return def.letterLabel ?? "Marked Men ambush";
+        }
+
+        protected override string GetLetterText(Pawn anyPawn, IncidentParms parms)
+        {
+            return def.letterText ?? "A pack of Marked Men has ambushed the caravan! Fight through them or fall back to reform.";
+        }
+
+        protected override LetterDef GetLetterDef(Pawn anyPawn, IncidentParms parms)
+        {
+            return def.letterDef ?? LetterDefOf.ThreatSmall;
+        }
+
+        private float CalculateAmbushPoints(IncidentParms parms)
+        {
+            float basePoints = parms.points;
+            if (basePoints <= 0f)
+            {
+                if (parms.target is Caravan caravan)
+                {
+                    basePoints = StorytellerUtility.DefaultThreatPointsNow(caravan);
+                }
+                else if (parms.target is Map map)
+                {
+                    basePoints = StorytellerUtility.DefaultThreatPointsNow(map);
+                }
+            }
+
+            float points = Mathf.Max(basePoints, def.minThreatPoints);
+
+            if (IsMarkedManStoryteller)
+            {
+                points *= 1.8f;
+            }
+
+            return TheMarkedMenSettings.ApplyRaidPointSettings(points);
+        }
+
+        private int CalculateAmbushCount(float points, int requestedCount, Caravan caravan)
+        {
+            TheMarkedMenSettings settings = TheMarkedMenMod.Settings;
+            int minCount = MinAmbushCount;
+            int maxCount = MaxAmbushCount;
+
+            if (IsMarkedManStoryteller)
+            {
+                minCount = Mathf.Max(minCount, 3);
+                maxCount = Mathf.Min(maxCount + 2, 14);
+            }
+
+            if (requestedCount > 0)
+            {
+                return Mathf.Clamp(requestedCount, minCount, maxCount);
+            }
+
+            float normalizedThreat = Mathf.InverseLerp(80f, 2000f, points);
+            int expected = Mathf.RoundToInt(Mathf.Lerp(minCount, maxCount, normalizedThreat));
+
+            if (IsMarkedManStoryteller)
+            {
+                expected = Mathf.RoundToInt(expected * 1.4f);
+            }
+
+            int variance = Mathf.Clamp(Mathf.RoundToInt(expected * 0.2f), 1, 3);
+            return Rand.RangeInclusive(Mathf.Max(minCount, expected - variance), Mathf.Min(maxCount, expected + variance));
+        }
+
+        private List<Pawn> GenerateAmbushPawns(int count, float points, Faction faction)
+        {
+            List<Pawn> pawns = new List<Pawn>(count);
+            bool alphaAdded = false;
+            for (int i = 0; i < count; i++)
+            {
+                PawnKindDef kind = PickAmbushKind(points, count, !alphaAdded);
+                if (kind == null)
+                {
+                    break;
+                }
+
+                Pawn pawn = PawnGenerator.GeneratePawn(kind, faction);
+                if (pawn == null)
+                {
+                    continue;
+                }
+
+                alphaAdded = alphaAdded || kind == CADefOf.Alpha;
+                pawns.Add(pawn);
+            }
+
+            return pawns;
+        }
+
+        private PawnKindDef PickAmbushKind(float points, int count, bool allowAlpha)
+        {
+            float normalizedThreat = Mathf.InverseLerp(80f, 2000f, points);
+            float storytellerFactor = IsMarkedManStoryteller ? 1.5f : 1f;
+
+            PawnKindDef selected = null;
+            float totalWeight = 0f;
+
+            AddWeightedKind(ref selected, ref totalWeight, CADefOf.Berserker, 8f);
+            AddWeightedKind(ref selected, ref totalWeight, CADefOf.Hunter, Mathf.Lerp(3f, 10f, normalizedThreat) * storytellerFactor);
+            AddWeightedKind(ref selected, ref totalWeight, CADefOf.Stalker, points >= 150f ? Mathf.Lerp(2f, 6f, normalizedThreat) : 1f);
+            AddWeightedKind(ref selected, ref totalWeight, CADefOf.Screamer, points >= 250f ? Mathf.Lerp(1f, 4f, normalizedThreat) * storytellerFactor : 0.5f);
+            AddWeightedKind(ref selected, ref totalWeight, CADefOf.Brute, points >= 400f ? Mathf.Lerp(0.5f, 3f, Mathf.InverseLerp(400f, 2000f, points)) * storytellerFactor : 0f);
+            AddWeightedKind(ref selected, ref totalWeight, CADefOf.Alpha, allowAlpha && count >= 8 && points >= 1000f ? 0.4f : 0f);
+
+            return selected ?? CADefOf.Berserker ?? CADefOf.Hunter ?? CADefOf.Stalker;
+        }
+
+        private static void AddWeightedKind(ref PawnKindDef selected, ref float totalWeight, PawnKindDef kind, float weight)
+        {
+            weight = TheMarkedMenSettings.AdjustKindWeight(kind, weight);
+            if (kind == null || weight <= 0f)
+            {
+                return;
+            }
+
+            totalWeight += weight;
+            if (Rand.Value * totalWeight <= weight)
+            {
+                selected = kind;
+            }
         }
     }
 }

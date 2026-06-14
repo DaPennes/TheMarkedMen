@@ -100,6 +100,20 @@
         </allowedTargetTags>
       </li>
 
+      <!-- Marked Men caravan ambush - world travel threat -->
+      <li Class="StorytellerCompProperties_OnOffCycle">
+        <incident>CA_CrossedCaravanAmbush</incident>
+        <minDaysPassed>10</minDaysPassed>
+        <onDays>2.5</onDays>
+        <offDays>1.5</offDays>
+        <minSpacingDays>3.0</minSpacingDays>
+        <numIncidentsRange>1~1</numIncidentsRange>
+        <applyCaravanVisibility>true</applyCaravanVisibility>
+        <allowedTargetTags>
+          <li>Caravan</li>
+        </allowedTargetTags>
+      </li>
+
       <!-- Marked Men raid - coordinated assault -->
       <li Class="StorytellerCompProperties_OnOffCycle">
         <incident>CA_CrossedRaid</incident>

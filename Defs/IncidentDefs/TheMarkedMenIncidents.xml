@@ -57,6 +57,24 @@
   </IncidentDef>
 
   <IncidentDef>
+    <defName>CA_CrossedCaravanAmbush</defName>
+    <label>Marked Men caravan ambush</label>
+    <targetTags>
+      <li>Caravan</li>
+    </targetTags>
+    <workerClass>TheMarkedMen.IncidentWorker_CrossedCaravanAmbush</workerClass>
+    <baseChance>0</baseChance>
+    <minRefireDays>2</minRefireDays>
+    <earliestDay>15</earliestDay>
+    <category>ThreatSmall</category>
+    <pointsScaleable>true</pointsScaleable>
+    <minThreatPoints>80</minThreatPoints>
+    <letterLabel>Marked Men ambush</letterLabel>
+    <letterText>A pack of Marked Men has ambushed the caravan! The infected erupt from cover with unnatural speed, cutting off escape routes. Fight through them or fall back to reform - but the Marked do not retreat, and every exchange of blood risks exposure to the Marked Virus.</letterText>
+    <letterDef>ThreatSmall</letterDef>
+  </IncidentDef>
+
+  <IncidentDef>
     <defName>CA_CrossedHorde</defName>
     <label>Marked Men horde</label>
     <targetTags>
