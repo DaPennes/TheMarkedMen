@@ -7364,6 +7364,16 @@ namespace TheMarkedMen
 
         private static bool IsMarkedManStoryteller => Find.Storyteller?.def?.defName == "CA_TheMarkedMan";
 
+        public override float ChanceFactorNow(IIncidentTarget target)
+        {
+            float baseChance = base.ChanceFactorNow(target);
+            if (IsMarkedManStoryteller)
+            {
+                return baseChance * 2.5f;
+            }
+            return baseChance * 1.5f;
+        }
+
         protected override bool CanFireNowSub(IncidentParms parms)
         {
             if (!base.CanFireNowSub(parms))
