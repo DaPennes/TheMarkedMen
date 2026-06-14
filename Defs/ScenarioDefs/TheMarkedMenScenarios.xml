@@ -15,16 +15,15 @@
   <ScenarioDef ParentName="ScenarioBase">
     <defName>CA_MarkedVillageFounder</defName>
     <label>Marked Survivors</label>
-    <description>Three survivors crossed the quarantine line after the Marked Virus destroyed their caravan. Their blood carries lasting immunity, though only some still bear the cross-shaped rash. After days of hiding from armed infected, they have stopped running long enough to build a colony of their own.</description>
+    <description>Three immune survivors escaped the Marked Virus outbreak that consumed their caravan. Their blood carries hard-won immunity, though only some still bear the cross-shaped rash as a permanent reminder of what they survived. After weeks of hiding from armed infected, they have stopped running. With salvaged supplies, a loyal dog, and the knowledge that the Marked Men are always hunting, they must build a colony that can survive the outbreak.</description>
     <scenario>
-      <summary>Three immune survivors start with industrial technology and basic supplies. Each has a 50% chance to carry the visible marked rash.</summary>
+      <summary>Three immune survivors, a loyal dog, and salvaged supplies. They carry lasting viral immunity and industrial tech knowledge, but the Marked Men are relentless. Each survivor has a 50% chance to carry the visible cross-shaped rash.</summary>
       <playerFaction>
         <factionDef>PlayerColony</factionDef>
       </playerFaction>
       <parts>
         <li Class="ScenPart_ConfigPage_ConfigureStartingPawns">
           <def>ConfigPage_ConfigureStartingPawns</def>
-          <pawnCount>3</pawnCount>
           <pawnChoiceCount>8</pawnChoiceCount>
         </li>
 
@@ -54,12 +53,22 @@
         <li Class="ScenPart_StartingThing_Defined">
           <def>StartingThing_Defined</def>
           <thingDef>Silver</thingDef>
-          <count>350</count>
+          <count>280</count>
+        </li>
+        <li Class="ScenPart_StartingThing_Defined">
+          <def>StartingThing_Defined</def>
+          <thingDef>Steel</thingDef>
+          <count>280</count>
+        </li>
+        <li Class="ScenPart_StartingThing_Defined">
+          <def>StartingThing_Defined</def>
+          <thingDef>WoodLog</thingDef>
+          <count>200</count>
         </li>
         <li Class="ScenPart_StartingThing_Defined">
           <def>StartingThing_Defined</def>
           <thingDef>MealSurvivalPack</thingDef>
-          <count>20</count>
+          <count>24</count>
         </li>
         <li Class="ScenPart_StartingThing_Defined">
           <def>StartingThing_Defined</def>
@@ -69,7 +78,11 @@
         <li Class="ScenPart_StartingThing_Defined">
           <def>StartingThing_Defined</def>
           <thingDef>ComponentIndustrial</thingDef>
-          <count>12</count>
+          <count>15</count>
+        </li>
+        <li Class="ScenPart_StartingThing_Defined">
+          <def>StartingThing_Defined</def>
+          <thingDef>Gun_BoltActionRifle</thingDef>
         </li>
         <li Class="ScenPart_StartingThing_Defined">
           <def>StartingThing_Defined</def>
@@ -81,9 +94,16 @@
           <stuff>Steel</stuff>
         </li>
 
+        <li Class="ScenPart_StartingAnimal">
+          <def>StartingAnimal</def>
+          <animalKind>LabradorRetriever</animalKind>
+          <count>1</count>
+          <bondToRandomPlayerPawnChance>0.8</bondToRandomPlayerPawnChance>
+        </li>
+
         <li Class="ScenPart_GameStartDialog">
           <def>GameStartDialog</def>
-          <text>The last road behind you is gone.\n\nYour caravan survived the first fever by doing what whole towns could not: you ran before the laughing voices learned your names. The Marked Virus took the sick, the guards, and the people who opened the gates. Three of you endured the blood tests, the quarantine fires, and the night marches. Your bodies reject the virus now, but the proof is uneven. Some of you still carry the cross-shaped rash like a warning painted under the skin. Some look untouched. None of you are safe.\n\nYou could keep running until the Marked Men catch your trail. Instead, you stop, unpack what little survived the flight, and decide this is where the immune stop fleeing.</text>
+          <text>The last road behind you is gone.\n\nYour caravan survived the first fever by doing what whole towns could not: you ran before the laughing voices learned your names. The Marked Virus took the sick, the guards, and the people who opened the gates. Three of you endured the blood tests, the quarantine fires, and the night marches. Your bodies reject the virus now, but the proof is uneven. Some of you still carry the cross-shaped rash like a warning painted under the skin. Some look untouched. None of you are safe.\n\nYou have a bolt-action rifle, a revolver with six rounds left, a knife that has drawn infected blood more times than you can count, a dog that refused to leave your side through the quarantine fires, and the clothes you fled in. The Marked Men do not negotiate. They do not retreat. They do not forget where they found survivors.\n\nYou could keep running until your legs give out. Instead, you drop your pack, count your rounds, and accept the truth: this is where the immune stop fleeing and start fighting.</text>
           <closeSound>GameStartSting</closeSound>
         </li>
       </parts>
