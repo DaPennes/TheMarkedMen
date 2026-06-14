@@ -38,9 +38,10 @@
     <li>ferny.worldbuilder</li>
     <li>c0ffee.rimworld.animations</li>
     <li>rim.job.world</li>
-    <li>krkr.rocketman</li>
-    <li>taranchuk.performancefish</li>
-  </loadAfter>
+     <li>krkr.rocketman</li>
+     <li>taranchuk.performancefish</li>
+     <li>VanillaExpanded.BaseGeneration</li>
+   </loadAfter>
   <description>The Marked Men adds a hostile infected faction built around fast outbreaks, escalating raids, corpse reanimation, and colony survival pressure.
 
 The Marked Virus spreads through close contact, infected blood exposure, contaminated food, and supported compatibility hooks. Most victims progress quickly into violent infection, while rare survivors can develop immunity. Starter colonists and their descendants receive special lineage resistance, but direct exposure can still very rarely break through.

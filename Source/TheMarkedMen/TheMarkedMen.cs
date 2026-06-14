@@ -113,7 +113,7 @@ namespace TheMarkedMen
         public float reanimationChance = 1f;
         public int reanimationDelayTicks = 900;
         public float starterLineageBreakthroughChance = 0.04f;
-        public float severityPerDay = 0.34f;
+
         public bool markedAlwaysAssault = true;
         public bool markedCanTimeoutOrFlee;
         public bool tacticalRetargetingEnabled = true;
@@ -302,7 +302,7 @@ namespace TheMarkedMen
             Scribe_Values.Look(ref reanimationChance, "reanimationChance", 1f);
             Scribe_Values.Look(ref reanimationDelayTicks, "reanimationDelayTicks", 900);
             Scribe_Values.Look(ref starterLineageBreakthroughChance, "starterLineageBreakthroughChance", 0.04f);
-            Scribe_Values.Look(ref severityPerDay, "severityPerDay", 0.34f);
+
             Scribe_Values.Look(ref markedAlwaysAssault, "markedAlwaysAssault", true);
             Scribe_Values.Look(ref markedCanTimeoutOrFlee, "markedCanTimeoutOrFlee", false);
             Scribe_Values.Look(ref tacticalRetargetingEnabled, "tacticalRetargetingEnabled", true);
