@@ -23,6 +23,7 @@ namespace TheMarkedMen
             Harmony harmony = new Harmony("edria.themarkedmen");
             harmony.PatchAll(Assembly.GetExecutingAssembly());
             CrossedOptionalHarmonyPatches.Apply(harmony);
+            TheMarkedMenAncientUrbanRuinsIntegration.Apply(harmony);
             LongEventHandler.ExecuteWhenFinished(() => Settings?.AutoEnableRjwIntegrationIfInstalled());
             LongEventHandler.ExecuteWhenFinished(CrossedUtility.ApplyMarkedVirusResistanceEquippedStatOffsets);
             LongEventHandler.ExecuteWhenFinished(CrossedCompatibility.LogDetectedMods);
@@ -137,6 +138,17 @@ namespace TheMarkedMen
         public int infectedStateMaintenanceIntervalTicks = 2500;
         public int reanimationProcessIntervalTicks = 2500;
         public int maxPendingReanimationsPerTick = 24;
+
+        public bool urbanOutbreaksEnabled = true;
+        public float urbanInfectionDensity = 1f;
+        public float urbanAmbushFrequency = 1f;
+        public bool dormantInfestationsEnabled = true;
+        public float dormantInfestationFrequency = 1f;
+        public bool cityEpicentersEnabled = true;
+        public float epicenterSpawnChance = 0.15f;
+        public bool urbanAmbushesEnabled = true;
+        public bool survivorEncountersEnabled = true;
+        public float survivorEncounterChance = 0.5f;
 
         private int settingsVersion = CurrentSettingsVersion;
         private string currentPreset = "Default";
@@ -326,6 +338,16 @@ namespace TheMarkedMen
             Scribe_Values.Look(ref infectedStateMaintenanceIntervalTicks, "infectedStateMaintenanceIntervalTicks", 2500);
             Scribe_Values.Look(ref reanimationProcessIntervalTicks, "reanimationProcessIntervalTicks", 2500);
             Scribe_Values.Look(ref maxPendingReanimationsPerTick, "maxPendingReanimationsPerTick", 24);
+            Scribe_Values.Look(ref urbanOutbreaksEnabled, "urbanOutbreaksEnabled", true);
+            Scribe_Values.Look(ref urbanInfectionDensity, "urbanInfectionDensity", 1f);
+            Scribe_Values.Look(ref urbanAmbushFrequency, "urbanAmbushFrequency", 1f);
+            Scribe_Values.Look(ref dormantInfestationsEnabled, "dormantInfestationsEnabled", true);
+            Scribe_Values.Look(ref dormantInfestationFrequency, "dormantInfestationFrequency", 1f);
+            Scribe_Values.Look(ref cityEpicentersEnabled, "cityEpicentersEnabled", true);
+            Scribe_Values.Look(ref epicenterSpawnChance, "epicenterSpawnChance", 0.15f);
+            Scribe_Values.Look(ref urbanAmbushesEnabled, "urbanAmbushesEnabled", true);
+            Scribe_Values.Look(ref survivorEncountersEnabled, "survivorEncountersEnabled", true);
+            Scribe_Values.Look(ref survivorEncounterChance, "survivorEncounterChance", 0.5f);
             Scribe_Values.Look(ref currentPreset, "currentPreset", "Default");
             if (Scribe.mode == LoadSaveMode.PostLoadInit && loadedSettingsVersion < CurrentSettingsVersion)
             {
@@ -546,6 +568,18 @@ namespace TheMarkedMen
             DrawInt(listing, "Ticks between infected-state maintenance", ref infectedStateMaintenanceIntervalTicks, 60, GenDate.TicksPerDay, "infectedStateMaintenanceIntervalTicks", "How often infected pawns refresh state such as faction-specific visuals.");
             DrawInt(listing, "Ticks between reanimation processing", ref reanimationProcessIntervalTicks, 60, GenDate.TicksPerDay, "reanimationProcessIntervalTicks", "How often queued corpse reanimations are processed.");
             DrawInt(listing, "Max queued reanimations processed per tick", ref maxPendingReanimationsPerTick, 1, 500, "maxPendingReanimationsPerTick", "Limits burst work when many infected corpses are waiting to reanimate.");
+
+            DrawSectionHeader(listing, "Ancient Urban Ruins Outbreak", "Controls Marked Virus outbreaks in Ancient Urban Ruins cities. Only applies when the Ancient Urban Ruins mod is active.");
+            DrawCheckbox(listing, "Enable urban outbreaks", ref urbanOutbreaksEnabled, "Toggles whether Ancient Urban Ruins maps become active outbreak zones with infected Marked Men roaming the ruins.");
+            DrawFloat(listing, "Urban infection density", ref urbanInfectionDensity, 0f, 5f, "urbanInfectionDensity", "Controls how many buildings become infected and how many Marked Men spawn per building. Higher values mean denser urban populations.");
+            DrawFloat(listing, "Urban ambush frequency", ref urbanAmbushFrequency, 0f, 5f, "urbanAmbushFrequency", "How often Marked Men ambushes occur inside the ruins. Higher values mean more frequent attacks.");
+            DrawCheckbox(listing, "Enable dormant infestations", ref dormantInfestationsEnabled, "When enabled, some infected buildings start dormant. They burst open with Marked Men when colonists approach.");
+            DrawFloat(listing, "Dormant infestation frequency", ref dormantInfestationFrequency, 0f, 5f, "dormantInfestationFrequency", "How many buildings start with dormant infestations waiting to ambush approaching colonists.");
+            DrawCheckbox(listing, "Enable city epicenters", ref cityEpicentersEnabled, "When enabled, some urban ruin maps become high-density epicenters with stronger, more frequent spawns and a world-object reinforcement comp.");
+            DrawFloat(listing, "Epicenter spawn chance", ref epicenterSpawnChance, 0f, 1f, "epicenterSpawnChance", "Chance that a given urban ruins map becomes an epicenter with doubled initial population and periodic reinforcements.");
+            DrawCheckbox(listing, "Enable urban ambush incidents", ref urbanAmbushesEnabled, "Allows incident-driven ambush events on Ancient Urban Ruins maps in addition to map-component ambushes.");
+            DrawCheckbox(listing, "Enable survivor encounters", ref survivorEncountersEnabled, "When enabled, survivor encounters in the ruins may be genuine survivors, hidden infected, or traps leading to infestations.");
+            DrawFloat(listing, "Survivor encounter chance modifier", ref survivorEncounterChance, 0f, 1f, "survivorEncounterChance", "Multiplier for survivor encounter incident frequency in urban ruins. Higher values mean more survivor events.");
 
             DrawSectionHeader(listing, "Optional RimJobWorld Bridge", "Only applies when RimJobWorld is installed. The bridge adds no hard dependency.");
             DrawHelp(listing, "RimJobWorld detected right now: " + (TheMarkedMenRjwCompatibility.IsRjwLoaded() ? "yes" : "no") + ".");
@@ -851,6 +885,11 @@ namespace TheMarkedMen
             infectedStateMaintenanceIntervalTicks = Mathf.Clamp(infectedStateMaintenanceIntervalTicks, 60, GenDate.TicksPerDay);
             reanimationProcessIntervalTicks = Mathf.Clamp(reanimationProcessIntervalTicks, 60, GenDate.TicksPerDay);
             maxPendingReanimationsPerTick = Mathf.Clamp(maxPendingReanimationsPerTick, 1, 500);
+            urbanInfectionDensity = Mathf.Clamp(urbanInfectionDensity, 0f, 5f);
+            urbanAmbushFrequency = Mathf.Clamp(urbanAmbushFrequency, 0f, 5f);
+            dormantInfestationFrequency = Mathf.Clamp(dormantInfestationFrequency, 0f, 5f);
+            epicenterSpawnChance = Mathf.Clamp01(epicenterSpawnChance);
+            survivorEncounterChance = Mathf.Clamp01(survivorEncounterChance);
         }
 
         private void ApplyDefaultPreset(bool updatePreset)
@@ -1116,6 +1155,8 @@ namespace TheMarkedMen
         private static IncidentDef crossedHorde;
         private static IncidentDef crossedProbe;
         private static IncidentDef crossedCaravanAmbush;
+        private static IncidentDef urbanAmbush;
+        private static IncidentDef urbanSurvivor;
         private static XenotypeDef markedOne;
         private static XenotypeDef markedOneSpitter;
         private static StatDef markedVirusResistance;
@@ -1157,6 +1198,8 @@ namespace TheMarkedMen
         public static IncidentDef CrossedHorde => crossedHorde ?? (crossedHorde = DefDatabase<IncidentDef>.GetNamedSilentFail("CA_CrossedHorde"));
         public static IncidentDef CrossedProbe => crossedProbe ?? (crossedProbe = DefDatabase<IncidentDef>.GetNamedSilentFail("CA_CrossedProbe"));
         public static IncidentDef CrossedCaravanAmbush => crossedCaravanAmbush ?? (crossedCaravanAmbush = DefDatabase<IncidentDef>.GetNamedSilentFail("CA_CrossedCaravanAmbush"));
+        public static IncidentDef UrbanAmbush => urbanAmbush ?? (urbanAmbush = DefDatabase<IncidentDef>.GetNamedSilentFail("CA_UrbanAmbush"));
+        public static IncidentDef UrbanSurvivor => urbanSurvivor ?? (urbanSurvivor = DefDatabase<IncidentDef>.GetNamedSilentFail("CA_UrbanSurvivor"));
         public static XenotypeDef MarkedOne => markedOne ?? (markedOne = DefDatabase<XenotypeDef>.GetNamedSilentFail("CA_MarkedOne"));
         public static XenotypeDef MarkedOneSpitter => markedOneSpitter ?? (markedOneSpitter = DefDatabase<XenotypeDef>.GetNamedSilentFail("CA_MarkedOneSpitter"));
         public static StatDef MarkedVirusResistance => markedVirusResistance ?? (markedVirusResistance = DefDatabase<StatDef>.GetNamedSilentFail("CA_MarkedVirusResistance"));
@@ -7100,6 +7143,57 @@ namespace TheMarkedMen
             }
 
             Report(Component?.DebugFireHordeNow() ?? false, "DevMode: Started a Marked Men horde event now.", "DevMode: Could not start horde. Load a player home map with free colonists.");
+        }
+
+        [DebugAction(DebugCategory, "Init urban outbreak on this map", allowedGameStates = AllowedGameStates.PlayingOnMap, actionType = DebugActionType.Action, displayPriority = 960)]
+        public static void InitUrbanOutbreak()
+        {
+            if (!TheMarkedMenSettings.DebugActionsEnabled)
+            {
+                Report(false, null, "DevMode: The Marked Men debug actions are disabled in mod settings.");
+                return;
+            }
+
+            bool success = TheMarkedMenAncientUrbanRuinsIntegration.DebugInitializeCurrentMap();
+            Report(success, "DevMode: Urban outbreak initialized on this map. Check the ruins for Marked Men.", "DevMode: This is not an Ancient Urban Ruins map or AUR is not loaded.");
+        }
+
+        [DebugAction(DebugCategory, "Fire urban ambush incident", allowedGameStates = AllowedGameStates.PlayingOnMap, actionType = DebugActionType.Action, displayPriority = 950)]
+        public static void FireUrbanAmbush()
+        {
+            if (!TheMarkedMenSettings.DebugActionsEnabled)
+            {
+                Report(false, null, "DevMode: The Marked Men debug actions are disabled in mod settings.");
+                return;
+            }
+
+            if (!TheMarkedMenAncientUrbanRuinsIntegration.IsAncientUrbanRuinsMap(Find.CurrentMap))
+            {
+                Report(false, null, "DevMode: This is not an Ancient Urban Ruins map.");
+                return;
+            }
+
+            bool success = TheMarkedMenAncientUrbanRuinsIntegration.DebugFireIncident("CA_UrbanAmbush");
+            Report(success, "DevMode: Urban ambush incident fired.", "DevMode: Could not fire urban ambush. Ensure the crossed faction exists.");
+        }
+
+        [DebugAction(DebugCategory, "Fire survivor encounter incident", allowedGameStates = AllowedGameStates.PlayingOnMap, actionType = DebugActionType.Action, displayPriority = 940)]
+        public static void FireUrbanSurvivor()
+        {
+            if (!TheMarkedMenSettings.DebugActionsEnabled)
+            {
+                Report(false, null, "DevMode: The Marked Men debug actions are disabled in mod settings.");
+                return;
+            }
+
+            if (!TheMarkedMenAncientUrbanRuinsIntegration.IsAncientUrbanRuinsMap(Find.CurrentMap))
+            {
+                Report(false, null, "DevMode: This is not an Ancient Urban Ruins map.");
+                return;
+            }
+
+            bool success = TheMarkedMenAncientUrbanRuinsIntegration.DebugFireIncident("CA_UrbanSurvivor");
+            Report(success, "DevMode: Survivor encounter incident fired.", "DevMode: Could not fire survivor encounter. Ensure the crossed faction exists.");
         }
 
         private static TheMarkedMenGameComponent Component => Current.Game?.GetComponent<TheMarkedMenGameComponent>();

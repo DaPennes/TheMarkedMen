@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LanguageData>
+  <CA_UrbanOutbreakLabel>Urban Outbreak</CA_UrbanOutbreakLabel>
+  <CA_UrbanAmbushLabel>Urban Ambush</CA_UrbanAmbushLabel>
+  <CA_UrbanSurvivorLabel>Urban Survivor</CA_UrbanSurvivorLabel>
+  <CA_UrbanEpicenterLabel>Urban Epicenter</CA_UrbanEpicenterLabel>
+  <CA_UrbanDormantLabel>Dormant Infestation</CA_UrbanDormantLabel>
+  <CA_UrbanInfectionDensityLabel>Urban Infection Density</CA_UrbanInfectionDensityLabel>
+  <CA_UrbanAmbushFrequencyLabel>Urban Ambush Frequency</CA_UrbanAmbushFrequencyLabel>
+  <CA_UrbanDormantFrequencyLabel>Dormant Infestation Frequency</CA_UrbanDormantFrequencyLabel>
+  <CA_UrbanEpicenterChanceLabel>Epicenter Spawn Chance</CA_UrbanEpicenterChanceLabel>
+  <CA_UrbanSurvivorChanceLabel>Survivor Encounter Chance</CA_UrbanSurvivorChanceLabel>
+</LanguageData>

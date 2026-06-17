@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+  <IncidentDef>
+    <defName>CA_UrbanAmbush</defName>
+    <label>Urban ruins ambush</label>
+    <targetTags>
+      <li>Map_PlayerHome</li>
+    </targetTags>
+    <workerClass>TheMarkedMen.IncidentWorker_UrbanAmbush</workerClass>
+    <baseChance>0.5</baseChance>
+    <minRefireDays>3</minRefireDays>
+    <category>ThreatSmall</category>
+    <pointsScaleable>true</pointsScaleable>
+    <minThreatPoints>60</minThreatPoints>
+    <letterLabel>Marked Men urban ambush</letterLabel>
+    <letterText>Marked Men have been triggered by movement in the ruins. Infected pour from side streets, broken windows, and collapsed doorways to cut off your colonists. Fight through them or pull back to defensible ground.</letterText>
+    <letterDef>ThreatSmall</letterDef>
+  </IncidentDef>
+
+  <IncidentDef>
+    <defName>CA_UrbanSurvivor</defName>
+    <label>Urban ruins survivor</label>
+    <targetTags>
+      <li>Map_PlayerHome</li>
+    </targetTags>
+    <workerClass>TheMarkedMen.IncidentWorker_UrbanSurvivor</workerClass>
+    <baseChance>0.3</baseChance>
+    <minRefireDays>5</minRefireDays>
+    <category>Misc</category>
+    <pointsScaleable>false</pointsScaleable>
+    <letterLabel>Survivor found in ruins</letterLabel>
+    <letterText>A survivor has been spotted in the ruins. They may be a genuine refugee, a hidden infected, or bait for a trap.</letterText>
+    <letterDef>NeutralEvent</letterDef>
+  </IncidentDef>
+</Defs>
