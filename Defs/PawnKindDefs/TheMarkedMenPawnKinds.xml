@@ -31,7 +31,8 @@
     <combatPower>80</combatPower>
     <apparelMoney>40~100</apparelMoney>
     <apparelTags>
-      <li>Civilian</li>
+      <li>IndustrialBasic</li>
+      <li>Neolithic</li>
     </apparelTags>
     <weaponMoney>40~100</weaponMoney>
     <weaponTags>
@@ -48,12 +49,13 @@
     <combatPower>120</combatPower>
     <apparelMoney>60~140</apparelMoney>
     <apparelTags>
-      <li>Light</li>
-      <li>Civilian</li>
+      <li>IndustrialBasic</li>
+      <li>Neolithic</li>
     </apparelTags>
     <weaponMoney>100~200</weaponMoney>
     <weaponTags>
       <li>SimpleGun</li>
+      <li>MakeshiftGun</li>
       <li>NeolithicMeleeBasic</li>
     </weaponTags>
   </PawnKindDef>
@@ -66,11 +68,14 @@
     <combatPower>200</combatPower>
     <apparelMoney>100~220</apparelMoney>
     <apparelTags>
-      <li>Hunter</li>
+      <li>IndustrialBasic</li>
+      <li>Neolithic</li>
+      <li>IndustrialMilitaryBasic</li>
     </apparelTags>
     <weaponMoney>80~380</weaponMoney>
     <weaponTags>
       <li>Gun</li>
+      <li>MakeshiftGun</li>
       <li>NeolithicRangedDecent</li>
       <li>NeolithicMeleeBasic</li>
     </weaponTags>
@@ -84,8 +89,8 @@
     <combatPower>180</combatPower>
     <apparelMoney>80~180</apparelMoney>
     <apparelTags>
-      <li>Light</li>
-      <li>Military</li>
+      <li>IndustrialBasic</li>
+      <li>IndustrialMilitaryBasic</li>
     </apparelTags>
     <weaponMoney>140~300</weaponMoney>
     <weaponTags>
@@ -104,12 +109,13 @@
     <canBeSapper>true</canBeSapper>
     <apparelMoney>120~280</apparelMoney>
     <apparelTags>
-      <li>Raider</li>
-      <li>Military</li>
+      <li>IndustrialBasic</li>
+      <li>IndustrialMilitaryBasic</li>
     </apparelTags>
     <weaponMoney>180~450</weaponMoney>
     <weaponTags>
       <li>Gun</li>
+      <li>MakeshiftGun</li>
       <li>MedievalMeleeDecent</li>
       <li>NeolithicMeleeBasic</li>
     </weaponTags>
@@ -124,12 +130,14 @@
     <canBeSapper>true</canBeSapper>
     <apparelMoney>200~400</apparelMoney>
     <apparelTags>
-      <li>Military</li>
+      <li>IndustrialMilitaryBasic</li>
+      <li>IndustrialMilitaryAdvanced</li>
     </apparelTags>
     <weaponMoney>250~800</weaponMoney>
     <weaponTags>
       <li>IndustrialGunAdvanced</li>
       <li>GunHeavy</li>
+      <li>HeavyGun</li>
       <li>NeolithicMeleeBasic</li>
     </weaponTags>
   </PawnKindDef>
@@ -143,7 +151,9 @@
     <canBeSapper>true</canBeSapper>
     <apparelMoney>180~380</apparelMoney>
     <apparelTags>
-      <li>Heavy</li>
+      <li>IndustrialMilitaryBasic</li>
+      <li>IndustrialMilitaryAdvanced</li>
+      <li>MedievalMilitary</li>
     </apparelTags>
     <weaponMoney>250~650</weaponMoney>
     <weaponTags>
@@ -161,12 +171,14 @@
     <combatPower>260</combatPower>
     <apparelMoney>60~180</apparelMoney>
     <apparelTags>
-      <li>Civilian</li>
+      <li>IndustrialBasic</li>
+      <li>Neolithic</li>
     </apparelTags>
-    <weaponMoney>40~240</weaponMoney>
+    <weaponMoney>150~500</weaponMoney>
     <weaponTags>
-      <li>GrenadeFlame</li>
-      <li>Gun</li>
+      <li>Flamethrower</li>
+      <li>HeavyGun</li>
+      <li>IndustrialGunAdvanced</li>
       <li>NeolithicMeleeBasic</li>
     </weaponTags>
   </PawnKindDef>
@@ -181,8 +193,8 @@
     <maxGenerationAge>65</maxGenerationAge>
     <apparelMoney>250~500</apparelMoney>
     <apparelTags>
-      <li>Military</li>
-      <li>Heavy</li>
+      <li>IndustrialMilitaryAdvanced</li>
+      <li>SpacerMilitary</li>
     </apparelTags>
     <weaponMoney>400~1400</weaponMoney>
     <weaponTags>
@@ -211,12 +223,13 @@
     <maxGenerationAge>70</maxGenerationAge>
     <apparelMoney>400~800</apparelMoney>
     <apparelTags>
-      <li>Heavy</li>
-      <li>Military</li>
+      <li>IndustrialMilitaryAdvanced</li>
+      <li>SpacerMilitary</li>
     </apparelTags>
     <weaponMoney>300~2500</weaponMoney>
     <weaponTags>
       <li>GunHeavy</li>
+      <li>HeavyGun</li>
       <li>SpacerGun</li>
       <li>IndustrialGunAdvanced</li>
       <li>MedievalMeleeAdvanced</li>
@@ -242,13 +255,14 @@
     <maxGenerationAge>75</maxGenerationAge>
     <apparelMoney>600~1200</apparelMoney>
     <apparelTags>
-      <li>Heavy</li>
-      <li>Military</li>
+      <li>SpacerMilitary</li>
+      <li>IndustrialMilitaryAdvanced</li>
     </apparelTags>
     <weaponMoney>400~4000</weaponMoney>
     <weaponTags>
       <li>SpacerGun</li>
       <li>GunHeavy</li>
+      <li>HeavyGun</li>
       <li>IndustrialGunAdvanced</li>
       <li>MedievalMeleeAdvanced</li>
       <li>NeolithicMeleeBasic</li>
