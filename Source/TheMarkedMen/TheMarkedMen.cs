@@ -88,13 +88,17 @@ namespace TheMarkedMen
         public bool allowDistributedGroupArrival = true;
         public bool allowDistributedArrival = true;
         public bool allowSingleEdgeArrival = true;
-        public float berserkerWeightMultiplier = 1f;
+        public float civilianWeightMultiplier = 1f;
+        public float scoutWeightMultiplier = 1f;
         public float hunterWeightMultiplier = 1f;
-        public float stalkerWeightMultiplier = 1f;
-        public float screamerWeightMultiplier = 1f;
+        public float shooterWeightMultiplier = 1f;
+        public float raiderWeightMultiplier = 1f;
+        public float soldierWeightMultiplier = 1f;
         public float bruteWeightMultiplier = 1f;
+        public float pyromaniacWeightMultiplier = 1f;
         public float alphaWeightMultiplier = 1f;
-        public bool allowMarkedChildren;
+        public float warlordWeightMultiplier = 1f;
+        public float markedManWeightMultiplier = 1f;
         public int minimumHordeSize = 3;
         public int maximumHordeSize = 12;
         public int minimumProbeSize = 2;
@@ -288,13 +292,17 @@ namespace TheMarkedMen
             Scribe_Values.Look(ref allowDistributedGroupArrival, "allowDistributedGroupArrival", true);
             Scribe_Values.Look(ref allowDistributedArrival, "allowDistributedArrival", true);
             Scribe_Values.Look(ref allowSingleEdgeArrival, "allowSingleEdgeArrival", true);
-            Scribe_Values.Look(ref berserkerWeightMultiplier, "berserkerWeightMultiplier", 1f);
+            Scribe_Values.Look(ref civilianWeightMultiplier, "civilianWeightMultiplier", 1f);
+            Scribe_Values.Look(ref scoutWeightMultiplier, "scoutWeightMultiplier", 1f);
             Scribe_Values.Look(ref hunterWeightMultiplier, "hunterWeightMultiplier", 1f);
-            Scribe_Values.Look(ref stalkerWeightMultiplier, "stalkerWeightMultiplier", 1f);
-            Scribe_Values.Look(ref screamerWeightMultiplier, "screamerWeightMultiplier", 1f);
+            Scribe_Values.Look(ref shooterWeightMultiplier, "shooterWeightMultiplier", 1f);
+            Scribe_Values.Look(ref raiderWeightMultiplier, "raiderWeightMultiplier", 1f);
+            Scribe_Values.Look(ref soldierWeightMultiplier, "soldierWeightMultiplier", 1f);
             Scribe_Values.Look(ref bruteWeightMultiplier, "bruteWeightMultiplier", 1f);
+            Scribe_Values.Look(ref pyromaniacWeightMultiplier, "pyromaniacWeightMultiplier", 1f);
             Scribe_Values.Look(ref alphaWeightMultiplier, "alphaWeightMultiplier", 1f);
-            Scribe_Values.Look(ref allowMarkedChildren, "allowMarkedChildren", false);
+            Scribe_Values.Look(ref warlordWeightMultiplier, "warlordWeightMultiplier", 1f);
+            Scribe_Values.Look(ref markedManWeightMultiplier, "markedManWeightMultiplier", 1f);
             Scribe_Values.Look(ref minimumHordeSize, "minimumHordeSize", 3);
             Scribe_Values.Look(ref maximumHordeSize, "maximumHordeSize", 12);
             Scribe_Values.Look(ref minimumProbeSize, "minimumProbeSize", 2);
@@ -507,13 +515,17 @@ namespace TheMarkedMen
             DrawCheckbox(listing, "Allow single pawn edge arrivals", ref allowSingleEdgeArrival, "Allows single-file edge entry when the incident worker selects it.");
 
             DrawSectionHeader(listing, "Enemy Mix", "Controls which infected pawn types appear. Weight 0 disables that type; weight 1 is normal; higher values make that type more common.");
-            DrawFloat(listing, "Berserker weight", ref berserkerWeightMultiplier, 0f, 5f, "berserkerWeightMultiplier", "Basic aggressive infected. This is the safest fallback type when other weights are low.");
-            DrawFloat(listing, "Hunter weight", ref hunterWeightMultiplier, 0f, 5f, "hunterWeightMultiplier", "Fast pressure unit used more often as raid points rise.");
-            DrawFloat(listing, "Stalker weight", ref stalkerWeightMultiplier, 0f, 5f, "stalkerWeightMultiplier", "Flanking and probe-focused infected.");
-            DrawFloat(listing, "Screamer weight", ref screamerWeightMultiplier, 0f, 5f, "screamerWeightMultiplier", "Disruptive infected used in stronger attacks.");
-            DrawFloat(listing, "Brute weight", ref bruteWeightMultiplier, 0f, 5f, "bruteWeightMultiplier", "Heavy infected. Usually appears only when raid points are high enough.");
-            DrawFloat(listing, "Alpha weight", ref alphaWeightMultiplier, 0f, 5f, "alphaWeightMultiplier", "Command infected that strengthens nearby Marked Men. Also limited by the maximum alpha setting.");
-            DrawCheckbox(listing, "Allow child Marked pawns", ref allowMarkedChildren, "Allows child infected pawn kinds in eligible low-point raids. Disable this if you do not want child enemies.");
+            DrawFloat(listing, "Civilian weight", ref civilianWeightMultiplier, 0f, 5f, "civilianWeightMultiplier", "Basic infected with improvised weapons. The most common type.");
+            DrawFloat(listing, "Scout weight", ref scoutWeightMultiplier, 0f, 5f, "scoutWeightMultiplier", "Fast reconnaissance infected with light weapons.");
+            DrawFloat(listing, "Hunter weight", ref hunterWeightMultiplier, 0f, 5f, "hunterWeightMultiplier", "Tracker infected with hunting weapons.");
+            DrawFloat(listing, "Shooter weight", ref shooterWeightMultiplier, 0f, 5f, "shooterWeightMultiplier", "Ranged infected with sidearms and SMGs.");
+            DrawFloat(listing, "Raider weight", ref raiderWeightMultiplier, 0f, 5f, "raiderWeightMultiplier", "Former bandits with assault rifles and machetes.");
+            DrawFloat(listing, "Soldier weight", ref soldierWeightMultiplier, 0f, 5f, "soldierWeightMultiplier", "Former military infected with military-grade gear.");
+            DrawFloat(listing, "Brute weight", ref bruteWeightMultiplier, 0f, 5f, "bruteWeightMultiplier", "Heavy melee infected. Usually appears only when raid points are high enough.");
+            DrawFloat(listing, "Pyromaniac weight", ref pyromaniacWeightMultiplier, 0f, 5f, "pyromaniacWeightMultiplier", "Fire-focused infected that spread chaos.");
+            DrawFloat(listing, "Alpha weight", ref alphaWeightMultiplier, 0f, 5f, "alphaWeightMultiplier", "Elite command infected that strengthens nearby Marked Men.");
+            DrawFloat(listing, "Warlord weight", ref warlordWeightMultiplier, 0f, 5f, "warlordWeightMultiplier", "Regional commander infected. Rare and extremely dangerous.");
+            DrawFloat(listing, "Marked Man weight", ref markedManWeightMultiplier, 0f, 5f, "markedManWeightMultiplier", "Ultimate infected. Endgame encounter, extremely rare.");
             DrawInt(listing, "Minimum horde size", ref minimumHordeSize, 1, 50, "minimumHordeSize", "Smallest horde size when a horde incident does not request a specific count.");
             DrawInt(listing, "Maximum horde size", ref maximumHordeSize, 1, 100, "maximumHordeSize", "Largest horde size after threat scaling and variance.");
             DrawInt(listing, "Minimum scouting probe size", ref minimumProbeSize, 1, 20, "minimumProbeSize", "Smallest scouting pack size when the incident does not request a specific count.");
@@ -637,33 +649,49 @@ namespace TheMarkedMen
 
         public float KindWeightMultiplier(PawnKindDef kind)
         {
-            if (kind == CADefOf.Berserker)
+            if (kind == CADefOf.CrossedCivilian)
             {
-                return berserkerWeightMultiplier;
+                return civilianWeightMultiplier;
             }
-            if (kind == CADefOf.Hunter)
+            if (kind == CADefOf.CrossedScout)
+            {
+                return scoutWeightMultiplier;
+            }
+            if (kind == CADefOf.CrossedHunter)
             {
                 return hunterWeightMultiplier;
             }
-            if (kind == CADefOf.Stalker)
+            if (kind == CADefOf.CrossedShooter)
             {
-                return stalkerWeightMultiplier;
+                return shooterWeightMultiplier;
             }
-            if (kind == CADefOf.Screamer)
+            if (kind == CADefOf.CrossedRaider)
             {
-                return screamerWeightMultiplier;
+                return raiderWeightMultiplier;
             }
-            if (kind == CADefOf.Brute)
+            if (kind == CADefOf.CrossedSoldier)
+            {
+                return soldierWeightMultiplier;
+            }
+            if (kind == CADefOf.CrossedBrute)
             {
                 return bruteWeightMultiplier;
             }
-            if (kind == CADefOf.Alpha)
+            if (kind == CADefOf.CrossedPyromaniac)
+            {
+                return pyromaniacWeightMultiplier;
+            }
+            if (kind == CADefOf.CrossedAlpha)
             {
                 return alphaWeightMultiplier;
             }
-            if (kind == CADefOf.Child)
+            if (kind == CADefOf.CrossedWarlord)
             {
-                return allowMarkedChildren ? Mathf.Max(0.01f, berserkerWeightMultiplier) : 0f;
+                return warlordWeightMultiplier;
+            }
+            if (kind == CADefOf.MarkedMan)
+            {
+                return markedManWeightMultiplier;
             }
 
             return 1f;
@@ -846,12 +874,17 @@ namespace TheMarkedMen
             maximumRaidPoints = Mathf.Clamp(maximumRaidPoints, 0f, 50000f);
             raidEscalationPerRaid = Mathf.Clamp(raidEscalationPerRaid, 0f, 2f);
             raidEscalationMaxBonus = Mathf.Clamp(raidEscalationMaxBonus, 0f, 20f);
-            berserkerWeightMultiplier = Mathf.Clamp(berserkerWeightMultiplier, 0f, 5f);
+            civilianWeightMultiplier = Mathf.Clamp(civilianWeightMultiplier, 0f, 5f);
+            scoutWeightMultiplier = Mathf.Clamp(scoutWeightMultiplier, 0f, 5f);
             hunterWeightMultiplier = Mathf.Clamp(hunterWeightMultiplier, 0f, 5f);
-            stalkerWeightMultiplier = Mathf.Clamp(stalkerWeightMultiplier, 0f, 5f);
-            screamerWeightMultiplier = Mathf.Clamp(screamerWeightMultiplier, 0f, 5f);
+            shooterWeightMultiplier = Mathf.Clamp(shooterWeightMultiplier, 0f, 5f);
+            raiderWeightMultiplier = Mathf.Clamp(raiderWeightMultiplier, 0f, 5f);
+            soldierWeightMultiplier = Mathf.Clamp(soldierWeightMultiplier, 0f, 5f);
             bruteWeightMultiplier = Mathf.Clamp(bruteWeightMultiplier, 0f, 5f);
+            pyromaniacWeightMultiplier = Mathf.Clamp(pyromaniacWeightMultiplier, 0f, 5f);
             alphaWeightMultiplier = Mathf.Clamp(alphaWeightMultiplier, 0f, 5f);
+            warlordWeightMultiplier = Mathf.Clamp(warlordWeightMultiplier, 0f, 5f);
+            markedManWeightMultiplier = Mathf.Clamp(markedManWeightMultiplier, 0f, 5f);
             minimumHordeSize = Mathf.Clamp(minimumHordeSize, 1, 50);
             maximumHordeSize = Mathf.Clamp(maximumHordeSize, minimumHordeSize, 100);
             minimumProbeSize = Mathf.Clamp(minimumProbeSize, 1, 20);
@@ -1009,6 +1042,7 @@ namespace TheMarkedMen
             maximumHordeSize = 18;
             maximumProbeSize = 6;
             alphaWeightMultiplier = 1.6f;
+            warlordWeightMultiplier = 1.3f;
             bruteWeightMultiplier = 1.4f;
             bloodExposureChance = 0.65f;
             infectedAssaultExposureChance = 0.65f;
@@ -1041,10 +1075,8 @@ namespace TheMarkedMen
             raidPointsMultiplier = 0.85f;
             minimumHordeSize = 8;
             maximumHordeSize = 30;
-            berserkerWeightMultiplier = 1.5f;
+            civilianWeightMultiplier = 1.5f;
             hunterWeightMultiplier = 0.75f;
-            stalkerWeightMultiplier = 1.35f;
-            screamerWeightMultiplier = 1.4f;
             bruteWeightMultiplier = 0.8f;
             alphaWeightMultiplier = 0.6f;
             bloodExposureChance = 0.8f;
@@ -1078,13 +1110,17 @@ namespace TheMarkedMen
 
         private void ResetCompositionDefaults()
         {
-            berserkerWeightMultiplier = 1f;
+            civilianWeightMultiplier = 1f;
+            scoutWeightMultiplier = 1f;
             hunterWeightMultiplier = 1f;
-            stalkerWeightMultiplier = 1f;
-            screamerWeightMultiplier = 1f;
+            shooterWeightMultiplier = 1f;
+            raiderWeightMultiplier = 1f;
+            soldierWeightMultiplier = 1f;
             bruteWeightMultiplier = 1f;
+            pyromaniacWeightMultiplier = 1f;
             alphaWeightMultiplier = 1f;
-            allowMarkedChildren = false;
+            warlordWeightMultiplier = 1f;
+            markedManWeightMultiplier = 1f;
             minimumHordeSize = 3;
             maximumHordeSize = 12;
             minimumProbeSize = 2;
@@ -1125,8 +1161,6 @@ namespace TheMarkedMen
         private static HediffDef bloodRush;
         private static HediffDef commandAura;
         private static HediffDef panic;
-        private static HediffDef bomberCharge;
-        private static HediffDef spitterGlands;
         private static HediffDef psychicAura;
         private static ThoughtDef crossedSocialTerror;
         private static FactionDef crossedFaction;
@@ -1134,18 +1168,17 @@ namespace TheMarkedMen
         private static InteractionDef crossedFalseMercy;
         private static InteractionDef crossedPackLaughter;
         private static InteractionDef crossedInfectionGloat;
-        private static HediffDef chargeBuff;
-        private static PawnKindDef berserker;
-        private static PawnKindDef hunter;
-        private static PawnKindDef brute;
-        private static PawnKindDef stalker;
-        private static PawnKindDef screamer;
-        private static PawnKindDef alpha;
-        private static PawnKindDef child;
-        private static PawnKindDef charger;
-        private static PawnKindDef bomber;
-        private static PawnKindDef spitter;
-        private static PawnKindDef alphaPsychic;
+        private static PawnKindDef crossedCivilian;
+        private static PawnKindDef crossedScout;
+        private static PawnKindDef crossedHunter;
+        private static PawnKindDef crossedShooter;
+        private static PawnKindDef crossedRaider;
+        private static PawnKindDef crossedSoldier;
+        private static PawnKindDef crossedBrute;
+        private static PawnKindDef crossedPyromaniac;
+        private static PawnKindDef crossedAlpha;
+        private static PawnKindDef crossedWarlord;
+        private static PawnKindDef markedMan;
         private static TattooDef crossedFaceTattoo;
         private static TattooDef crossedFaceTattooStage1;
         private static TattooDef crossedFaceTattooStage2;
@@ -1158,9 +1191,7 @@ namespace TheMarkedMen
         private static IncidentDef urbanAmbush;
         private static IncidentDef urbanSurvivor;
         private static XenotypeDef markedOne;
-        private static XenotypeDef markedOneSpitter;
         private static StatDef markedVirusResistance;
-        private static AbilityDef acidSprayAbility;
 
         public static HediffDef CrossVirus => crossVirus ?? (crossVirus = DefDatabase<HediffDef>.GetNamedSilentFail("CA_CrossVirus"));
         public static HediffDef CrossVirusImmunity => crossVirusImmunity ?? (crossVirusImmunity = DefDatabase<HediffDef>.GetNamedSilentFail("CA_CrossVirusImmunity"));
@@ -1168,27 +1199,24 @@ namespace TheMarkedMen
         public static HediffDef BloodRush => bloodRush ?? (bloodRush = DefDatabase<HediffDef>.GetNamedSilentFail("CA_BloodRush"));
         public static HediffDef CommandAura => commandAura ?? (commandAura = DefDatabase<HediffDef>.GetNamedSilentFail("CA_CommandAura"));
         public static HediffDef Panic => panic ?? (panic = DefDatabase<HediffDef>.GetNamedSilentFail("CA_CrossedPanic"));
-        public static HediffDef BomberCharge => bomberCharge ?? (bomberCharge = DefDatabase<HediffDef>.GetNamedSilentFail("CA_BomberCharge"));
-        public static HediffDef SpitterGlands => spitterGlands ?? (spitterGlands = DefDatabase<HediffDef>.GetNamedSilentFail("CA_SpitterGlands"));
         public static HediffDef PsychicAura => psychicAura ?? (psychicAura = DefDatabase<HediffDef>.GetNamedSilentFail("CA_PsychicAura"));
-        public static HediffDef ChargeBuff => chargeBuff ?? (chargeBuff = DefDatabase<HediffDef>.GetNamedSilentFail("CA_ChargeBuff"));
         public static ThoughtDef CrossedSocialTerror => crossedSocialTerror ?? (crossedSocialTerror = DefDatabase<ThoughtDef>.GetNamedSilentFail("CA_CrossedSocialTerror"));
         public static FactionDef CrossedFaction => crossedFaction ?? (crossedFaction = DefDatabase<FactionDef>.GetNamedSilentFail("CA_CrossedFaction"));
         public static InteractionDef CrossedPredatoryTaunt => crossedPredatoryTaunt ?? (crossedPredatoryTaunt = DefDatabase<InteractionDef>.GetNamedSilentFail("CA_CrossedPredatoryTaunt"));
         public static InteractionDef CrossedFalseMercy => crossedFalseMercy ?? (crossedFalseMercy = DefDatabase<InteractionDef>.GetNamedSilentFail("CA_CrossedFalseMercy"));
         public static InteractionDef CrossedPackLaughter => crossedPackLaughter ?? (crossedPackLaughter = DefDatabase<InteractionDef>.GetNamedSilentFail("CA_CrossedPackLaughter"));
         public static InteractionDef CrossedInfectionGloat => crossedInfectionGloat ?? (crossedInfectionGloat = DefDatabase<InteractionDef>.GetNamedSilentFail("CA_CrossedInfectionGloat"));
-        public static PawnKindDef Berserker => berserker ?? (berserker = DefDatabase<PawnKindDef>.GetNamedSilentFail("CA_CrossedBerserker"));
-        public static PawnKindDef Hunter => hunter ?? (hunter = DefDatabase<PawnKindDef>.GetNamedSilentFail("CA_CrossedHunter"));
-        public static PawnKindDef Brute => brute ?? (brute = DefDatabase<PawnKindDef>.GetNamedSilentFail("CA_CrossedBrute"));
-        public static PawnKindDef Stalker => stalker ?? (stalker = DefDatabase<PawnKindDef>.GetNamedSilentFail("CA_CrossedStalker"));
-        public static PawnKindDef Screamer => screamer ?? (screamer = DefDatabase<PawnKindDef>.GetNamedSilentFail("CA_CrossedScreamer"));
-        public static PawnKindDef Alpha => alpha ?? (alpha = DefDatabase<PawnKindDef>.GetNamedSilentFail("CA_CrossedAlpha"));
-        public static PawnKindDef Child => child ?? (child = DefDatabase<PawnKindDef>.GetNamedSilentFail("CA_CrossedChild"));
-        public static PawnKindDef Bomber => bomber ?? (bomber = DefDatabase<PawnKindDef>.GetNamedSilentFail("CA_CrossedBomber"));
-        public static PawnKindDef Charger => charger ?? (charger = DefDatabase<PawnKindDef>.GetNamedSilentFail("CA_CrossedCharger"));
-        public static PawnKindDef Spitter => spitter ?? (spitter = DefDatabase<PawnKindDef>.GetNamedSilentFail("CA_CrossedSpitter"));
-        public static PawnKindDef AlphaPsychic => alphaPsychic ?? (alphaPsychic = DefDatabase<PawnKindDef>.GetNamedSilentFail("CA_CrossedAlphaPsychic"));
+        public static PawnKindDef CrossedCivilian => crossedCivilian ?? (crossedCivilian = DefDatabase<PawnKindDef>.GetNamedSilentFail("CA_CrossedCivilian"));
+        public static PawnKindDef CrossedScout => crossedScout ?? (crossedScout = DefDatabase<PawnKindDef>.GetNamedSilentFail("CA_CrossedScout"));
+        public static PawnKindDef CrossedHunter => crossedHunter ?? (crossedHunter = DefDatabase<PawnKindDef>.GetNamedSilentFail("CA_CrossedHunter"));
+        public static PawnKindDef CrossedShooter => crossedShooter ?? (crossedShooter = DefDatabase<PawnKindDef>.GetNamedSilentFail("CA_CrossedShooter"));
+        public static PawnKindDef CrossedRaider => crossedRaider ?? (crossedRaider = DefDatabase<PawnKindDef>.GetNamedSilentFail("CA_CrossedRaider"));
+        public static PawnKindDef CrossedSoldier => crossedSoldier ?? (crossedSoldier = DefDatabase<PawnKindDef>.GetNamedSilentFail("CA_CrossedSoldier"));
+        public static PawnKindDef CrossedBrute => crossedBrute ?? (crossedBrute = DefDatabase<PawnKindDef>.GetNamedSilentFail("CA_CrossedBrute"));
+        public static PawnKindDef CrossedPyromaniac => crossedPyromaniac ?? (crossedPyromaniac = DefDatabase<PawnKindDef>.GetNamedSilentFail("CA_CrossedPyromaniac"));
+        public static PawnKindDef CrossedAlpha => crossedAlpha ?? (crossedAlpha = DefDatabase<PawnKindDef>.GetNamedSilentFail("CA_CrossedAlpha"));
+        public static PawnKindDef CrossedWarlord => crossedWarlord ?? (crossedWarlord = DefDatabase<PawnKindDef>.GetNamedSilentFail("CA_CrossedWarlord"));
+        public static PawnKindDef MarkedMan => markedMan ?? (markedMan = DefDatabase<PawnKindDef>.GetNamedSilentFail("CA_MarkedMan"));
         public static TattooDef CrossedFaceTattoo => crossedFaceTattoo ?? (crossedFaceTattoo = DefDatabase<TattooDef>.GetNamedSilentFail("CA_Face_CrossedRash"));
         public static TattooDef CrossedFaceTattooStage1 => crossedFaceTattooStage1 ?? (crossedFaceTattooStage1 = DefDatabase<TattooDef>.GetNamedSilentFail("CA_Face_CrossedRashStage1"));
         public static TattooDef CrossedFaceTattooStage2 => crossedFaceTattooStage2 ?? (crossedFaceTattooStage2 = DefDatabase<TattooDef>.GetNamedSilentFail("CA_Face_CrossedRashStage2"));
@@ -1201,9 +1229,7 @@ namespace TheMarkedMen
         public static IncidentDef UrbanAmbush => urbanAmbush ?? (urbanAmbush = DefDatabase<IncidentDef>.GetNamedSilentFail("CA_UrbanAmbush"));
         public static IncidentDef UrbanSurvivor => urbanSurvivor ?? (urbanSurvivor = DefDatabase<IncidentDef>.GetNamedSilentFail("CA_UrbanSurvivor"));
         public static XenotypeDef MarkedOne => markedOne ?? (markedOne = DefDatabase<XenotypeDef>.GetNamedSilentFail("CA_MarkedOne"));
-        public static XenotypeDef MarkedOneSpitter => markedOneSpitter ?? (markedOneSpitter = DefDatabase<XenotypeDef>.GetNamedSilentFail("CA_MarkedOneSpitter"));
         public static StatDef MarkedVirusResistance => markedVirusResistance ?? (markedVirusResistance = DefDatabase<StatDef>.GetNamedSilentFail("CA_MarkedVirusResistance"));
-        public static AbilityDef AcidSprayAbility => acidSprayAbility ?? (acidSprayAbility = DefDatabase<AbilityDef>.GetNamedSilentFail("AcidSpray"));
 
         public static bool IsCrossedFaceTattoo(TattooDef tattoo)
         {
@@ -2943,7 +2969,7 @@ namespace TheMarkedMen
                 + "Time remaining: " + FormatPreciseDaysRemaining(ticksUntilRaid) + ".\n"
                 + "Estimated threat pressure: " + estimatedPoints.ToString("F0") + " (" + CrossedRaidAlertUtility.DescribeThreatTier(estimatedPoints) + ").\n"
                 + "Expected pattern: immediate edge assault in groups; no kidnapping, theft, timeout, or retreat.\n\n"
-                + "Prepare sealed fallback positions, medical capacity, fire lanes, and containment for infected blood. Prioritize Alphas and Screamers if they appear.";
+                + "Prepare sealed fallback positions, medical capacity, fire lanes, and containment for infected blood. Prioritize Alphas and Pyromaniacs if they appear.";
         }
 
         private static string FormatLabelTimeRemaining(int ticksUntilRaid)
@@ -4451,7 +4477,6 @@ namespace TheMarkedMen
 
             TheMarkedMenSettings settings = TheMarkedMenMod.Settings;
             int maxAlphas = Mathf.Clamp(settings?.maximumAlphasPerRaid ?? 99, 0, 99);
-            bool allowChildren = settings?.allowMarkedChildren == true;
             int alphaCount = 0;
             for (int i = 0; i < pawns.Count; i++)
             {
@@ -4462,14 +4487,18 @@ namespace TheMarkedMen
                 }
 
                 bool replace = false;
-                if (pawn.kindDef == CADefOf.Alpha)
+                if (pawn.kindDef == CADefOf.CrossedAlpha)
                 {
                     alphaCount++;
-                    replace = alphaCount > maxAlphas || TheMarkedMenSettings.AdjustKindWeight(CADefOf.Alpha, 1f) <= 0f;
+                    replace = alphaCount > maxAlphas || TheMarkedMenSettings.AdjustKindWeight(CADefOf.CrossedAlpha, 1f) <= 0f;
                 }
-                else if (pawn.kindDef == CADefOf.Child)
+                else if (pawn.kindDef == CADefOf.CrossedWarlord)
                 {
-                    replace = !allowChildren;
+                    replace = TheMarkedMenSettings.AdjustKindWeight(CADefOf.CrossedWarlord, 1f) <= 0f;
+                }
+                else if (pawn.kindDef == CADefOf.MarkedMan)
+                {
+                    replace = TheMarkedMenSettings.AdjustKindWeight(CADefOf.MarkedMan, 1f) <= 0f;
                 }
 
                 if (replace)
@@ -4490,12 +4519,15 @@ namespace TheMarkedMen
         {
             PawnKindDef selected = null;
             float totalWeight = 0f;
-            AddReplacementKind(ref selected, ref totalWeight, CADefOf.Berserker, 12f);
-            AddReplacementKind(ref selected, ref totalWeight, CADefOf.Hunter, 8f);
-            AddReplacementKind(ref selected, ref totalWeight, CADefOf.Stalker, 4f);
-            AddReplacementKind(ref selected, ref totalWeight, CADefOf.Screamer, 3f);
-            AddReplacementKind(ref selected, ref totalWeight, CADefOf.Brute, 2f);
-            return selected ?? CADefOf.Berserker ?? CADefOf.Hunter ?? CADefOf.Stalker ?? CADefOf.Screamer ?? CADefOf.Brute;
+            AddReplacementKind(ref selected, ref totalWeight, CADefOf.CrossedCivilian, 14f);
+            AddReplacementKind(ref selected, ref totalWeight, CADefOf.CrossedScout, 10f);
+            AddReplacementKind(ref selected, ref totalWeight, CADefOf.CrossedHunter, 8f);
+            AddReplacementKind(ref selected, ref totalWeight, CADefOf.CrossedShooter, 8f);
+            AddReplacementKind(ref selected, ref totalWeight, CADefOf.CrossedRaider, 6f);
+            AddReplacementKind(ref selected, ref totalWeight, CADefOf.CrossedSoldier, 4f);
+            AddReplacementKind(ref selected, ref totalWeight, CADefOf.CrossedBrute, 2f);
+            AddReplacementKind(ref selected, ref totalWeight, CADefOf.CrossedPyromaniac, 3f);
+            return selected ?? CADefOf.CrossedCivilian ?? CADefOf.CrossedScout ?? CADefOf.CrossedHunter ?? CADefOf.CrossedShooter;
         }
 
         private static void AddReplacementKind(ref PawnKindDef selected, ref float totalWeight, PawnKindDef kind, float baseWeight)
@@ -4517,8 +4549,6 @@ namespace TheMarkedMen
         {
             RemoveHediffIfPresent(pawn, CADefOf.BloodRush);
             RemoveHediffIfPresent(pawn, CADefOf.CommandAura);
-            RemoveHediffIfPresent(pawn, CADefOf.BomberCharge);
-            RemoveHediffIfPresent(pawn, CADefOf.SpitterGlands);
             RemoveHediffIfPresent(pawn, CADefOf.PsychicAura);
         }
 
@@ -4538,30 +4568,9 @@ namespace TheMarkedMen
                 return;
             }
 
-            if (pawn.kindDef == CADefOf.Bomber && CADefOf.BomberCharge != null && !pawn.health.hediffSet.HasHediff(CADefOf.BomberCharge))
+            if (ModsConfig.BiotechActive && pawn.genes != null && IsCrossedFactionPawn(pawn) && CADefOf.MarkedOne != null)
             {
-                pawn.health.AddHediff(CADefOf.BomberCharge);
-            }
-            else if (pawn.kindDef == CADefOf.Spitter && CADefOf.SpitterGlands != null && !pawn.health.hediffSet.HasHediff(CADefOf.SpitterGlands))
-            {
-                pawn.health.AddHediff(CADefOf.SpitterGlands);
-            }
-            else if (pawn.kindDef == CADefOf.Charger && CADefOf.ChargeBuff != null && !pawn.health.hediffSet.HasHediff(CADefOf.ChargeBuff))
-            {
-                pawn.health.AddHediff(CADefOf.ChargeBuff);
-            }
-
-            if (ModsConfig.BiotechActive && pawn.genes != null && IsCrossedFactionPawn(pawn))
-            {
-                if (pawn.kindDef == CADefOf.Spitter && CADefOf.MarkedOneSpitter != null)
-                {
-                    pawn.genes.SetXenotypeDirect(CADefOf.MarkedOneSpitter);
-                    GrantAbility(pawn, CADefOf.AcidSprayAbility);
-                }
-                else if (CADefOf.MarkedOne != null)
-                {
-                    pawn.genes.SetXenotypeDirect(CADefOf.MarkedOne);
-                }
+                pawn.genes.SetXenotypeDirect(CADefOf.MarkedOne);
             }
 
             RemoveDeprecatedCrossedRashHediff(pawn);
@@ -4582,52 +4591,20 @@ namespace TheMarkedMen
                 }
             }
 
-            if (pawn.kindDef == CADefOf.Berserker && CADefOf.BloodRush != null && !pawn.health.hediffSet.HasHediff(CADefOf.BloodRush))
+            if (pawn.kindDef == CADefOf.CrossedBrute && CADefOf.BloodRush != null && !pawn.health.hediffSet.HasHediff(CADefOf.BloodRush))
             {
                 pawn.health.AddHediff(CADefOf.BloodRush);
             }
-            else if (pawn.kindDef == CADefOf.Alpha && CADefOf.CommandAura != null && !pawn.health.hediffSet.HasHediff(CADefOf.CommandAura))
+
+            if ((pawn.kindDef == CADefOf.CrossedAlpha || pawn.kindDef == CADefOf.CrossedWarlord || pawn.kindDef == CADefOf.MarkedMan)
+                && CADefOf.CommandAura != null && !pawn.health.hediffSet.HasHediff(CADefOf.CommandAura))
             {
                 pawn.health.AddHediff(CADefOf.CommandAura);
             }
 
-            if (pawn.kindDef == CADefOf.AlphaPsychic)
+            if (pawn.kindDef == CADefOf.MarkedMan && CADefOf.BloodRush != null && !pawn.health.hediffSet.HasHediff(CADefOf.BloodRush))
             {
-                if (CADefOf.PsychicAura != null && !pawn.health.hediffSet.HasHediff(CADefOf.PsychicAura))
-                {
-                    pawn.health.AddHediff(CADefOf.PsychicAura);
-                }
-
-                if (pawn.equipment?.Primary != null)
-                {
-                    pawn.equipment.DestroyEquipment(pawn.equipment.Primary);
-                }
-
-                if (ModsConfig.RoyaltyActive)
-                {
-                    HediffDef psylinkDef = DefDatabase<HediffDef>.GetNamedSilentFail("PsychicAmplifier");
-                    if (psylinkDef != null)
-                    {
-                        Hediff existing = pawn.health.hediffSet.GetFirstHediffOfDef(psylinkDef);
-                        if (existing == null)
-                        {
-                            BodyPartRecord brain = pawn.health.hediffSet.GetBrain();
-                            pawn.health.AddHediff(psylinkDef, brain, null, null);
-                        }
-                    }
-
-                    GrantPsycastAbility(pawn, "Psycast_Berserk");
-                    GrantPsycastAbility(pawn, "Psycast_PsychicShock");
-                    GrantPsycastAbility(pawn, "Psycast_Stun");
-                }
-
-                AbilityDef vpeShock = DefDatabase<AbilityDef>.GetNamedSilentFail("VPE_PsychicShock");
-                if (vpeShock != null)
-                {
-                    GrantPsycastAbility(pawn, "VPE_PsychicShock");
-                    GrantPsycastAbility(pawn, "VPE_Berserk");
-                    GrantPsycastAbility(pawn, "VPE_Stun");
-                }
+                pawn.health.AddHediff(CADefOf.BloodRush);
             }
 
             ApplyInfectedTattoo(pawn);
@@ -4840,7 +4817,7 @@ namespace TheMarkedMen
             return pawn != null && crossed != null && pawn.Faction?.def == crossed;
         }
 
-        public static void ApplyScreamerPanic(Map map, IntVec3 origin, float radius)
+        public static void ApplyMarkedPanic(Map map, IntVec3 origin, float radius)
         {
             HediffDef panic = CADefOf.Panic;
             if (map == null || panic == null)
@@ -4866,21 +4843,24 @@ namespace TheMarkedMen
         private static PawnKindDef PickTransformationKind(Pawn pawn)
         {
             TransformationKinds.Clear();
-            AddKind(CADefOf.Berserker, 1f);
-            AddKind(CADefOf.Hunter, 1f);
-            AddKind(CADefOf.Stalker, 1f);
-            AddKind(CADefOf.Screamer, 1f);
+            AddKind(CADefOf.CrossedCivilian, 1f);
+            AddKind(CADefOf.CrossedScout, 1f);
+            AddKind(CADefOf.CrossedHunter, 1f);
+            AddKind(CADefOf.CrossedShooter, 1f);
+            AddKind(CADefOf.CrossedRaider, 1f);
+            AddKind(CADefOf.CrossedSoldier, 1f);
+            AddKind(CADefOf.CrossedPyromaniac, 1f);
             if (Rand.Chance(0.12f))
             {
-                AddKind(CADefOf.Brute, 1f);
+                AddKind(CADefOf.CrossedBrute, 1f);
             }
             if (Rand.Chance(0.02f))
             {
-                AddKind(CADefOf.Alpha, 1f);
+                AddKind(CADefOf.CrossedAlpha, 1f);
             }
-            if (TheMarkedMenMod.Settings?.allowMarkedChildren == true && pawn?.ageTracker != null && pawn.ageTracker.AgeBiologicalYearsFloat < 13f)
+            if (Rand.Chance(0.005f))
             {
-                AddKind(CADefOf.Child, 1f);
+                AddKind(CADefOf.CrossedWarlord, 1f);
             }
 
             if (TransformationKinds.Count == 0)
@@ -5980,7 +5960,7 @@ namespace TheMarkedMen
                 return;
             }
 
-            float chance = Mathf.Clamp01((initiator.kindDef == CADefOf.Alpha || initiator.kindDef == CADefOf.Screamer ? SocialPulseLeaderChance : SocialPulseBaseChance) * socialStrength);
+            float chance = Mathf.Clamp01((initiator.kindDef == CADefOf.CrossedAlpha || initiator.kindDef == CADefOf.CrossedWarlord || initiator.kindDef == CADefOf.CrossedPyromaniac ? SocialPulseLeaderChance : SocialPulseBaseChance) * socialStrength);
             if (!Rand.Chance(chance))
             {
                 return;
@@ -6038,9 +6018,9 @@ namespace TheMarkedMen
                 recipient.health.AddHediff(panic);
             }
 
-            if (interactionDef == CADefOf.CrossedPackLaughter || initiator.kindDef == CADefOf.Screamer || initiator.kindDef == CADefOf.Alpha)
+            if (interactionDef == CADefOf.CrossedPackLaughter || initiator.kindDef == CADefOf.CrossedPyromaniac || initiator.kindDef == CADefOf.CrossedAlpha || initiator.kindDef == CADefOf.CrossedWarlord)
             {
-                CrossedUtility.ApplyScreamerPanic(recipient.Map, recipient.Position, PackPanicRadius);
+                CrossedUtility.ApplyMarkedPanic(recipient.Map, recipient.Position, PackPanicRadius);
             }
         }
 
@@ -6122,7 +6102,7 @@ namespace TheMarkedMen
                 return CADefOf.CrossedInfectionGloat;
             }
 
-            if ((initiator.kindDef == CADefOf.Screamer || initiator.kindDef == CADefOf.Alpha) && CADefOf.CrossedPackLaughter != null && Rand.Chance(0.72f))
+            if ((initiator.kindDef == CADefOf.CrossedPyromaniac || initiator.kindDef == CADefOf.CrossedAlpha || initiator.kindDef == CADefOf.CrossedWarlord) && CADefOf.CrossedPackLaughter != null && Rand.Chance(0.72f))
             {
                 return CADefOf.CrossedPackLaughter;
             }
@@ -6166,7 +6146,7 @@ namespace TheMarkedMen
                 return 0f;
             }
 
-            if (interaction == CADefOf.CrossedPackLaughter && (initiator.kindDef == CADefOf.Screamer || initiator.kindDef == CADefOf.Alpha))
+            if (interaction == CADefOf.CrossedPackLaughter && (initiator.kindDef == CADefOf.CrossedPyromaniac || initiator.kindDef == CADefOf.CrossedAlpha || initiator.kindDef == CADefOf.CrossedWarlord))
             {
                 return 1.6f;
             }
@@ -6361,12 +6341,17 @@ namespace TheMarkedMen
             }
 
             List<string> parts = new List<string>();
-            AddKindCount(parts, pawns, CADefOf.Alpha, "Alpha");
-            AddKindCount(parts, pawns, CADefOf.Brute, "Brute");
-            AddKindCount(parts, pawns, CADefOf.Screamer, "Screamer");
-            AddKindCount(parts, pawns, CADefOf.Stalker, "Stalker");
-            AddKindCount(parts, pawns, CADefOf.Hunter, "Hunter");
-            AddKindCount(parts, pawns, CADefOf.Berserker, "Berserker");
+            AddKindCount(parts, pawns, CADefOf.MarkedMan, "Marked Man");
+            AddKindCount(parts, pawns, CADefOf.CrossedWarlord, "Warlord");
+            AddKindCount(parts, pawns, CADefOf.CrossedAlpha, "Alpha");
+            AddKindCount(parts, pawns, CADefOf.CrossedBrute, "Brute");
+            AddKindCount(parts, pawns, CADefOf.CrossedSoldier, "Soldier");
+            AddKindCount(parts, pawns, CADefOf.CrossedRaider, "Raider");
+            AddKindCount(parts, pawns, CADefOf.CrossedHunter, "Hunter");
+            AddKindCount(parts, pawns, CADefOf.CrossedShooter, "Shooter");
+            AddKindCount(parts, pawns, CADefOf.CrossedPyromaniac, "Pyromaniac");
+            AddKindCount(parts, pawns, CADefOf.CrossedScout, "Scout");
+            AddKindCount(parts, pawns, CADefOf.CrossedCivilian, "Civilian");
             return parts.Count == 0 ? "unclassified infected" : string.Join(", ", parts.ToArray());
         }
 
@@ -6399,23 +6384,41 @@ namespace TheMarkedMen
                 return null;
             }
 
-            bool hasAlpha = HasKind(pawns, CADefOf.Alpha);
-            bool hasScreamer = HasKind(pawns, CADefOf.Screamer);
-            bool hasBrute = HasKind(pawns, CADefOf.Brute);
+            bool hasMarkedMan = HasKind(pawns, CADefOf.MarkedMan);
+            bool hasWarlord = HasKind(pawns, CADefOf.CrossedWarlord);
+            bool hasAlpha = HasKind(pawns, CADefOf.CrossedAlpha);
+            bool hasBrute = HasKind(pawns, CADefOf.CrossedBrute);
+            bool hasSoldier = HasKind(pawns, CADefOf.CrossedSoldier);
+            bool hasPyromaniac = HasKind(pawns, CADefOf.CrossedPyromaniac);
             List<string> priorities = new List<string>();
+            if (hasMarkedMan)
+            {
+                priorities.Add("Marked Men leading the assault");
+            }
+
+            if (hasWarlord)
+            {
+                priorities.Add("Warlords commanding infected forces");
+            }
+
             if (hasAlpha)
             {
                 priorities.Add("Alphas coordinating nearby infected");
             }
 
-            if (hasScreamer)
+            if (hasSoldier)
             {
-                priorities.Add("Screamers disrupting morale");
+                priorities.Add("Soldiers maintaining tactical formation");
             }
 
             if (hasBrute)
             {
                 priorities.Add("Brutes breaching doors and lines");
+            }
+
+            if (hasPyromaniac)
+            {
+                priorities.Add("Pyromaniacs spreading fire and chaos");
             }
 
             return priorities.Count == 0 ? "closest armed infected and exposed flankers" : string.Join("; ", priorities.ToArray());
@@ -6642,7 +6645,7 @@ namespace TheMarkedMen
                     continue;
                 }
 
-                alphaAdded = alphaAdded || kind == CADefOf.Alpha;
+                alphaAdded = alphaAdded || kind == CADefOf.CrossedAlpha || kind == CADefOf.CrossedWarlord || kind == CADefOf.MarkedMan;
                 CrossedUtility.ApplyClassHediffs(pawn);
                 CrossedUtility.ApplyInfectedTattoo(pawn);
                 pawns.Add(pawn);
@@ -6658,16 +6661,19 @@ namespace TheMarkedMen
             PawnKindDef selected = null;
             float totalWeight = 0f;
 
-            AddWeightedKind(ref selected, ref totalWeight, CADefOf.Berserker, 14f);
-            AddWeightedKind(ref selected, ref totalWeight, CADefOf.Hunter, Mathf.Lerp(3f, 10f, normalizedThreat));
-            AddWeightedKind(ref selected, ref totalWeight, CADefOf.Stalker, points >= 180f ? Mathf.Lerp(2f, 6f, normalizedThreat) : 1f);
-            AddWeightedKind(ref selected, ref totalWeight, CADefOf.Screamer, points >= 250f ? Mathf.Lerp(1.5f, 4f, normalizedThreat) : 0.5f);
-            AddWeightedKind(ref selected, ref totalWeight, CADefOf.Charger, points >= 300f ? Mathf.Lerp(1f, 4f, normalizedThreat) : 0f);
-            AddWeightedKind(ref selected, ref totalWeight, CADefOf.Spitter, points >= 350f ? Mathf.Lerp(0.5f, 3f, normalizedThreat) : 0f);
-            AddWeightedKind(ref selected, ref totalWeight, CADefOf.Brute, points >= 400f ? Mathf.Lerp(0.5f, 3.5f, normalizedThreat) : 0f);
-            AddWeightedKind(ref selected, ref totalWeight, CADefOf.Alpha, allowAlpha && count >= 10 && points >= 1200f ? 0.5f : 0f);
+            AddWeightedKind(ref selected, ref totalWeight, CADefOf.CrossedCivilian, 14f);
+            AddWeightedKind(ref selected, ref totalWeight, CADefOf.CrossedScout, Mathf.Lerp(3f, 8f, normalizedThreat));
+            AddWeightedKind(ref selected, ref totalWeight, CADefOf.CrossedHunter, Mathf.Lerp(3f, 8f, normalizedThreat));
+            AddWeightedKind(ref selected, ref totalWeight, CADefOf.CrossedShooter, points >= 180f ? Mathf.Lerp(4f, 10f, normalizedThreat) : 2f);
+            AddWeightedKind(ref selected, ref totalWeight, CADefOf.CrossedRaider, points >= 300f ? Mathf.Lerp(2f, 6f, normalizedThreat) : 0f);
+            AddWeightedKind(ref selected, ref totalWeight, CADefOf.CrossedSoldier, points >= 400f ? Mathf.Lerp(1f, 5f, normalizedThreat) : 0f);
+            AddWeightedKind(ref selected, ref totalWeight, CADefOf.CrossedBrute, points >= 500f ? Mathf.Lerp(0.5f, 3f, normalizedThreat) : 0f);
+            AddWeightedKind(ref selected, ref totalWeight, CADefOf.CrossedPyromaniac, points >= 250f ? Mathf.Lerp(1f, 3f, normalizedThreat) : 0f);
+            AddWeightedKind(ref selected, ref totalWeight, CADefOf.CrossedAlpha, allowAlpha && count >= 8 && points >= 1000f ? 0.5f : 0f);
+            AddWeightedKind(ref selected, ref totalWeight, CADefOf.CrossedWarlord, allowAlpha && count >= 12 && points >= 1800f ? 0.15f : 0f);
+            AddWeightedKind(ref selected, ref totalWeight, CADefOf.MarkedMan, allowAlpha && count >= 15 && points >= 3000f ? 0.05f : 0f);
 
-            return selected ?? CADefOf.Berserker ?? CADefOf.Hunter ?? CADefOf.Stalker;
+            return selected ?? CADefOf.CrossedCivilian ?? CADefOf.CrossedScout ?? CADefOf.CrossedHunter;
         }
 
         private void SendRaidLetter(List<Pawn> pawns, IncidentParms parms)
@@ -6865,7 +6871,7 @@ namespace TheMarkedMen
                     continue;
                 }
 
-                alphaAdded = alphaAdded || kind == CADefOf.Alpha;
+                alphaAdded = alphaAdded || kind == CADefOf.CrossedAlpha || kind == CADefOf.CrossedWarlord || kind == CADefOf.MarkedMan;
                 CrossedUtility.ApplyClassHediffs(pawn);
                 CrossedUtility.ApplyInfectedTattoo(pawn);
                 pawns.Add(pawn);
@@ -6881,15 +6887,19 @@ namespace TheMarkedMen
             PawnKindDef selected = null;
             float totalWeight = 0f;
 
-            AddWeightedKind(ref selected, ref totalWeight, CADefOf.Berserker, 12f);
-            AddWeightedKind(ref selected, ref totalWeight, CADefOf.Hunter, Mathf.Lerp(2.5f, 8.5f, normalizedThreat));
-            AddWeightedKind(ref selected, ref totalWeight, CADefOf.Stalker, points >= 220f ? Mathf.Lerp(1.5f, 4.5f, normalizedThreat) : 0.75f);
-            AddWeightedKind(ref selected, ref totalWeight, CADefOf.Screamer, points >= 300f ? 3.5f : 1.25f);
-            AddWeightedKind(ref selected, ref totalWeight, CADefOf.Brute, points >= 500f ? Mathf.Lerp(1f, 4.5f, Mathf.InverseLerp(500f, 2400f, points)) : 0f);
-            AddWeightedKind(ref selected, ref totalWeight, CADefOf.Alpha, allowAlpha && count >= 10 && points >= 1200f ? 0.55f : 0f);
-            AddWeightedKind(ref selected, ref totalWeight, CADefOf.Child, TheMarkedMenMod.Settings?.allowMarkedChildren == true && points < 500f ? 0.35f : 0f);
+            AddWeightedKind(ref selected, ref totalWeight, CADefOf.CrossedCivilian, 14f);
+            AddWeightedKind(ref selected, ref totalWeight, CADefOf.CrossedScout, Mathf.Lerp(2f, 6f, normalizedThreat));
+            AddWeightedKind(ref selected, ref totalWeight, CADefOf.CrossedHunter, Mathf.Lerp(2.5f, 8.5f, normalizedThreat));
+            AddWeightedKind(ref selected, ref totalWeight, CADefOf.CrossedShooter, points >= 220f ? Mathf.Lerp(2f, 6f, normalizedThreat) : 1f);
+            AddWeightedKind(ref selected, ref totalWeight, CADefOf.CrossedRaider, points >= 300f ? Mathf.Lerp(1f, 4f, normalizedThreat) : 0f);
+            AddWeightedKind(ref selected, ref totalWeight, CADefOf.CrossedSoldier, points >= 400f ? Mathf.Lerp(0.5f, 3f, Mathf.InverseLerp(400f, 2400f, points)) : 0f);
+            AddWeightedKind(ref selected, ref totalWeight, CADefOf.CrossedBrute, points >= 500f ? Mathf.Lerp(1f, 4.5f, Mathf.InverseLerp(500f, 2400f, points)) : 0f);
+            AddWeightedKind(ref selected, ref totalWeight, CADefOf.CrossedPyromaniac, points >= 300f ? 3.5f : 1.25f);
+            AddWeightedKind(ref selected, ref totalWeight, CADefOf.CrossedAlpha, allowAlpha && count >= 10 && points >= 1200f ? 0.55f : 0f);
+            AddWeightedKind(ref selected, ref totalWeight, CADefOf.CrossedWarlord, allowAlpha && count >= 15 && points >= 2000f ? 0.15f : 0f);
+            AddWeightedKind(ref selected, ref totalWeight, CADefOf.MarkedMan, allowAlpha && count >= 20 && points >= 3500f ? 0.05f : 0f);
 
-            return selected ?? CADefOf.Berserker ?? CADefOf.Hunter ?? CADefOf.Stalker;
+            return selected ?? CADefOf.CrossedCivilian ?? CADefOf.CrossedScout ?? CADefOf.CrossedHunter;
         }
 
         private static void AddWeightedKind(ref PawnKindDef selected, ref float totalWeight, PawnKindDef kind, float weight)
@@ -7048,14 +7058,15 @@ namespace TheMarkedMen
             PawnKindDef selected = null;
             float totalWeight = 0f;
 
-            AddWeightedKind(ref selected, ref totalWeight, CADefOf.Stalker, Mathf.Lerp(4f, 6f, normalizedThreat));
-            AddWeightedKind(ref selected, ref totalWeight, CADefOf.Hunter, Mathf.Lerp(3f, 5f, normalizedThreat));
-            AddWeightedKind(ref selected, ref totalWeight, CADefOf.Berserker, 3f);
-            AddWeightedKind(ref selected, ref totalWeight, CADefOf.Screamer, points >= 220f ? Mathf.Lerp(0.5f, 1.75f, normalizedThreat) : 0f);
-            AddWeightedKind(ref selected, ref totalWeight, CADefOf.Brute, points >= 500f ? 0.35f : 0f);
-            AddWeightedKind(ref selected, ref totalWeight, CADefOf.Child, TheMarkedMenMod.Settings?.allowMarkedChildren == true && points < 220f ? 0.35f : 0f);
+            AddWeightedKind(ref selected, ref totalWeight, CADefOf.CrossedScout, Mathf.Lerp(4f, 6f, normalizedThreat));
+            AddWeightedKind(ref selected, ref totalWeight, CADefOf.CrossedHunter, Mathf.Lerp(3f, 5f, normalizedThreat));
+            AddWeightedKind(ref selected, ref totalWeight, CADefOf.CrossedShooter, Mathf.Lerp(2f, 4f, normalizedThreat));
+            AddWeightedKind(ref selected, ref totalWeight, CADefOf.CrossedCivilian, 3f);
+            AddWeightedKind(ref selected, ref totalWeight, CADefOf.CrossedPyromaniac, points >= 220f ? Mathf.Lerp(0.5f, 1.75f, normalizedThreat) : 0f);
+            AddWeightedKind(ref selected, ref totalWeight, CADefOf.CrossedRaider, points >= 350f ? 0.5f : 0f);
+            AddWeightedKind(ref selected, ref totalWeight, CADefOf.CrossedBrute, points >= 500f ? 0.35f : 0f);
 
-            return selected ?? CADefOf.Stalker ?? CADefOf.Hunter ?? CADefOf.Berserker;
+            return selected ?? CADefOf.CrossedScout ?? CADefOf.CrossedHunter ?? CADefOf.CrossedCivilian;
         }
 
         private static void AddWeightedKind(ref PawnKindDef selected, ref float totalWeight, PawnKindDef kind, float weight)
@@ -7373,85 +7384,7 @@ namespace TheMarkedMen
         }
     }
 
-    public sealed class HediffCompProperties_DeathExplosion : HediffCompProperties
-    {
-        public float radius = 2.5f;
-        public float damageAmount = 25f;
-        public float armorPenetration = 20f;
-        public float infectionRadius = 0f;
-        public bool detonateOnDowned = false;
 
-        public HediffCompProperties_DeathExplosion()
-        {
-            compClass = typeof(HediffComp_DeathExplosion);
-        }
-    }
-
-    public sealed class HediffComp_DeathExplosion : HediffComp
-    {
-        private HediffCompProperties_DeathExplosion Props => (HediffCompProperties_DeathExplosion)props;
-        private bool detonated;
-
-        public override void Notify_PawnDied(DamageInfo? dinfo, Hediff culprit)
-        {
-            NotifyKilled();
-        }
-
-        public void NotifyKilled()
-        {
-            if (detonated) return;
-            detonated = true;
-            Detonate();
-        }
-
-        public void NotifyDowned()
-        {
-            if (detonated) return;
-            if (!Props.detonateOnDowned) return;
-            detonated = true;
-            Detonate();
-        }
-
-        public void Detonate()
-        {
-            Pawn pawn = parent.pawn;
-            if (pawn == null || pawn.Map == null) return;
-
-            Map map = pawn.Map;
-            IntVec3 pos = pawn.Position;
-            float radius = Props.radius;
-
-            GenExplosion.DoExplosion(
-                pos, map, radius,
-                DamageDefOf.Bomb, pawn,
-                Mathf.RoundToInt(Props.damageAmount), Props.armorPenetration,
-                chanceToStartFire: 0f);
-
-            float infectRadius = Props.infectionRadius;
-            if (infectRadius <= 0f) return;
-
-            float infectRadiusSq = infectRadius * infectRadius;
-            IReadOnlyList<Pawn> allPawns = map.mapPawns.AllPawnsSpawned;
-            for (int i = 0; i < allPawns.Count; i++)
-            {
-                Pawn target = allPawns[i];
-                if (target == pawn || target.Dead || !target.Spawned || target.RaceProps == null || !target.RaceProps.Humanlike)
-                {
-                    continue;
-                }
-
-                if (CrossedUtility.IsInfectedPawn(target) || CrossedUtility.IsFullyProtectedFromCrossVirusExposure(target))
-                {
-                    continue;
-                }
-
-                if (target.Position.DistanceToSquared(pos) <= infectRadiusSq)
-                {
-                    CrossedUtility.TryExpose(target, 1f, "infected explosion", pawn);
-                }
-            }
-        }
-    }
 
     public sealed class IncidentWorker_CrossedDownedSurvivor : IncidentWorker
     {
@@ -7468,7 +7401,7 @@ namespace TheMarkedMen
             Faction crossed = CrossedUtility.Component?.EnsureCrossedFaction();
             if (map == null || crossed == null) return false;
 
-            PawnKindDef kind = CADefOf.Berserker ?? PawnKindDefOf.SpaceRefugee;
+            PawnKindDef kind = CADefOf.CrossedCivilian ?? PawnKindDefOf.SpaceRefugee;
             Pawn survivor = PawnGenerator.GeneratePawn(kind, crossed);
             if (survivor == null) return false;
 
@@ -7651,7 +7584,7 @@ namespace TheMarkedMen
                     continue;
                 }
 
-                alphaAdded = alphaAdded || kind == CADefOf.Alpha;
+                alphaAdded = alphaAdded || kind == CADefOf.CrossedAlpha || kind == CADefOf.CrossedWarlord || kind == CADefOf.MarkedMan;
                 pawns.Add(pawn);
             }
 
@@ -7666,14 +7599,14 @@ namespace TheMarkedMen
             PawnKindDef selected = null;
             float totalWeight = 0f;
 
-            AddWeightedKind(ref selected, ref totalWeight, CADefOf.Berserker, 8f);
-            AddWeightedKind(ref selected, ref totalWeight, CADefOf.Hunter, Mathf.Lerp(3f, 10f, normalizedThreat) * storytellerFactor);
-            AddWeightedKind(ref selected, ref totalWeight, CADefOf.Stalker, points >= 150f ? Mathf.Lerp(2f, 6f, normalizedThreat) : 1f);
-            AddWeightedKind(ref selected, ref totalWeight, CADefOf.Screamer, points >= 250f ? Mathf.Lerp(1f, 4f, normalizedThreat) * storytellerFactor : 0.5f);
-            AddWeightedKind(ref selected, ref totalWeight, CADefOf.Brute, points >= 400f ? Mathf.Lerp(0.5f, 3f, Mathf.InverseLerp(400f, 2000f, points)) * storytellerFactor : 0f);
-            AddWeightedKind(ref selected, ref totalWeight, CADefOf.Alpha, allowAlpha && count >= 8 && points >= 1000f ? 0.4f : 0f);
+            AddWeightedKind(ref selected, ref totalWeight, CADefOf.CrossedCivilian, 8f);
+            AddWeightedKind(ref selected, ref totalWeight, CADefOf.CrossedHunter, Mathf.Lerp(3f, 10f, normalizedThreat) * storytellerFactor);
+            AddWeightedKind(ref selected, ref totalWeight, CADefOf.CrossedScout, points >= 150f ? Mathf.Lerp(2f, 6f, normalizedThreat) : 1f);
+            AddWeightedKind(ref selected, ref totalWeight, CADefOf.CrossedPyromaniac, points >= 250f ? Mathf.Lerp(1f, 4f, normalizedThreat) * storytellerFactor : 0.5f);
+            AddWeightedKind(ref selected, ref totalWeight, CADefOf.CrossedBrute, points >= 400f ? Mathf.Lerp(0.5f, 3f, Mathf.InverseLerp(400f, 2000f, points)) * storytellerFactor : 0f);
+            AddWeightedKind(ref selected, ref totalWeight, CADefOf.CrossedAlpha, allowAlpha && count >= 8 && points >= 1000f ? 0.4f : 0f);
 
-            return selected ?? CADefOf.Berserker ?? CADefOf.Hunter ?? CADefOf.Stalker;
+            return selected ?? CADefOf.CrossedCivilian ?? CADefOf.CrossedHunter ?? CADefOf.CrossedScout;
         }
 
         private static void AddWeightedKind(ref PawnKindDef selected, ref float totalWeight, PawnKindDef kind, float weight)

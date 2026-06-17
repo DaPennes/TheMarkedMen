@@ -12,16 +12,5 @@
     </genes>
   </XenotypeDef>
 
-  <XenotypeDef MayRequire="Ludeon.RimWorld.Biotech">
-    <defName>CA_MarkedOneSpitter</defName>
-    <label>Marked One - spitter</label>
-    <description>The Marked Virus has twisted this host into a living acid battery, its glands producing corrosive compounds that melt flesh and spread the infection.</description>
-    <iconPath>UI/Xenotype/Marked</iconPath>
-    <genes>
-      <li>Aggression_Aggressive</li>
-      <li>Robust</li>
-      <li>KillThirst</li>
-      <li>AcidSpray</li>
-    </genes>
-  </XenotypeDef>
+
 </Defs>

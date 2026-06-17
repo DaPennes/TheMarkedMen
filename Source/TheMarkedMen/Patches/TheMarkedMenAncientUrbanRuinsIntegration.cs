@@ -820,15 +820,19 @@ namespace TheMarkedMen
             PawnKindDef selected = null;
             float totalWeight = 0f;
 
-            AddKind(ref selected, ref totalWeight, CADefOf.Berserker, 14f);
-            AddKind(ref selected, ref totalWeight, CADefOf.Hunter, Mathf.Lerp(2f, 8f, weight));
-            AddKind(ref selected, ref totalWeight, CADefOf.Stalker, Mathf.Lerp(2f, 6f, weight));
-            AddKind(ref selected, ref totalWeight, CADefOf.Screamer, weight >= 0.5f ? 3f : 0.5f);
-            AddKind(ref selected, ref totalWeight, CADefOf.Charger, weight >= 0.5f ? 2f : 0f);
-            AddKind(ref selected, ref totalWeight, CADefOf.Brute, weight >= 0.7f ? Mathf.Lerp(0.5f, 3f, weight) : 0f);
-            AddKind(ref selected, ref totalWeight, CADefOf.Alpha, weight >= 0.85f ? 0.3f : 0f);
+            AddKind(ref selected, ref totalWeight, CADefOf.CrossedCivilian, 14f);
+            AddKind(ref selected, ref totalWeight, CADefOf.CrossedScout, Mathf.Lerp(4f, 8f, weight));
+            AddKind(ref selected, ref totalWeight, CADefOf.CrossedHunter, Mathf.Lerp(2f, 6f, weight));
+            AddKind(ref selected, ref totalWeight, CADefOf.CrossedShooter, weight >= 0.3f ? Mathf.Lerp(2f, 6f, weight) : 1f);
+            AddKind(ref selected, ref totalWeight, CADefOf.CrossedRaider, weight >= 0.5f ? Mathf.Lerp(1f, 4f, weight) : 0f);
+            AddKind(ref selected, ref totalWeight, CADefOf.CrossedSoldier, weight >= 0.6f ? Mathf.Lerp(0.5f, 3f, weight) : 0f);
+            AddKind(ref selected, ref totalWeight, CADefOf.CrossedBrute, weight >= 0.7f ? Mathf.Lerp(0.5f, 3f, weight) : 0f);
+            AddKind(ref selected, ref totalWeight, CADefOf.CrossedPyromaniac, weight >= 0.4f ? 2f : 0.5f);
+            AddKind(ref selected, ref totalWeight, CADefOf.CrossedAlpha, weight >= 0.85f ? 0.3f : 0f);
+            AddKind(ref selected, ref totalWeight, CADefOf.CrossedWarlord, weight >= 0.9f ? 0.1f : 0f);
+            AddKind(ref selected, ref totalWeight, CADefOf.MarkedMan, weight >= 0.95f ? 0.05f : 0f);
 
-            return selected ?? CADefOf.Berserker ?? CADefOf.Hunter ?? CADefOf.Stalker;
+            return selected ?? CADefOf.CrossedCivilian ?? CADefOf.CrossedScout ?? CADefOf.CrossedHunter;
         }
 
         private static void AddKind(ref PawnKindDef selected, ref float totalWeight, PawnKindDef kind, float weight)
@@ -956,13 +960,15 @@ namespace TheMarkedMen
             PawnKindDef selected = null;
             float totalWeight = 0f;
 
-            AddKind(ref selected, ref totalWeight, CADefOf.Stalker, 10f);
-            AddKind(ref selected, ref totalWeight, CADefOf.Hunter, 8f);
-            AddKind(ref selected, ref totalWeight, CADefOf.Berserker, 12f);
-            AddKind(ref selected, ref totalWeight, CADefOf.Screamer, density >= 0.5f ? 3f : 0f);
-            AddKind(ref selected, ref totalWeight, CADefOf.Brute, density >= 0.7f ? 1.5f : 0f);
+            AddKind(ref selected, ref totalWeight, CADefOf.CrossedScout, 10f);
+            AddKind(ref selected, ref totalWeight, CADefOf.CrossedHunter, 8f);
+            AddKind(ref selected, ref totalWeight, CADefOf.CrossedCivilian, 12f);
+            AddKind(ref selected, ref totalWeight, CADefOf.CrossedShooter, density >= 0.3f ? 6f : 0f);
+            AddKind(ref selected, ref totalWeight, CADefOf.CrossedRaider, density >= 0.5f ? 4f : 0f);
+            AddKind(ref selected, ref totalWeight, CADefOf.CrossedPyromaniac, density >= 0.5f ? 3f : 0f);
+            AddKind(ref selected, ref totalWeight, CADefOf.CrossedBrute, density >= 0.7f ? 1.5f : 0f);
 
-            return selected ?? CADefOf.Stalker ?? CADefOf.Hunter ?? CADefOf.Berserker;
+            return selected ?? CADefOf.CrossedScout ?? CADefOf.CrossedHunter ?? CADefOf.CrossedCivilian;
         }
 
         private static void AddKind(ref PawnKindDef selected, ref float totalWeight, PawnKindDef kind, float weight)

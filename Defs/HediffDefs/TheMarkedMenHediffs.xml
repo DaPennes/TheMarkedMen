@@ -275,52 +275,7 @@
     </stages>
   </HediffDef>
 
-  <HediffDef>
-    <defName>CA_BomberCharge</defName>
-    <label>volatile charge</label>
-    <description>The bomber's system is primed with unstable compounds. On death, the payload detonates.</description>
-    <hediffClass>HediffWithComps</hediffClass>
-    <isBad>false</isBad>
-    <tendable>false</tendable>
-    <scenarioCanAdd>false</scenarioCanAdd>
-    <stages>
-      <li>
-        <label>primed</label>
-        <statFactors>
-          <MoveSpeed>1.12</MoveSpeed>
-          <MeleeCooldownFactor>0.85</MeleeCooldownFactor>
-        </statFactors>
-        <statOffsets>
-          <MeleeHitChance>1</MeleeHitChance>
-        </statOffsets>
-      </li>
-    </stages>
-    <comps>
-      <li Class="TheMarkedMen.HediffCompProperties_DeathExplosion">
-        <radius>2.5</radius>
-        <damageAmount>25</damageAmount>
-        <armorPenetration>20</armorPenetration>
-        <infectionRadius>2.5</infectionRadius>
-        <detonateOnDowned>true</detonateOnDowned>
-      </li>
-    </comps>
-  </HediffDef>
 
-  <HediffDef>
-    <defName>CA_SpitterGlands</defName>
-    <label>acid glands</label>
-    <description>This spitter's system produces corrosive compounds that seep into wounds, transmitting the Marked Virus.</description>
-    <hediffClass>HediffWithComps</hediffClass>
-    <isBad>false</isBad>
-    <comps>
-      <li Class="TheMarkedMen.HediffCompProperties_DeathExplosion">
-        <radius>1.5</radius>
-        <damageAmount>12</damageAmount>
-        <armorPenetration>15</armorPenetration>
-        <infectionRadius>1.5</infectionRadius>
-      </li>
-    </comps>
-  </HediffDef>
 
   <HediffDef>
     <defName>CA_CrossedPanic</defName>
