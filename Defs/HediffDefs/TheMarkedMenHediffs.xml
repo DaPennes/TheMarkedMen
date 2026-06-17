@@ -246,36 +246,6 @@
     </comps>
   </HediffDef>
 
-  <HediffDef>
-    <defName>CA_ChargeBuff</defName>
-    <label>charging rush</label>
-    <description>The infected charger's system floods with combat stimulants, driving a relentless charge into enemy lines.</description>
-    <hediffClass>HediffWithComps</hediffClass>
-    <isBad>false</isBad>
-    <tendable>false</tendable>
-    <scenarioCanAdd>false</scenarioCanAdd>
-    <stages>
-      <li>
-        <label>charging</label>
-        <painFactor>0</painFactor>
-        <blocksMentalBreaks>true</blocksMentalBreaks>
-        <statFactors>
-          <MoveSpeed>1.40</MoveSpeed>
-          <MeleeCooldownFactor>0.65</MeleeCooldownFactor>
-          <IncomingDamageFactor>0.85</IncomingDamageFactor>
-          <StaggerDurationFactor>0.20</StaggerDurationFactor>
-        </statFactors>
-        <statOffsets>
-          <MeleeHitChance>5</MeleeHitChance>
-          <MeleeDodgeChance>3</MeleeDodgeChance>
-          <PainShockThreshold>0.50</PainShockThreshold>
-          <MentalBreakThreshold>-0.35</MentalBreakThreshold>
-        </statOffsets>
-      </li>
-    </stages>
-  </HediffDef>
-
-
 
   <HediffDef>
     <defName>CA_CrossedPanic</defName>
