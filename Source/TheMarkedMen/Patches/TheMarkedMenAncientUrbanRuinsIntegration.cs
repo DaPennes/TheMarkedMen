@@ -11,85 +11,39 @@ using Verse.AI.Group;
 
 namespace TheMarkedMen
 {
-    [StaticConstructorOnStartup]
     public static class TheMarkedMenAncientUrbanRuinsIntegration
     {
-        private const string AurPackageId = "XMB.AncientUrbanrUins.MO";
-        private const string AurSitePartWorkerTypeName = "AncientMarket_Libraray.SitePartWorker_CustomMap";
-        private const string AurMapParentTypeName = "AncientMarket_Libraray.MapParent_Custom";
-        private const string AurCustomSiteDefName = "AM_CustomSite";
+        private const string AurNamespace = "AncientMarket_Libraray";
 
         public const string AurDefNamePrefix = "AM_";
 
-        private static bool aurLoaded;
-        private static bool detectionAttempted;
+        private static readonly Dictionary<Map, bool> aurMapCache = new Dictionary<Map, bool>();
 
-        private static Type aurSitePartWorkerType;
-        private static Type aurMapParentType;
-        private static WorldObjectDef aurCustomSiteDef;
-
-        private static bool integrationAttempted;
-        private static bool integrationApplied;
-
-        public static bool Active => integrationApplied && TheMarkedMenMod.Settings?.urbanOutbreaksEnabled == true;
-
-        public static bool IsAncientUrbanRuinsLoaded()
-        {
-            if (detectionAttempted)
-            {
-                return aurLoaded;
-            }
-
-            detectionAttempted = true;
-
-            try
-            {
-                aurSitePartWorkerType = AccessTools.TypeByName(AurSitePartWorkerTypeName);
-                if (aurSitePartWorkerType != null)
-                {
-                    aurLoaded = true;
-                    aurMapParentType = AccessTools.TypeByName(AurMapParentTypeName);
-                    aurCustomSiteDef = DefDatabase<WorldObjectDef>.GetNamedSilentFail(AurCustomSiteDefName);
-                    LogVerbose("[The Marked Men] Ancient Urban Ruins detected.");
-                    return true;
-                }
-
-                foreach (ModMetaData mod in ModsConfig.ActiveModsInLoadOrder)
-                {
-                    if (string.Equals(mod.PackageIdPlayerFacing, AurPackageId, StringComparison.OrdinalIgnoreCase))
-                    {
-                        aurLoaded = true;
-                        LogVerbose("[The Marked Men] Ancient Urban Ruins detected via package ID.");
-                        return true;
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                Log.Warning("[The Marked Men] Ancient Urban Ruins detection failed: " + ex.Message);
-            }
-
-            return false;
-        }
+        public static bool Active => TheMarkedMenMod.Settings?.urbanOutbreaksEnabled == true;
 
         public static void Apply(Harmony harmony)
         {
-            if (harmony == null || integrationAttempted)
-            {
-                return;
-            }
-
-            integrationAttempted = true;
-
-            if (!IsAncientUrbanRuinsLoaded())
+            if (harmony == null)
             {
                 return;
             }
 
             try
             {
-                PatchMapPostInit(harmony);
-                integrationApplied = true;
+                MethodInfo initTarget = AccessTools.Method(typeof(Map), "FinalizeInit");
+                MethodInfo initPostfix = AccessTools.Method(typeof(TheMarkedMenAncientUrbanRuinsIntegration), nameof(Postfix_MapFinalizeInit));
+                if (initTarget != null && initPostfix != null)
+                {
+                    harmony.Patch(initTarget, postfix: new HarmonyMethod(initPostfix));
+                }
+
+                MethodInfo loadTarget = AccessTools.Method(typeof(Map), "FinalizeLoading");
+                MethodInfo loadPostfix = AccessTools.Method(typeof(TheMarkedMenAncientUrbanRuinsIntegration), nameof(Postfix_MapFinalizeLoading));
+                if (loadTarget != null && loadPostfix != null)
+                {
+                    harmony.Patch(loadTarget, postfix: new HarmonyMethod(loadPostfix));
+                }
+
                 LogVerbose("[The Marked Men] Ancient Urban Ruins integration active.");
             }
             catch (Exception ex)
@@ -98,78 +52,129 @@ namespace TheMarkedMen
             }
         }
 
-        private static void PatchMapPostInit(Harmony harmony)
-        {
-            MethodInfo target = AccessTools.Method(typeof(Map), "PostInit");
-            MethodInfo postfix = AccessTools.Method(typeof(TheMarkedMenAncientUrbanRuinsIntegration), nameof(Postfix_MapPostInit));
-            if (target != null && postfix != null)
-            {
-                harmony.Patch(target, postfix: new HarmonyMethod(postfix));
-            }
-        }
-
-        public static void Postfix_MapPostInit(Map __instance)
+        public static void Postfix_MapFinalizeInit(Map __instance)
         {
             if (!Active || __instance == null)
             {
                 return;
             }
 
+            Log.Message("[The Marked Men] Map FinalizeInit: checking for AUR ruins.");
+            TryInitializeUrbanOutbreakMap(__instance);
+        }
+
+        public static void Postfix_MapFinalizeLoading(Map __instance)
+        {
+            if (!Active || __instance == null)
+            {
+                return;
+            }
+
+            Log.Message("[The Marked Men] Map FinalizeLoading: checking for AUR ruins.");
             TryInitializeUrbanOutbreakMap(__instance);
         }
 
         public static bool IsAncientUrbanRuinsMap(Map map)
         {
-            if (map == null || !aurLoaded)
+            if (map == null)
             {
                 return false;
             }
 
-            if (aurCustomSiteDef != null)
+            if (aurMapCache.TryGetValue(map, out bool cached))
             {
-                Site site = map.Parent as Site;
-                if (site != null && site.parts != null)
+                return cached;
+            }
+
+            if (map.Parent != null)
+            {
+                string parentTypeName = map.Parent.GetType().FullName;
+                Log.Message("[The Marked Men] Map parent type: " + parentTypeName);
+                if (parentTypeName.StartsWith("AncientMarket_Libraray.", StringComparison.Ordinal))
                 {
-                    for (int i = 0; i < site.parts.Count; i++)
-                    {
-                        if (site.parts[i] != null && site.parts[i].def != null)
-                        {
-                            string workerClassName = site.parts[i].def.workerClass?.FullName ?? string.Empty;
-                            if (workerClassName == AurSitePartWorkerTypeName)
-                            {
-                                return true;
-                            }
-                        }
-                    }
+                    Log.Message("[The Marked Men] Map identified as AUR ruins via parent type.");
+                    aurMapCache[map] = true;
+                    return true;
                 }
             }
 
-            if (aurMapParentType != null && aurMapParentType.IsInstanceOfType(map.Parent))
+            bool result = HasAurBuildings(map);
+            Log.Message("[The Marked Men] AUR building scan result: " + result);
+            aurMapCache[map] = result;
+            return result;
+        }
+
+        private static bool HasAurBuildings(Map map)
+        {
+            if (map?.listerThings?.AllThings == null)
             {
-                return true;
+                return false;
+            }
+
+            List<Thing> allThings = map.listerThings.AllThings;
+            for (int i = 0; i < allThings.Count; i++)
+            {
+                Thing thing = allThings[i];
+                if (thing is Building && thing.def != null &&
+                    thing.def.defName.StartsWith(AurDefNamePrefix, StringComparison.OrdinalIgnoreCase))
+                {
+                    return true;
+                }
             }
 
             return false;
         }
 
+        public static List<Thing> GetAllAurBuildings(Map map)
+        {
+            List<Thing> results = new List<Thing>();
+            if (map?.listerThings?.AllThings == null)
+            {
+                return results;
+            }
+
+            List<Thing> allThings = map.listerThings.AllThings;
+            for (int i = 0; i < allThings.Count; i++)
+            {
+                Thing thing = allThings[i];
+                if (thing is Building && thing.Spawned && thing.def != null &&
+                    thing.def.defName.StartsWith(AurDefNamePrefix, StringComparison.OrdinalIgnoreCase))
+                {
+                    results.Add(thing);
+                }
+            }
+
+            return results;
+        }
+
         public static void TryInitializeUrbanOutbreakMap(Map map)
         {
-            if (!Active || !IsAncientUrbanRuinsMap(map))
+            if (!Active)
             {
+                Log.Message("[The Marked Men] Urban outbreaks disabled in settings.");
+                return;
+            }
+
+            if (!IsAncientUrbanRuinsMap(map))
+            {
+                Log.Message("[The Marked Men] Not an AUR map, skipping urban outbreak.");
                 return;
             }
 
             TheMarkedMenSettings settings = TheMarkedMenMod.Settings;
             if (settings == null || !settings.urbanOutbreaksEnabled)
             {
+                Log.Message("[The Marked Men] Urban outbreaks disabled in settings (re-check).");
                 return;
             }
 
             if (map.GetComponent<MapComponent_UrbanOutbreak>() != null)
             {
+                Log.Message("[The Marked Men] Urban outbreak already initialized on this map.");
                 return;
             }
 
+            Log.Message("[The Marked Men] Initializing urban outbreak on AUR map.");
             MapComponent_UrbanOutbreak comp = new MapComponent_UrbanOutbreak(map);
             map.components.Add(comp);
             comp.InitializeFromBuildingLayout();
@@ -178,13 +183,29 @@ namespace TheMarkedMen
         public static bool DebugInitializeCurrentMap()
         {
             Map map = Find.CurrentMap;
-            if (map == null || !IsAncientUrbanRuinsMap(map))
+            if (map == null)
             {
+                Log.Message("[The Marked Men] Debug: no current map.");
                 return false;
             }
 
-            TryInitializeUrbanOutbreakMap(map);
-            return map.GetComponent<MapComponent_UrbanOutbreak>() != null;
+            if (map.GetComponent<MapComponent_UrbanOutbreak>() != null)
+            {
+                Log.Message("[The Marked Men] Debug: outbreak already initialized.");
+                return true;
+            }
+
+            if (!IsAncientUrbanRuinsMap(map))
+            {
+                Log.Message("[The Marked Men] Debug: not an AUR map.");
+                return false;
+            }
+
+            Log.Message("[The Marked Men] Debug: forcing urban outbreak init.");
+            MapComponent_UrbanOutbreak comp = new MapComponent_UrbanOutbreak(map);
+            map.components.Add(comp);
+            comp.InitializeFromBuildingLayout();
+            return true;
         }
 
         public static bool DebugFireIncident(string defName)
@@ -280,7 +301,7 @@ namespace TheMarkedMen
     {
         private const int UrbanTickInterval = 6000;
         private const int SpawnSearchRadius = 8;
-        private const int MaxUrbanPawnsPerMap = 40;
+        private const int MaxUrbanPawnsPerMap = 60;
         private const float DormantBuildingActivationRange = 12f;
 
         private int nextUrbanTick;
@@ -288,6 +309,8 @@ namespace TheMarkedMen
         private int totalInfectedSpawned;
         private bool epicenter;
         private bool initialized;
+        private int initRetryCount;
+        private const int MaxInitRetries = 60;
 
         private List<IntVec3> dormantBuildingPositions = new List<IntVec3>();
         private List<ThingDef> dormantBuildingDefs = new List<ThingDef>();
@@ -312,6 +335,7 @@ namespace TheMarkedMen
             Scribe_Values.Look(ref totalInfectedSpawned, "totalInfectedSpawned", 0);
             Scribe_Values.Look(ref epicenter, "epicenter", false);
             Scribe_Values.Look(ref initialized, "initialized", false);
+            Scribe_Values.Look(ref initRetryCount, "initRetryCount", 0);
             Scribe_Collections.Look(ref dormantBuildingPositions, "dormantBuildingPositions", LookMode.Value);
             Scribe_Collections.Look(ref dormantBuildingDefs, "dormantBuildingDefs", LookMode.Def);
             Scribe_Collections.Look(ref dormantBuildingActivated, "dormantBuildingActivated", LookMode.Value);
@@ -326,6 +350,7 @@ namespace TheMarkedMen
                 buildingPositions ??= new List<IntVec3>();
                 buildingInfectionWeights ??= new List<float>();
                 buildingPawnKinds ??= new List<PawnKindDef>();
+                initRetryCount = 0;
             }
         }
 
@@ -336,7 +361,6 @@ namespace TheMarkedMen
                 return;
             }
 
-            initialized = true;
             TheMarkedMenSettings settings = TheMarkedMenMod.Settings;
             if (settings == null)
             {
@@ -346,6 +370,7 @@ namespace TheMarkedMen
             float infectionDensity = settings.urbanInfectionDensity;
             if (infectionDensity <= 0f)
             {
+                initialized = true;
                 return;
             }
 
@@ -353,14 +378,18 @@ namespace TheMarkedMen
             Faction faction = component?.EnsureCrossedFaction();
             if (faction == null)
             {
+                initialized = true;
                 return;
             }
 
-            List<Thing> allBuildings = map.listerThings.ThingsInGroup(ThingRequestGroup.BuildingArtificial);
-            if (allBuildings == null)
+            List<Thing> allBuildings = TheMarkedMenAncientUrbanRuinsIntegration.GetAllAurBuildings(map);
+            if (allBuildings.Count == 0)
             {
+                Log.Message("[The Marked Men] No AM_-prefixed buildings found yet, will retry next tick.");
                 return;
             }
+
+            Log.Message("[The Marked Men] Found " + allBuildings.Count + " AUR buildings on map.");
 
             for (int i = 0; i < allBuildings.Count; i++)
             {
@@ -371,10 +400,6 @@ namespace TheMarkedMen
                 }
 
                 string defName = building.def.defName;
-                if (!defName.StartsWith(TheMarkedMenAncientUrbanRuinsIntegration.AurDefNamePrefix, StringComparison.OrdinalIgnoreCase))
-                {
-                    continue;
-                }
 
                 float weight = TheMarkedMenAncientUrbanRuinsIntegration.GetBuildingInfectionWeight(defName);
                 if (weight <= 0f)
@@ -406,6 +431,7 @@ namespace TheMarkedMen
             epicenter = settings.cityEpicentersEnabled && Rand.RangeInclusive(1, 100) <= epicenterRoll;
 
             SpawnInitialUrbanPopulation();
+            initialized = true;
         }
 
         private void SpawnInitialUrbanPopulation()
@@ -423,13 +449,13 @@ namespace TheMarkedMen
                 return;
             }
 
-            float targetCount = Mathf.Min(settings.urbanInfectionDensity * buildingPositions.Count * 0.3f, MaxUrbanPawnsPerMap);
+            float targetCount = Mathf.Min(settings.urbanInfectionDensity * buildingPositions.Count * 0.8f, MaxUrbanPawnsPerMap);
             if (epicenter)
             {
-                targetCount *= 2f;
+                targetCount *= 1.5f;
             }
 
-            int count = Mathf.Clamp(Mathf.RoundToInt(targetCount), 1, MaxUrbanPawnsPerMap);
+            int count = Mathf.Clamp(Mathf.RoundToInt(targetCount), 10, MaxUrbanPawnsPerMap);
 
             for (int i = 0; i < buildingPositions.Count && totalInfectedSpawned < count; i++)
             {
@@ -545,7 +571,24 @@ namespace TheMarkedMen
 
         public override void MapComponentTick()
         {
-            if (!Active || map == null || buildingPositions.Count == 0)
+            if (!Active || map == null)
+            {
+                return;
+            }
+
+            if (!initialized)
+            {
+                initRetryCount++;
+                if (initRetryCount > MaxInitRetries)
+                {
+                    initialized = true;
+                    Log.Message("[The Marked Men] Gave up retrying AUR building scan after " + MaxInitRetries + " attempts.");
+                    return;
+                }
+                InitializeFromBuildingLayout();
+            }
+
+            if (buildingPositions.Count == 0)
             {
                 return;
             }
@@ -592,7 +635,7 @@ namespace TheMarkedMen
                 return;
             }
 
-            float replenishChance = 0.08f * settings.urbanInfectionDensity;
+            float replenishChance = 0.5f * settings.urbanInfectionDensity;
             if (!Rand.Chance(replenishChance))
             {
                 return;
@@ -603,30 +646,34 @@ namespace TheMarkedMen
                 return;
             }
 
-            int index = Rand.Range(0, buildingPositions.Count);
-            IntVec3 spawnPos = CellFinder.RandomClosewalkCellNear(buildingPositions[index], map, SpawnSearchRadius, null);
-            if (!spawnPos.IsValid || !spawnPos.Standable(map) || spawnPos.Fogged(map))
+            int count = Rand.RangeInclusive(2, Mathf.Min(4, MaxUrbanPawnsPerMap - currentCount));
+            for (int i = 0; i < count; i++)
             {
-                return;
-            }
+                int index = Rand.Range(0, buildingPositions.Count);
+                IntVec3 spawnPos = CellFinder.RandomClosewalkCellNear(buildingPositions[index], map, SpawnSearchRadius, null);
+                if (!spawnPos.IsValid || !spawnPos.Standable(map) || spawnPos.Fogged(map))
+                {
+                    continue;
+                }
 
-            PawnKindDef kind = PickUrbanPawnKind(buildingInfectionWeights[index]);
-            if (kind == null)
-            {
-                return;
-            }
+                PawnKindDef kind = PickUrbanPawnKind(buildingInfectionWeights[index]);
+                if (kind == null)
+                {
+                    continue;
+                }
 
-            Pawn pawn = PawnGenerator.GeneratePawn(kind, faction);
-            if (pawn == null)
-            {
-                return;
-            }
+                Pawn pawn = PawnGenerator.GeneratePawn(kind, faction);
+                if (pawn == null)
+                {
+                    continue;
+                }
 
-            GenSpawn.Spawn(pawn, spawnPos, map, Rot4.Random);
-            CrossedUtility.ApplyClassHediffs(pawn);
-            CrossedUtility.ApplyInfectedTattoo(pawn);
-            EnsureUrbanLord(pawn, faction);
-            totalInfectedSpawned++;
+                GenSpawn.Spawn(pawn, spawnPos, map, Rot4.Random);
+                CrossedUtility.ApplyClassHediffs(pawn);
+                CrossedUtility.ApplyInfectedTattoo(pawn);
+                EnsureUrbanLord(pawn, faction);
+                totalInfectedSpawned++;
+            }
         }
 
         private void TryAmbushTick()
@@ -668,7 +715,7 @@ namespace TheMarkedMen
                 return;
             }
 
-            float ambushChance = 0.12f * settings.urbanAmbushFrequency;
+            float ambushChance = 0.5f * settings.urbanAmbushFrequency;
             if (!Rand.Chance(ambushChance))
             {
                 return;
@@ -693,7 +740,7 @@ namespace TheMarkedMen
                 return;
             }
 
-            int ambushSize = Mathf.Clamp(Mathf.RoundToInt(Rand.Range(1f, 1f + settings.urbanInfectionDensity * 2f)), 1, 6);
+            int ambushSize = Mathf.Clamp(Mathf.RoundToInt(Rand.Range(3f, 3f + settings.urbanInfectionDensity * 3f)), 3, 10);
             List<Pawn> ambushPawns = new List<Pawn>();
 
             for (int i = 0; i < ambushSize; i++)
@@ -802,8 +849,8 @@ namespace TheMarkedMen
 
     public sealed class IncidentWorker_UrbanAmbush : IncidentWorker
     {
-        private const int MinAmbushCount = 1;
-        private const int MaxAmbushCount = 6;
+        private const int MinAmbushCount = 3;
+        private const int MaxAmbushCount = 10;
 
         public override float ChanceFactorNow(IIncidentTarget target)
         {
