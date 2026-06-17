@@ -165,23 +165,29 @@
 
   <!-- Crossed Pyromaniac - Fire-focused infected, throwable molotovs -->
   <PawnKindDef ParentName="CA_CrossedBase">
-    <defName>CA_CrossedPyromaniac</defName>
-    <label>Crossed pyromaniac</label>
-    <labelPlural>Crossed pyromaniacs</labelPlural>
-    <combatPower>260</combatPower>
-    <apparelMoney>60~180</apparelMoney>
-    <apparelTags>
-      <li>IndustrialBasic</li>
-      <li>Neolithic</li>
-    </apparelTags>
-    <weaponMoney>150~500</weaponMoney>
-    <weaponTags>
-      <li>Flamethrower</li>
-      <li>HeavyGun</li>
-      <li>IndustrialGunAdvanced</li>
-      <li>NeolithicMeleeBasic</li>
-    </weaponTags>
-  </PawnKindDef>
+  <defName>CA_CrossedPyromaniac</defName>
+  <label>Crossed pyromaniac</label>
+  <labelPlural>Crossed pyromaniacs</labelPlural>
+
+  <combatPower>260</combatPower>
+
+  <apparelMoney>60~180</apparelMoney>
+
+  <apparelTags>
+    <li>IndustrialBasic</li>
+    <li>Neolithic</li>
+  </apparelTags>
+
+  <weaponMoney>400~1000</weaponMoney>
+
+  <weaponTags>
+    <li>Flamethrower</li>
+    <li>GrenadeMolotov</li>
+  </weaponTags>
+
+  <chemicalAddictionChance>0.35</chemicalAddictionChance>
+  <combatEnhancingDrugsChance>0.25</combatEnhancingDrugsChance>
+</PawnKindDef>
 
   <!-- Crossed Alpha - Elite intelligent leader, medium-heavy weapons -->
   <PawnKindDef ParentName="CA_CrossedBase">

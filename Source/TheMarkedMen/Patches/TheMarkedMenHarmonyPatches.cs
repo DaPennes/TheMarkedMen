@@ -273,4 +273,14 @@ namespace TheMarkedMen
             }
         }
     }
+
+    [HarmonyPatch(typeof(PawnGenerator), nameof(PawnGenerator.GeneratePawn), typeof(PawnGenerationRequest))]
+    public static class Patch_CrossedPyromaniacWeapons
+    {
+        [HarmonyPostfix]
+        public static void Postfix(Pawn __result)
+        {
+            CrossedUtility.EnsureCrossedPyromaniacMolotov(__result);
+        }
+    }
 }

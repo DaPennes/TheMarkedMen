@@ -4609,6 +4609,49 @@ namespace TheMarkedMen
 
             ApplyInfectedTattoo(pawn);
             EnsureCrossedBasicClothingOnly(pawn);
+            EnsureCrossedPyromaniacMolotov(pawn);
+        }
+
+        public static bool IsCrossedPyromaniac(Pawn pawn)
+        {
+            return pawn?.kindDef == CADefOf.CrossedPyromaniac;
+        }
+
+        public static bool IsMolotovWeapon(ThingDef def)
+        {
+            return def != null
+                && (def.defName == "Weapon_GrenadeMolotov"
+                    || def.weaponTags != null && def.weaponTags.Contains("GrenadeMolotov"));
+        }
+
+        public static ThingDef GetMolotovWeaponDef()
+        {
+            ThingDef molotov = DefDatabase<ThingDef>.GetNamedSilentFail("Weapon_GrenadeMolotov");
+            return molotov ?? DefDatabase<ThingDef>.AllDefs.FirstOrDefault(IsMolotovWeapon);
+        }
+
+        public static bool EnsureCrossedPyromaniacMolotov(Pawn pawn)
+        {
+            if (!IsCrossedPyromaniac(pawn) || pawn.equipment == null)
+            {
+                return false;
+            }
+
+            ThingWithComps current = pawn.equipment.Primary;
+            if (IsMolotovWeapon(current?.def))
+            {
+                return true;
+            }
+
+            ThingDef molotov = GetMolotovWeaponDef();
+            if (molotov == null)
+            {
+                return false;
+            }
+
+            pawn.equipment.DestroyAllEquipment();
+            pawn.equipment.AddEquipment((ThingWithComps)ThingMaker.MakeThing(molotov));
+            return true;
         }
 
         private static void GrantPsycastAbility(Pawn pawn, string abilityDefName)
@@ -4929,7 +4972,13 @@ namespace TheMarkedMen
                 return false;
             }
 
-            if (TheMarkedMenRjwCompatibility.TryStartBestInfectedIntercourseJob(pawn, true))
+            bool pyromaniac = CrossedUtility.IsCrossedPyromaniac(pawn);
+            if (pyromaniac)
+            {
+                CrossedUtility.EnsureCrossedPyromaniacMolotov(pawn);
+            }
+
+            if (!pyromaniac && TheMarkedMenRjwCompatibility.TryStartBestInfectedIntercourseJob(pawn, true))
             {
                 return true;
             }
@@ -4941,7 +4990,7 @@ namespace TheMarkedMen
                 return TryRetargetAwayFromPawn(pawn, currentPawnTarget, true);
             }
 
-            if (IsAttackJob(currentJobDef) && IsValidNonInfectedPawnTarget(currentPawnTarget, pawn))
+            if (IsAttackJob(currentJobDef) && IsValidNonInfectedPawnTarget(currentPawnTarget, pawn) && !ShouldForceRangedAttack(pawn, currentJobDef))
             {
                 return false;
             }
@@ -4960,7 +5009,7 @@ namespace TheMarkedMen
             if (bestNonInfected != null)
             {
                 bool isAttackJob = IsAttackJob(currentJobDef);
-                if (isAttackJob && currentPawnTarget == bestNonInfected && IsValidNonInfectedPawnTarget(currentPawnTarget, pawn))
+                if (isAttackJob && currentPawnTarget == bestNonInfected && IsValidNonInfectedPawnTarget(currentPawnTarget, pawn) && !ShouldForceRangedAttack(pawn, currentJobDef))
                 {
                     return false;
                 }
@@ -4999,7 +5048,13 @@ namespace TheMarkedMen
                 return false;
             }
 
-            if (allowRjwJob && TheMarkedMenRjwCompatibility.TryStartBestInfectedIntercourseJob(pawn, forceCurrentJob))
+            bool pyromaniac = CrossedUtility.IsCrossedPyromaniac(pawn);
+            if (pyromaniac)
+            {
+                CrossedUtility.EnsureCrossedPyromaniacMolotov(pawn);
+            }
+
+            if (!pyromaniac && allowRjwJob && TheMarkedMenRjwCompatibility.TryStartBestInfectedIntercourseJob(pawn, forceCurrentJob))
             {
                 return true;
             }
@@ -5011,7 +5066,7 @@ namespace TheMarkedMen
             }
 
             JobDef currentJobDef = pawn.CurJob?.def;
-            if (!forceCurrentJob && IsAttackJob(currentJobDef) && pawn.CurJob?.targetA.Pawn == target)
+            if (!forceCurrentJob && IsAttackJob(currentJobDef) && pawn.CurJob?.targetA.Pawn == target && !ShouldForceRangedAttack(pawn, currentJobDef))
             {
                 return false;
             }
@@ -5107,6 +5162,7 @@ namespace TheMarkedMen
             if (verb.CanHitTargetFrom(pawn.Position, target))
             {
                 Job attackJob = JobMaker.MakeJob(JobDefOf.AttackStatic, target);
+                attackJob.verbToUse = verb;
                 attackJob.expiryInterval = TacticalJobExpiryTicks;
                 attackJob.checkOverrideOnExpire = true;
                 attackJob.killIncappedTarget = !(target is Pawn attackPawnTarget && TheMarkedMenRjwCompatibility.ShouldKeepIncapacitatedTargetForIntercourse(pawn, attackPawnTarget));
@@ -5233,8 +5289,20 @@ namespace TheMarkedMen
 
         private static Verb GetRangedVerb(Pawn pawn)
         {
+            if (CrossedUtility.IsCrossedPyromaniac(pawn))
+            {
+                CrossedUtility.EnsureCrossedPyromaniacMolotov(pawn);
+            }
+
             Verb verb = pawn?.equipment?.PrimaryEq?.PrimaryVerb;
             return verb != null && !verb.IsMeleeAttack ? verb : null;
+        }
+
+        private static bool ShouldForceRangedAttack(Pawn pawn, JobDef currentJobDef)
+        {
+            return CrossedUtility.IsCrossedPyromaniac(pawn)
+                && currentJobDef != JobDefOf.AttackStatic
+                && GetRangedVerb(pawn) != null;
         }
 
         private static bool IsTacticalRangedMoveJob(Job job, Thing target)
