@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Patch>
+  <Operation Class="PatchOperationFindMod">
+    <mods>
+      <li>Muffin.MakeshiftWeapons</li>
+      <li>Makeshift.MakeshiftWeapons</li>
+      <li>Krasy.MakeshiftWeapons</li>
+      <li>desrtfox.makeshiftweapons</li>
+    </mods>
+    <match Class="PatchOperationSequence">
+      <operations>
+        <!-- Makeshift Weapons adds improvised pipe guns, crude melee, etc.
+             Adding the MakeshiftWeapon tag gives these types access to the mod's items. -->
+
+        <!-- Crossed Civilian: makeshift melee and crude guns -->
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/PawnKindDef[defName="CA_CrossedCivilian"]/weaponTags/li[text()="MakeshiftWeapon"]</xpath>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/PawnKindDef[defName="CA_CrossedCivilian"]/weaponTags</xpath>
+            <value>
+              <li>MakeshiftWeapon</li>
+            </value>
+          </nomatch>
+        </li>
+
+        <!-- Crossed Scout: makeshift guns -->
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/PawnKindDef[defName="CA_CrossedScout"]/weaponTags/li[text()="MakeshiftWeapon"]</xpath>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/PawnKindDef[defName="CA_CrossedScout"]/weaponTags</xpath>
+            <value>
+              <li>MakeshiftWeapon</li>
+            </value>
+          </nomatch>
+        </li>
+
+        <!-- Crossed Raider: makeshift weapons for scrappy fighters -->
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/PawnKindDef[defName="CA_CrossedRaider"]/weaponTags/li[text()="MakeshiftWeapon"]</xpath>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/PawnKindDef[defName="CA_CrossedRaider"]/weaponTags</xpath>
+            <value>
+              <li>MakeshiftWeapon</li>
+            </value>
+          </nomatch>
+        </li>
+      </operations>
+    </match>
+  </Operation>
+</Patch>

@@ -9,9 +9,7 @@
     <chemicalAddictionChance>0.03</chemicalAddictionChance>
     <combatEnhancingDrugsChance>0.15</combatEnhancingDrugsChance>
     <combatEnhancingDrugsCount>1</combatEnhancingDrugsCount>
-    <gearHealthRange>0.35~1.15</gearHealthRange>
     <invNutrition>0.7</invNutrition>
-    <apparelAllowHeadgearChance>0</apparelAllowHeadgearChance>
     <requiredWorkTags>
       <li>Violent</li>
     </requiredWorkTags>
@@ -24,17 +22,20 @@
   </PawnKindDef>
 
   <!-- Crossed Civilian - Most common, very low threat, improvised weapons -->
+  <!-- Tattered civilian clothes, improvised melee, no armor -->
   <PawnKindDef ParentName="CA_CrossedBase">
     <defName>CA_CrossedCivilian</defName>
     <label>Crossed civilian</label>
     <labelPlural>Crossed civilians</labelPlural>
     <combatPower>80</combatPower>
-    <apparelMoney>40~100</apparelMoney>
+    <apparelMoney>30~80</apparelMoney>
+    <apparelAllowHeadgearChance>0.15</apparelAllowHeadgearChance>
+    <gearHealthRange>0.15~0.7</gearHealthRange>
     <apparelTags>
       <li>IndustrialBasic</li>
       <li>Neolithic</li>
     </apparelTags>
-    <weaponMoney>40~100</weaponMoney>
+    <weaponMoney>30~80</weaponMoney>
     <weaponTags>
       <li>NeolithicMeleeBasic</li>
       <li>NeolithicMeleeDecent</li>
@@ -42,86 +43,106 @@
   </PawnKindDef>
 
   <!-- Crossed Scout - Fast reconnaissance, light weapons, pistols -->
+  <!-- Light clothing, recon-style, minimal armor penalties, fast weapons -->
   <PawnKindDef ParentName="CA_CrossedBase">
     <defName>CA_CrossedScout</defName>
     <label>Crossed scout</label>
     <labelPlural>Crossed scouts</labelPlural>
     <combatPower>120</combatPower>
-    <apparelMoney>60~140</apparelMoney>
+    <apparelMoney>50~120</apparelMoney>
+    <apparelAllowHeadgearChance>0.25</apparelAllowHeadgearChance>
+    <gearHealthRange>0.25~0.9</gearHealthRange>
     <apparelTags>
       <li>IndustrialBasic</li>
       <li>Neolithic</li>
+      <li>IndustrialMilitaryBasic</li>
     </apparelTags>
-    <weaponMoney>100~200</weaponMoney>
+    <weaponMoney>80~180</weaponMoney>
     <weaponTags>
       <li>SimpleGun</li>
-      <li>MakeshiftGun</li>
+      <li>NeolithicRangedBasic</li>
       <li>NeolithicMeleeBasic</li>
     </weaponTags>
   </PawnKindDef>
 
   <!-- Crossed Hunter - Tracker, hunting weapons, long-range -->
+  <!-- Hunting apparel, camouflage, bows, rifles, hunting knives -->
   <PawnKindDef ParentName="CA_CrossedBase">
     <defName>CA_CrossedHunter</defName>
     <label>Crossed hunter</label>
     <labelPlural>Crossed hunters</labelPlural>
     <combatPower>200</combatPower>
-    <apparelMoney>100~220</apparelMoney>
+    <apparelMoney>80~200</apparelMoney>
+    <apparelAllowHeadgearChance>0.3</apparelAllowHeadgearChance>
+    <gearHealthRange>0.3~1.0</gearHealthRange>
     <apparelTags>
       <li>IndustrialBasic</li>
       <li>Neolithic</li>
       <li>IndustrialMilitaryBasic</li>
     </apparelTags>
-    <weaponMoney>80~380</weaponMoney>
+    <weaponMoney>100~300</weaponMoney>
     <weaponTags>
       <li>Gun</li>
-      <li>MakeshiftGun</li>
       <li>NeolithicRangedDecent</li>
+      <li>NeolithicRangedBasic</li>
       <li>NeolithicMeleeBasic</li>
+      <li>MedievalMeleeBasic</li>
     </weaponTags>
   </PawnKindDef>
 
   <!-- Crossed Shooter - Ranged infantry, shotguns and SMGs -->
+  <!-- Mixed civilian and tactical gear, firearms focused -->
   <PawnKindDef ParentName="CA_CrossedBase">
     <defName>CA_CrossedShooter</defName>
     <label>Crossed shooter</label>
     <labelPlural>Crossed shooters</labelPlural>
     <combatPower>180</combatPower>
-    <apparelMoney>80~180</apparelMoney>
+    <apparelMoney>60~150</apparelMoney>
+    <apparelAllowHeadgearChance>0.35</apparelAllowHeadgearChance>
+    <gearHealthRange>0.3~1.0</gearHealthRange>
     <apparelTags>
       <li>IndustrialBasic</li>
+      <li>IndustrialAdvanced</li>
       <li>IndustrialMilitaryBasic</li>
     </apparelTags>
-    <weaponMoney>140~300</weaponMoney>
+    <weaponMoney>120~280</weaponMoney>
     <weaponTags>
       <li>ShortShots</li>
       <li>SimpleGun</li>
+      <li>Gun</li>
       <li>NeolithicMeleeBasic</li>
     </weaponTags>
   </PawnKindDef>
 
   <!-- Crossed Raider - Former bandits, assault rifles and machetes -->
+  <!-- Raider style outfits, scrap armor, aggressive weapons, explosives -->
   <PawnKindDef ParentName="CA_CrossedBase">
     <defName>CA_CrossedRaider</defName>
     <label>Crossed raider</label>
     <labelPlural>Crossed raiders</labelPlural>
     <combatPower>280</combatPower>
     <canBeSapper>true</canBeSapper>
-    <apparelMoney>120~280</apparelMoney>
+    <apparelMoney>100~250</apparelMoney>
+    <apparelAllowHeadgearChance>0.25</apparelAllowHeadgearChance>
+    <gearHealthRange>0.3~1.0</gearHealthRange>
     <apparelTags>
       <li>IndustrialBasic</li>
+      <li>Neolithic</li>
       <li>IndustrialMilitaryBasic</li>
+      <li>MedievalMilitary</li>
     </apparelTags>
-    <weaponMoney>180~450</weaponMoney>
+    <weaponMoney>150~400</weaponMoney>
     <weaponTags>
       <li>Gun</li>
-      <li>MakeshiftGun</li>
       <li>MedievalMeleeDecent</li>
       <li>NeolithicMeleeBasic</li>
+      <li>MedievalMeleeBasic</li>
+      <li>GrenadeDestructive</li>
     </weaponTags>
   </PawnKindDef>
 
   <!-- Crossed Soldier - Former military, military-grade auto weapons -->
+  <!-- Military uniforms, tactical armor, combat helmets, military firearms -->
   <PawnKindDef ParentName="CA_CrossedBase">
     <defName>CA_CrossedSoldier</defName>
     <label>Crossed soldier</label>
@@ -129,20 +150,24 @@
     <combatPower>380</combatPower>
     <canBeSapper>true</canBeSapper>
     <apparelMoney>200~400</apparelMoney>
+    <apparelAllowHeadgearChance>1</apparelAllowHeadgearChance>
+    <gearHealthRange>0.5~1.3</gearHealthRange>
     <apparelTags>
       <li>IndustrialMilitaryBasic</li>
       <li>IndustrialMilitaryAdvanced</li>
+      <li>IndustrialAdvanced</li>
     </apparelTags>
     <weaponMoney>250~800</weaponMoney>
     <weaponTags>
       <li>IndustrialGunAdvanced</li>
       <li>GunHeavy</li>
-      <li>HeavyGun</li>
+      <li>SimpleGun</li>
       <li>NeolithicMeleeBasic</li>
     </weaponTags>
   </PawnKindDef>
 
   <!-- Crossed Brute - Heavy melee specialist, heavy armor -->
+  <!-- Heavy clothing, riot gear, heavy armor, plate, large melee weapons -->
   <PawnKindDef ParentName="CA_CrossedBase">
     <defName>CA_CrossedBrute</defName>
     <label>Crossed brute</label>
@@ -150,6 +175,8 @@
     <combatPower>420</combatPower>
     <canBeSapper>true</canBeSapper>
     <apparelMoney>180~380</apparelMoney>
+    <apparelAllowHeadgearChance>0.8</apparelAllowHeadgearChance>
+    <gearHealthRange>0.5~1.3</gearHealthRange>
     <apparelTags>
       <li>IndustrialMilitaryBasic</li>
       <li>IndustrialMilitaryAdvanced</li>
@@ -160,36 +187,39 @@
       <li>MedievalMeleeAdvanced</li>
       <li>MedievalMeleeDecent</li>
       <li>NeolithicMeleeBasic</li>
+      <li>MedievalMeleeBasic</li>
+      <li>SimpleGun</li>
     </weaponTags>
   </PawnKindDef>
 
   <!-- Crossed Pyromaniac - Fire-focused infected, throwable molotovs -->
+  <!-- Burned clothing, fire-resistant gear, pyro-themed, incendiary weapons -->
   <PawnKindDef ParentName="CA_CrossedBase">
-  <defName>CA_CrossedPyromaniac</defName>
-  <label>Crossed pyromaniac</label>
-  <labelPlural>Crossed pyromaniacs</labelPlural>
-
-  <combatPower>260</combatPower>
-
-  <apparelMoney>60~180</apparelMoney>
-
-  <apparelTags>
-    <li>IndustrialBasic</li>
-    <li>Neolithic</li>
-  </apparelTags>
-
-  <weaponMoney>400~1000</weaponMoney>
-
-  <weaponTags>
-    <li>Flamethrower</li>
-    <li>GrenadeMolotov</li>
-  </weaponTags>
-
-  <chemicalAddictionChance>0.35</chemicalAddictionChance>
-  <combatEnhancingDrugsChance>0.25</combatEnhancingDrugsChance>
-</PawnKindDef>
+    <defName>CA_CrossedPyromaniac</defName>
+    <label>Crossed pyromaniac</label>
+    <labelPlural>Crossed pyromaniacs</labelPlural>
+    <combatPower>260</combatPower>
+    <apparelMoney>60~180</apparelMoney>
+    <apparelAllowHeadgearChance>0.15</apparelAllowHeadgearChance>
+    <gearHealthRange>0.3~0.9</gearHealthRange>
+    <apparelTags>
+      <li>IndustrialBasic</li>
+      <li>Neolithic</li>
+      <li>IndustrialAdvanced</li>
+    </apparelTags>
+    <weaponMoney>400~1000</weaponMoney>
+    <weaponTags>
+      <li>Flamethrower</li>
+      <li>GrenadeFlame</li>
+      <li>SimpleGun</li>
+      <li>NeolithicMeleeBasic</li>
+    </weaponTags>
+    <chemicalAddictionChance>0.35</chemicalAddictionChance>
+    <combatEnhancingDrugsChance>0.25</combatEnhancingDrugsChance>
+  </PawnKindDef>
 
   <!-- Crossed Alpha - Elite intelligent leader, medium-heavy weapons -->
+  <!-- Elite infected appearance, best available armor, powerful weapons -->
   <PawnKindDef ParentName="CA_CrossedBase">
     <defName>CA_CrossedAlpha</defName>
     <label>Crossed alpha</label>
@@ -198,14 +228,18 @@
     <canBeSapper>true</canBeSapper>
     <maxGenerationAge>65</maxGenerationAge>
     <apparelMoney>250~500</apparelMoney>
+    <apparelAllowHeadgearChance>0.9</apparelAllowHeadgearChance>
+    <gearHealthRange>0.6~1.5</gearHealthRange>
     <apparelTags>
       <li>IndustrialMilitaryAdvanced</li>
       <li>SpacerMilitary</li>
+      <li>IndustrialAdvanced</li>
     </apparelTags>
     <weaponMoney>400~1400</weaponMoney>
     <weaponTags>
       <li>SpacerGun</li>
       <li>IndustrialGunAdvanced</li>
+      <li>GunHeavy</li>
       <li>MedievalMeleeAdvanced</li>
       <li>NeolithicMeleeBasic</li>
     </weaponTags>
@@ -220,6 +254,7 @@
   </PawnKindDef>
 
   <!-- Crossed Warlord - Regional commander, heavy weapons and heavy armor -->
+  <!-- Highest quality equipment, rare armor, heavy weapons, commanding presence -->
   <PawnKindDef ParentName="CA_CrossedBase">
     <defName>CA_CrossedWarlord</defName>
     <label>Crossed warlord</label>
@@ -228,18 +263,21 @@
     <canBeSapper>true</canBeSapper>
     <maxGenerationAge>70</maxGenerationAge>
     <apparelMoney>400~800</apparelMoney>
+    <apparelAllowHeadgearChance>1</apparelAllowHeadgearChance>
+    <gearHealthRange>0.7~1.8</gearHealthRange>
     <apparelTags>
       <li>IndustrialMilitaryAdvanced</li>
       <li>SpacerMilitary</li>
+      <li>MedievalMilitary</li>
     </apparelTags>
     <weaponMoney>300~2500</weaponMoney>
     <weaponTags>
       <li>GunHeavy</li>
-      <li>HeavyGun</li>
       <li>SpacerGun</li>
       <li>IndustrialGunAdvanced</li>
       <li>MedievalMeleeAdvanced</li>
       <li>NeolithicMeleeBasic</li>
+      <li>GrenadeDestructive</li>
     </weaponTags>
     <combatEnhancingDrugsChance>0.7</combatEnhancingDrugsChance>
     <combatEnhancingDrugsCount>2~3</combatEnhancingDrugsCount>
@@ -252,6 +290,7 @@
   </PawnKindDef>
 
   <!-- Marked Man - Ultimate infected, endgame encounter -->
+  <!-- Distinct dark appearance, elite tactical gear, veteran military equipment, high-end weapons -->
   <PawnKindDef ParentName="CA_CrossedBase">
     <defName>CA_MarkedMan</defName>
     <label>Marked Man</label>
@@ -260,6 +299,8 @@
     <canBeSapper>true</canBeSapper>
     <maxGenerationAge>75</maxGenerationAge>
     <apparelMoney>600~1200</apparelMoney>
+    <apparelAllowHeadgearChance>1</apparelAllowHeadgearChance>
+    <gearHealthRange>0.8~2.0</gearHealthRange>
     <apparelTags>
       <li>SpacerMilitary</li>
       <li>IndustrialMilitaryAdvanced</li>
@@ -268,10 +309,10 @@
     <weaponTags>
       <li>SpacerGun</li>
       <li>GunHeavy</li>
-      <li>HeavyGun</li>
       <li>IndustrialGunAdvanced</li>
       <li>MedievalMeleeAdvanced</li>
       <li>NeolithicMeleeBasic</li>
+      <li>GrenadeDestructive</li>
     </weaponTags>
     <combatEnhancingDrugsChance>0.9</combatEnhancingDrugsChance>
     <combatEnhancingDrugsCount>2~4</combatEnhancingDrugsCount>

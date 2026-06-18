@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Patch>
+  <Operation Class="PatchOperationFindMod">
+    <mods>
+      <li>VanillaExpanded.AccessoriesExpanded</li>
+      <li>VanillaExpanded.Accessories</li>
+      <li>OskarPotocki.VanillaAccessoriesExpanded</li>
+    </mods>
+    <match Class="PatchOperationSequence">
+      <operations>
+        <!-- Vanilla Accessories Expanded adds bandoliers, ammo pouches, backpacks, etc.
+             These belt/accessory items use custom tags for distribution. -->
+
+        <!-- All combat types get accessory gear -->
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/PawnKindDef[defName="CA_CrossedSoldier"]/apparelTags/li[text()="Accessory"]</xpath>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/PawnKindDef[defName="CA_CrossedSoldier"]/apparelTags</xpath>
+            <value>
+              <li>Accessory</li>
+            </value>
+          </nomatch>
+        </li>
+
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/PawnKindDef[defName="CA_CrossedBrute"]/apparelTags/li[text()="Accessory"]</xpath>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/PawnKindDef[defName="CA_CrossedBrute"]/apparelTags</xpath>
+            <value>
+              <li>Accessory</li>
+            </value>
+          </nomatch>
+        </li>
+
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/PawnKindDef[defName="CA_CrossedAlpha"]/apparelTags/li[text()="Accessory"]</xpath>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/PawnKindDef[defName="CA_CrossedAlpha"]/apparelTags</xpath>
+            <value>
+              <li>Accessory</li>
+            </value>
+          </nomatch>
+        </li>
+
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/PawnKindDef[defName="CA_CrossedWarlord"]/apparelTags/li[text()="Accessory"]</xpath>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/PawnKindDef[defName="CA_CrossedWarlord"]/apparelTags</xpath>
+            <value>
+              <li>Accessory</li>
+            </value>
+          </nomatch>
+        </li>
+
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/PawnKindDef[defName="CA_MarkedMan"]/apparelTags/li[text()="Accessory"]</xpath>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/PawnKindDef[defName="CA_MarkedMan"]/apparelTags</xpath>
+            <value>
+              <li>Accessory</li>
+            </value>
+          </nomatch>
+        </li>
+
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/PawnKindDef[defName="CA_CrossedRaider"]/apparelTags/li[text()="Accessory"]</xpath>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/PawnKindDef[defName="CA_CrossedRaider"]/apparelTags</xpath>
+            <value>
+              <li>Accessory</li>
+            </value>
+          </nomatch>
+        </li>
+
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/PawnKindDef[defName="CA_CrossedScout"]/apparelTags/li[text()="Accessory"]</xpath>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/PawnKindDef[defName="CA_CrossedScout"]/apparelTags</xpath>
+            <value>
+              <li>Accessory</li>
+            </value>
+          </nomatch>
+        </li>
+
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/PawnKindDef[defName="CA_CrossedHunter"]/apparelTags/li[text()="Accessory"]</xpath>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/PawnKindDef[defName="CA_CrossedHunter"]/apparelTags</xpath>
+            <value>
+              <li>Accessory</li>
+            </value>
+          </nomatch>
+        </li>
+      </operations>
+    </match>
+  </Operation>
+</Patch>

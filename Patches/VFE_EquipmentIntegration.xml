@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Patch>
+  <!-- Vanilla Factions Expanded adds faction-specific equipment with custom tags.
+       This patch makes that equipment available to appropriate Crossed types. -->
+  <Operation Class="PatchOperationFindMod">
+    <mods>
+      <li>oskarpotocki.vanillafactionsexpanded.core</li>
+    </mods>
+    <match Class="PatchOperationSequence">
+      <operations>
+        <!-- Crossed Raider: access VFE pirate/raider gear -->
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/PawnKindDef[defName="CA_CrossedRaider"]/apparelTags/li[text()="VFEPirate"]</xpath>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/PawnKindDef[defName="CA_CrossedRaider"]/apparelTags</xpath>
+            <value>
+              <li>VFEPirate</li>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/PawnKindDef[defName="CA_CrossedRaider"]/weaponTags/li[text()="VFEPirateWeapon"]</xpath>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/PawnKindDef[defName="CA_CrossedRaider"]/weaponTags</xpath>
+            <value>
+              <li>VFEPirateWeapon</li>
+            </value>
+          </nomatch>
+        </li>
+
+        <!-- Crossed Soldier: access VFE military/empire gear -->
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/PawnKindDef[defName="CA_CrossedSoldier"]/apparelTags/li[text()="VFEMilitary"]</xpath>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/PawnKindDef[defName="CA_CrossedSoldier"]/apparelTags</xpath>
+            <value>
+              <li>VFEMilitary</li>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/PawnKindDef[defName="CA_CrossedSoldier"]/weaponTags/li[text()="VFEMilitaryWeapon"]</xpath>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/PawnKindDef[defName="CA_CrossedSoldier"]/weaponTags</xpath>
+            <value>
+              <li>VFEMilitaryWeapon</li>
+            </value>
+          </nomatch>
+        </li>
+
+        <!-- Crossed Brute: access VFE heavy/medieval gear -->
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/PawnKindDef[defName="CA_CrossedBrute"]/apparelTags/li[text()="VFEMedieval"]</xpath>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/PawnKindDef[defName="CA_CrossedBrute"]/apparelTags</xpath>
+            <value>
+              <li>VFEMedieval</li>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/PawnKindDef[defName="CA_CrossedBrute"]/weaponTags/li[text()="VFEMeleeHeavy"]</xpath>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/PawnKindDef[defName="CA_CrossedBrute"]/weaponTags</xpath>
+            <value>
+              <li>VFEMeleeHeavy</li>
+            </value>
+          </nomatch>
+        </li>
+
+        <!-- Crossed Alpha: access VFE elite gear -->
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/PawnKindDef[defName="CA_CrossedAlpha"]/apparelTags/li[text()="VFEElite"]</xpath>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/PawnKindDef[defName="CA_CrossedAlpha"]/apparelTags</xpath>
+            <value>
+              <li>VFEElite</li>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/PawnKindDef[defName="CA_CrossedAlpha"]/weaponTags/li[text()="VFEEliteWeapon"]</xpath>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/PawnKindDef[defName="CA_CrossedAlpha"]/weaponTags</xpath>
+            <value>
+              <li>VFEEliteWeapon</li>
+            </value>
+          </nomatch>
+        </li>
+
+        <!-- Crossed Warlord: access VFE commander gear -->
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/PawnKindDef[defName="CA_CrossedWarlord"]/apparelTags/li[text()="VFEElite"]</xpath>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/PawnKindDef[defName="CA_CrossedWarlord"]/apparelTags</xpath>
+            <value>
+              <li>VFEElite</li>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/PawnKindDef[defName="CA_CrossedWarlord"]/weaponTags/li[text()="VFEEliteWeapon"]</xpath>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/PawnKindDef[defName="CA_CrossedWarlord"]/weaponTags</xpath>
+            <value>
+              <li>VFEEliteWeapon</li>
+            </value>
+          </nomatch>
+        </li>
+
+        <!-- Marked Man: access all VFE elite gear -->
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/PawnKindDef[defName="CA_MarkedMan"]/apparelTags/li[text()="VFEElite"]</xpath>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/PawnKindDef[defName="CA_MarkedMan"]/apparelTags</xpath>
+            <value>
+              <li>VFEElite</li>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/PawnKindDef[defName="CA_MarkedMan"]/weaponTags/li[text()="VFEEliteWeapon"]</xpath>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/PawnKindDef[defName="CA_MarkedMan"]/weaponTags</xpath>
+            <value>
+              <li>VFEEliteWeapon</li>
+            </value>
+          </nomatch>
+        </li>
+      </operations>
+    </match>
+  </Operation>
+</Patch>

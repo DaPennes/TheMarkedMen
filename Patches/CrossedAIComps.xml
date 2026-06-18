@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Patch>
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/HediffDef[defName="CA_ScoutAdrenaline"]</xpath>
+    <value>
+      <comps>
+        <li Class="TheMarkedMen.HediffCompProperties_ScreamingCharge">
+          <detectionRadius>20</detectionRadius>
+          <chargeSpeedFactor>1.40</chargeSpeedFactor>
+          <chargeMeleeFactor>0.70</chargeMeleeFactor>
+          <buffHediffDefName>CA_ScreamingCharge</buffHediffDefName>
+        </li>
+        <li Class="TheMarkedMen.HediffCompProperties_Taunt">
+          <checkIntervalTicks>120</checkIntervalTicks>
+          <tauntCooldownTicks>600</tauntCooldownTicks>
+          <tauntChance>0.4</tauntChance>
+          <tauntRadius>5</tauntRadius>
+        </li>
+      </comps>
+    </value>
+  </Operation>
+
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/HediffDef[defName="CA_HunterFocus"]</xpath>
+    <value>
+      <comps>
+        <li Class="TheMarkedMen.HediffCompProperties_Taunt">
+          <checkIntervalTicks>120</checkIntervalTicks>
+          <tauntCooldownTicks>600</tauntCooldownTicks>
+          <tauntChance>0.3</tauntChance>
+          <tauntRadius>5</tauntRadius>
+        </li>
+      </comps>
+    </value>
+  </Operation>
+
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/HediffDef[defName="CA_ShooterRush"]</xpath>
+    <value>
+      <comps>
+        <li Class="TheMarkedMen.HediffCompProperties_Taunt">
+          <checkIntervalTicks>120</checkIntervalTicks>
+          <tauntCooldownTicks>600</tauntCooldownTicks>
+          <tauntChance>0.35</tauntChance>
+          <tauntRadius>5</tauntRadius>
+        </li>
+      </comps>
+    </value>
+  </Operation>
+
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/HediffDef[defName="CA_RaiderFury"]</xpath>
+    <value>
+      <comps>
+        <li Class="TheMarkedMen.HediffCompProperties_ScreamingCharge">
+          <detectionRadius>18</detectionRadius>
+          <chargeSpeedFactor>1.35</chargeSpeedFactor>
+          <chargeMeleeFactor>0.75</chargeMeleeFactor>
+          <buffHediffDefName>CA_ScreamingCharge</buffHediffDefName>
+        </li>
+        <li Class="TheMarkedMen.HediffCompProperties_BloodFrenzy">
+          <checkIntervalTicks>180</checkIntervalTicks>
+          <severityPerKill>0.25</severityPerKill>
+          <maxSeverity>1.0</maxSeverity>
+          <decayPerCheck>0.05</decayPerCheck>
+          <frenzyHediffDefName>CA_BloodFrenzy</frenzyHediffDefName>
+        </li>
+        <li Class="TheMarkedMen.HediffCompProperties_Taunt">
+          <checkIntervalTicks>120</checkIntervalTicks>
+          <tauntCooldownTicks>500</tauntCooldownTicks>
+          <tauntChance>0.5</tauntChance>
+          <tauntRadius>5</tauntRadius>
+        </li>
+      </comps>
+    </value>
+  </Operation>
+
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/HediffDef[defName="CA_SoldierDiscipline"]</xpath>
+    <value>
+      <comps>
+        <li Class="TheMarkedMen.HediffCompProperties_BloodFrenzy">
+          <checkIntervalTicks>180</checkIntervalTicks>
+          <severityPerKill>0.2</severityPerKill>
+          <maxSeverity>1.0</maxSeverity>
+          <decayPerCheck>0.04</decayPerCheck>
+          <frenzyHediffDefName>CA_BloodFrenzy</frenzyHediffDefName>
+        </li>
+        <li Class="TheMarkedMen.HediffCompProperties_PackCoordination">
+          <scanRadius>20</scanRadius>
+          <scanIntervalTicks>120</scanIntervalTicks>
+          <packHediffDefName>CA_PackCoordination</packHediffDefName>
+        </li>
+      </comps>
+    </value>
+  </Operation>
+
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/HediffDef[defName="CA_BloodRush"]</xpath>
+    <value>
+      <comps>
+        <li Class="TheMarkedMen.HediffCompProperties_ScreamingCharge">
+          <detectionRadius>22</detectionRadius>
+          <chargeSpeedFactor>1.50</chargeSpeedFactor>
+          <chargeMeleeFactor>0.60</chargeMeleeFactor>
+          <buffHediffDefName>CA_ScreamingCharge</buffHediffDefName>
+        </li>
+        <li Class="TheMarkedMen.HediffCompProperties_BloodFrenzy">
+          <checkIntervalTicks>150</checkIntervalTicks>
+          <severityPerKill>0.3</severityPerKill>
+          <maxSeverity>1.0</maxSeverity>
+          <decayPerCheck>0.06</decayPerCheck>
+          <frenzyHediffDefName>CA_BloodFrenzy</frenzyHediffDefName>
+        </li>
+      </comps>
+    </value>
+  </Operation>
+
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/HediffDef[defName="CA_FireHunger"]</xpath>
+    <value>
+      <comps>
+        <li Class="TheMarkedMen.HediffCompProperties_ScreamingCharge">
+          <detectionRadius>16</detectionRadius>
+          <chargeSpeedFactor>1.30</chargeSpeedFactor>
+          <chargeMeleeFactor>0.80</chargeMeleeFactor>
+          <buffHediffDefName>CA_ScreamingCharge</buffHediffDefName>
+        </li>
+      </comps>
+    </value>
+  </Operation>
+
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/HediffDef[defName="CA_CommandAura"]</xpath>
+    <value>
+      <comps>
+        <li Class="TheMarkedMen.HediffCompProperties_RallyPulse">
+          <radius>16</radius>
+          <pulseIntervalTicks>400</pulseIntervalTicks>
+          <buffHediffDefName>CA_RallyBuff</buffHediffDefName>
+        </li>
+        <li Class="TheMarkedMen.HediffCompProperties_PackCoordination">
+          <scanRadius>25</scanRadius>
+          <scanIntervalTicks>120</scanIntervalTicks>
+          <packHediffDefName>CA_PackCoordination</packHediffDefName>
+        </li>
+      </comps>
+    </value>
+  </Operation>
+
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/HediffDef[defName="CA_WarlordPresence"]</xpath>
+    <value>
+      <comps>
+        <li Class="TheMarkedMen.HediffCompProperties_RallyPulse">
+          <radius>18</radius>
+          <pulseIntervalTicks>350</pulseIntervalTicks>
+          <buffHediffDefName>CA_RallyBuff</buffHediffDefName>
+        </li>
+        <li Class="TheMarkedMen.HediffCompProperties_PackCoordination">
+          <scanRadius>25</scanRadius>
+          <scanIntervalTicks>120</scanIntervalTicks>
+          <packHediffDefName>CA_PackCoordination</packHediffDefName>
+        </li>
+        <li Class="TheMarkedMen.HediffCompProperties_Taunt">
+          <checkIntervalTicks>100</checkIntervalTicks>
+          <tauntCooldownTicks>450</tauntCooldownTicks>
+          <tauntChance>0.6</tauntChance>
+          <tauntRadius>6</tauntRadius>
+        </li>
+      </comps>
+    </value>
+  </Operation>
+
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/HediffDef[defName="CA_MarkedAscension"]</xpath>
+    <value>
+      <comps>
+        <li Class="TheMarkedMen.HediffCompProperties_MarkedHunt">
+          <scanIntervalTicks>150</scanIntervalTicks>
+        </li>
+        <li Class="TheMarkedMen.HediffCompProperties_ScreamingCharge">
+          <detectionRadius>24</detectionRadius>
+          <chargeSpeedFactor>1.50</chargeSpeedFactor>
+          <chargeMeleeFactor>0.55</chargeMeleeFactor>
+          <buffHediffDefName>CA_ScreamingCharge</buffHediffDefName>
+        </li>
+      </comps>
+    </value>
+  </Operation>
+</Patch>

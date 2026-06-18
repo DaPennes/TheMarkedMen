@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Patch>
+  <Operation Class="PatchOperationFindMod">
+    <mods>
+      <li>OskarPotocki.VanillaWeaponsExpanded</li>
+      <li>VanillaExpanded.VWE</li>
+      <li>VanillaExpanded.VanillaWeaponsExpanded</li>
+    </mods>
+    <match Class="PatchOperationSequence">
+      <operations>
+        <!-- Vanilla Weapons Expanded adds weapons across all tech levels.
+             These VWE-specific weapon tags increase the chance of rolling VWE weapons
+             on top of the vanilla tags already set in the base defs. -->
+
+        <!-- Crossed Civilian: add VWE makeshift/melee tags -->
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/PawnKindDef[defName="CA_CrossedCivilian"]/weaponTags/li[text()="VWEMeleeBasic"]</xpath>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/PawnKindDef[defName="CA_CrossedCivilian"]/weaponTags</xpath>
+            <value>
+              <li>VWEMeleeBasic</li>
+            </value>
+          </nomatch>
+        </li>
+
+        <!-- Crossed Scout: add VWE pistol/SMG tags -->
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/PawnKindDef[defName="CA_CrossedScout"]/weaponTags/li[text()="VWEPistol"]</xpath>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/PawnKindDef[defName="CA_CrossedScout"]/weaponTags</xpath>
+            <value>
+              <li>VWEPistol</li>
+              <li>VWESMG</li>
+            </value>
+          </nomatch>
+        </li>
+
+        <!-- Crossed Shooter: add VWE shotgun/SMG/rifle tags -->
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/PawnKindDef[defName="CA_CrossedShooter"]/weaponTags/li[text()="VWEShotgun"]</xpath>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/PawnKindDef[defName="CA_CrossedShooter"]/weaponTags</xpath>
+            <value>
+              <li>VWEShotgun</li>
+              <li>VWESMG</li>
+              <li>VWERifle</li>
+            </value>
+          </nomatch>
+        </li>
+
+        <!-- Crossed Raider: add VWE raider/improvised tags -->
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/PawnKindDef[defName="CA_CrossedRaider"]/weaponTags/li[text()="VWERaider"]</xpath>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/PawnKindDef[defName="CA_CrossedRaider"]/weaponTags</xpath>
+            <value>
+              <li>VWERaider</li>
+              <li>VWEShotgun</li>
+              <li>VWESMG</li>
+              <li>VWEMeleeDecent</li>
+            </value>
+          </nomatch>
+        </li>
+
+        <!-- Crossed Soldier: add VWE military rifle/tag -->
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/PawnKindDef[defName="CA_CrossedSoldier"]/weaponTags/li[text()="VWERifle"]</xpath>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/PawnKindDef[defName="CA_CrossedSoldier"]/weaponTags</xpath>
+            <value>
+              <li>VWERifle</li>
+              <li>VWEHeavy</li>
+              <li>VWEMeleeDecent</li>
+            </value>
+          </nomatch>
+        </li>
+
+        <!-- Crossed Alpha: add VWE elite/spacer tags -->
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/PawnKindDef[defName="CA_CrossedAlpha"]/weaponTags/li[text()="VWESpacer"]</xpath>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/PawnKindDef[defName="CA_CrossedAlpha"]/weaponTags</xpath>
+            <value>
+              <li>VWESpacer</li>
+              <li>VWERifle</li>
+              <li>VWEHeavy</li>
+            </value>
+          </nomatch>
+        </li>
+
+        <!-- Crossed Warlord: add VWE heavy/spacer tags -->
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/PawnKindDef[defName="CA_CrossedWarlord"]/weaponTags/li[text()="VWEHeavy"]</xpath>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/PawnKindDef[defName="CA_CrossedWarlord"]/weaponTags</xpath>
+            <value>
+              <li>VWEHeavy</li>
+              <li>VWESpacer</li>
+              <li>VWELauncher</li>
+            </value>
+          </nomatch>
+        </li>
+
+        <!-- Marked Man: add VWE ultimate/elite tags -->
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/PawnKindDef[defName="CA_MarkedMan"]/weaponTags/li[text()="VWESpacer"]</xpath>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/PawnKindDef[defName="CA_MarkedMan"]/weaponTags</xpath>
+            <value>
+              <li>VWESpacer</li>
+              <li>VWEHeavy</li>
+              <li>VWELauncher</li>
+            </value>
+          </nomatch>
+        </li>
+      </operations>
+    </match>
+  </Operation>
+</Patch>

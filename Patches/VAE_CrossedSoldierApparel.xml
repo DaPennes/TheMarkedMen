@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Patch>
+  <Operation Class="PatchOperationFindMod">
+    <mods>
+      <li>VanillaExpanded.VAPPE</li>
+    </mods>
+    <match Class="PatchOperationSequence">
+      <operations>
+        <!-- Crossed Soldier: ensure headgear + VAE apparel tag -->
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/PawnKindDef[defName="CA_CrossedSoldier"]/apparelAllowHeadgearChance</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>/Defs/PawnKindDef[defName="CA_CrossedSoldier"]/apparelAllowHeadgearChance</xpath>
+            <value>
+              <apparelAllowHeadgearChance>1</apparelAllowHeadgearChance>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/PawnKindDef[defName="CA_CrossedSoldier"]</xpath>
+            <value>
+              <apparelAllowHeadgearChance>1</apparelAllowHeadgearChance>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/PawnKindDef[defName="CA_CrossedSoldier"]/apparelTags/li[text()="IndustrialMilitary"]</xpath>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/PawnKindDef[defName="CA_CrossedSoldier"]/apparelTags</xpath>
+            <value>
+              <li>IndustrialMilitary</li>
+            </value>
+          </nomatch>
+        </li>
+
+        <!-- Crossed Brute: ensure headgear + VAE apparel tag -->
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/PawnKindDef[defName="CA_CrossedBrute"]/apparelAllowHeadgearChance</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>/Defs/PawnKindDef[defName="CA_CrossedBrute"]/apparelAllowHeadgearChance</xpath>
+            <value>
+              <apparelAllowHeadgearChance>1</apparelAllowHeadgearChance>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/PawnKindDef[defName="CA_CrossedBrute"]</xpath>
+            <value>
+              <apparelAllowHeadgearChance>1</apparelAllowHeadgearChance>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/PawnKindDef[defName="CA_CrossedBrute"]/apparelTags/li[text()="IndustrialMilitary"]</xpath>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/PawnKindDef[defName="CA_CrossedBrute"]/apparelTags</xpath>
+            <value>
+              <li>IndustrialMilitary</li>
+            </value>
+          </nomatch>
+        </li>
+
+        <!-- Crossed Alpha: ensure headgear + VAE apparel tag -->
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/PawnKindDef[defName="CA_CrossedAlpha"]/apparelAllowHeadgearChance</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>/Defs/PawnKindDef[defName="CA_CrossedAlpha"]/apparelAllowHeadgearChance</xpath>
+            <value>
+              <apparelAllowHeadgearChance>1</apparelAllowHeadgearChance>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/PawnKindDef[defName="CA_CrossedAlpha"]</xpath>
+            <value>
+              <apparelAllowHeadgearChance>1</apparelAllowHeadgearChance>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/PawnKindDef[defName="CA_CrossedAlpha"]/apparelTags/li[text()="IndustrialMilitary"]</xpath>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/PawnKindDef[defName="CA_CrossedAlpha"]/apparelTags</xpath>
+            <value>
+              <li>IndustrialMilitary</li>
+            </value>
+          </nomatch>
+        </li>
+
+        <!-- Crossed Warlord: ensure headgear + VAE apparel tag -->
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/PawnKindDef[defName="CA_CrossedWarlord"]/apparelAllowHeadgearChance</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>/Defs/PawnKindDef[defName="CA_CrossedWarlord"]/apparelAllowHeadgearChance</xpath>
+            <value>
+              <apparelAllowHeadgearChance>1</apparelAllowHeadgearChance>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/PawnKindDef[defName="CA_CrossedWarlord"]</xpath>
+            <value>
+              <apparelAllowHeadgearChance>1</apparelAllowHeadgearChance>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/PawnKindDef[defName="CA_CrossedWarlord"]/apparelTags/li[text()="IndustrialMilitary"]</xpath>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/PawnKindDef[defName="CA_CrossedWarlord"]/apparelTags</xpath>
+            <value>
+              <li>IndustrialMilitary</li>
+            </value>
+          </nomatch>
+        </li>
+
+        <!-- Marked Man: ensure headgear + VAE apparel tag -->
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/PawnKindDef[defName="CA_MarkedMan"]/apparelAllowHeadgearChance</xpath>
+          <match Class="PatchOperationReplace">
+            <xpath>/Defs/PawnKindDef[defName="CA_MarkedMan"]/apparelAllowHeadgearChance</xpath>
+            <value>
+              <apparelAllowHeadgearChance>1</apparelAllowHeadgearChance>
+            </value>
+          </match>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/PawnKindDef[defName="CA_MarkedMan"]</xpath>
+            <value>
+              <apparelAllowHeadgearChance>1</apparelAllowHeadgearChance>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/PawnKindDef[defName="CA_MarkedMan"]/apparelTags/li[text()="IndustrialMilitary"]</xpath>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/PawnKindDef[defName="CA_MarkedMan"]/apparelTags</xpath>
+            <value>
+              <li>IndustrialMilitary</li>
+            </value>
+          </nomatch>
+        </li>
+
+        <!-- Crossed Raider: VAE apparel tag (no headgear override) -->
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/PawnKindDef[defName="CA_CrossedRaider"]/apparelTags/li[text()="IndustrialMilitary"]</xpath>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/PawnKindDef[defName="CA_CrossedRaider"]/apparelTags</xpath>
+            <value>
+              <li>IndustrialMilitary</li>
+            </value>
+          </nomatch>
+        </li>
+
+        <!-- Crossed Shooter: VAE apparel tag (no headgear override) -->
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/PawnKindDef[defName="CA_CrossedShooter"]/apparelTags/li[text()="IndustrialMilitary"]</xpath>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/PawnKindDef[defName="CA_CrossedShooter"]/apparelTags</xpath>
+            <value>
+              <li>IndustrialMilitary</li>
+            </value>
+          </nomatch>
+        </li>
+
+        <!-- Crossed Hunter: VAE apparel tag (no headgear override) -->
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/PawnKindDef[defName="CA_CrossedHunter"]/apparelTags/li[text()="IndustrialMilitary"]</xpath>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/PawnKindDef[defName="CA_CrossedHunter"]/apparelTags</xpath>
+            <value>
+              <li>IndustrialMilitary</li>
+            </value>
+          </nomatch>
+        </li>
+
+        <!-- Crossed Scout: VAE apparel tag (no headgear override) -->
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/PawnKindDef[defName="CA_CrossedScout"]/apparelTags/li[text()="IndustrialMilitary"]</xpath>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/PawnKindDef[defName="CA_CrossedScout"]/apparelTags</xpath>
+            <value>
+              <li>IndustrialMilitary</li>
+            </value>
+          </nomatch>
+        </li>
+      </operations>
+    </match>
+  </Operation>
+</Patch>

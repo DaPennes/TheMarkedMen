@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Patch>
+  <Operation Class="PatchOperationFindMod">
+    <mods>
+      <li>VanillaExpanded.VARME</li>
+    </mods>
+    <match Class="PatchOperationSequence">
+      <operations>
+        <!-- When VARME is present, all military types gain access to its armour tagged IndustrialMilitary -->
+
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/PawnKindDef[defName="CA_CrossedSoldier"]/apparelTags/li[text()="IndustrialMilitary"]</xpath>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/PawnKindDef[defName="CA_CrossedSoldier"]/apparelTags</xpath>
+            <value>
+              <li>IndustrialMilitary</li>
+            </value>
+          </nomatch>
+        </li>
+
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/PawnKindDef[defName="CA_CrossedBrute"]/apparelTags/li[text()="IndustrialMilitary"]</xpath>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/PawnKindDef[defName="CA_CrossedBrute"]/apparelTags</xpath>
+            <value>
+              <li>IndustrialMilitary</li>
+            </value>
+          </nomatch>
+        </li>
+
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/PawnKindDef[defName="CA_CrossedAlpha"]/apparelTags/li[text()="IndustrialMilitary"]</xpath>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/PawnKindDef[defName="CA_CrossedAlpha"]/apparelTags</xpath>
+            <value>
+              <li>IndustrialMilitary</li>
+            </value>
+          </nomatch>
+        </li>
+
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/PawnKindDef[defName="CA_CrossedWarlord"]/apparelTags/li[text()="IndustrialMilitary"]</xpath>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/PawnKindDef[defName="CA_CrossedWarlord"]/apparelTags</xpath>
+            <value>
+              <li>IndustrialMilitary</li>
+            </value>
+          </nomatch>
+        </li>
+
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/PawnKindDef[defName="CA_MarkedMan"]/apparelTags/li[text()="IndustrialMilitary"]</xpath>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/PawnKindDef[defName="CA_MarkedMan"]/apparelTags</xpath>
+            <value>
+              <li>IndustrialMilitary</li>
+            </value>
+          </nomatch>
+        </li>
+      </operations>
+    </match>
+  </Operation>
+</Patch>

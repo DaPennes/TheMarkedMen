@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+  <HediffGiverSetDef>
+    <defName>CrossedRoleHediffs</defName>
+    <hediffGivers>
+      <li Class="TheMarkedMen.HediffGiver_RoleByKind">
+        <roleHediffs>
+          <li>
+            <pawnKind>CA_CrossedScout</pawnKind>
+            <hediff>CA_ScoutAdrenaline</hediff>
+          </li>
+          <li>
+            <pawnKind>CA_CrossedHunter</pawnKind>
+            <hediff>CA_HunterFocus</hediff>
+          </li>
+          <li>
+            <pawnKind>CA_CrossedShooter</pawnKind>
+            <hediff>CA_ShooterRush</hediff>
+          </li>
+          <li>
+            <pawnKind>CA_CrossedRaider</pawnKind>
+            <hediff>CA_RaiderFury</hediff>
+          </li>
+          <li>
+            <pawnKind>CA_CrossedSoldier</pawnKind>
+            <hediff>CA_SoldierDiscipline</hediff>
+          </li>
+          <li>
+            <pawnKind>CA_CrossedPyromaniac</pawnKind>
+            <hediff>CA_FireHunger</hediff>
+          </li>
+        </roleHediffs>
+      </li>
+    </hediffGivers>
+  </HediffGiverSetDef>
+</Defs>

@@ -17,28 +17,30 @@
         <minSeverity>0</minSeverity>
         <label>rapid incubation</label>
         <becomeVisible>true</becomeVisible>
-        <painFactor>0.9</painFactor>
+        <painFactor>0.5</painFactor>
+        <blocksMentalBreaks>true</blocksMentalBreaks>
         <statFactors>
           <MoveSpeed>1.03</MoveSpeed>
           <MeleeCooldownFactor>0.96</MeleeCooldownFactor>
         </statFactors>
         <statOffsets>
-          <MentalBreakThreshold>-0.02</MentalBreakThreshold>
-          <PainShockThreshold>0.03</PainShockThreshold>
+          <MentalBreakThreshold>-0.50</MentalBreakThreshold>
+          <PainShockThreshold>0.25</PainShockThreshold>
         </statOffsets>
       </li>
       <li>
         <minSeverity>0.2</minSeverity>
         <label>active symptoms</label>
         <becomeVisible>true</becomeVisible>
-        <painFactor>0.85</painFactor>
+        <painFactor>0.3</painFactor>
+        <blocksMentalBreaks>true</blocksMentalBreaks>
         <statFactors>
           <ImmunityGainSpeed>0.8</ImmunityGainSpeed>
           <RestRateMultiplier>0.85</RestRateMultiplier>
         </statFactors>
         <statOffsets>
-          <MentalBreakThreshold>-0.03</MentalBreakThreshold>
-          <PainShockThreshold>0.04</PainShockThreshold>
+          <MentalBreakThreshold>-0.50</MentalBreakThreshold>
+          <PainShockThreshold>0.35</PainShockThreshold>
         </statOffsets>
         <capMods>
           <li>
@@ -50,21 +52,23 @@
       <li>
         <minSeverity>0.45</minSeverity>
         <label>neurological fever</label>
-        <painFactor>0.35</painFactor>
+        <painFactor>0.1</painFactor>
+        <blocksMentalBreaks>true</blocksMentalBreaks>
         <statFactors>
           <MoveSpeed>1.08</MoveSpeed>
           <MeleeCooldownFactor>0.9</MeleeCooldownFactor>
           <SocialImpact>0.35</SocialImpact>
         </statFactors>
         <statOffsets>
-          <MentalBreakThreshold>-0.08</MentalBreakThreshold>
-          <PainShockThreshold>0.10</PainShockThreshold>
+          <MentalBreakThreshold>-0.50</MentalBreakThreshold>
+          <PainShockThreshold>0.45</PainShockThreshold>
         </statOffsets>
       </li>
       <li>
         <minSeverity>0.72</minSeverity>
         <label>violent psychosis</label>
-        <painFactor>0.12</painFactor>
+        <painFactor>0</painFactor>
+        <blocksMentalBreaks>true</blocksMentalBreaks>
         <blocksInspirations>true</blocksInspirations>
         <statFactors>
           <MoveSpeed>1.20</MoveSpeed>
@@ -74,8 +78,8 @@
           <StaggerDurationFactor>0.65</StaggerDurationFactor>
         </statFactors>
         <statOffsets>
-          <MentalBreakThreshold>-0.22</MentalBreakThreshold>
-          <PainShockThreshold>0.35</PainShockThreshold>
+          <MentalBreakThreshold>-0.50</MentalBreakThreshold>
+          <PainShockThreshold>0.55</PainShockThreshold>
           <MeleeHitChance>2</MeleeHitChance>
         </statOffsets>
         <capMods>
@@ -246,6 +250,290 @@
     </comps>
   </HediffDef>
 
+
+  <HediffDef>
+    <defName>CA_ScoutAdrenaline</defName>
+    <label>scout adrenaline</label>
+    <description>The Marked Virus sharpens the scout's reflexes, pushing them into a permanent heightened state for rapid hit-and-run attacks.</description>
+    <hediffClass>HediffWithComps</hediffClass>
+    <isBad>false</isBad>
+    <stages>
+      <li>
+        <statFactors>
+          <MoveSpeed>1.25</MoveSpeed>
+        </statFactors>
+        <statOffsets>
+          <AimingDelayFactor>-0.15</AimingDelayFactor>
+        </statOffsets>
+      </li>
+    </stages>
+  </HediffDef>
+
+  <HediffDef>
+    <defName>CA_HunterFocus</defName>
+    <label>hunter focus</label>
+    <description>The virus enhances the hunter's tracking instincts, granting preternatural accuracy and stealth in pursuit of prey.</description>
+    <hediffClass>HediffWithComps</hediffClass>
+    <isBad>false</isBad>
+    <stages>
+      <li>
+        <statFactors>
+          <AimingDelayFactor>0.80</AimingDelayFactor>
+        </statFactors>
+        <statOffsets>
+          <ShootingAccuracyPawn>3</ShootingAccuracyPawn>
+          <HuntingStealth>0.25</HuntingStealth>
+        </statOffsets>
+      </li>
+    </stages>
+  </HediffDef>
+
+  <HediffDef>
+    <defName>CA_ShooterRush</defName>
+    <label>shooter rush</label>
+    <description>The infected shooter moves with an aggressive, relentless pace, closing distance and unloading with unnatural speed.</description>
+    <hediffClass>HediffWithComps</hediffClass>
+    <isBad>false</isBad>
+    <stages>
+      <li>
+        <statFactors>
+          <MoveSpeed>1.12</MoveSpeed>
+          <StaggerDurationFactor>0.65</StaggerDurationFactor>
+        </statFactors>
+        <statOffsets>
+          <AimingDelayFactor>-0.15</AimingDelayFactor>
+        </statOffsets>
+      </li>
+    </stages>
+  </HediffDef>
+
+  <HediffDef>
+    <defName>CA_RaiderFury</defName>
+    <label>raider fury</label>
+    <description>Rage and viral aggression merge into a relentless assault drive — the raider feels no fear and hits harder with every breach.</description>
+    <hediffClass>HediffWithComps</hediffClass>
+    <isBad>false</isBad>
+    <stages>
+      <li>
+        <statFactors>
+          <MoveSpeed>1.10</MoveSpeed>
+          <MeleeCooldownFactor>0.78</MeleeCooldownFactor>
+          <IncomingDamageFactor>0.85</IncomingDamageFactor>
+        </statFactors>
+        <statOffsets>
+          <MeleeHitChance>3</MeleeHitChance>
+          <PainShockThreshold>0.15</PainShockThreshold>
+        </statOffsets>
+      </li>
+    </stages>
+  </HediffDef>
+
+  <HediffDef>
+    <defName>CA_SoldierDiscipline</defName>
+    <label>soldier discipline</label>
+    <description>Former military training is amplified by the virus — the crossed soldier fights with tactical precision and unbreakable nerve.</description>
+    <hediffClass>HediffWithComps</hediffClass>
+    <isBad>false</isBad>
+    <stages>
+      <li>
+        <statFactors>
+          <StaggerDurationFactor>0.70</StaggerDurationFactor>
+        </statFactors>
+        <statOffsets>
+          <ShootingAccuracyPawn>2</ShootingAccuracyPawn>
+          <MeleeDodgeChance>2</MeleeDodgeChance>
+          <PainShockThreshold>0.15</PainShockThreshold>
+          <AimingDelayFactor>-0.10</AimingDelayFactor>
+        </statOffsets>
+      </li>
+    </stages>
+  </HediffDef>
+
+  <HediffDef>
+    <defName>CA_FireHunger</defName>
+    <label>fire hunger</label>
+    <description>The virus twists the pyromaniac's obsession into a weapon — they accelerate through flames and feel only warmth where others feel agony.</description>
+    <hediffClass>HediffWithComps</hediffClass>
+    <isBad>false</isBad>
+    <stages>
+      <li>
+        <statFactors>
+          <MoveSpeed>1.12</MoveSpeed>
+        </statFactors>
+        <statOffsets>
+          <MeleeHitChance>3</MeleeHitChance>
+          <PainShockThreshold>0.20</PainShockThreshold>
+          <ArmorRating_Heat>0.40</ArmorRating_Heat>
+        </statOffsets>
+      </li>
+    </stages>
+  </HediffDef>
+
+  <HediffDef>
+    <defName>CA_WarlordPresence</defName>
+    <label>warlord presence</label>
+    <description>A regional commander whose infection has amplified their tactical instincts — the warlord leads from the front with devastating effect.</description>
+    <hediffClass>HediffWithComps</hediffClass>
+    <isBad>false</isBad>
+    <stages>
+      <li>
+        <statFactors>
+          <MoveSpeed>1.12</MoveSpeed>
+          <IncomingDamageFactor>0.80</IncomingDamageFactor>
+        </statFactors>
+        <statOffsets>
+          <ShootingAccuracyPawn>3</ShootingAccuracyPawn>
+          <MeleeHitChance>3</MeleeHitChance>
+          <MeleeDodgeChance>2</MeleeDodgeChance>
+          <PainShockThreshold>0.35</PainShockThreshold>
+          <AimingDelayFactor>-0.15</AimingDelayFactor>
+        </statOffsets>
+      </li>
+    </stages>
+  </HediffDef>
+
+  <HediffDef>
+    <defName>CA_MarkedAscension</defName>
+    <label>marked ascension</label>
+    <description>The virus has reached full saturation — the host is no longer fighting the Mark. It has become everything they are, and it has made them perfect.</description>
+    <hediffClass>HediffWithComps</hediffClass>
+    <isBad>false</isBad>
+    <stages>
+      <li>
+        <painFactor>0</painFactor>
+        <blocksMentalBreaks>true</blocksMentalBreaks>
+        <statFactors>
+          <MoveSpeed>1.35</MoveSpeed>
+          <MeleeCooldownFactor>0.55</MeleeCooldownFactor>
+          <IncomingDamageFactor>0.65</IncomingDamageFactor>
+          <StaggerDurationFactor>0.20</StaggerDurationFactor>
+        </statFactors>
+        <statOffsets>
+          <ShootingAccuracyPawn>5</ShootingAccuracyPawn>
+          <AimingDelayFactor>-0.25</AimingDelayFactor>
+          <MeleeHitChance>5</MeleeHitChance>
+          <MeleeDodgeChance>5</MeleeDodgeChance>
+          <PainShockThreshold>0.50</PainShockThreshold>
+        </statOffsets>
+      </li>
+    </stages>
+  </HediffDef>
+
+  <HediffDef>
+    <defName>CA_ScreamingCharge</defName>
+    <label>screaming charge</label>
+    <description>The infected charges with supernatural speed and aggression.</description>
+    <hediffClass>HediffWithComps</hediffClass>
+    <isBad>false</isBad>
+    <stages>
+      <li>
+        <statFactors>
+          <MoveSpeed>1.40</MoveSpeed>
+          <MeleeCooldownFactor>0.70</MeleeCooldownFactor>
+          <StaggerDurationFactor>0.40</StaggerDurationFactor>
+        </statFactors>
+      </li>
+    </stages>
+  </HediffDef>
+
+  <HediffDef>
+    <defName>CA_BloodFrenzy</defName>
+    <label>blood frenzy</label>
+    <description>Kill after kill, the frenzy builds — the infected moves faster and hits harder with every victim.</description>
+    <hediffClass>HediffWithComps</hediffClass>
+    <isBad>false</isBad>
+    <stages>
+      <li>
+        <minSeverity>0.01</minSeverity>
+        <label>roused</label>
+        <statOffsets>
+          <MeleeHitChance>1</MeleeHitChance>
+          <PainShockThreshold>0.05</PainShockThreshold>
+        </statOffsets>
+      </li>
+      <li>
+        <minSeverity>0.34</minSeverity>
+        <label>blooded</label>
+        <statFactors>
+          <MeleeCooldownFactor>0.85</MeleeCooldownFactor>
+        </statFactors>
+        <statOffsets>
+          <MeleeHitChance>3</MeleeHitChance>
+          <PainShockThreshold>0.15</PainShockThreshold>
+        </statOffsets>
+      </li>
+      <li>
+        <minSeverity>0.67</minSeverity>
+        <label>frenzied</label>
+        <statFactors>
+          <MoveSpeed>1.15</MoveSpeed>
+          <MeleeCooldownFactor>0.70</MeleeCooldownFactor>
+          <IncomingDamageFactor>0.90</IncomingDamageFactor>
+        </statFactors>
+        <statOffsets>
+          <MeleeHitChance>5</MeleeHitChance>
+          <PainShockThreshold>0.25</PainShockThreshold>
+        </statOffsets>
+      </li>
+    </stages>
+  </HediffDef>
+
+  <HediffDef>
+    <defName>CA_RallyBuff</defName>
+    <label>rally buff</label>
+    <description>The Alpha or Warlord's presence pushes nearby infected to fight harder.</description>
+    <hediffClass>HediffWithComps</hediffClass>
+    <isBad>false</isBad>
+    <stages>
+      <li>
+        <statFactors>
+          <MoveSpeed>1.10</MoveSpeed>
+          <MeleeCooldownFactor>0.85</MeleeCooldownFactor>
+          <StaggerDurationFactor>0.75</StaggerDurationFactor>
+        </statFactors>
+        <statOffsets>
+          <ShootingAccuracyPawn>2</ShootingAccuracyPawn>
+          <MeleeHitChance>2</MeleeHitChance>
+          <PainShockThreshold>0.10</PainShockThreshold>
+        </statOffsets>
+      </li>
+    </stages>
+  </HediffDef>
+
+  <HediffDef>
+    <defName>CA_PackCoordination</defName>
+    <label>pack coordination</label>
+    <description>The infected coordinates with nearby pack members for tactical advantage.</description>
+    <hediffClass>HediffWithComps</hediffClass>
+    <isBad>false</isBad>
+    <stages>
+      <li>
+        <minSeverity>0.01</minSeverity>
+        <label>outnumbered defense</label>
+        <statFactors>
+          <IncomingDamageFactor>0.85</IncomingDamageFactor>
+          <StaggerDurationFactor>0.60</StaggerDurationFactor>
+        </statFactors>
+        <statOffsets>
+          <MeleeDodgeChance>3</MeleeDodgeChance>
+          <PainShockThreshold>0.15</PainShockThreshold>
+        </statOffsets>
+      </li>
+      <li>
+        <minSeverity>0.75</minSeverity>
+        <label>overwhelming force</label>
+        <statFactors>
+          <MoveSpeed>1.10</MoveSpeed>
+          <MeleeCooldownFactor>0.80</MeleeCooldownFactor>
+        </statFactors>
+        <statOffsets>
+          <ShootingAccuracyPawn>2</ShootingAccuracyPawn>
+          <MeleeHitChance>3</MeleeHitChance>
+          <MeleeDodgeChance>2</MeleeDodgeChance>
+        </statOffsets>
+      </li>
+    </stages>
+  </HediffDef>
 
   <HediffDef>
     <defName>CA_CrossedPanic</defName>

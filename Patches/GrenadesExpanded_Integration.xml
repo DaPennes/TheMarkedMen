@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Patch>
+  <Operation Class="PatchOperationFindMod">
+    <mods>
+      <li>grenadesexpanded.grenadesexpanded</li>
+      <li>VanillaExpanded.GrenadesExpanded</li>
+      <li>GrenadesExpanded</li>
+    </mods>
+    <match Class="PatchOperationSequence">
+      <operations>
+        <!-- Grenades Expanded adds new throwables and launchers.
+             The mod's items use existing vanilla grenade tags plus custom ones. -->
+        <!-- We add the GrenadeExpanded tag to types that should carry grenade variety. -->
+
+        <!-- Crossed Raider: grenadier type -->
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/PawnKindDef[defName="CA_CrossedRaider"]/weaponTags/li[text()="GrenadeExpanded"]</xpath>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/PawnKindDef[defName="CA_CrossedRaider"]/weaponTags</xpath>
+            <value>
+              <li>GrenadeExpanded</li>
+            </value>
+          </nomatch>
+        </li>
+
+        <!-- Crossed Warlord: commander with explosive options -->
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/PawnKindDef[defName="CA_CrossedWarlord"]/weaponTags/li[text()="GrenadeExpanded"]</xpath>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/PawnKindDef[defName="CA_CrossedWarlord"]/weaponTags</xpath>
+            <value>
+              <li>GrenadeExpanded</li>
+            </value>
+          </nomatch>
+        </li>
+
+        <!-- Marked Man: access to all explosive options -->
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/PawnKindDef[defName="CA_MarkedMan"]/weaponTags/li[text()="GrenadeExpanded"]</xpath>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/PawnKindDef[defName="CA_MarkedMan"]/weaponTags</xpath>
+            <value>
+              <li>GrenadeExpanded</li>
+            </value>
+          </nomatch>
+        </li>
+      </operations>
+    </match>
+  </Operation>
+</Patch>
