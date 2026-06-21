@@ -17,8 +17,6 @@ namespace TheMarkedMen
 
         public const string AurDefNamePrefix = "AM_";
 
-        private static readonly Dictionary<Map, bool> aurMapCache = new Dictionary<Map, bool>();
-
         public static bool Active => TheMarkedMenMod.Settings?.urbanOutbreaksEnabled == true;
 
         public static void Apply(Harmony harmony)
@@ -44,6 +42,12 @@ namespace TheMarkedMen
                     harmony.Patch(loadTarget, postfix: new HarmonyMethod(loadPostfix));
                 }
 
+                MethodInfo removeTarget = AccessTools.Method(typeof(Map), "Discard");
+                if (removeTarget != null)
+                {
+                    harmony.Patch(removeTarget, postfix: new HarmonyMethod(AccessTools.Method(typeof(TheMarkedMenAncientUrbanRuinsIntegration), nameof(Postfix_MapDiscard))));
+                }
+
                 LogVerbose("[The Marked Men] Ancient Urban Ruins integration active.");
             }
             catch (Exception ex)
@@ -59,7 +63,8 @@ namespace TheMarkedMen
                 return;
             }
 
-            Log.Message("[The Marked Men] Map FinalizeInit: checking for AUR ruins.");
+            LogVerbose("[The Marked Men] Map FinalizeInit: checking for AUR ruins.");
+            CleanupInvalidUrbanOutbreakComponent(__instance);
             TryInitializeUrbanOutbreakMap(__instance);
         }
 
@@ -70,59 +75,22 @@ namespace TheMarkedMen
                 return;
             }
 
-            Log.Message("[The Marked Men] Map FinalizeLoading: checking for AUR ruins.");
+            LogVerbose("[The Marked Men] Map FinalizeLoading: checking for AUR ruins.");
+            CleanupInvalidUrbanOutbreakComponent(__instance);
             TryInitializeUrbanOutbreakMap(__instance);
+        }
+
+        public static void Postfix_MapDiscard(Map __instance)
+        {
+            if (__instance != null)
+            {
+                MapClassificationService.Invalidate(__instance);
+            }
         }
 
         public static bool IsAncientUrbanRuinsMap(Map map)
         {
-            if (map == null)
-            {
-                return false;
-            }
-
-            if (aurMapCache.TryGetValue(map, out bool cached))
-            {
-                return cached;
-            }
-
-            if (map.Parent != null)
-            {
-                string parentTypeName = map.Parent.GetType().FullName;
-                Log.Message("[The Marked Men] Map parent type: " + parentTypeName);
-                if (parentTypeName.StartsWith("AncientMarket_Libraray.", StringComparison.Ordinal))
-                {
-                    Log.Message("[The Marked Men] Map identified as AUR ruins via parent type.");
-                    aurMapCache[map] = true;
-                    return true;
-                }
-            }
-
-            bool result = HasAurBuildings(map);
-            Log.Message("[The Marked Men] AUR building scan result: " + result);
-            aurMapCache[map] = result;
-            return result;
-        }
-
-        private static bool HasAurBuildings(Map map)
-        {
-            if (map?.listerThings?.AllThings == null)
-            {
-                return false;
-            }
-
-            List<Thing> allThings = map.listerThings.AllThings;
-            for (int i = 0; i < allThings.Count; i++)
-            {
-                Thing thing = allThings[i];
-                if (thing is Building && thing.def != null &&
-                    thing.def.defName.StartsWith(AurDefNamePrefix, StringComparison.OrdinalIgnoreCase))
-                {
-                    return true;
-                }
-            }
-
-            return false;
+            return MapClassificationService.IsUrbanRuinMap(map);
         }
 
         public static List<Thing> GetAllAurBuildings(Map map)
@@ -147,30 +115,37 @@ namespace TheMarkedMen
             return results;
         }
 
-        public static void TryInitializeUrbanOutbreakMap(Map map)
+        private static void CleanupInvalidUrbanOutbreakComponent(Map map)
         {
-            if (!Active)
+            if (map == null)
             {
-                Log.Message("[The Marked Men] Urban outbreaks disabled in settings.");
+                return;
+            }
+
+            MapComponent_UrbanOutbreak comp = map.GetComponent<MapComponent_UrbanOutbreak>();
+            if (comp == null)
+            {
                 return;
             }
 
             if (!IsAncientUrbanRuinsMap(map))
             {
-                Log.Message("[The Marked Men] Not an AUR map, skipping urban outbreak.");
-                return;
+                Log.Message("[The Marked Men] Removing stale UrbanOutbreak component from non-AUR map (save compatibility).");
+                map.components.Remove(comp);
             }
+        }
 
-            TheMarkedMenSettings settings = TheMarkedMenMod.Settings;
-            if (settings == null || !settings.urbanOutbreaksEnabled)
+        public static void TryInitializeUrbanOutbreakMap(Map map)
+        {
+            if (!SpawnValidationService.CanSpawnUrbanOutbreak(map))
             {
-                Log.Message("[The Marked Men] Urban outbreaks disabled in settings (re-check).");
+                LogVerbose("[The Marked Men] Not an AUR map, skipping urban outbreak.");
                 return;
             }
 
             if (map.GetComponent<MapComponent_UrbanOutbreak>() != null)
             {
-                Log.Message("[The Marked Men] Urban outbreak already initialized on this map.");
+                LogVerbose("[The Marked Men] Urban outbreak already initialized on this map.");
                 return;
             }
 
@@ -288,7 +263,7 @@ namespace TheMarkedMen
             return false;
         }
 
-        private static void LogVerbose(string message)
+        internal static void LogVerbose(string message)
         {
             if (TheMarkedMenMod.Settings?.verboseCompatibilityLogging == true)
             {
@@ -470,6 +445,11 @@ namespace TheMarkedMen
                     continue;
                 }
 
+                if (!SpawnValidationService.CanSpawnHiddenInfected(map, spawnPos))
+                {
+                    continue;
+                }
+
                 PawnKindDef kind = buildingPawnKinds[i];
                 if (kind == null)
                 {
@@ -511,6 +491,12 @@ namespace TheMarkedMen
                 return;
             }
 
+            if (!SpawnValidationService.CanSpawnDormantInfestation(map, position))
+            {
+                TheMarkedMenAncientUrbanRuinsIntegration.LogVerbose("[TheMarkedMen] SpawnDormantOutbreak: blocked by SpawnValidationService at " + position);
+                return;
+            }
+
             float weight = TheMarkedMenAncientUrbanRuinsIntegration.GetBuildingInfectionWeight("Dormant");
             int count = Rand.RangeInclusive(1, Mathf.RoundToInt(1f + weight * 3f));
 
@@ -518,6 +504,11 @@ namespace TheMarkedMen
             {
                 IntVec3 spawnPos = CellFinder.RandomClosewalkCellNear(position, map, SpawnSearchRadius, null);
                 if (!spawnPos.IsValid || !spawnPos.Standable(map) || spawnPos.Fogged(map))
+                {
+                    continue;
+                }
+
+                if (!SpawnValidationService.CanSpawnDormantInfestation(map, spawnPos))
                 {
                     continue;
                 }
@@ -572,6 +563,11 @@ namespace TheMarkedMen
         public override void MapComponentTick()
         {
             if (!Active || map == null)
+            {
+                return;
+            }
+
+            if (!SpawnValidationService.CanSpawnUrbanOutbreak(map))
             {
                 return;
             }
@@ -656,6 +652,11 @@ namespace TheMarkedMen
                     continue;
                 }
 
+                if (!SpawnValidationService.CanSpawnUrbanAmbush(map, spawnPos))
+                {
+                    continue;
+                }
+
                 PawnKindDef kind = PickUrbanPawnKind(buildingInfectionWeights[index]);
                 if (kind == null)
                 {
@@ -728,8 +729,10 @@ namespace TheMarkedMen
 
             int index = Rand.Range(0, buildingPositions.Count);
             IntVec3 ambushPos = buildingPositions[index];
-            if (ambushPos.Fogged(map))
+
+            if (!SpawnValidationService.CanSpawnUrbanAmbush(map, ambushPos))
             {
+                TheMarkedMenAncientUrbanRuinsIntegration.LogVerbose("[TheMarkedMen] TryFireMapAmbush: ambush blocked by SpawnValidationService at " + ambushPos);
                 return;
             }
 
@@ -753,6 +756,11 @@ namespace TheMarkedMen
 
                 IntVec3 spawnPos = CellFinder.RandomClosewalkCellNear(ambushPos, map, 10, null);
                 if (!spawnPos.IsValid || !spawnPos.Standable(map) || spawnPos.Fogged(map))
+                {
+                    continue;
+                }
+
+                if (SpawnValidationService.CanSpawnUrbanAmbush(map, spawnPos) == false)
                 {
                     continue;
                 }
@@ -874,12 +882,7 @@ namespace TheMarkedMen
                 return false;
             }
 
-            if (!TheMarkedMenAncientUrbanRuinsIntegration.IsAncientUrbanRuinsMap(map))
-            {
-                return false;
-            }
-
-            if (TheMarkedMenMod.Settings == null || !TheMarkedMenMod.Settings.urbanOutbreaksEnabled || !TheMarkedMenMod.Settings.urbanAmbushesEnabled)
+            if (!SpawnValidationService.CanSpawnUrbanAmbush(map))
             {
                 return false;
             }
@@ -1007,13 +1010,7 @@ namespace TheMarkedMen
                 return false;
             }
 
-            if (!TheMarkedMenAncientUrbanRuinsIntegration.IsAncientUrbanRuinsMap(map))
-            {
-                return false;
-            }
-
-            TheMarkedMenSettings settings = TheMarkedMenMod.Settings;
-            if (settings == null || !settings.urbanOutbreaksEnabled || !settings.survivorEncountersEnabled)
+            if (!SpawnValidationService.CanSpawnRuinEncounter(map))
             {
                 return false;
             }
