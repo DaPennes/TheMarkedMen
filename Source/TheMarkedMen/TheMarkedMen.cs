@@ -42,7 +42,7 @@ namespace TheMarkedMen
 
     public sealed class TheMarkedMenSettings : ModSettings
     {
-        private const int CurrentSettingsVersion = 8;
+        private const int CurrentSettingsVersion = 9;
         public const float InfectionTransmissionChance = 0.45f;
         public const float DefaultMarkedRaidFrequencyMultiplier = 1f;
         public const float MinMarkedRaidFrequencyMultiplier = 0f;
@@ -142,6 +142,14 @@ namespace TheMarkedMen
         public int infectedStateMaintenanceIntervalTicks = 2500;
         public int reanimationProcessIntervalTicks = 2500;
         public int maxPendingReanimationsPerTick = 24;
+
+        public bool bloodlustEnabled = true;
+        public float bloodlustDecayRate = 1f;
+        public float bloodlustKillGainMultiplier = 1f;
+        public float bloodlustCombatGainMultiplier = 1f;
+        public bool anticipationEnabled = true;
+        public float anticipationGainMultiplier = 1f;
+        public float anticipationDecayMultiplier = 1f;
 
         public bool urbanOutbreaksEnabled = true;
         public float urbanInfectionDensity = 1f;
@@ -346,6 +354,14 @@ namespace TheMarkedMen
             Scribe_Values.Look(ref infectedStateMaintenanceIntervalTicks, "infectedStateMaintenanceIntervalTicks", 2500);
             Scribe_Values.Look(ref reanimationProcessIntervalTicks, "reanimationProcessIntervalTicks", 2500);
             Scribe_Values.Look(ref maxPendingReanimationsPerTick, "maxPendingReanimationsPerTick", 24);
+            Scribe_Values.Look(ref bloodlustEnabled, "bloodlustEnabled", true);
+            Scribe_Values.Look(ref bloodlustDecayRate, "bloodlustDecayRate", 1f);
+            Scribe_Values.Look(ref bloodlustKillGainMultiplier, "bloodlustKillGainMultiplier", 1f);
+            Scribe_Values.Look(ref bloodlustCombatGainMultiplier, "bloodlustCombatGainMultiplier", 1f);
+            Scribe_Values.Look(ref anticipationEnabled, "anticipationEnabled", true);
+            Scribe_Values.Look(ref anticipationGainMultiplier, "anticipationGainMultiplier", 1f);
+            Scribe_Values.Look(ref anticipationDecayMultiplier, "anticipationDecayMultiplier", 1f);
+
             Scribe_Values.Look(ref urbanOutbreaksEnabled, "urbanOutbreaksEnabled", true);
             Scribe_Values.Look(ref urbanInfectionDensity, "urbanInfectionDensity", 1f);
             Scribe_Values.Look(ref urbanAmbushFrequency, "urbanAmbushFrequency", 1f);
@@ -427,6 +443,17 @@ namespace TheMarkedMen
                     immunitySurvivalChance = DefaultImmunitySurvivalChance;
                     terminalTransformationWeight = DefaultTerminalTransformationWeight;
                     terminalDeathWeight = DefaultTerminalDeathWeight;
+                }
+
+                if (loadedSettingsVersion < 9)
+                {
+                    bloodlustEnabled = true;
+                    bloodlustDecayRate = 1f;
+                    bloodlustKillGainMultiplier = 1f;
+                    bloodlustCombatGainMultiplier = 1f;
+                    anticipationEnabled = true;
+                    anticipationGainMultiplier = 1f;
+                    anticipationDecayMultiplier = 1f;
                 }
 
                 settingsVersion = CurrentSettingsVersion;
@@ -560,6 +587,15 @@ namespace TheMarkedMen
             DrawCheckbox(listing, "Enable door and wall targeting", ref doorTargetingEnabled, "Allows infected pawns to bash or target barriers when pursuing a colony.");
             DrawFloat(listing, "Marked infighting chance", ref infightingChance, 0f, 1f, "infightingChance", "Chance during each infighting check that infected pawns may turn on each other.");
             DrawFloat(listing, "Panic and social terror strength", ref socialTerrorStrength, 0f, 5f, "socialTerrorStrength", "Scales the radius and strength of Marked Men terror effects. Set to 0 to disable these effects.");
+
+            DrawSectionHeader(listing, "Predatory Instincts", "Controls the bloodlust hunger, kill anticipation, and predator psychology systems for the Marked Ones.");
+            DrawCheckbox(listing, "Enable bloodlust hunger system", ref bloodlustEnabled, "When enabled, infected pawns build bloodlust hunger over time and gain mood and combat effects based on their craving for violence.");
+            DrawFloat(listing, "Bloodlust decay rate", ref bloodlustDecayRate, 0.1f, 5f, "bloodlustDecayRate", "How quickly bloodlust hunger fades when not in combat. Lower values keep pawns bloodthirsty longer.");
+            DrawFloat(listing, "Bloodlust kill gain multiplier", ref bloodlustKillGainMultiplier, 0.1f, 5f, "bloodlustKillGainMultiplier", "How much a kill or down satisfies bloodlust hunger. Higher values mean faster satiation.");
+            DrawFloat(listing, "Bloodlust combat gain multiplier", ref bloodlustCombatGainMultiplier, 0f, 5f, "bloodlustCombatGainMultiplier", "How much active combat feeds bloodlust hunger. Set to 0 to disable combat-based bloodlust gain.");
+            DrawCheckbox(listing, "Enable kill anticipation system", ref anticipationEnabled, "When enabled, infected pawns gain combat bonuses from anticipating enemies nearby. Effects fade quickly when out of combat.");
+            DrawFloat(listing, "Anticipation gain multiplier", ref anticipationGainMultiplier, 0.1f, 5f, "anticipationGainMultiplier", "How quickly kill anticipation builds when enemies are near.");
+            DrawFloat(listing, "Anticipation decay multiplier", ref anticipationDecayMultiplier, 0.1f, 5f, "anticipationDecayMultiplier", "How quickly kill anticipation fades after combat ends. Higher values fade faster.");
 
             DrawSectionHeader(listing, "Messages And Dev Tools", "Controls player-facing alerts, incident history, and optional debug actions.");
             DrawCheckbox(listing, "Show raid countdown alert", ref raidCountdownAlertEnabled, "Shows a gizmo alert when a scheduled Marked Men raid is approaching.");
@@ -1192,6 +1228,13 @@ namespace TheMarkedMen
         private static IncidentDef urbanSurvivor;
         private static XenotypeDef markedOne;
         private static StatDef markedVirusResistance;
+        private static HediffDef killAnticipation;
+        private static NeedDef markedBloodlustNeed;
+        private static GeneDef markedBloodlustGene;
+        private static ThoughtDef freshKillSatisfaction;
+        private static ThoughtDef bloodthirstyCraving;
+        private static ThoughtDef overwhelmingBloodlust;
+        private static ThoughtDef predatorPatience;
 
         public static HediffDef CrossVirus => crossVirus ?? (crossVirus = DefDatabase<HediffDef>.GetNamedSilentFail("CA_CrossVirus"));
         public static HediffDef CrossVirusImmunity => crossVirusImmunity ?? (crossVirusImmunity = DefDatabase<HediffDef>.GetNamedSilentFail("CA_CrossVirusImmunity"));
@@ -1230,6 +1273,13 @@ namespace TheMarkedMen
         public static IncidentDef UrbanSurvivor => urbanSurvivor ?? (urbanSurvivor = DefDatabase<IncidentDef>.GetNamedSilentFail("CA_UrbanSurvivor"));
         public static XenotypeDef MarkedOne => markedOne ?? (markedOne = DefDatabase<XenotypeDef>.GetNamedSilentFail("CA_MarkedOne"));
         public static StatDef MarkedVirusResistance => markedVirusResistance ?? (markedVirusResistance = DefDatabase<StatDef>.GetNamedSilentFail("CA_MarkedVirusResistance"));
+        public static HediffDef KillAnticipation => killAnticipation ?? (killAnticipation = DefDatabase<HediffDef>.GetNamedSilentFail("CA_KillAnticipation"));
+        public static NeedDef MarkedBloodlustNeed => markedBloodlustNeed ?? (markedBloodlustNeed = DefDatabase<NeedDef>.GetNamedSilentFail("CA_MarkedBloodlustNeed"));
+        public static GeneDef MarkedBloodlustGene => markedBloodlustGene ?? (markedBloodlustGene = DefDatabase<GeneDef>.GetNamedSilentFail("CA_MarkedBloodlustNeed"));
+        public static ThoughtDef FreshKillSatisfaction => freshKillSatisfaction ?? (freshKillSatisfaction = DefDatabase<ThoughtDef>.GetNamedSilentFail("CA_FreshKillSatisfaction"));
+        public static ThoughtDef BloodthirstyCraving => bloodthirstyCraving ?? (bloodthirstyCraving = DefDatabase<ThoughtDef>.GetNamedSilentFail("CA_BloodthirstyCraving"));
+        public static ThoughtDef OverwhelmingBloodlust => overwhelmingBloodlust ?? (overwhelmingBloodlust = DefDatabase<ThoughtDef>.GetNamedSilentFail("CA_OverwhelmingBloodlust"));
+        public static ThoughtDef PredatorPatience => predatorPatience ?? (predatorPatience = DefDatabase<ThoughtDef>.GetNamedSilentFail("CA_PredatorPatience"));
 
         public static bool IsCrossedFaceTattoo(TattooDef tattoo)
         {
@@ -4612,6 +4662,72 @@ namespace TheMarkedMen
             EnsureCrossedPyromaniacMolotov(pawn);
         }
 
+        public static void EnsurePredatorHediffs(Pawn pawn)
+        {
+            TheMarkedMenSettings settings = TheMarkedMenMod.Settings;
+            if (pawn == null || pawn.health == null || !IsInfectedPawn(pawn))
+            {
+                return;
+            }
+
+            if (settings != null && settings.bloodlustEnabled && CADefOf.MarkedBloodlustGene != null
+                && ModsConfig.BiotechActive && pawn.genes != null)
+            {
+                bool hasGene = false;
+                for (int i = 0; i < pawn.genes.Endogenes.Count; i++)
+                {
+                    if (pawn.genes.Endogenes[i].def == CADefOf.MarkedBloodlustGene)
+                    {
+                        hasGene = true;
+                        break;
+                    }
+                }
+
+                if (!hasGene)
+                {
+                    for (int i = 0; i < pawn.genes.Xenogenes.Count; i++)
+                    {
+                        if (pawn.genes.Xenogenes[i].def == CADefOf.MarkedBloodlustGene)
+                        {
+                            hasGene = true;
+                            break;
+                        }
+                    }
+                }
+
+                if (!hasGene)
+                {
+                    pawn.genes.AddGene(CADefOf.MarkedBloodlustGene, true);
+                }
+            }
+
+            if (settings != null && settings.anticipationEnabled && CADefOf.KillAnticipation != null
+                && !pawn.health.hediffSet.HasHediff(CADefOf.KillAnticipation))
+            {
+                pawn.health.AddHediff(CADefOf.KillAnticipation);
+            }
+        }
+
+        public static void NotifyBloodlustKill(Pawn killer, Pawn victim)
+        {
+            if (killer == null || killer.needs == null || !IsInfectedPawn(killer))
+            {
+                return;
+            }
+
+            Need_MarkedBloodlust need = killer.needs.TryGetNeed<Need_MarkedBloodlust>();
+            if (need != null)
+            {
+                need.NotifyKilled();
+            }
+
+            if (CADefOf.FreshKillSatisfaction != null && killer.needs?.mood != null && victim != null)
+            {
+                Thought_Memory thought = (Thought_Memory)ThoughtMaker.MakeThought(CADefOf.FreshKillSatisfaction);
+                killer.needs.mood.thoughts.memories.TryGainMemory(thought);
+            }
+        }
+
         public static bool IsCrossedPyromaniac(Pawn pawn)
         {
             return pawn?.kindDef == CADefOf.CrossedPyromaniac;
@@ -5463,6 +5579,12 @@ namespace TheMarkedMen
             if (target.Faction == Faction.OfPlayer || target.HostFaction == Faction.OfPlayer || target.IsColonistPlayerControlled)
             {
                 score += 20f;
+            }
+
+            Need_MarkedBloodlust bloodlustNeed = searcher.needs?.TryGetNeed<Need_MarkedBloodlust>();
+            if (bloodlustNeed != null)
+            {
+                score += bloodlustNeed.CurLevel * 15f;
             }
 
             return score * AggressionScoreMultiplier - Mathf.Sqrt(distanceSquared) * 1.15f;

@@ -10,4 +10,16 @@
   <CA_SurvivorJournal_01>Survivor Journal: They did not forget us. That was the first lesson. The second was that they knew which doors we locked.</CA_SurvivorJournal_01>
   <CA_AudioLog_01>Audio Log C-44: Rash presentation forms a marked vascular pattern across the face and neck. Advanced cases glow red under certain scanner bands.</CA_AudioLog_01>
   <CA_PlanetaryTimeline>Medical timeline: contagious close-contact exposure, infected blood contamination, fast terminal progression, rare slow infection, uncommon immune survival, viral death risk, and Marked Men transformation.</CA_PlanetaryTimeline>
+
+  <!-- Predatory Instincts System -->
+  <CA_KillAnticipation_Label>kill anticipation</CA_KillAnticipation_Label>
+  <CA_KillAnticipation_Desc>The predator's senses sharpen in the presence of prey. Reflexes quicken and focus intensifies with every hostile nearby.</CA_KillAnticipation_Desc>
+  <CA_FreshKillSatisfaction_Label>satisfying kill</CA_FreshKillSatisfaction_Label>
+  <CA_FreshKillSatisfaction_Desc>The rush of a clean kill. The hunt paid off.</CA_FreshKillSatisfaction_Desc>
+  <CA_BloodthirstyCraving_Label>bloodthirsty craving</CA_BloodthirstyCraving_Label>
+  <CA_BloodthirstyCraving_Desc>The hunger for violence grows. It has been too long since the last hunt.</CA_BloodthirstyCraving_Desc>
+  <CA_OverwhelmingBloodlust_Label>overwhelming bloodlust</CA_OverwhelmingBloodlust_Label>
+  <CA_OverwhelmingBloodlust_Desc>The battle consumed everything. There is only the kill.</CA_OverwhelmingBloodlust_Desc>
+  <CA_PredatorPatience_Label>predator's patience</CA_PredatorPatience_Label>
+  <CA_PredatorPatience_Desc>Watching. Waiting. The prey does not know it is already marked.</CA_PredatorPatience_Desc>
 </LanguageData>

@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+  <HediffDef>
+    <defName>CA_KillAnticipation</defName>
+    <label>kill anticipation</label>
+    <description>The predator's senses sharpen in the presence of prey. With each hostile nearby, focus intensifies and reflexes quicken. The anticipation fades quickly when no enemies remain.</description>
+    <hediffClass>HediffWithComps</hediffClass>
+    <isBad>false</isBad>
+    <stages>
+      <li>
+        <minSeverity>0.01</minSeverity>
+        <label>alert</label>
+        <partCount>0</partCount>
+        <becomeVisible>true</becomeVisible>
+        <statOffsets>
+          <AimingDelayFactor>-0.05</AimingDelayFactor>
+          <MeleeHitChance>1</MeleeHitChance>
+          <PainShockThreshold>0.03</PainShockThreshold>
+        </statOffsets>
+      </li>
+      <li>
+        <minSeverity>0.25</minSeverity>
+        <label>heightened</label>
+        <partCount>0</partCount>
+        <becomeVisible>true</becomeVisible>
+        <statOffsets>
+          <AimingDelayFactor>-0.12</AimingDelayFactor>
+          <MeleeHitChance>2</MeleeHitChance>
+          <MeleeDodgeChance>1</MeleeDodgeChance>
+          <PainShockThreshold>0.08</PainShockThreshold>
+        </statOffsets>
+        <statFactors>
+          <MoveSpeed>1.05</MoveSpeed>
+          <MeleeCooldownFactor>0.92</MeleeCooldownFactor>
+        </statFactors>
+      </li>
+      <li>
+        <minSeverity>0.50</minSeverity>
+        <label>predatory focus</label>
+        <partCount>0</partCount>
+        <becomeVisible>true</becomeVisible>
+        <statOffsets>
+          <AimingDelayFactor>-0.20</AimingDelayFactor>
+          <MeleeHitChance>4</MeleeHitChance>
+          <MeleeDodgeChance>2</MeleeDodgeChance>
+          <PainShockThreshold>0.15</PainShockThreshold>
+          <MentalBreakThreshold>-0.10</MentalBreakThreshold>
+        </statOffsets>
+        <statFactors>
+          <MoveSpeed>1.10</MoveSpeed>
+          <MeleeCooldownFactor>0.85</MeleeCooldownFactor>
+          <StaggerDurationFactor>0.70</StaggerDurationFactor>
+        </statFactors>
+      </li>
+      <li>
+        <minSeverity>0.75</minSeverity>
+        <label>blood trance</label>
+        <partCount>0</partCount>
+        <becomeVisible>true</becomeVisible>
+        <statOffsets>
+          <AimingDelayFactor>-0.30</AimingDelayFactor>
+          <MeleeHitChance>6</MeleeHitChance>
+          <MeleeDodgeChance>3</MeleeDodgeChance>
+          <PainShockThreshold>0.25</PainShockThreshold>
+          <MentalBreakThreshold>-0.20</MentalBreakThreshold>
+        </statOffsets>
+        <statFactors>
+          <MoveSpeed>1.18</MoveSpeed>
+          <MeleeCooldownFactor>0.78</MeleeCooldownFactor>
+          <IncomingDamageFactor>0.92</IncomingDamageFactor>
+          <StaggerDurationFactor>0.50</StaggerDurationFactor>
+        </statFactors>
+      </li>
+    </stages>
+    <comps>
+      <li Class="TheMarkedMen.HediffCompProperties_KillAnticipation">
+        <scanRadius>25</scanRadius>
+        <scanIntervalTicks>60</scanIntervalTicks>
+        <maxSeverity>1.0</maxSeverity>
+        <decayPerInterval>0.05</decayPerInterval>
+        <baseGainPerEnemy>0.015</baseGainPerEnemy>
+        <proximityBonus>0.04</proximityBonus>
+        <proximityThreshold>12</proximityThreshold>
+      </li>
+    </comps>
+  </HediffDef>
+</Defs>

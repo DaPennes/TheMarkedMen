@@ -73,13 +73,18 @@ namespace TheMarkedMen
         }
     }
 
-    [HarmonyPatch(typeof(Pawn), nameof(Pawn.Kill))]
+    [HarmonyPatch(typeof(Pawn), nameof(Pawn.Kill), new[] { typeof(DamageInfo?), typeof(Hediff) })]
     public static class Patch_InfectedDeathReanimation
     {
-        public static void Postfix(Pawn __instance)
+        public static void Postfix(Pawn __instance, DamageInfo? dinfo)
         {
             CrossedUtility.ApplyInfectedTattoo(__instance);
             CrossedUtility.Component?.QueueCrossedReanimation(__instance);
+            Pawn killer = dinfo?.Instigator as Pawn;
+            if (killer != null)
+            {
+                CrossedUtility.NotifyBloodlustKill(killer, __instance);
+            }
         }
     }
 
@@ -100,6 +105,7 @@ namespace TheMarkedMen
                 return;
             }
 
+            CrossedUtility.EnsurePredatorHediffs(__instance);
             CrossedUtility.ApplyInfectedTattooIfInfected(__instance);
             CrossedUtility.RemoveMarkedVirusHediffFromFullyTurnedPawn(__instance);
         }

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+  <GeneDef MayRequire="Ludeon.RimWorld.Biotech">
+    <defName>CA_MarkedBloodlustNeed</defName>
+    <label>marked bloodlust hunger</label>
+    <description>Creates an insatiable craving for violence. The need for blood builds over time, and only kills can hold it back. Starvation triggers uncontrollable berserk rage.</description>
+    <geneClass>TheMarkedMen.Gene_MarkedBloodlustGene</geneClass>
+    <biostatCpx>2</biostatCpx>
+    <biostatMet>0</biostatMet>
+    <selectionWeight>0</selectionWeight>
+    <displayOrderInXenotype>999</displayOrderInXenotype>
+    <descriptionHyperlinks>
+      <li>
+        <def>CA_MarkedBloodlustNeed</def>
+      </li>
+    </descriptionHyperlinks>
+    <exclusionTags>
+      <li>Bloodlust</li>
+    </exclusionTags>
+  </GeneDef>
+</Defs>

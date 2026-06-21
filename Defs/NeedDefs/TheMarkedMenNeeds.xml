@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+  <NeedDef>
+    <defName>CA_MarkedBloodlustNeed</defName>
+    <needClass>TheMarkedMen.Need_MarkedBloodlust</needClass>
+    <title>bloodlust hunger</title>
+    <description>A predator's craving for violence. Feeding it with kills keeps the hunger at bay. If it reaches zero, the predator will attack anything nearby.</description>
+    <minValue>0</minValue>
+    <maxValue>1</maxValue>
+    <freezeWhileSleeping>true</freezeWhileSleeping>
+    <showOnNeedList>true</showOnNeedList>
+    <listOrder>14</listOrder>
+    <defPriority>1</defPriority>
+    <fallthruMoodThreshold>0.50</fallthruMoodThreshold>
+    <showWhenEmpty>true</showWhenEmpty>
+    <scale>b<br/></scale>
+  </NeedDef>
+</Defs>
