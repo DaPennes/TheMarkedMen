@@ -20,10 +20,15 @@ namespace TheMarkedMen
                 return;
             }
 
+            if (!CrossedDamageUtility.IsValidMeleeInfectionSource(dinfo))
+            {
+                return;
+            }
+
             Pawn instigatorPawn = dinfo.Instigator as Pawn;
             bool victimInfected = CrossedUtility.IsInfectedPawn(__instance);
             TryExposeInstigatorToInfectedBlood(__instance, instigatorPawn, victimInfected);
-            TryExposeVictimToInfectedAssault(__instance, instigatorPawn);
+            TryExposeVictimToInfectedAssault(__instance, instigatorPawn, dinfo);
         }
 
         private static void TryExposeInstigatorToInfectedBlood(Pawn damagedPawn, Pawn instigatorPawn, bool victimInfected)
@@ -52,7 +57,7 @@ namespace TheMarkedMen
             CrossedUtility.TryExpose(instigatorPawn, chance, "infected blood exposure", damagedPawn);
         }
 
-        private static void TryExposeVictimToInfectedAssault(Pawn damagedPawn, Pawn instigatorPawn)
+        private static void TryExposeVictimToInfectedAssault(Pawn damagedPawn, Pawn instigatorPawn, DamageInfo dinfo)
         {
             if (damagedPawn == null || instigatorPawn == null || damagedPawn == instigatorPawn || !CrossedUtility.IsInfectedPawn(instigatorPawn))
             {
@@ -69,7 +74,8 @@ namespace TheMarkedMen
                 return;
             }
 
-            CrossedUtility.TryExpose(damagedPawn, TheMarkedMenSettings.InfectedAssaultExposureChance, "infected assault contact", instigatorPawn);
+            float chance = CrossedDamageUtility.GetInfectChanceForAttack(dinfo, damagedPawn);
+            CrossedUtility.TryExpose(damagedPawn, chance, "infected assault contact", instigatorPawn);
         }
     }
 

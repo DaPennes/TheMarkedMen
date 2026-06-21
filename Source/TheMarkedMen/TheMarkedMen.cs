@@ -42,7 +42,7 @@ namespace TheMarkedMen
 
     public sealed class TheMarkedMenSettings : ModSettings
     {
-        private const int CurrentSettingsVersion = 9;
+        private const int CurrentSettingsVersion = 10;
         public const float InfectionTransmissionChance = 0.45f;
         public const float DefaultMarkedRaidFrequencyMultiplier = 1f;
         public const float MinMarkedRaidFrequencyMultiplier = 0f;
@@ -110,6 +110,21 @@ namespace TheMarkedMen
         public float infectedAssaultExposureChance = InfectionTransmissionChance;
         public float closeContactExposureChance = InfectionTransmissionChance;
         public float corpseContaminationChance = 1f;
+
+        public bool meleeTransmissionEnabled = true;
+        public bool biteTransmissionEnabled = true;
+        public bool clawTransmissionEnabled = true;
+        public bool scratchTransmissionEnabled = true;
+        public bool punchTransmissionEnabled = true;
+        public bool meleeWeaponTransmissionEnabled = true;
+        public float biteInfectionChance = InfectionTransmissionChance;
+        public float clawInfectionChance = InfectionTransmissionChance;
+        public float scratchInfectionChance = InfectionTransmissionChance;
+        public float punchInfectionChance = InfectionTransmissionChance;
+        public float meleeWeaponInfectionChance = InfectionTransmissionChance;
+        public float markedMenInfectionChance = 1f;
+        public bool markedMenGuaranteedInfection = true;
+
         public float infectionProgressionSpeedMultiplier = 1f;
         public float incubationDurationMultiplier = 1f;
         public float immunitySurvivalChance = DefaultImmunitySurvivalChance;
@@ -322,6 +337,19 @@ namespace TheMarkedMen
             Scribe_Values.Look(ref infectedAssaultExposureChance, "infectedAssaultExposureChance", InfectionTransmissionChance);
             Scribe_Values.Look(ref closeContactExposureChance, "closeContactExposureChance", InfectionTransmissionChance);
             Scribe_Values.Look(ref corpseContaminationChance, "corpseContaminationChance", 1f);
+            Scribe_Values.Look(ref meleeTransmissionEnabled, "meleeTransmissionEnabled", true);
+            Scribe_Values.Look(ref biteTransmissionEnabled, "biteTransmissionEnabled", true);
+            Scribe_Values.Look(ref clawTransmissionEnabled, "clawTransmissionEnabled", true);
+            Scribe_Values.Look(ref scratchTransmissionEnabled, "scratchTransmissionEnabled", true);
+            Scribe_Values.Look(ref punchTransmissionEnabled, "punchTransmissionEnabled", true);
+            Scribe_Values.Look(ref meleeWeaponTransmissionEnabled, "meleeWeaponTransmissionEnabled", true);
+            Scribe_Values.Look(ref biteInfectionChance, "biteInfectionChance", InfectionTransmissionChance);
+            Scribe_Values.Look(ref clawInfectionChance, "clawInfectionChance", InfectionTransmissionChance);
+            Scribe_Values.Look(ref scratchInfectionChance, "scratchInfectionChance", InfectionTransmissionChance);
+            Scribe_Values.Look(ref punchInfectionChance, "punchInfectionChance", InfectionTransmissionChance);
+            Scribe_Values.Look(ref meleeWeaponInfectionChance, "meleeWeaponInfectionChance", InfectionTransmissionChance);
+            Scribe_Values.Look(ref markedMenInfectionChance, "markedMenInfectionChance", 1f);
+            Scribe_Values.Look(ref markedMenGuaranteedInfection, "markedMenGuaranteedInfection", true);
             Scribe_Values.Look(ref infectionProgressionSpeedMultiplier, "infectionProgressionSpeedMultiplier", 1f);
             Scribe_Values.Look(ref incubationDurationMultiplier, "incubationDurationMultiplier", 1f);
             Scribe_Values.Look(ref immunitySurvivalChance, "immunitySurvivalChance", DefaultImmunitySurvivalChance);
@@ -456,6 +484,23 @@ namespace TheMarkedMen
                     anticipationDecayMultiplier = 1f;
                 }
 
+                if (loadedSettingsVersion < 10)
+                {
+                    meleeTransmissionEnabled = true;
+                    biteTransmissionEnabled = true;
+                    clawTransmissionEnabled = true;
+                    scratchTransmissionEnabled = true;
+                    punchTransmissionEnabled = true;
+                    meleeWeaponTransmissionEnabled = true;
+                    biteInfectionChance = infectedAssaultExposureChance;
+                    clawInfectionChance = infectedAssaultExposureChance;
+                    scratchInfectionChance = infectedAssaultExposureChance;
+                    punchInfectionChance = infectedAssaultExposureChance;
+                    meleeWeaponInfectionChance = infectedAssaultExposureChance;
+                    markedMenInfectionChance = 1f;
+                    markedMenGuaranteedInfection = true;
+                }
+
                 settingsVersion = CurrentSettingsVersion;
             }
 
@@ -574,6 +619,21 @@ namespace TheMarkedMen
             DrawFloat(listing, "Corpse reanimation chance", ref reanimationChance, 0f, 1f, "reanimationChance", "Chance that a valid infected corpse queues for reanimation after death.");
             DrawInt(listing, "Corpse reanimation delay ticks", ref reanimationDelayTicks, 60, GenDate.TicksPerDay * 30, "reanimationDelayTicks", "Delay before queued infected corpses can reanimate. 60,000 ticks equals one in-game day.");
             DrawFloat(listing, "Founder-lineage breakthrough chance", ref starterLineageBreakthroughChance, 0f, 1f, "starterLineageBreakthroughChance", "Chance that special starter-lineage resistance fails after direct exposure.");
+
+            DrawSectionHeader(listing, "Infection Transmission", "Controls how the Marked Virus spreads through melee combat. Ranged attacks, projectiles, explosions, and turrets never transmit infection.");
+            DrawCheckbox(listing, "Enable melee transmission", ref meleeTransmissionEnabled, "Master toggle for all melee-based infection transmission. When disabled, no melee attack can spread the Marked Virus.");
+            DrawCheckbox(listing, "Bite attacks transmit", ref biteTransmissionEnabled, "When enabled, bite attacks from infected pawns can transmit the virus.");
+            DrawFloat(listing, "Bite infection chance", ref biteInfectionChance, 0f, 1f, "biteInfectionChance", "Chance that a bite attack from an infected pawn transmits the Marked Virus.");
+            DrawCheckbox(listing, "Claw attacks transmit", ref clawTransmissionEnabled, "When enabled, claw attacks from infected pawns can transmit the virus.");
+            DrawFloat(listing, "Claw infection chance", ref clawInfectionChance, 0f, 1f, "clawInfectionChance", "Chance that a claw or stab attack from an infected pawn transmits the Marked Virus.");
+            DrawCheckbox(listing, "Scratch attacks transmit", ref scratchTransmissionEnabled, "When enabled, scratch attacks from infected pawns can transmit the virus.");
+            DrawFloat(listing, "Scratch infection chance", ref scratchInfectionChance, 0f, 1f, "scratchInfectionChance", "Chance that a scratch attack from an infected pawn transmits the Marked Virus.");
+            DrawCheckbox(listing, "Punch/blunt attacks transmit", ref punchTransmissionEnabled, "When enabled, punch and blunt attacks from infected pawns can transmit the virus.");
+            DrawFloat(listing, "Punch infection chance", ref punchInfectionChance, 0f, 1f, "punchInfectionChance", "Chance that a punch or blunt attack from an infected pawn transmits the Marked Virus.");
+            DrawCheckbox(listing, "Melee weapon attacks transmit", ref meleeWeaponTransmissionEnabled, "When enabled, melee weapon attacks from infected pawns can transmit the virus.");
+            DrawFloat(listing, "Melee weapon infection chance", ref meleeWeaponInfectionChance, 0f, 1f, "meleeWeaponInfectionChance", "Chance that a melee weapon attack from an infected pawn transmits the Marked Virus.");
+            DrawCheckbox(listing, "Marked Men guaranteed infection", ref markedMenGuaranteedInfection, "When enabled, fully transformed Marked Men always infect on melee contact.");
+            DrawFloat(listing, "Marked Men infection chance", ref markedMenInfectionChance, 0f, 1f, "markedMenInfectionChance", "Chance that a fully transformed Marked Man transmits the virus on melee contact. Used when guaranteed infection is disabled.");
 
             DrawSectionHeader(listing, "Sealed Apparel Protection", "Toggling a category off removes full viral immunity for that apparel type, reverting to partial resistance instead.");
             DrawCheckbox(listing, "Warcaskets block exposure", ref warcasketsBlockExposure, "When enabled, any warcasket torso shell provides full immunity to direct Marked Virus exposure. Disable this if you want warcasket pawns to still face infection risk.");
@@ -932,6 +992,12 @@ namespace TheMarkedMen
             infectedAssaultExposureChance = Mathf.Clamp01(infectedAssaultExposureChance);
             closeContactExposureChance = Mathf.Clamp01(closeContactExposureChance);
             corpseContaminationChance = Mathf.Clamp01(corpseContaminationChance);
+            biteInfectionChance = Mathf.Clamp01(biteInfectionChance);
+            clawInfectionChance = Mathf.Clamp01(clawInfectionChance);
+            scratchInfectionChance = Mathf.Clamp01(scratchInfectionChance);
+            punchInfectionChance = Mathf.Clamp01(punchInfectionChance);
+            meleeWeaponInfectionChance = Mathf.Clamp01(meleeWeaponInfectionChance);
+            markedMenInfectionChance = Mathf.Clamp01(markedMenInfectionChance);
             infectionProgressionSpeedMultiplier = Mathf.Clamp(infectionProgressionSpeedMultiplier, 0.05f, 10f);
             incubationDurationMultiplier = Mathf.Clamp(incubationDurationMultiplier, 0.05f, 10f);
             immunitySurvivalChance = Mathf.Clamp01(immunitySurvivalChance);
@@ -1029,6 +1095,19 @@ namespace TheMarkedMen
             bloodExposureChance = 0.22f;
             foodExposureChance = 0.15f;
             infectedAssaultExposureChance = 0.25f;
+            meleeTransmissionEnabled = true;
+            biteTransmissionEnabled = true;
+            clawTransmissionEnabled = true;
+            scratchTransmissionEnabled = true;
+            punchTransmissionEnabled = true;
+            meleeWeaponTransmissionEnabled = true;
+            biteInfectionChance = 0.25f;
+            clawInfectionChance = 0.25f;
+            scratchInfectionChance = 0.25f;
+            punchInfectionChance = 0.25f;
+            meleeWeaponInfectionChance = 0.25f;
+            markedMenInfectionChance = 1f;
+            markedMenGuaranteedInfection = true;
             closeContactExposureChance = 0.2f;
             corpseContaminationChance = 0.35f;
             infectionProgressionSpeedMultiplier = 0.55f;
@@ -1082,6 +1161,19 @@ namespace TheMarkedMen
             bruteWeightMultiplier = 1.4f;
             bloodExposureChance = 0.65f;
             infectedAssaultExposureChance = 0.65f;
+            meleeTransmissionEnabled = true;
+            biteTransmissionEnabled = true;
+            clawTransmissionEnabled = true;
+            scratchTransmissionEnabled = true;
+            punchTransmissionEnabled = true;
+            meleeWeaponTransmissionEnabled = true;
+            biteInfectionChance = 0.65f;
+            clawInfectionChance = 0.65f;
+            scratchInfectionChance = 0.65f;
+            punchInfectionChance = 0.65f;
+            meleeWeaponInfectionChance = 0.65f;
+            markedMenInfectionChance = 1f;
+            markedMenGuaranteedInfection = true;
             closeContactExposureChance = 0.65f;
             corpseContaminationChance = 1f;
             infectionProgressionSpeedMultiplier = 1.5f;
@@ -1118,6 +1210,19 @@ namespace TheMarkedMen
             bloodExposureChance = 0.8f;
             foodExposureChance = 0.7f;
             infectedAssaultExposureChance = 0.8f;
+            meleeTransmissionEnabled = true;
+            biteTransmissionEnabled = true;
+            clawTransmissionEnabled = true;
+            scratchTransmissionEnabled = true;
+            punchTransmissionEnabled = true;
+            meleeWeaponTransmissionEnabled = true;
+            biteInfectionChance = 0.8f;
+            clawInfectionChance = 0.8f;
+            scratchInfectionChance = 0.8f;
+            punchInfectionChance = 0.8f;
+            meleeWeaponInfectionChance = 0.8f;
+            markedMenInfectionChance = 1f;
+            markedMenGuaranteedInfection = true;
             closeContactExposureChance = 0.9f;
             corpseContaminationChance = 1f;
             infectionProgressionSpeedMultiplier = 2.2f;
