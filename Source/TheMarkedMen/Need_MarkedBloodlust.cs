@@ -22,6 +22,8 @@ namespace TheMarkedMen
         {
         }
 
+        public override bool ShowOnNeedList => CrossedUtility.IsInfectedPawn(pawn);
+
         public override void NeedInterval()
         {
             if (IsFrozen)
