@@ -43,11 +43,13 @@
       <li>VanillaExpanded.BaseGeneration</li>
       <li>XMB.AncientUrbanrUins.MO</li>
     </loadAfter>
-  <description>The Marked Men adds a hostile infected faction built around fast outbreaks, escalating raids, corpse reanimation, and colony survival pressure.
+  <description>The Marked Men adds a hostile infected faction built around fast outbreaks, escalating raids, random pressure events, corpse reanimation, and colony survival pressure.
 
 The Marked Virus spreads through close contact, infected blood exposure, contaminated food, and supported compatibility hooks. Most victims progress quickly into violent infection, while rare survivors can develop immunity. Starter colonists and their descendants receive special lineage resistance, but direct exposure can still very rarely break through.
 
-The faction does not behave like shambling undead. The Marked Men use weapons, pursue weak targets, coordinate through raids and hordes, contaminate corpses, and pressure wounded or isolated colonists.
+The faction does not behave like shambling undead. The Marked Men use weapons, pursue weak targets, coordinate through scouts, warbands, hordes, ambushes, and storyteller pressure, contaminate corpses, and punish wounded or isolated colonists.
+
+The Marked Man storyteller is a brutal outbreak-focused alternative to Randy Random: unpredictable, faster, harder, and deliberately short on recovery windows. Use the mod options to tune infection rules, raid frequency, raid strength, pawn mix, AI behavior, performance intervals, urban ruin outbreaks, and optional compatibility bridges through collapsible categories with hover tooltips.
 
 This mod is inspired by the horror comic series Crossed, adapted into RimWorld as a hostile outbreak and survival scenario.</description>
 </ModMetaData>

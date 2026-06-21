@@ -61,6 +61,9 @@ namespace TheMarkedMen
         private const float PresetButtonGap = 4f;
         private const string CustomPresetName = "Custom";
         private static readonly Color HelpTextColor = new Color(0.72f, 0.72f, 0.72f);
+        private static readonly Color SectionHeaderColor = new Color(0.22f, 0.24f, 0.26f, 1f);
+        private static readonly Color SectionHeaderHoverColor = new Color(0.28f, 0.30f, 0.33f, 1f);
+        private const float OptionRowHeight = 28f;
 
         public bool infectionEnabled = true;
         public bool warcasketsBlockExposure = true;
@@ -181,6 +184,8 @@ namespace TheMarkedMen
         private string currentPreset = "Default";
         private Vector2 scrollPosition;
         private readonly Dictionary<string, string> numericBuffers = new Dictionary<string, string>();
+        private Dictionary<string, bool> sectionOpenStates = new Dictionary<string, bool>();
+        private bool currentSectionOpen = true;
 
         public float EffectiveMarkedRaidFrequencyMultiplier => Mathf.Clamp(markedRaidFrequencyMultiplier, MinMarkedRaidFrequencyMultiplier, MaxMarkedRaidFrequencyMultiplier);
 
@@ -401,6 +406,11 @@ namespace TheMarkedMen
             Scribe_Values.Look(ref survivorEncountersEnabled, "survivorEncountersEnabled", true);
             Scribe_Values.Look(ref survivorEncounterChance, "survivorEncounterChance", 0.5f);
             Scribe_Values.Look(ref currentPreset, "currentPreset", "Default");
+            Scribe_Collections.Look(ref sectionOpenStates, "sectionOpenStates", LookMode.Value, LookMode.Value);
+            if (sectionOpenStates == null)
+            {
+                sectionOpenStates = new Dictionary<string, bool>();
+            }
             if (Scribe.mode == LoadSaveMode.PostLoadInit && loadedSettingsVersion < CurrentSettingsVersion)
             {
                 if (loadedSettingsVersion < 3)
@@ -835,6 +845,7 @@ namespace TheMarkedMen
             {
                 applyPreset();
                 ClearNumericBuffers();
+                cachedContentHeight = 0f;
             }
 
             TooltipHandler.TipRegion(rect, new TipSignal(tooltip));
@@ -844,14 +855,46 @@ namespace TheMarkedMen
         {
             listing.Gap(10f);
             listing.GapLine(6f);
+            bool open = IsSectionOpen(title);
+            Rect row = listing.GetRect(30f, 1f);
+            bool hover = Mouse.IsOver(row);
+            Widgets.DrawBoxSolid(row, hover ? SectionHeaderHoverColor : SectionHeaderColor);
+
             GameFont oldFont = Text.Font;
+            Color oldColor = GUI.color;
             Text.Font = GameFont.Medium;
-            listing.Label(title);
+            GUI.color = Color.white;
+            string prefix = open ? "[-] " : "[+] ";
+            Widgets.Label(new Rect(row.x + 8f, row.y + 4f, row.width - 16f, row.height - 8f), prefix + title);
             Text.Font = oldFont;
-            DrawHelp(listing, description);
+            GUI.color = oldColor;
+
+            if (Widgets.ButtonInvisible(row, true))
+            {
+                sectionOpenStates[title] = !open;
+                open = !open;
+                cachedContentHeight = 0f;
+            }
+
+            TooltipHandler.TipRegion(row, new TipSignal((open ? "Click to collapse. " : "Click to expand. ") + description));
+            currentSectionOpen = open;
+            if (open)
+            {
+                DrawHelpTextInternal(listing, description);
+            }
         }
 
         private void DrawHelp(Listing_Standard listing, string text)
+        {
+            if (!currentSectionOpen)
+            {
+                return;
+            }
+
+            DrawHelpTextInternal(listing, text);
+        }
+
+        private void DrawHelpTextInternal(Listing_Standard listing, string text)
         {
             if (string.IsNullOrEmpty(text))
             {
@@ -870,8 +913,15 @@ namespace TheMarkedMen
 
         private void DrawCheckbox(Listing_Standard listing, string label, ref bool value, string help)
         {
+            if (!currentSectionOpen)
+            {
+                return;
+            }
+
             bool before = value;
-            listing.CheckboxLabeled(label, ref value, help, 0f, 1f);
+            Rect row = listing.GetRect(OptionRowHeight, 1f);
+            Widgets.CheckboxLabeled(row, label, ref value, false, null, null, false);
+            TooltipHandler.TipRegion(row, new TipSignal(help));
             if (before != value)
             {
                 NoteManualChange();
@@ -882,9 +932,16 @@ namespace TheMarkedMen
 
         private void DrawFloat(Listing_Standard listing, string label, ref float value, float min, float max, string key, string help)
         {
+            if (!currentSectionOpen)
+            {
+                return;
+            }
+
             float before = value;
             string buffer = GetBuffer(key);
-            listing.TextFieldNumericLabeled(label, ref value, ref buffer, min, max);
+            Rect row = listing.GetRect(OptionRowHeight, 1f);
+            Widgets.TextFieldNumericLabeled(row, label, ref value, ref buffer, min, max);
+            TooltipHandler.TipRegion(row, new TipSignal(help + "\nCurrent value: " + FloatValueText(value, min, max) + "."));
             numericBuffers[key] = buffer;
             if (!Mathf.Approximately(before, value))
             {
@@ -896,9 +953,16 @@ namespace TheMarkedMen
 
         private void DrawInt(Listing_Standard listing, string label, ref int value, int min, int max, string key, string help)
         {
+            if (!currentSectionOpen)
+            {
+                return;
+            }
+
             int before = value;
             string buffer = GetBuffer(key);
-            listing.TextFieldNumericLabeled(label, ref value, ref buffer, min, max);
+            Rect row = listing.GetRect(OptionRowHeight, 1f);
+            Widgets.TextFieldNumericLabeled(row, label, ref value, ref buffer, min, max);
+            TooltipHandler.TipRegion(row, new TipSignal(help + "\nCurrent value: " + IntValueText(value, max) + "."));
             numericBuffers[key] = buffer;
             if (before != value)
             {
@@ -926,6 +990,22 @@ namespace TheMarkedMen
         private void ClearNumericBuffers()
         {
             numericBuffers.Clear();
+        }
+
+        private bool IsSectionOpen(string title)
+        {
+            if (sectionOpenStates == null)
+            {
+                sectionOpenStates = new Dictionary<string, bool>();
+            }
+
+            if (!sectionOpenStates.TryGetValue(title, out bool open))
+            {
+                open = true;
+                sectionOpenStates[title] = true;
+            }
+
+            return open;
         }
 
         private static string FloatValueText(float value, float min, float max)
@@ -7577,6 +7657,11 @@ namespace TheMarkedMen
 
     public sealed class StorytellerCompProperties_CrossedStoryteller : StorytellerCompProperties
     {
+        public float mtbDays = 0.95f;
+        public float minRandomDaysPassed = 3f;
+        public float minSpacingDays = 0.45f;
+        public FloatRange pointsFactorRange = new FloatRange(1.05f, 1.85f);
+
         public StorytellerCompProperties_CrossedStoryteller()
         {
             compClass = typeof(StorytellerComp_CrossedStoryteller);
@@ -7585,9 +7670,97 @@ namespace TheMarkedMen
 
     public sealed class StorytellerComp_CrossedStoryteller : StorytellerComp
     {
+        private int lastIncidentTick = -999999;
+
+        private StorytellerCompProperties_CrossedStoryteller Props => (StorytellerCompProperties_CrossedStoryteller)props;
+
         public override IEnumerable<FiringIncident> MakeIntervalIncidents(IIncidentTarget target)
         {
-            yield break;
+            if (!(target is Map map) || !map.IsPlayerHome || map.mapPawns == null || !map.mapPawns.AnyFreeColonistSpawned)
+            {
+                yield break;
+            }
+
+            if (Find.TickManager == null || Find.TickManager.TicksGame < Mathf.RoundToInt(Props.minRandomDaysPassed * GenDate.TicksPerDay))
+            {
+                yield break;
+            }
+
+            int ticks = Find.TickManager.TicksGame;
+            int minSpacingTicks = Mathf.RoundToInt(Mathf.Max(0.1f, Props.minSpacingDays) * GenDate.TicksPerDay);
+            if (ticks - lastIncidentTick < minSpacingTicks)
+            {
+                yield break;
+            }
+
+            float frequency = Mathf.Max(0.05f, TheMarkedMenMod.Settings?.EffectiveMarkedRaidFrequencyMultiplier ?? 1f);
+            float mtbDays = Mathf.Max(0.15f, Props.mtbDays / frequency);
+            if (!Rand.MTBEventOccurs(mtbDays, GenDate.TicksPerDay, 1000f))
+            {
+                yield break;
+            }
+
+            IncidentDef incident = PickRandomMarkedIncident();
+            Faction crossed = CrossedUtility.Component?.EnsureCrossedFaction();
+            if (incident == null || crossed == null)
+            {
+                yield break;
+            }
+
+            IncidentParms parms = StorytellerUtility.DefaultParmsNow(incident.category, map);
+            parms.target = map;
+            parms.faction = crossed;
+            parms.points = BuildRandomIncidentPoints(map, incident, parms.points);
+            parms.pawnGroupKind = PawnGroupKindDefOf.Combat;
+            parms.canKidnap = false;
+            parms.canSteal = false;
+            parms.canTimeoutOrFlee = false;
+            parms.forced = false;
+            TheMarkedMenGameComponent.ApplyMarkedRaidArrivalPattern(parms);
+
+            if (!incident.Worker.CanFireNow(parms))
+            {
+                yield break;
+            }
+
+            lastIncidentTick = ticks;
+            yield return new FiringIncident(incident, this, parms);
+        }
+
+        private IncidentDef PickRandomMarkedIncident()
+        {
+            IncidentDef selected = null;
+            float totalWeight = 0f;
+            AddIncidentCandidate(ref selected, ref totalWeight, CADefOf.CrossedProbe, TheMarkedMenSettings.ProbesEnabled ? 4.5f : 0f);
+            AddIncidentCandidate(ref selected, ref totalWeight, CADefOf.CrossedRaid, TheMarkedMenSettings.WarbandsEnabled ? 3.0f : 0f);
+            AddIncidentCandidate(ref selected, ref totalWeight, CADefOf.CrossedHorde, TheMarkedMenSettings.HordesEnabled ? 1.75f : 0f);
+            AddIncidentCandidate(ref selected, ref totalWeight, DefDatabase<IncidentDef>.GetNamedSilentFail("CA_CrossedDownedSurvivor"), 1.15f);
+            return selected;
+        }
+
+        private static void AddIncidentCandidate(ref IncidentDef selected, ref float totalWeight, IncidentDef incident, float weight)
+        {
+            if (incident == null || weight <= 0f)
+            {
+                return;
+            }
+
+            totalWeight += weight;
+            if (Rand.Value * totalWeight <= weight)
+            {
+                selected = incident;
+            }
+        }
+
+        private float BuildRandomIncidentPoints(Map map, IncidentDef incident, float existingPoints)
+        {
+            float minimum = Mathf.Max(incident?.minThreatPoints ?? 120f, TheMarkedMenMod.Settings?.minimumRaidPoints ?? 120f);
+            float storytellerPoints = map == null ? minimum : StorytellerUtility.DefaultThreatPointsNow(map);
+            float points = Mathf.Max(existingPoints, storytellerPoints, minimum);
+            float pressure = Mathf.InverseLerp(120f, 3600f, points);
+            float pressureFactor = Mathf.Lerp(1.05f, 1.35f, pressure);
+            float randomFactor = Props.pointsFactorRange.RandomInRange;
+            return TheMarkedMenSettings.ApplyRaidPointSettings(Mathf.Max(minimum, points * pressureFactor * randomFactor));
         }
     }
 

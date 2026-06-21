@@ -3,7 +3,7 @@
   <StorytellerDef ParentName="BaseStoryteller">
     <defName>CA_TheMarkedMan</defName>
     <label>The Marked Man</label>
-    <description>The Marked Man is not a person. It is the pressure behind the outbreak - a hunting consciousness that directs the infected, accelerates the spread, and ensures no survivor rests long enough to recover. It does not negotiate, does not tire, and does not forget a colony's location after the first scout returns home.\n\nThreats arrive fast, overlap, and escalate without mercy. The Marked Virus raids are relentless, vanilla threats hit harder and more often, and the adaptation system assumes you will lose people. This storyteller is designed for players who want the full outbreak experience: no breathing room, no safe weeks, and a world that is actively trying to mark every last survivor.</description>
+    <description>The Marked Man is the outbreak given intent: a hunting pressure that sends scouts, warbands, hordes, disease, ambushes, and bad luck until the colony breaks or adapts.\n\nThis storyteller plays like a hostile Randy Random variant tuned for outbreak survival. Events are less predictable, threat points climb quickly, Marked Men incidents can arrive outside the normal schedule, and recovery windows are short. Expect overlapping problems, early scouting pressure, hard raids, scarce friendly traffic, and infected attacks that keep testing weak doors, wounded pawns, doctors, food stores, and power systems.</description>
     <portraitLarge>UI/Storyteller/TheMarkedManStoryTeller</portraitLarge>
     <portraitTiny>UI/Storyteller/TheMarkedManStoryTellerTiny</portraitTiny>
     <listOrder>10</listOrder>
@@ -27,12 +27,12 @@
     </populationIntentFactorFromPopAdaptDaysCurve>
     <pointsFactorFromDaysPassed>
       <points>
-        <li>( 3, 0.90)</li>
-        <li>(10, 1.40)</li>
-        <li>(25, 2.00)</li>
-        <li>(50, 3.00)</li>
-        <li>(90, 4.50)</li>
-        <li>(150, 6.00)</li>
+        <li>( 2, 1.00)</li>
+        <li>( 8, 1.65)</li>
+        <li>(20, 2.45)</li>
+        <li>(45, 3.65)</li>
+        <li>(85, 5.25)</li>
+        <li>(150, 7.00)</li>
       </points>
     </pointsFactorFromDaysPassed>
     <adaptDaysMin>-180</adaptDaysMin>
@@ -75,25 +75,30 @@
       <points>
         <li>(-60, 0.15)</li>
         <li>(-30, 0.40)</li>
-        <li>(  0, 0.85)</li>
-        <li>( 15, 1.20)</li>
-        <li>( 30, 1.50)</li>
-        <li>( 60, 2.20)</li>
-        <li>(120, 3.50)</li>
+        <li>(  0, 1.00)</li>
+        <li>( 15, 1.35)</li>
+        <li>( 30, 1.75)</li>
+        <li>( 60, 2.60)</li>
+        <li>(120, 4.00)</li>
       </points>
     </pointsFactorFromAdaptDays>
 
     <comps>
       <li Class="StorytellerCompProperties_ClassicIntro"/>
-      <li Class="TheMarkedMen.StorytellerCompProperties_CrossedStoryteller"/>
+      <li Class="TheMarkedMen.StorytellerCompProperties_CrossedStoryteller">
+        <mtbDays>0.85</mtbDays>
+        <minRandomDaysPassed>3</minRandomDaysPassed>
+        <minSpacingDays>0.45</minSpacingDays>
+        <pointsFactorRange>1.1~1.95</pointsFactorRange>
+      </li>
 
       <!-- Marked Men probe - constant scouting pressure -->
       <li Class="StorytellerCompProperties_OnOffCycle">
         <incident>CA_CrossedProbe</incident>
-        <minDaysPassed>6</minDaysPassed>
-        <onDays>2.5</onDays>
-        <offDays>1.0</offDays>
-        <minSpacingDays>1.5</minSpacingDays>
+        <minDaysPassed>3</minDaysPassed>
+        <onDays>3.0</onDays>
+        <offDays>0.5</offDays>
+        <minSpacingDays>0.8</minSpacingDays>
         <numIncidentsRange>1~1</numIncidentsRange>
         <allowedTargetTags>
           <li>Map_PlayerHome</li>
@@ -103,10 +108,10 @@
       <!-- Marked Men caravan ambush - relentless world travel threat -->
       <li Class="StorytellerCompProperties_OnOffCycle">
         <incident>CA_CrossedCaravanAmbush</incident>
-        <minDaysPassed>5</minDaysPassed>
+        <minDaysPassed>4</minDaysPassed>
         <onDays>4.0</onDays>
-        <offDays>0.5</offDays>
-        <minSpacingDays>1.0</minSpacingDays>
+        <offDays>0.25</offDays>
+        <minSpacingDays>0.75</minSpacingDays>
         <numIncidentsRange>1~2</numIncidentsRange>
         <allowedTargetTags>
           <li>Caravan</li>
@@ -116,10 +121,10 @@
       <!-- Marked Men raid - coordinated assault -->
       <li Class="StorytellerCompProperties_OnOffCycle">
         <incident>CA_CrossedRaid</incident>
-        <minDaysPassed>25</minDaysPassed>
-        <onDays>5.0</onDays>
-        <offDays>2.5</offDays>
-        <minSpacingDays>4.0</minSpacingDays>
+        <minDaysPassed>18</minDaysPassed>
+        <onDays>6.0</onDays>
+        <offDays>1.5</offDays>
+        <minSpacingDays>2.5</minSpacingDays>
         <numIncidentsRange>1~1</numIncidentsRange>
         <forceRaidEnemyBeforeDaysPassed>30</forceRaidEnemyBeforeDaysPassed>
         <allowedTargetTags>
@@ -130,10 +135,10 @@
       <!-- Marked Men horde - apocalyptic wave -->
       <li Class="StorytellerCompProperties_OnOffCycle">
         <incident>CA_CrossedHorde</incident>
-        <minDaysPassed>30</minDaysPassed>
-        <onDays>10.0</onDays>
-        <offDays>4.0</offDays>
-        <minSpacingDays>8.9</minSpacingDays>
+        <minDaysPassed>24</minDaysPassed>
+        <onDays>9.0</onDays>
+        <offDays>2.0</offDays>
+        <minSpacingDays>5.5</minSpacingDays>
         <numIncidentsRange>1~1</numIncidentsRange>
         <allowedTargetTags>
           <li>Map_PlayerHome</li>
@@ -143,10 +148,10 @@
       <!-- Infected survivor - spread pressure -->
       <li Class="StorytellerCompProperties_OnOffCycle">
         <incident>CA_CrossedDownedSurvivor</incident>
-        <minDaysPassed>4</minDaysPassed>
-        <onDays>3.5</onDays>
-        <offDays>2.5</offDays>
-        <minSpacingDays>2.5</minSpacingDays>
+        <minDaysPassed>3</minDaysPassed>
+        <onDays>4.0</onDays>
+        <offDays>1.5</offDays>
+        <minSpacingDays>1.5</minSpacingDays>
         <numIncidentsRange>1~1</numIncidentsRange>
         <allowedTargetTags>
           <li>Map_PlayerHome</li>
@@ -159,16 +164,16 @@
           <li>Map_PlayerHome</li>
         </allowedTargetTags>
         <minDaysPassed>1</minDaysPassed>
-        <mtbDays>0.7</mtbDays>
+        <mtbDays>0.55</mtbDays>
         <spaceMtbDayFactor>1</spaceMtbDayFactor>
-        <maxThreatBigIntervalDays>4</maxThreatBigIntervalDays>
+        <maxThreatBigIntervalDays>2.5</maxThreatBigIntervalDays>
         <minIncChancePopulationIntentFactor>0.05</minIncChancePopulationIntentFactor>
-        <randomPointsFactorRange>0.7~2.0</randomPointsFactorRange>
+        <randomPointsFactorRange>0.9~2.35</randomPointsFactorRange>
         <skipThreatBigIfRaidBeacon>true</skipThreatBigIfRaidBeacon>
         <categoryWeights>
-          <ThreatBig>3.5</ThreatBig>
-          <ThreatSmall>2.5</ThreatSmall>
-          <Misc>0.8</Misc>
+          <ThreatBig>4.8</ThreatBig>
+          <ThreatSmall>3.2</ThreatSmall>
+          <Misc>0.55</Misc>
           <ShipChunkDrop>0.65</ShipChunkDrop>
           <OrbitalVisitor>0.15</OrbitalVisitor>
           <FactionArrival>0.3</FactionArrival>
