@@ -4670,35 +4670,10 @@ namespace TheMarkedMen
                 return;
             }
 
-            if (settings != null && settings.bloodlustEnabled && CADefOf.MarkedBloodlustGene != null
-                && ModsConfig.BiotechActive && pawn.genes != null)
+            if (settings != null && settings.bloodlustEnabled && CADefOf.MarkedBloodlustNeed != null
+                && pawn.needs != null && pawn.needs.TryGetNeed<Need_MarkedBloodlust>() == null)
             {
-                bool hasGene = false;
-                for (int i = 0; i < pawn.genes.Endogenes.Count; i++)
-                {
-                    if (pawn.genes.Endogenes[i].def == CADefOf.MarkedBloodlustGene)
-                    {
-                        hasGene = true;
-                        break;
-                    }
-                }
-
-                if (!hasGene)
-                {
-                    for (int i = 0; i < pawn.genes.Xenogenes.Count; i++)
-                    {
-                        if (pawn.genes.Xenogenes[i].def == CADefOf.MarkedBloodlustGene)
-                        {
-                            hasGene = true;
-                            break;
-                        }
-                    }
-                }
-
-                if (!hasGene)
-                {
-                    pawn.genes.AddGene(CADefOf.MarkedBloodlustGene, true);
-                }
+                pawn.needs.AllNeeds.Add(new Need_MarkedBloodlust(pawn));
             }
 
             if (settings != null && settings.anticipationEnabled && CADefOf.KillAnticipation != null

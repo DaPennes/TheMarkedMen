@@ -29,9 +29,16 @@ namespace TheMarkedMen
                 return;
             }
 
+            if (!CrossedUtility.IsInfectedPawn(pawn))
+            {
+                CurLevel = 0f;
+                return;
+            }
+
             TheMarkedMenSettings settings = TheMarkedMenMod.Settings;
             if (settings == null || !settings.bloodlustEnabled)
             {
+                CurLevel = 0f;
                 return;
             }
 

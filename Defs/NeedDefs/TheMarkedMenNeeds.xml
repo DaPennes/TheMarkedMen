@@ -2,6 +2,7 @@
 <Defs>
   <NeedDef>
     <defName>CA_MarkedBloodlustNeed</defName>
+    <label>bloodlust hunger</label>
     <needClass>TheMarkedMen.Need_MarkedBloodlust</needClass>
     <title>bloodlust hunger</title>
     <description>A predator's craving for violence. Feeding it with kills keeps the hunger at bay. If it reaches zero, the predator will attack anything nearby.</description>
@@ -13,6 +14,6 @@
     <defPriority>1</defPriority>
     <fallthruMoodThreshold>0.50</fallthruMoodThreshold>
     <showWhenEmpty>true</showWhenEmpty>
-    <scale>b<br/></scale>
+    <scale>None</scale>
   </NeedDef>
 </Defs>
