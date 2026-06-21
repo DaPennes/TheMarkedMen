@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using HarmonyLib;
 using RimWorld;
+using UnityEngine;
 using Verse;
 using Verse.AI.Group;
 
@@ -20,13 +21,32 @@ namespace TheMarkedMen
                 return;
             }
 
+            MarkedMenMemoryGrid memory = __instance.Spawned ? MarkedMenMemoryGrid.GetForMap(__instance.Map) : null;
+
+            bool victimInfected = CrossedUtility.IsInfectedPawn(__instance);
+
+            if (victimInfected && memory != null)
+            {
+                float scentStrength = Mathf.Clamp(totalDamageDealt / 50f, 0.05f, 1f);
+                memory.AddScent(__instance.Position, scentStrength, __instance);
+            }
+
+            if (memory != null && dinfo.Def != null && dinfo.Def.isRanged)
+            {
+                memory.AddNoise(__instance.Position, 0.7f, 1500);
+            }
+
+            if (memory != null && dinfo.Def != null && dinfo.Def.isExplosive)
+            {
+                memory.AddNoise(__instance.Position, 1f, 2500);
+            }
+
             if (!CrossedDamageUtility.IsValidMeleeInfectionSource(dinfo))
             {
                 return;
             }
 
             Pawn instigatorPawn = dinfo.Instigator as Pawn;
-            bool victimInfected = CrossedUtility.IsInfectedPawn(__instance);
             TryExposeInstigatorToInfectedBlood(__instance, instigatorPawn, victimInfected);
             TryExposeVictimToInfectedAssault(__instance, instigatorPawn, dinfo);
         }
@@ -293,6 +313,64 @@ namespace TheMarkedMen
         public static void Postfix(Pawn __result)
         {
             CrossedUtility.EnsureCrossedPyromaniacMolotov(__result);
+        }
+    }
+
+    [HarmonyPatch]
+    public static class Patch_DoorNoise
+    {
+        [HarmonyTargetMethod]
+        public static MethodBase TargetMethod()
+        {
+            return AccessTools.Method(typeof(Building_Door), "StartManualOpenBy");
+        }
+
+        [HarmonyPostfix]
+        public static void Postfix(Building_Door __instance, Pawn opener)
+        {
+            if (__instance == null || opener == null || !__instance.Spawned)
+            {
+                return;
+            }
+
+            MarkedMenMemoryGrid memory = MarkedMenMemoryGrid.GetForMap(__instance.Map);
+            if (memory == null)
+            {
+                return;
+            }
+
+            float noiseStrength = 0.3f;
+            int decayTicks = 600;
+            memory.AddNoise(__instance.Position, noiseStrength, decayTicks);
+        }
+    }
+
+    [HarmonyPatch]
+    public static class Patch_RangedNoise
+    {
+        [HarmonyTargetMethod]
+        public static MethodBase TargetMethod()
+        {
+            return AccessTools.Method(typeof(Verb_Shoot), "TryCastShot");
+        }
+
+        [HarmonyPostfix]
+        public static void Postfix(Verb_Shoot __instance)
+        {
+            if (__instance == null || __instance.caster == null || !__instance.caster.Spawned || __instance.caster.Map == null)
+            {
+                return;
+            }
+
+            MarkedMenMemoryGrid memory = MarkedMenMemoryGrid.GetForMap(__instance.caster.Map);
+            if (memory == null)
+            {
+                return;
+            }
+
+            float noiseStrength = 0.5f;
+            int decayTicks = 1000;
+            memory.AddNoise(__instance.caster.Position, noiseStrength, decayTicks);
         }
     }
 }

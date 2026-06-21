@@ -5319,7 +5319,7 @@ namespace TheMarkedMen
             return target != null && TryAssignAttackJob(pawn, target, true);
         }
 
-        private static bool TryAssignAttackJob(Pawn pawn, Thing target, bool forceCurrentJob = false)
+        internal static bool TryAssignAttackJob(Pawn pawn, Thing target, bool forceCurrentJob = false)
         {
             if (pawn?.jobs == null || target == null || target.Destroyed)
             {
@@ -5508,7 +5508,7 @@ namespace TheMarkedMen
                 && job.targetB.Thing == target;
         }
 
-        private static Pawn FindBestNonInfectedPawnTarget(Pawn pawn)
+        internal static Pawn FindBestNonInfectedPawnTarget(Pawn pawn)
         {
             IReadOnlyList<Pawn> candidates = pawn.Map?.mapPawns?.AllPawnsSpawned;
             if (candidates == null || candidates.Count == 0)
