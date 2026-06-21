@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using UnityEngine;
 using Verse;
@@ -8,15 +7,16 @@ namespace TheMarkedMen
 {
     public class Need_MarkedBloodlust : Need
     {
-        private const float MinBerserkInterval = 3000f;
-        private const float StarvingThreshold = 0.15f;
-        private const float BaseDecayPerInterval = 0.015f;
+        private const float CravingThreshold = 0.30f;
+        private const float SatisfiedThreshold = 0.80f;
+        private const float BaseDecayPerInterval = 0.005f;
         private const float KillGain = 0.30f;
         private const float CombatGainPerInterval = 0.01f;
         private const float CombatScanRadius = 30f;
 
-        private int lastBerserkTick;
         private int nextCombatScanTick;
+        private int nextCravingRefreshTick;
+        private int nextBloodlustRefreshTick;
 
         public Need_MarkedBloodlust(Pawn pawn) : base(pawn)
         {
@@ -60,15 +60,7 @@ namespace TheMarkedMen
                 }
             }
 
-            if (CurLevel < StarvingThreshold && pawn.Spawned && !pawn.Downed && !pawn.Dead && pawn.mindState != null)
-            {
-                int ticks = Find.TickManager.TicksGame;
-                if (ticks - lastBerserkTick >= MinBerserkInterval)
-                {
-                    lastBerserkTick = ticks;
-                    pawn.mindState.mentalStateHandler.TryStartMentalState(MentalStateDefOf.Berserk, "bloodlust starvation");
-                }
-            }
+            UpdateMoodThoughts();
         }
 
         public void NotifyKilled()
@@ -76,6 +68,34 @@ namespace TheMarkedMen
             TheMarkedMenSettings settings = TheMarkedMenMod.Settings;
             float gain = KillGain * (settings?.bloodlustKillGainMultiplier ?? 1f);
             CurLevel = Mathf.Min(1f, CurLevel + gain);
+        }
+
+        private void UpdateMoodThoughts()
+        {
+            if (pawn.needs?.mood?.thoughts?.memories == null)
+            {
+                return;
+            }
+
+            int tick = Find.TickManager.TicksGame;
+
+            if (CurLevel < CravingThreshold)
+            {
+                if (tick >= nextCravingRefreshTick && CADefOf.BloodthirstyCraving != null)
+                {
+                    pawn.needs.mood.thoughts.memories.TryGainMemory((Thought_Memory)ThoughtMaker.MakeThought(CADefOf.BloodthirstyCraving));
+                    nextCravingRefreshTick = tick + 60000;
+                }
+            }
+
+            if (CurLevel > SatisfiedThreshold)
+            {
+                if (tick >= nextBloodlustRefreshTick && CADefOf.OverwhelmingBloodlust != null)
+                {
+                    pawn.needs.mood.thoughts.memories.TryGainMemory((Thought_Memory)ThoughtMaker.MakeThought(CADefOf.OverwhelmingBloodlust));
+                    nextBloodlustRefreshTick = tick + 60000;
+                }
+            }
         }
 
         private bool IsInCombat()
@@ -116,8 +136,9 @@ namespace TheMarkedMen
         public override void ExposeData()
         {
             base.ExposeData();
-            Scribe_Values.Look(ref lastBerserkTick, "lastBerserkTick", 0);
             Scribe_Values.Look(ref nextCombatScanTick, "nextCombatScanTick", 0);
+            Scribe_Values.Look(ref nextCravingRefreshTick, "nextCravingRefreshTick", 0);
+            Scribe_Values.Look(ref nextBloodlustRefreshTick, "nextBloodlustRefreshTick", 0);
         }
     }
 }

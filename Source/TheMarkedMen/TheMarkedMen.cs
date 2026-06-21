@@ -648,11 +648,11 @@ namespace TheMarkedMen
             DrawFloat(listing, "Marked infighting chance", ref infightingChance, 0f, 1f, "infightingChance", "Chance during each infighting check that infected pawns may turn on each other.");
             DrawFloat(listing, "Panic and social terror strength", ref socialTerrorStrength, 0f, 5f, "socialTerrorStrength", "Scales the radius and strength of Marked Men terror effects. Set to 0 to disable these effects.");
 
-            DrawSectionHeader(listing, "Predatory Instincts", "Controls the bloodlust hunger, kill anticipation, and predator psychology systems for the Marked Ones.");
-            DrawCheckbox(listing, "Enable bloodlust hunger system", ref bloodlustEnabled, "When enabled, infected pawns build bloodlust hunger over time and gain mood and combat effects based on their craving for violence.");
-            DrawFloat(listing, "Bloodlust decay rate", ref bloodlustDecayRate, 0.1f, 5f, "bloodlustDecayRate", "How quickly bloodlust hunger fades when not in combat. Lower values keep pawns bloodthirsty longer.");
-            DrawFloat(listing, "Bloodlust kill gain multiplier", ref bloodlustKillGainMultiplier, 0.1f, 5f, "bloodlustKillGainMultiplier", "How much a kill or down satisfies bloodlust hunger. Higher values mean faster satiation.");
-            DrawFloat(listing, "Bloodlust combat gain multiplier", ref bloodlustCombatGainMultiplier, 0f, 5f, "bloodlustCombatGainMultiplier", "How much active combat feeds bloodlust hunger. Set to 0 to disable combat-based bloodlust gain.");
+            DrawSectionHeader(listing, "Predatory Instincts", "Controls the bloodlust, kill anticipation, and predator psychology systems for the Marked Ones.");
+            DrawCheckbox(listing, "Enable bloodlust system", ref bloodlustEnabled, "When enabled, infected pawns build bloodlust over time and gain mood and combat effects based on their craving for violence.");
+            DrawFloat(listing, "Bloodlust decay rate", ref bloodlustDecayRate, 0.1f, 5f, "bloodlustDecayRate", "How quickly bloodlust fades when not in combat. Lower values keep pawns bloodthirsty longer.");
+            DrawFloat(listing, "Bloodlust kill gain multiplier", ref bloodlustKillGainMultiplier, 0.1f, 5f, "bloodlustKillGainMultiplier", "How much a kill or down satisfies bloodlust. Higher values mean faster satiation.");
+            DrawFloat(listing, "Bloodlust combat gain multiplier", ref bloodlustCombatGainMultiplier, 0f, 5f, "bloodlustCombatGainMultiplier", "How much active combat feeds bloodlust. Set to 0 to disable combat-based bloodlust gain.");
             DrawCheckbox(listing, "Enable kill anticipation system", ref anticipationEnabled, "When enabled, infected pawns gain combat bonuses from anticipating enemies nearby. Effects fade quickly when out of combat.");
             DrawFloat(listing, "Anticipation gain multiplier", ref anticipationGainMultiplier, 0.1f, 5f, "anticipationGainMultiplier", "How quickly kill anticipation builds when enemies are near.");
             DrawFloat(listing, "Anticipation decay multiplier", ref anticipationDecayMultiplier, 0.1f, 5f, "anticipationDecayMultiplier", "How quickly kill anticipation fades after combat ends. Higher values fade faster.");

@@ -245,6 +245,46 @@ namespace TheMarkedMen
             return direction.InBounds(map);
         }
 
+        public bool TryGetStrongestScentSource(IntVec3 position, float radius, out IntVec3 source)
+        {
+            source = IntVec3.Invalid;
+            if (!position.InBounds(map))
+            {
+                return false;
+            }
+
+            float strongest = 0f;
+            float radiusSq = radius * radius;
+            int tick = Find.TickManager.TicksGame;
+
+            for (int i = 0; i < scentMarkers.Count; i++)
+            {
+                ScentMarker marker = scentMarkers[i];
+                float age = (tick - marker.createdTick) / (float)ScentLifetimeTicks;
+                if (age >= 1f)
+                {
+                    continue;
+                }
+
+                float distSq = marker.position.DistanceToSquared(position);
+                if (distSq > radiusSq)
+                {
+                    continue;
+                }
+
+                float distanceFactor = 1f - Mathf.Sqrt(distSq) / radius;
+                float ageFactor = 1f - age;
+                float scent = marker.strength * distanceFactor * ageFactor;
+                if (scent > strongest)
+                {
+                    strongest = scent;
+                    source = marker.position;
+                }
+            }
+
+            return strongest > MinScentStrength;
+        }
+
         public float GetNoiseAt(IntVec3 position, float radius)
         {
             if (!position.InBounds(map))

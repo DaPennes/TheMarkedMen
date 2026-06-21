@@ -27,7 +27,9 @@ namespace TheMarkedMen
         private const float ScentInvestigateThreshold = 0.15f;
         private const float NoiseInvestigateThreshold = 0.2f;
         private const int MaxInvestigateDist = 40;
-        private const int InvestigateJobExpiry = 300;
+        private const int InvestigateJobExpiry = 600;
+        private const int InvestigateCooldownTicks = 600;
+        private const int InvestigateSearchSpread = 6;
         private const float FrenzyBloodlustThreshold = 0.9f;
         private const float TargetLostMemoryTicks = 600;
         private const int InterceptionLookAheadTicks = 120;
@@ -46,6 +48,9 @@ namespace TheMarkedMen
         private Dictionary<int, int> lastTargetSeenTick = new Dictionary<int, int>();
         private Dictionary<int, IntVec3> lastKnownTargetPos = new Dictionary<int, IntVec3>();
         private Dictionary<int, int> lastFlankTick = new Dictionary<int, int>();
+        private Dictionary<int, int> lastScentInvestigation = new Dictionary<int, int>();
+        private Dictionary<int, int> lastNoiseInvestigation = new Dictionary<int, int>();
+        private Dictionary<int, int> lastMemoryInvestigation = new Dictionary<int, int>();
 
         public MarkedMenAIManager(Map map) : base(map)
         {
@@ -206,25 +211,32 @@ namespace TheMarkedMen
                 return;
             }
 
+            int id = pawn.thingIDNumber;
+            int lastScent = lastScentInvestigation.TryGetValue(id, out int scentVal) ? scentVal : 0;
+            if (tick - lastScent < InvestigateCooldownTicks)
+            {
+                return;
+            }
+
             float scent = memory.GetScentStrengthAt(pawn.Position, ScentCheckRadius);
             if (scent < ScentInvestigateThreshold)
             {
                 return;
             }
 
-            if (memory.TryGetScentDirection(pawn.Position, ScentCheckRadius * 2, out IntVec3 scentDir))
+            if (!memory.TryGetStrongestScentSource(pawn.Position, ScentCheckRadius * 2, out IntVec3 scentSource))
             {
-                if (scentDir.DistanceToSquared(pawn.Position) > MaxInvestigateDist * MaxInvestigateDist)
-                {
-                    return;
-                }
-
-                Job investigate = JobMaker.MakeJob(JobDefOf.Goto, scentDir);
-                investigate.expiryInterval = InvestigateJobExpiry;
-                investigate.checkOverrideOnExpire = true;
-                investigate.locomotionUrgency = LocomotionUrgency.Sprint;
-                pawn.jobs.TryTakeOrderedJob(investigate, JobTag.Misc);
+                return;
             }
+
+            int dist = scentSource.DistanceToSquared(pawn.Position);
+            if (dist > MaxInvestigateDist * MaxInvestigateDist)
+            {
+                return;
+            }
+
+            lastScentInvestigation[id] = tick;
+            StartInvestigateJob(pawn, scentSource);
         }
 
         private void TryNoiseInvestigation(Pawn pawn, MarkedMenMemoryGrid memory, int tick)
@@ -239,31 +251,44 @@ namespace TheMarkedMen
                 return;
             }
 
+            int id = pawn.thingIDNumber;
+            int lastNoise = lastNoiseInvestigation.TryGetValue(id, out int noiseVal) ? noiseVal : 0;
+            if (tick - lastNoise < InvestigateCooldownTicks)
+            {
+                return;
+            }
+
             float noise = memory.GetNoiseAt(pawn.Position, NoiseCheckRadius);
             if (noise < NoiseInvestigateThreshold)
             {
                 return;
             }
 
-            if (memory.TryGetLoudestNoiseDirection(pawn.Position, NoiseCheckRadius * 2, out IntVec3 noiseDir))
+            if (!memory.TryGetLoudestNoiseDirection(pawn.Position, NoiseCheckRadius * 2, out IntVec3 noiseSource))
             {
-                int dist = noiseDir.DistanceToSquared(pawn.Position);
-                if (dist > MaxInvestigateDist * MaxInvestigateDist || dist < 25f)
-                {
-                    return;
-                }
-
-                Job investigate = JobMaker.MakeJob(JobDefOf.Goto, noiseDir);
-                investigate.expiryInterval = InvestigateJobExpiry;
-                investigate.checkOverrideOnExpire = true;
-                investigate.locomotionUrgency = LocomotionUrgency.Sprint;
-                pawn.jobs.TryTakeOrderedJob(investigate, JobTag.Misc);
+                return;
             }
+
+            int dist = noiseSource.DistanceToSquared(pawn.Position);
+            if (dist > MaxInvestigateDist * MaxInvestigateDist || dist < 25f)
+            {
+                return;
+            }
+
+            lastNoiseInvestigation[id] = tick;
+            StartInvestigateJob(pawn, noiseSource);
         }
 
         private void TryMemoryInvestigation(Pawn pawn, int tick)
         {
             if (!CanTakeAIJob(pawn))
+            {
+                return;
+            }
+
+            int id = pawn.thingIDNumber;
+            int lastMem = lastMemoryInvestigation.TryGetValue(id, out int memVal) ? memVal : 0;
+            if (tick - lastMem < InvestigateCooldownTicks)
             {
                 return;
             }
@@ -297,11 +322,40 @@ namespace TheMarkedMen
                 return;
             }
 
-            Job memJob = JobMaker.MakeJob(JobDefOf.Goto, memPos);
-            memJob.expiryInterval = InvestigateJobExpiry;
-            memJob.checkOverrideOnExpire = true;
-            memJob.locomotionUrgency = LocomotionUrgency.Sprint;
-            pawn.jobs.TryTakeOrderedJob(memJob, JobTag.Misc);
+            lastMemoryInvestigation[id] = tick;
+            StartInvestigateJob(pawn, memPos);
+        }
+
+        private static void StartInvestigateJob(Pawn pawn, IntVec3 basePos)
+        {
+            IntVec3 dest = GetSearchDestination(basePos, pawn.Map);
+            if (!dest.IsValid)
+            {
+                return;
+            }
+
+            Job job = JobMaker.MakeJob(JobDefOf.Goto, dest);
+            job.expiryInterval = InvestigateJobExpiry;
+            job.checkOverrideOnExpire = true;
+            job.locomotionUrgency = LocomotionUrgency.Sprint;
+            job.canBashDoors = true;
+            pawn.jobs.TryTakeOrderedJob(job, JobTag.Misc);
+        }
+
+        private static IntVec3 GetSearchDestination(IntVec3 basePos, Map map)
+        {
+            for (int i = 0; i < 4; i++)
+            {
+                IntVec3 dest = basePos + new IntVec3(
+                    Rand.RangeInclusive(-InvestigateSearchSpread, InvestigateSearchSpread),
+                    0,
+                    Rand.RangeInclusive(-InvestigateSearchSpread, InvestigateSearchSpread));
+                if (dest.InBounds(map) && dest.Walkable(map))
+                {
+                    return dest;
+                }
+            }
+            return basePos;
         }
 
         private void EvaluatePursuitState(Pawn pawn, int tick)

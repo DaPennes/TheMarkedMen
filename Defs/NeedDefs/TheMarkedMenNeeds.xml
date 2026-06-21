@@ -2,9 +2,9 @@
 <Defs>
   <NeedDef>
     <defName>CA_MarkedBloodlustNeed</defName>
-    <label>bloodlust hunger</label>
+    <label>Bloodlust</label>
     <needClass>TheMarkedMen.Need_MarkedBloodlust</needClass>
-    <description>A predator's craving for violence. Feeding it with kills keeps the hunger at bay. If it reaches zero, the predator will attack anything nearby.</description>
+    <description>A predator's craving for violence. Low bloodlust causes a negative mood. Kills and combat satisfy the craving.</description>
     <freezeWhileSleeping>true</freezeWhileSleeping>
     <showOnNeedList>true</showOnNeedList>
   </NeedDef>

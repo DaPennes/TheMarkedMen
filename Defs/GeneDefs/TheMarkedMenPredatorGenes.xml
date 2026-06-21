@@ -2,8 +2,8 @@
 <Defs>
   <GeneDef MayRequire="Ludeon.RimWorld.Biotech">
     <defName>CA_MarkedBloodlustNeed</defName>
-    <label>marked bloodlust hunger</label>
-    <description>Creates an insatiable craving for violence. The need for blood builds over time, and only kills can hold it back. Starvation triggers uncontrollable berserk rage.</description>
+    <label>marked bloodlust</label>
+    <description>Creates an insatiable craving for violence. The bloodlust level builds over time and affects the pawn's mood. Low bloodlust causes a negative mood, while high bloodlust satisfies the predator drive.</description>
     <geneClass>TheMarkedMen.Gene_MarkedBloodlustGene</geneClass>
     <biostatCpx>2</biostatCpx>
     <biostatMet>0</biostatMet>

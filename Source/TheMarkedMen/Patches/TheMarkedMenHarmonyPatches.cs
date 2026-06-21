@@ -250,6 +250,7 @@ namespace TheMarkedMen
                 Log.Warning("[The Marked Men] Optional SetFactionDirect tattoo patch skipped: " + ex.Message);
             }
 
+            Patch_DebugOverlay.Apply(harmony);
             TheMarkedMenWorldbuilderCompatibility.Apply(harmony);
             LongEventHandler.ExecuteWhenFinished(() => TheMarkedMenRjwCompatibility.Apply(harmony));
         }
@@ -374,28 +375,42 @@ namespace TheMarkedMen
         }
     }
 
-    [HarmonyPatch]
     public static class Patch_DebugOverlay
     {
-        private static bool triedFindTarget;
-        private static MethodBase drawTarget;
-
-        [HarmonyTargetMethod]
-        public static MethodBase TargetMethod()
+        public static void Apply(Harmony harmony)
         {
-            if (!triedFindTarget)
+            if (harmony == null)
             {
-                triedFindTarget = true;
-                drawTarget = AccessTools.Method(typeof(CameraDriver), "OnGUI");
-                if (drawTarget == null)
+                return;
+            }
+
+            try
+            {
+                MethodInfo target = AccessTools.Method(typeof(CameraDriver), "OnGUI");
+                if (target == null)
                 {
-                    drawTarget = AccessTools.Method(typeof(CameraDriver), "LateUpdate");
+                    target = AccessTools.Method(typeof(Root), "OnGUI");
+                }
+
+                if (target == null)
+                {
+                    Log.Warning("[The Marked Men] Debug overlay patch skipped: no valid target method found.");
+                    return;
+                }
+
+                MethodInfo postfix = AccessTools.Method(typeof(Patch_DebugOverlay), nameof(Postfix));
+                if (postfix != null)
+                {
+                    harmony.Patch(target, postfix: new HarmonyMethod(postfix));
+                    Log.Message("[The Marked Men] Debug overlay patched onto " + target.DeclaringType.Name + "." + target.Name);
                 }
             }
-            return drawTarget;
+            catch (Exception ex)
+            {
+                Log.Warning("[The Marked Men] Debug overlay patch skipped due to error: " + ex.Message);
+            }
         }
 
-        [HarmonyPostfix]
         public static void Postfix()
         {
             if (!MarkedMenDebugOverlay.Active)
