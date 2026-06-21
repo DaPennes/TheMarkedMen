@@ -536,6 +536,13 @@ namespace TheMarkedMen
             Scribe_Collections.Look(ref memoryEvents, "memoryEvents", LookMode.Deep);
         }
 
+        public int ScentCount => scentMarkers.Count;
+        public ScentMarker GetScent(int index) => scentMarkers[index];
+        public int NoiseCount => noiseEvents.Count;
+        public NoiseEvent GetNoise(int index) => noiseEvents[index];
+        public int MemoryCount => memoryEvents.Count;
+        public MemoryEvent GetMemory(int index) => memoryEvents[index];
+
         public static MarkedMenMemoryGrid GetForMap(Map map)
         {
             if (map == null)

@@ -373,4 +373,37 @@ namespace TheMarkedMen
             memory.AddNoise(__instance.caster.Position, noiseStrength, decayTicks);
         }
     }
+
+    [HarmonyPatch]
+    public static class Patch_DebugOverlay
+    {
+        private static bool triedFindTarget;
+        private static MethodBase drawTarget;
+
+        [HarmonyTargetMethod]
+        public static MethodBase TargetMethod()
+        {
+            if (!triedFindTarget)
+            {
+                triedFindTarget = true;
+                drawTarget = AccessTools.Method(typeof(CameraDriver), "OnGUI");
+                if (drawTarget == null)
+                {
+                    drawTarget = AccessTools.Method(typeof(CameraDriver), "LateUpdate");
+                }
+            }
+            return drawTarget;
+        }
+
+        [HarmonyPostfix]
+        public static void Postfix()
+        {
+            if (!MarkedMenDebugOverlay.Active)
+            {
+                return;
+            }
+
+            MarkedMenDebugOverlay.Draw();
+        }
+    }
 }
