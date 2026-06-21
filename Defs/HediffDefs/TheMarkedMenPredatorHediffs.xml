@@ -10,7 +10,6 @@
       <li>
         <minSeverity>0.01</minSeverity>
         <label>alert</label>
-        <partCount>0</partCount>
         <becomeVisible>true</becomeVisible>
         <statOffsets>
           <AimingDelayFactor>-0.05</AimingDelayFactor>
@@ -21,7 +20,6 @@
       <li>
         <minSeverity>0.25</minSeverity>
         <label>heightened</label>
-        <partCount>0</partCount>
         <becomeVisible>true</becomeVisible>
         <statOffsets>
           <AimingDelayFactor>-0.12</AimingDelayFactor>
@@ -37,7 +35,6 @@
       <li>
         <minSeverity>0.50</minSeverity>
         <label>predatory focus</label>
-        <partCount>0</partCount>
         <becomeVisible>true</becomeVisible>
         <statOffsets>
           <AimingDelayFactor>-0.20</AimingDelayFactor>
@@ -55,7 +52,6 @@
       <li>
         <minSeverity>0.75</minSeverity>
         <label>blood trance</label>
-        <partCount>0</partCount>
         <becomeVisible>true</becomeVisible>
         <statOffsets>
           <AimingDelayFactor>-0.30</AimingDelayFactor>

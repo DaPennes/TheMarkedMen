@@ -8,11 +8,8 @@
     <biostatCpx>2</biostatCpx>
     <biostatMet>0</biostatMet>
     <selectionWeight>0</selectionWeight>
-    <displayOrderInXenotype>999</displayOrderInXenotype>
     <descriptionHyperlinks>
-      <li>
-        <def>CA_MarkedBloodlustNeed</def>
-      </li>
+      <li><NeedDef>CA_MarkedBloodlustNeed</NeedDef></li>
     </descriptionHyperlinks>
     <exclusionTags>
       <li>Bloodlust</li>
