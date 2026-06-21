@@ -8,8 +8,8 @@
     </targetTags>
     <workerClass>TheMarkedMen.IncidentWorker_CrossedRaid</workerClass>
     <baseChance>0</baseChance>
-    <minRefireDays>1</minRefireDays>
-    <earliestDay>45</earliestDay>
+    <minRefireDays>0.5</minRefireDays>
+    <earliestDay>1</earliestDay>
     <category>ThreatBig</category>
     <pointsScaleable>true</pointsScaleable>
     <minThreatPoints>120</minThreatPoints>
@@ -27,8 +27,8 @@
     </targetTags>
     <workerClass>TheMarkedMen.IncidentWorker_CrossedProbe</workerClass>
     <baseChance>0.45</baseChance>
-    <minRefireDays>4</minRefireDays>
-    <earliestDay>12</earliestDay>
+    <minRefireDays>0.35</minRefireDays>
+    <earliestDay>1</earliestDay>
     <category>ThreatSmall</category>
     <pointsScaleable>true</pointsScaleable>
     <minThreatPoints>80</minThreatPoints>
@@ -46,8 +46,8 @@
     </targetTags>
     <workerClass>TheMarkedMen.IncidentWorker_CrossedDownedSurvivor</workerClass>
     <baseChance>0.30</baseChance>
-    <minRefireDays>8</minRefireDays>
-    <earliestDay>8</earliestDay>
+    <minRefireDays>1</minRefireDays>
+    <earliestDay>1</earliestDay>
     <category>ThreatSmall</category>
     <pointsScaleable>true</pointsScaleable>
     <minThreatPoints>60</minThreatPoints>
@@ -64,8 +64,8 @@
     </targetTags>
     <workerClass>TheMarkedMen.IncidentWorker_CrossedCaravanAmbush</workerClass>
     <baseChance>0</baseChance>
-    <minRefireDays>2</minRefireDays>
-    <earliestDay>15</earliestDay>
+    <minRefireDays>0.75</minRefireDays>
+    <earliestDay>1</earliestDay>
     <category>ThreatSmall</category>
     <pointsScaleable>true</pointsScaleable>
     <minThreatPoints>80</minThreatPoints>
@@ -82,8 +82,8 @@
     </targetTags>
     <workerClass>TheMarkedMen.IncidentWorker_CrossedHorde</workerClass>
     <baseChance>0</baseChance>
-    <minRefireDays>3</minRefireDays>
-    <earliestDay>45</earliestDay>
+    <minRefireDays>1</minRefireDays>
+    <earliestDay>1</earliestDay>
     <category>ThreatBig</category>
     <pointsScaleable>true</pointsScaleable>
     <minThreatPoints>120</minThreatPoints>

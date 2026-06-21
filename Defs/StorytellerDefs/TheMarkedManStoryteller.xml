@@ -86,16 +86,17 @@
     <comps>
       <li Class="StorytellerCompProperties_ClassicIntro"/>
       <li Class="TheMarkedMen.StorytellerCompProperties_CrossedStoryteller">
-        <mtbDays>0.85</mtbDays>
-        <minRandomDaysPassed>3</minRandomDaysPassed>
-        <minSpacingDays>0.45</minSpacingDays>
-        <pointsFactorRange>1.1~1.95</pointsFactorRange>
+        <mtbDays>0.35</mtbDays>
+        <minRandomDaysPassed>0.05</minRandomDaysPassed>
+        <minSpacingDays>0.25</minSpacingDays>
+        <pointsFactorRange>1.15~2.2</pointsFactorRange>
+        <storytellerThreatScaleMultiplier>5</storytellerThreatScaleMultiplier>
       </li>
 
       <!-- Marked Men probe - constant scouting pressure -->
       <li Class="StorytellerCompProperties_OnOffCycle">
         <incident>CA_CrossedProbe</incident>
-        <minDaysPassed>3</minDaysPassed>
+        <minDaysPassed>1</minDaysPassed>
         <onDays>3.0</onDays>
         <offDays>0.5</offDays>
         <minSpacingDays>0.8</minSpacingDays>
@@ -148,7 +149,7 @@
       <!-- Infected survivor - spread pressure -->
       <li Class="StorytellerCompProperties_OnOffCycle">
         <incident>CA_CrossedDownedSurvivor</incident>
-        <minDaysPassed>3</minDaysPassed>
+        <minDaysPassed>1</minDaysPassed>
         <onDays>4.0</onDays>
         <offDays>1.5</offDays>
         <minSpacingDays>1.5</minSpacingDays>

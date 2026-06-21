@@ -42,7 +42,7 @@ namespace TheMarkedMen
 
     public sealed class TheMarkedMenSettings : ModSettings
     {
-        private const int CurrentSettingsVersion = 10;
+        private const int CurrentSettingsVersion = 11;
         public const float InfectionTransmissionChance = 0.45f;
         public const float DefaultMarkedRaidFrequencyMultiplier = 1f;
         public const float MinMarkedRaidFrequencyMultiplier = 0f;
@@ -63,7 +63,11 @@ namespace TheMarkedMen
         private static readonly Color HelpTextColor = new Color(0.72f, 0.72f, 0.72f);
         private static readonly Color SectionHeaderColor = new Color(0.22f, 0.24f, 0.26f, 1f);
         private static readonly Color SectionHeaderHoverColor = new Color(0.28f, 0.30f, 0.33f, 1f);
+        private static readonly Color SectionToggleColor = new Color(0.10f, 0.11f, 0.12f, 1f);
+        private static readonly Color SectionToggleHoverColor = new Color(0.16f, 0.17f, 0.19f, 1f);
         private const float OptionRowHeight = 28f;
+        private const float SectionHeaderHeight = 38f;
+        private const float SectionToggleWidth = 48f;
 
         public bool infectionEnabled = true;
         public bool warcasketsBlockExposure = true;
@@ -181,11 +185,16 @@ namespace TheMarkedMen
         public float survivorEncounterChance = 0.5f;
 
         private int settingsVersion = CurrentSettingsVersion;
-        private string currentPreset = "Default";
+        private string currentPreset = "Outbreak simulator";
         private Vector2 scrollPosition;
         private readonly Dictionary<string, string> numericBuffers = new Dictionary<string, string>();
         private Dictionary<string, bool> sectionOpenStates = new Dictionary<string, bool>();
         private bool currentSectionOpen = true;
+
+        public TheMarkedMenSettings()
+        {
+            ApplyOutbreakDefaults(false);
+        }
 
         public float EffectiveMarkedRaidFrequencyMultiplier => Mathf.Clamp(markedRaidFrequencyMultiplier, MinMarkedRaidFrequencyMultiplier, MaxMarkedRaidFrequencyMultiplier);
 
@@ -405,7 +414,7 @@ namespace TheMarkedMen
             Scribe_Values.Look(ref urbanAmbushesEnabled, "urbanAmbushesEnabled", true);
             Scribe_Values.Look(ref survivorEncountersEnabled, "survivorEncountersEnabled", true);
             Scribe_Values.Look(ref survivorEncounterChance, "survivorEncounterChance", 0.5f);
-            Scribe_Values.Look(ref currentPreset, "currentPreset", "Default");
+            Scribe_Values.Look(ref currentPreset, "currentPreset", "Outbreak simulator");
             Scribe_Collections.Look(ref sectionOpenStates, "sectionOpenStates", LookMode.Value, LookMode.Value);
             if (sectionOpenStates == null)
             {
@@ -509,6 +518,11 @@ namespace TheMarkedMen
                     meleeWeaponInfectionChance = infectedAssaultExposureChance;
                     markedMenInfectionChance = 1f;
                     markedMenGuaranteedInfection = true;
+                }
+
+                if (loadedSettingsVersion < 11 && (string.IsNullOrEmpty(currentPreset) || currentPreset == "Default"))
+                {
+                    ApplyOutbreakDefaults(false);
                 }
 
                 settingsVersion = CurrentSettingsVersion;
@@ -856,16 +870,27 @@ namespace TheMarkedMen
             listing.Gap(10f);
             listing.GapLine(6f);
             bool open = IsSectionOpen(title);
-            Rect row = listing.GetRect(30f, 1f);
+            Rect row = listing.GetRect(SectionHeaderHeight, 1f);
             bool hover = Mouse.IsOver(row);
             Widgets.DrawBoxSolid(row, hover ? SectionHeaderHoverColor : SectionHeaderColor);
+            Widgets.DrawBox(row, 1, null);
+
+            Rect toggleRect = new Rect(row.x + 4f, row.y + 4f, SectionToggleWidth, row.height - 8f);
+            Widgets.DrawBoxSolid(toggleRect, hover ? SectionToggleHoverColor : SectionToggleColor);
+            Widgets.DrawBox(toggleRect, 1, null);
+
+            Rect titleRect = new Rect(toggleRect.xMax + 10f, row.y + 4f, row.width - SectionToggleWidth - 22f, row.height - 8f);
 
             GameFont oldFont = Text.Font;
             Color oldColor = GUI.color;
+            TextAnchor oldAnchor = Text.Anchor;
             Text.Font = GameFont.Medium;
             GUI.color = Color.white;
-            string prefix = open ? "[-] " : "[+] ";
-            Widgets.Label(new Rect(row.x + 8f, row.y + 4f, row.width - 16f, row.height - 8f), prefix + title);
+            Text.Anchor = TextAnchor.MiddleCenter;
+            Widgets.Label(toggleRect, open ? "[-]" : "[+]");
+            Text.Anchor = TextAnchor.MiddleLeft;
+            DrawFittedSectionTitle(titleRect, title);
+            Text.Anchor = oldAnchor;
             Text.Font = oldFont;
             GUI.color = oldColor;
 
@@ -882,6 +907,19 @@ namespace TheMarkedMen
             {
                 DrawHelpTextInternal(listing, description);
             }
+        }
+
+        private static void DrawFittedSectionTitle(Rect rect, string title)
+        {
+            GameFont oldFont = Text.Font;
+            Text.Font = GameFont.Medium;
+            if (Text.CalcSize(title).x > rect.width)
+            {
+                Text.Font = GameFont.Small;
+            }
+
+            Widgets.Label(rect, title);
+            Text.Font = oldFont;
         }
 
         private void DrawHelp(Listing_Standard listing, string text)
@@ -1109,6 +1147,11 @@ namespace TheMarkedMen
 
         private void ApplyDefaultPreset(bool updatePreset)
         {
+            ApplyOutbreakDefaults(updatePreset);
+        }
+
+        private void ApplyBaselinePreset(bool updatePreset)
+        {
             scheduledWarbandsEnabled = true;
             scheduledHordesEnabled = true;
             scoutingProbesEnabled = true;
@@ -1162,7 +1205,7 @@ namespace TheMarkedMen
 
         private void ApplyCasualPreset()
         {
-            ApplyDefaultPreset(false);
+            ApplyBaselinePreset(false);
             currentPreset = "Casual";
             markedRaidFrequencyMultiplier = 0.5f;
             warbandFrequencyMultiplier = 0.7f;
@@ -1205,7 +1248,7 @@ namespace TheMarkedMen
 
         private void ApplyVanillaLikePreset()
         {
-            ApplyDefaultPreset(false);
+            ApplyBaselinePreset(false);
             currentPreset = "Vanilla-like";
             markedRaidFrequencyMultiplier = 0.75f;
             hordeFrequencyMultiplier = 0.6f;
@@ -1222,7 +1265,7 @@ namespace TheMarkedMen
 
         private void ApplyBrutalPreset()
         {
-            ApplyDefaultPreset(false);
+            ApplyBaselinePreset(false);
             currentPreset = "Brutal";
             randomizeMarkedRaids = true;
             markedRaidFrequencyMultiplier = 1.6f;
@@ -1270,7 +1313,12 @@ namespace TheMarkedMen
 
         private void ApplyOutbreakPreset()
         {
-            ApplyDefaultPreset(false);
+            ApplyOutbreakDefaults(true);
+        }
+
+        private void ApplyOutbreakDefaults(bool updatePreset)
+        {
+            ApplyBaselinePreset(false);
             currentPreset = "Outbreak simulator";
             scheduledWarbandsEnabled = true;
             scheduledHordesEnabled = true;
@@ -1317,6 +1365,11 @@ namespace TheMarkedMen
             corpseContaminationIntervalTicks = 360;
             maxCorpsesPerPulse = 5;
             socialTerrorStrength = 1.25f;
+            if (!updatePreset)
+            {
+                currentPreset = "Outbreak simulator";
+            }
+
             ClampSettings();
             ClearNumericBuffers();
         }
@@ -7658,9 +7711,10 @@ namespace TheMarkedMen
     public sealed class StorytellerCompProperties_CrossedStoryteller : StorytellerCompProperties
     {
         public float mtbDays = 0.95f;
-        public float minRandomDaysPassed = 3f;
+        public float minRandomDaysPassed = 0.05f;
         public float minSpacingDays = 0.45f;
         public FloatRange pointsFactorRange = new FloatRange(1.05f, 1.85f);
+        public float storytellerThreatScaleMultiplier = 5f;
 
         public StorytellerCompProperties_CrossedStoryteller()
         {
@@ -7760,7 +7814,16 @@ namespace TheMarkedMen
             float pressure = Mathf.InverseLerp(120f, 3600f, points);
             float pressureFactor = Mathf.Lerp(1.05f, 1.35f, pressure);
             float randomFactor = Props.pointsFactorRange.RandomInRange;
-            return TheMarkedMenSettings.ApplyRaidPointSettings(Mathf.Max(minimum, points * pressureFactor * randomFactor));
+            float storytellerFactor = CalculateStorytellerThreatFactor();
+            return TheMarkedMenSettings.ApplyRaidPointSettings(Mathf.Max(minimum, points * pressureFactor * randomFactor * storytellerFactor));
+        }
+
+        private float CalculateStorytellerThreatFactor()
+        {
+            Difficulty difficulty = Find.Storyteller?.difficulty;
+            float rawThreatScale = Mathf.Max(0.01f, difficulty?.threatScale ?? 1f);
+            float normalizedThreatScale = rawThreatScale > 10f ? rawThreatScale / 100f : rawThreatScale;
+            return Mathf.Clamp(normalizedThreatScale * Mathf.Max(1f, Props.storytellerThreatScaleMultiplier), 1f, 20f);
         }
     }
 
