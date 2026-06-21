@@ -96,7 +96,6 @@ namespace TheMarkedMen
 
             if (enemyCount > 0)
             {
-                severityAdjustment += totalGain * settings.anticipationGainMultiplier;
                 severityAdjustment = Mathf.Min(Props.maxSeverity, parent.Severity + totalGain * settings.anticipationGainMultiplier) - parent.Severity;
             }
             else

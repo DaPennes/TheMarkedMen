@@ -21,6 +21,11 @@ namespace TheMarkedMen
                 return;
             }
 
+            if (TheMarkedMenMod.Settings != null && !TheMarkedMenMod.Settings.infectionEnabled)
+            {
+                return;
+            }
+
             MarkedMenMemoryGrid memory = __instance.Spawned ? MarkedMenMemoryGrid.GetForMap(__instance.Map) : null;
 
             bool victimInfected = CrossedUtility.IsInfectedPawn(__instance);
@@ -294,6 +299,11 @@ namespace TheMarkedMen
         public static void Postfix(Pawn pawn, Thing ingestible)
         {
             if (pawn == null || ingestible == null)
+            {
+                return;
+            }
+
+            if (TheMarkedMenMod.Settings != null && !TheMarkedMenMod.Settings.infectionEnabled)
             {
                 return;
             }

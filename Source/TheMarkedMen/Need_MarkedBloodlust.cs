@@ -83,7 +83,11 @@ namespace TheMarkedMen
             {
                 if (tick >= nextCravingRefreshTick && CADefOf.BloodthirstyCraving != null)
                 {
-                    pawn.needs.mood.thoughts.memories.TryGainMemory((Thought_Memory)ThoughtMaker.MakeThought(CADefOf.BloodthirstyCraving));
+                    Thought_Memory existing = FindExistingThought(CADefOf.BloodthirstyCraving);
+                    if (existing == null)
+                    {
+                        pawn.needs.mood.thoughts.memories.TryGainMemory(ThoughtMaker.MakeThought(CADefOf.BloodthirstyCraving) as Thought_Memory);
+                    }
                     nextCravingRefreshTick = tick + 60000;
                 }
             }
@@ -92,10 +96,34 @@ namespace TheMarkedMen
             {
                 if (tick >= nextBloodlustRefreshTick && CADefOf.OverwhelmingBloodlust != null)
                 {
-                    pawn.needs.mood.thoughts.memories.TryGainMemory((Thought_Memory)ThoughtMaker.MakeThought(CADefOf.OverwhelmingBloodlust));
+                    Thought_Memory existing = FindExistingThought(CADefOf.OverwhelmingBloodlust);
+                    if (existing == null)
+                    {
+                        pawn.needs.mood.thoughts.memories.TryGainMemory(ThoughtMaker.MakeThought(CADefOf.OverwhelmingBloodlust) as Thought_Memory);
+                    }
                     nextBloodlustRefreshTick = tick + 60000;
                 }
             }
+        }
+
+        private Thought_Memory FindExistingThought(ThoughtDef def)
+        {
+            if (pawn.needs?.mood?.thoughts?.memories == null)
+            {
+                return null;
+            }
+
+            List<Thought_Memory> memories = pawn.needs.mood.thoughts.memories.Memories;
+            for (int i = 0; i < memories.Count; i++)
+            {
+                Thought_Memory mem = memories[i];
+                if (mem != null && mem.def == def)
+                {
+                    return mem;
+                }
+            }
+
+            return null;
         }
 
         private bool IsInCombat()

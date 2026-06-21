@@ -27,7 +27,7 @@ namespace TheMarkedMen
         private const float ScentInvestigateThreshold = 0.15f;
         private const float NoiseInvestigateThreshold = 0.2f;
         private const int MaxInvestigateDist = 40;
-        private const int InvestigateJobExpiry = 600;
+        private const int InvestigateJobExpiry = 450;
         private const int InvestigateCooldownTicks = 600;
         private const int InvestigateSearchSpread = 6;
         private const float FrenzyBloodlustThreshold = 0.9f;
