@@ -44,7 +44,7 @@ namespace TheMarkedMen
     {
         private const int CurrentSettingsVersion = 11;
         public const float InfectionTransmissionChance = 0.45f;
-        public const float DefaultMarkedRaidFrequencyMultiplier = 1f;
+        public const float DefaultMarkedRaidFrequencyMultiplier = 2f;
         public const float MinMarkedRaidFrequencyMultiplier = 0f;
         public const float MaxMarkedRaidFrequencyMultiplier = 5f;
         public const float DefaultRaidEscalationPerRaid = 0.18f;
@@ -1172,7 +1172,7 @@ namespace TheMarkedMen
             scheduledHordesEnabled = true;
             scoutingProbesEnabled = true;
             randomizeMarkedRaids = false;
-            markedRaidFrequencyMultiplier = 1f;
+            markedRaidFrequencyMultiplier = DefaultMarkedRaidFrequencyMultiplier;
             warbandFrequencyMultiplier = 1f;
             hordeFrequencyMultiplier = 1f;
             probeFrequencyMultiplier = 1f;
