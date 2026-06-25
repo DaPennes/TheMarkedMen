@@ -6,7 +6,7 @@
     <description>A set of reinforced armor assembled from scavenged materials. Uneven plates, patched fabric, and improvised padding offer decent protection against the Marked, though the fit is far from uniform.</description>
     <graphicData>
       <texPath>Thing/Pawn/Humanlike/Apparel/SurvivorArmor/MarkedSurvivor</texPath>
-      <graphicClass>Graphic_Single</graphicClass>
+      <graphicClass>Graphic_Multi</graphicClass>
       <drawSize>0.90</drawSize>
     </graphicData>
     <techLevel>Industrial</techLevel>
