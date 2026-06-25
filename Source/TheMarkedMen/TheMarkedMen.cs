@@ -4953,10 +4953,7 @@ namespace TheMarkedMen
                 pawn.health.AddHediff(CADefOf.CrossedStrength);
             }
 
-            if (pawn.kindDef != CADefOf.CrossedWarlord && pawn.kindDef != CADefOf.CrossedAlpha && pawn.kindDef != CADefOf.MarkedMan)
-            {
-                AssignCrossedApparel(pawn);
-            }
+            AssignCrossedApparel(pawn);
             ApplyEliteTierHediff(pawn);
             AssignEliteEquipment(pawn);
 
@@ -5058,13 +5055,14 @@ namespace TheMarkedMen
 
             string[] kindTags = GetKindApparelTags(pawn.kindDef);
             string[] kindWeaponTags = GetKindWeaponTags(pawn.kindDef);
+            string[] eliteTags = MergeTags(kindTags, new[] { "IndustrialMilitary", "Spacer", "VAE_Military", "VAE_Spacer" });
             string[] shieldTags = new[] { "SpacerMilitary", "IndustrialAdvanced", "Spacer", "Military" };
 
-            TryEquipRandomApparel(pawn, ApparelLayerDefOf.OnSkin, kindTags, d => d.GetStatValueAbstract(StatDefOf.ArmorRating_Sharp),
+            TryEquipRandomApparel(pawn, ApparelLayerDefOf.OnSkin, eliteTags, d => d.GetStatValueAbstract(StatDefOf.ArmorRating_Sharp),
                 new[] { "Apparel_Techshirt", "Apparel_FlakShirt", "Apparel_ButtonDownShirt" });
-            TryEquipRandomApparel(pawn, ApparelLayerDefOf.Middle, kindTags, d => d.GetStatValueAbstract(StatDefOf.ArmorRating_Sharp),
+            TryEquipRandomApparel(pawn, ApparelLayerDefOf.Middle, eliteTags, d => d.GetStatValueAbstract(StatDefOf.ArmorRating_Sharp),
                 new[] { "Apparel_MarineArmor", "Apparel_SpacerArmor", "Apparel_CataphractArmor", "Apparel_FlakVest", "VFE_Apparel_SpacerArmor" });
-            TryEquipRandomApparel(pawn, ApparelLayerDefOf.Overhead, kindTags, d => d.GetStatValueAbstract(StatDefOf.ArmorRating_Sharp),
+            TryEquipRandomApparel(pawn, ApparelLayerDefOf.Overhead, eliteTags, d => d.GetStatValueAbstract(StatDefOf.ArmorRating_Sharp),
                 new[] { "Apparel_MarineHelmet", "Apparel_SpacerHelmet", "Apparel_CataphractHelmet", "Apparel_FlakHelmet", "VFE_Apparel_SpacerHelmet" });
 
             if (pawn.kindDef == CADefOf.CrossedAlpha || pawn.kindDef == CADefOf.MarkedMan)
@@ -5128,6 +5126,34 @@ namespace TheMarkedMen
                 return kind.apparelTags.ToArray();
             }
             return new[] { "IndustrialBasic", "Neolithic" };
+        }
+
+        private static string[] MergeTags(string[] primary, string[] secondary)
+        {
+            int totalLen = primary.Length + secondary.Length;
+            string[] merged = new string[totalLen];
+            int count = 0;
+            for (int i = 0; i < primary.Length; i++)
+            {
+                merged[count++] = primary[i];
+            }
+            for (int i = 0; i < secondary.Length; i++)
+            {
+                bool dup = false;
+                for (int j = 0; j < count; j++)
+                {
+                    if (merged[j] == secondary[i]) { dup = true; break; }
+                }
+                if (!dup)
+                {
+                    merged[count++] = secondary[i];
+                }
+            }
+            if (count < totalLen)
+            {
+                Array.Resize(ref merged, count);
+            }
+            return merged;
         }
 
         private static void RemoveAllApparel(Pawn pawn)
