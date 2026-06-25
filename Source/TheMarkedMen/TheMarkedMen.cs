@@ -87,8 +87,7 @@ namespace TheMarkedMen
         public float probeFrequencyMultiplier = 1f;
         public int firstMarkedRaidDay = 45;
         public float raidPointsMultiplier = 1f;
-        public float minimumRaidPoints = 120f;
-        public float maximumRaidPoints;
+        public float minimumRaidPoints = 9000f;
         public float raidEscalationPerRaid = DefaultRaidEscalationPerRaid;
         public float raidEscalationMaxBonus = DefaultRaidEscalationMaxBonus;
         public bool allowGroupedEdgeArrival = true;
@@ -151,7 +150,7 @@ namespace TheMarkedMen
         public bool raidCountdownAlertEnabled = true;
         public float raidCountdownVisibleDays = 999f;
         public float raidCountdownHighPriorityDays = 1f;
-        public bool detailedRaidLetters = true;
+        public bool detailedRaidLetters;
         public bool incidentLogEnabled = true;
         public bool debugActionsEnabled = true;
         public int contagionPulseIntervalTicks = 500;
@@ -227,7 +226,7 @@ namespace TheMarkedMen
 
         public static bool RandomizeMarkedRaids => TheMarkedMenMod.Settings?.randomizeMarkedRaids == true;
 
-        public static bool DetailedRaidLetters => TheMarkedMenMod.Settings?.detailedRaidLetters != false;
+        public static bool DetailedRaidLetters => TheMarkedMenMod.Settings?.detailedRaidLetters ?? false;
 
         public static bool IncidentLogEnabled => TheMarkedMenMod.Settings?.incidentLogEnabled != false;
 
@@ -330,8 +329,7 @@ namespace TheMarkedMen
             Scribe_Values.Look(ref probeFrequencyMultiplier, "probeFrequencyMultiplier", 1f);
             Scribe_Values.Look(ref firstMarkedRaidDay, "firstMarkedRaidDay", 45);
             Scribe_Values.Look(ref raidPointsMultiplier, "raidPointsMultiplier", 1f);
-            Scribe_Values.Look(ref minimumRaidPoints, "minimumRaidPoints", 120f);
-            Scribe_Values.Look(ref maximumRaidPoints, "maximumRaidPoints", 0f);
+            Scribe_Values.Look(ref minimumRaidPoints, "minimumRaidPoints", 9000f);
             Scribe_Values.Look(ref raidEscalationPerRaid, "raidEscalationPerRaid", DefaultRaidEscalationPerRaid);
             Scribe_Values.Look(ref raidEscalationMaxBonus, "raidEscalationMaxBonus", DefaultRaidEscalationMaxBonus);
             Scribe_Values.Look(ref allowGroupedEdgeArrival, "allowGroupedEdgeArrival", true);
@@ -392,7 +390,7 @@ namespace TheMarkedMen
             Scribe_Values.Look(ref raidCountdownAlertEnabled, "raidCountdownAlertEnabled", true);
             Scribe_Values.Look(ref raidCountdownVisibleDays, "raidCountdownVisibleDays", 999f);
             Scribe_Values.Look(ref raidCountdownHighPriorityDays, "raidCountdownHighPriorityDays", 1f);
-            Scribe_Values.Look(ref detailedRaidLetters, "detailedRaidLetters", true);
+            Scribe_Values.Look(ref detailedRaidLetters, "detailedRaidLetters", false);
             Scribe_Values.Look(ref incidentLogEnabled, "incidentLogEnabled", true);
             Scribe_Values.Look(ref debugActionsEnabled, "debugActionsEnabled", true);
             Scribe_Values.Look(ref contagionPulseIntervalTicks, "contagionPulseIntervalTicks", 500);
@@ -473,8 +471,7 @@ namespace TheMarkedMen
                     probeFrequencyMultiplier = 1f;
                     firstMarkedRaidDay = 45;
                     raidPointsMultiplier = 1f;
-                    minimumRaidPoints = 120f;
-                    maximumRaidPoints = 0f;
+                    minimumRaidPoints = 9000f;
                     raidEscalationPerRaid = DefaultRaidEscalationPerRaid;
                     raidEscalationMaxBonus = DefaultRaidEscalationMaxBonus;
                     ResetArrivalDefaults();
@@ -611,15 +608,14 @@ namespace TheMarkedMen
             DrawCheckbox(listing, "Enable scheduled hordes", ref scheduledHordesEnabled, "Allows larger moving horde events in addition to the main warband schedule.");
             DrawCheckbox(listing, "Enable scouting probes", ref scoutingProbesEnabled, "Allows small scouting packs that test the colony before larger attacks arrive.");
             DrawCheckbox(listing, "Randomize raid timing and arrival patterns", ref randomizeMarkedRaids, "Adds uncertainty to raid intervals and arrival modes. Disable this for predictable testing or calmer pacing.");
-            DrawInt(listing, "First scheduled raid day", ref firstMarkedRaidDay, 1, 600, "firstMarkedRaidDay", "Earliest colony day when scheduled Marked Men raids can begin.");
+            DrawInt(listing, "The appointed time draws near... (days)", ref firstMarkedRaidDay, 1, 600, "firstMarkedRaidDay", "When did the infection begin? The chronometer flickers. The Marked will come when they are ready.");
             DrawFloat(listing, "Global event frequency multiplier", ref markedRaidFrequencyMultiplier, MinMarkedRaidFrequencyMultiplier, MaxMarkedRaidFrequencyMultiplier, "markedRaidFrequencyMultiplier", "Master multiplier for warbands, hordes, and probes. Set this to 0 to stop all scheduled Marked Men incidents.");
             DrawFloat(listing, "Warband frequency multiplier", ref warbandFrequencyMultiplier, 0f, MaxMarkedRaidFrequencyMultiplier, "warbandFrequencyMultiplier", "Multiplier for main warband raids after the global multiplier is applied.");
             DrawFloat(listing, "Horde frequency multiplier", ref hordeFrequencyMultiplier, 0f, MaxMarkedRaidFrequencyMultiplier, "hordeFrequencyMultiplier", "Multiplier for horde events after the global multiplier is applied.");
             DrawFloat(listing, "Scouting probe frequency multiplier", ref probeFrequencyMultiplier, 0f, MaxMarkedRaidFrequencyMultiplier, "probeFrequencyMultiplier", "Multiplier for small probe incidents after the global multiplier is applied.");
             DrawHelp(listing, "Effective frequencies: warbands " + MultiplierText(EffectiveWarbandFrequencyMultiplier) + ", hordes " + MultiplierText(EffectiveHordeFrequencyMultiplier) + ", probes " + MultiplierText(EffectiveProbeFrequencyMultiplier) + ".");
             DrawFloat(listing, "Raid strength multiplier", ref raidPointsMultiplier, 0.05f, 10f, "raidPointsMultiplier", "Scales incident points after the minimum point floor is applied.");
-            DrawFloat(listing, "Minimum raid points", ref minimumRaidPoints, 0f, 10000f, "minimumRaidPoints", "Point floor for generated Marked Men attacks. Higher values make even early raids larger.");
-            DrawFloat(listing, "Maximum raid points", ref maximumRaidPoints, 0f, 50000f, "maximumRaidPoints", "Point cap for Marked Men attacks. Use 0 for no cap.");
+            DrawFloat(listing, "Minimum raid points", ref minimumRaidPoints, 0f, 100000f, "minimumRaidPoints", "Point floor for generated Marked Men attacks. Higher values make even early raids larger.");
             DrawFloat(listing, "Escalation gained per warband", ref raidEscalationPerRaid, 0f, 2f, "raidEscalationPerRaid", "Extra raid strength added after each scheduled warband starts.");
             DrawFloat(listing, "Escalation maximum bonus", ref raidEscalationMaxBonus, 0f, 20f, "raidEscalationMaxBonus", "Maximum accumulated escalation bonus from repeated warbands.");
             DrawCheckbox(listing, "Allow grouped edge arrivals", ref allowGroupedEdgeArrival, "Allows raiders to enter together from one map edge.");
@@ -755,13 +751,7 @@ namespace TheMarkedMen
                 return Mathf.Max(120f, points);
             }
 
-            float adjusted = Mathf.Max(points, settings.minimumRaidPoints) * settings.raidPointsMultiplier;
-            if (settings.maximumRaidPoints > 0f)
-            {
-                adjusted = Mathf.Min(adjusted, settings.maximumRaidPoints);
-            }
-
-            return Mathf.Max(0f, adjusted);
+            return Mathf.Max(0f, Mathf.Max(points, settings.minimumRaidPoints) * settings.raidPointsMultiplier);
         }
 
         public static float CurrentTerminalTransformationChance(HediffCompProperties_CrossVirus props)
@@ -1111,8 +1101,7 @@ namespace TheMarkedMen
             probeFrequencyMultiplier = Mathf.Clamp(probeFrequencyMultiplier, 0f, MaxMarkedRaidFrequencyMultiplier);
             firstMarkedRaidDay = Mathf.Clamp(firstMarkedRaidDay, 1, 600);
             raidPointsMultiplier = Mathf.Clamp(raidPointsMultiplier, 0.05f, 10f);
-            minimumRaidPoints = Mathf.Clamp(minimumRaidPoints, 0f, 10000f);
-            maximumRaidPoints = Mathf.Clamp(maximumRaidPoints, 0f, 50000f);
+            minimumRaidPoints = Mathf.Clamp(minimumRaidPoints, 0f, 100000f);
             raidEscalationPerRaid = Mathf.Clamp(raidEscalationPerRaid, 0f, 2f);
             raidEscalationMaxBonus = Mathf.Clamp(raidEscalationMaxBonus, 0f, 20f);
             civilianWeightMultiplier = Mathf.Clamp(civilianWeightMultiplier, 0f, 5f);
@@ -1189,8 +1178,7 @@ namespace TheMarkedMen
             probeFrequencyMultiplier = 1f;
             firstMarkedRaidDay = 45;
             raidPointsMultiplier = 1f;
-            minimumRaidPoints = 120f;
-            maximumRaidPoints = 0f;
+            minimumRaidPoints = 9000f;
             raidEscalationPerRaid = DefaultRaidEscalationPerRaid;
             raidEscalationMaxBonus = DefaultRaidEscalationMaxBonus;
             ResetArrivalDefaults();
@@ -1434,7 +1422,7 @@ namespace TheMarkedMen
             raidCountdownAlertEnabled = true;
             raidCountdownVisibleDays = 999f;
             raidCountdownHighPriorityDays = 1f;
-            detailedRaidLetters = true;
+            detailedRaidLetters = false;
             incidentLogEnabled = true;
             debugActionsEnabled = true;
         }
@@ -3298,19 +3286,13 @@ namespace TheMarkedMen
         public override TaggedString GetExplanation()
         {
             TheMarkedMenGameComponent component = Current.Game?.GetComponent<TheMarkedMenGameComponent>();
-            if (component == null || !component.TryGetRaidCountdownForAlert(out int nextTick, out int ticksUntilRaid, out Map targetMap))
+            if (component == null || !component.TryGetRaidCountdownForAlert(out int _, out int ticksUntilRaid, out Map _))
             {
                 return defaultExplanation;
             }
 
-            int scheduledDay = Mathf.FloorToInt(nextTick / (float)GenDate.TicksPerDay);
-            string mapLabel = targetMap?.Parent?.LabelCap ?? targetMap?.ToString() ?? "the colony";
-            float estimatedPoints = component.EstimateUpcomingRaidPoints(targetMap);
-            return "A scheduled Marked Men raid will begin on day " + scheduledDay + " at " + mapLabel + ".\n\n"
-                + "Time remaining: " + FormatPreciseDaysRemaining(ticksUntilRaid) + ".\n"
-                + "Estimated threat pressure: " + estimatedPoints.ToString("F0") + " (" + CrossedRaidAlertUtility.DescribeThreatTier(estimatedPoints) + ").\n"
-                + "Expected pattern: immediate edge assault in groups; no kidnapping, theft, timeout, or retreat.\n\n"
-                + "Prepare sealed fallback positions, medical capacity, fire lanes, and containment for infected blood. Prioritize Alphas and Pyromaniacs if they appear.";
+            return "Something stirs beyond the perimeter. The Marked are gathering. They will come at their appointed time.\n\n"
+                + "Time remaining: " + FormatTimeRemaining(ticksUntilRaid) + ".";
         }
 
         private static string FormatLabelTimeRemaining(int ticksUntilRaid)
@@ -3330,21 +3312,26 @@ namespace TheMarkedMen
             return "in " + wholeDays + " " + (wholeDays == 1 ? "day" : "days");
         }
 
-        private static string FormatPreciseDaysRemaining(int ticksUntilRaid)
+        private static string FormatTimeRemaining(int ticksUntilRaid)
         {
             if (ticksUntilRaid <= 0)
             {
                 return "imminent";
             }
 
-            float days = ticksUntilRaid / (float)GenDate.TicksPerDay;
-            if (days < ImminentDaysThreshold)
-            {
-                return "less than 0.1 days";
-            }
+            int totalSeconds = Mathf.CeilToInt(ticksUntilRaid / 60f);
+            int days = totalSeconds / 86400;
+            int hours = (totalSeconds % 86400) / 3600;
+            int minutes = (totalSeconds % 3600) / 60;
+            int seconds = totalSeconds % 60;
 
-            string format = days >= 10f ? "0" : "0.0";
-            return days.ToString(format) + " " + (Mathf.Abs(days - 1f) < 0.05f ? "day" : "days");
+            string result = "";
+            if (days > 0) result += days + " day" + (days != 1 ? "s" : "") + ", ";
+            if (hours > 0) result += hours + " hour" + (hours != 1 ? "s" : "") + ", ";
+            if (minutes > 0) result += minutes + " minute" + (minutes != 1 ? "s" : "") + ", ";
+            result += seconds + " second" + (seconds != 1 ? "s" : "");
+
+            return result;
         }
     }
 
@@ -7026,9 +7013,14 @@ namespace TheMarkedMen
     {
         public static string BuildRaidLetterLabel(string fallbackLabel, List<Pawn> pawns, float points)
         {
+            string fallback = fallbackLabel.NullOrEmpty() ? "Marked Men warband" : fallbackLabel;
+            if (!TheMarkedMenSettings.DetailedRaidLetters)
+            {
+                return fallback;
+            }
+
             int count = CountActivePawns(pawns);
             string pressure = DescribeThreatTier(points);
-            string fallback = fallbackLabel.NullOrEmpty() ? "Marked Men warband" : fallbackLabel;
             if (count <= 0)
             {
                 return points > 0f ? fallback + ": " + pressure : fallback;
