@@ -45,4 +45,8 @@
   <CA_SuspiciousOfColonists_Desc>If one of them was carrying the infection without knowing, any of them could be.</CA_SuspiciousOfColonists_Desc>
   <CA_MercifulKill_Label>merciful execution</CA_MercifulKill_Label>
   <CA_MercifulKill_Desc>I put down a colonist before they could turn. It was the right call, but that does not make it easier.</CA_MercifulKill_Desc>
+
+  <!-- Survivor Armor -->
+  <CA_SurvivorArmor_Label>survivor armor</CA_SurvivorArmor_Label>
+  <CA_SurvivorArmor_Desc>A set of reinforced armor assembled from scavenged materials. Uneven plates, patched fabric, and improvised padding offer decent protection against the Marked, though the fit is far from uniform.</CA_SurvivorArmor_Desc>
 </LanguageData>

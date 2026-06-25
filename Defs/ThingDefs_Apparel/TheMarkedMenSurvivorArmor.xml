@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+  <ThingDef ParentName="ArmorMachineableBase">
+    <defName>CA_SurvivorArmor</defName>
+    <label>survivor armor</label>
+    <description>A set of reinforced armor assembled from scavenged materials. Uneven plates, patched fabric, and improvised padding offer decent protection against the Marked, though the fit is far from uniform.</description>
+    <graphicData>
+      <texPath>Thing/Pawn/Humanlike/Apparel/SurvivorArmor/MarkedSurvivor</texPath>
+      <graphicClass>Graphic_Single</graphicClass>
+      <drawSize>0.90</drawSize>
+    </graphicData>
+    <techLevel>Industrial</techLevel>
+    <statBases>
+      <WorkToMake>14000</WorkToMake>
+      <MaxHitPoints>200</MaxHitPoints>
+      <Mass>5</Mass>
+      <Flammability>0.7</Flammability>
+      <ArmorRating_Sharp>0.60</ArmorRating_Sharp>
+      <ArmorRating_Blunt>0.25</ArmorRating_Blunt>
+      <ArmorRating_Heat>0.30</ArmorRating_Heat>
+      <Insulation_Cold>12</Insulation_Cold>
+      <Insulation_Heat>5</Insulation_Heat>
+      <EquipDelay>8</EquipDelay>
+    </statBases>
+    <equippedStatOffsets>
+      <MoveSpeed>-0.08</MoveSpeed>
+    </equippedStatOffsets>
+    <thingCategories>
+      <li>ApparelArmor</li>
+    </thingCategories>
+    <costList>
+      <Steel>60</Steel>
+      <Cloth>40</Cloth>
+      <ComponentIndustrial>1</ComponentIndustrial>
+    </costList>
+    <apparel>
+      <bodyPartGroups>
+        <li>Torso</li>
+        <li>Neck</li>
+        <li>Shoulders</li>
+        <li>Arms</li>
+      </bodyPartGroups>
+      <wornGraphicPath>Thing/Pawn/Humanlike/Apparel/SurvivorArmor/MarkedSurvivor</wornGraphicPath>
+      <layers>
+        <li>Shell</li>
+      </layers>
+      <tags>
+        <li>IndustrialMilitaryBasic</li>
+      </tags>
+      <defaultOutfitTags>
+        <li>Soldier</li>
+      </defaultOutfitTags>
+    </apparel>
+    <comps>
+      <li Class="CompProperties_Forbiddable"/>
+      <li>
+        <compClass>CompQuality</compClass>
+      </li>
+      <li Class="CompProperties_Styleable"/>
+      <li>
+        <compClass>CompColorable</compClass>
+      </li>
+    </comps>
+    <colorGenerator Class="ColorGenerator_Options">
+      <options>
+        <li>
+          <weight>10</weight>
+          <only>(0.33,0.33,0.33)</only>
+        </li>
+        <li>
+          <weight>10</weight>
+          <only>(0.65,0.65,0.65)</only>
+        </li>
+        <li>
+          <weight>8</weight>
+          <min>(0.30,0.25,0.15)</min>
+          <max>(0.50,0.42,0.25)</max>
+        </li>
+        <li>
+          <weight>4</weight>
+          <min>(0.28,0.35,0.28)</min>
+          <max>(0.40,0.55,0.40)</max>
+        </li>
+      </options>
+    </colorGenerator>
+    <tradeTags>
+      <li>Armor</li>
+    </tradeTags>
+    <generateCommonality>1.5</generateCommonality>
+    <thingSetMakerTags>
+      <li>RewardStandardHighFreq</li>
+    </thingSetMakerTags>
+  </ThingDef>
+</Defs>
