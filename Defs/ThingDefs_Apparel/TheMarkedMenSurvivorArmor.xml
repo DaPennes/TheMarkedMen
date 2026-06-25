@@ -42,7 +42,7 @@
       </bodyPartGroups>
       <wornGraphicPath>Thing/Pawn/Humanlike/Apparel/SurvivorArmor/MarkedSurvivor</wornGraphicPath>
       <layers>
-        <li>Shell</li>
+        <li>Middle</li>
       </layers>
       <tags>
         <li>IndustrialMilitaryBasic</li>
