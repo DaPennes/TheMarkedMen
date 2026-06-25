@@ -4953,7 +4953,10 @@ namespace TheMarkedMen
                 pawn.health.AddHediff(CADefOf.CrossedStrength);
             }
 
-            AssignCrossedApparel(pawn);
+            if (pawn.kindDef != CADefOf.CrossedWarlord && pawn.kindDef != CADefOf.CrossedAlpha && pawn.kindDef != CADefOf.MarkedMan)
+            {
+                AssignCrossedApparel(pawn);
+            }
             ApplyEliteTierHediff(pawn);
             AssignEliteEquipment(pawn);
 
@@ -5053,15 +5056,15 @@ namespace TheMarkedMen
             RemoveAllApparel(pawn);
             pawn.equipment?.DestroyAllEquipment();
 
-            string[] eliteTags = new[] { "SpacerMilitary", "IndustrialMilitaryAdvanced", "IndustrialMilitary", "Spacer", "VAE_Military", "VAE_Spacer" };
+            string[] kindTags = GetKindApparelTags(pawn.kindDef);
+            string[] kindWeaponTags = GetKindWeaponTags(pawn.kindDef);
             string[] shieldTags = new[] { "SpacerMilitary", "IndustrialAdvanced", "Spacer", "Military" };
-            string[] rangedTags = new[] { "SpacerGun", "GunHeavy", "IndustrialGunAdvanced", "VWESpacer", "VWEHeavy", "IndustrialGun" };
 
-            TryEquipRandomApparel(pawn, ApparelLayerDefOf.OnSkin, eliteTags, d => d.GetStatValueAbstract(StatDefOf.ArmorRating_Sharp),
+            TryEquipRandomApparel(pawn, ApparelLayerDefOf.OnSkin, kindTags, d => d.GetStatValueAbstract(StatDefOf.ArmorRating_Sharp),
                 new[] { "Apparel_Techshirt", "Apparel_FlakShirt", "Apparel_ButtonDownShirt" });
-            TryEquipRandomApparel(pawn, ApparelLayerDefOf.Middle, eliteTags, d => d.GetStatValueAbstract(StatDefOf.ArmorRating_Sharp),
+            TryEquipRandomApparel(pawn, ApparelLayerDefOf.Middle, kindTags, d => d.GetStatValueAbstract(StatDefOf.ArmorRating_Sharp),
                 new[] { "Apparel_MarineArmor", "Apparel_SpacerArmor", "Apparel_CataphractArmor", "Apparel_FlakVest", "VFE_Apparel_SpacerArmor" });
-            TryEquipRandomApparel(pawn, ApparelLayerDefOf.Overhead, eliteTags, d => d.GetStatValueAbstract(StatDefOf.ArmorRating_Sharp),
+            TryEquipRandomApparel(pawn, ApparelLayerDefOf.Overhead, kindTags, d => d.GetStatValueAbstract(StatDefOf.ArmorRating_Sharp),
                 new[] { "Apparel_MarineHelmet", "Apparel_SpacerHelmet", "Apparel_CataphractHelmet", "Apparel_FlakHelmet", "VFE_Apparel_SpacerHelmet" });
 
             if (pawn.kindDef == CADefOf.CrossedAlpha || pawn.kindDef == CADefOf.MarkedMan)
@@ -5070,14 +5073,23 @@ namespace TheMarkedMen
                     new[] { "Apparel_ShieldBelt" });
             }
 
-            TryEquipBestWeapon(pawn, rangedTags);
+            TryEquipBestWeapon(pawn, kindWeaponTags);
+        }
+
+        private static string[] GetKindWeaponTags(PawnKindDef kind)
+        {
+            if (kind != null && kind.weaponTags != null && kind.weaponTags.Count > 0)
+            {
+                return kind.weaponTags.ToArray();
+            }
+            return new[] { "Gun", "NeolithicMeleeBasic" };
         }
 
         public static void AssignCrossedApparel(Pawn pawn)
         {
             if (pawn == null || pawn.apparel == null || !IsCrossedFactionPawn(pawn)) return;
 
-            string[] tags = new[] { "IndustrialMilitary", "IndustrialMilitaryAdvanced", "SpacerMilitary", "Industrial", "Military", "VAE_Military" };
+            string[] kindTags = GetKindApparelTags(pawn.kindDef);
 
             bool hasBodyArmor = false;
             bool hasHelmet = false;
@@ -5092,21 +5104,30 @@ namespace TheMarkedMen
 
             if (!hasBodyArmor)
             {
-                TryEquipRandomApparel(pawn, ApparelLayerDefOf.Middle, tags, d => d.GetStatValueAbstract(StatDefOf.ArmorRating_Sharp),
+                TryEquipRandomApparel(pawn, ApparelLayerDefOf.Middle, kindTags, d => d.GetStatValueAbstract(StatDefOf.ArmorRating_Sharp),
                     new[] { "Apparel_FlakVest", "Apparel_FlakJacket", "Apparel_MarineArmor" });
             }
 
             if (!hasHelmet)
             {
-                TryEquipRandomApparel(pawn, ApparelLayerDefOf.Overhead, tags, d => d.GetStatValueAbstract(StatDefOf.ArmorRating_Sharp),
+                TryEquipRandomApparel(pawn, ApparelLayerDefOf.Overhead, kindTags, d => d.GetStatValueAbstract(StatDefOf.ArmorRating_Sharp),
                     new[] { "Apparel_FlakHelmet", "Apparel_SimpleHelmet", "Apparel_MarineHelmet" });
             }
 
             if (!hasShirt)
             {
-                TryEquipRandomApparel(pawn, ApparelLayerDefOf.OnSkin, new[] { "IndustrialMilitary", "Industrial", "Military", "VAE_Military" },
+                TryEquipRandomApparel(pawn, ApparelLayerDefOf.OnSkin, kindTags,
                     null, new[] { "Apparel_Techshirt", "Apparel_FlakShirt", "Apparel_ButtonDownShirt" });
             }
+        }
+
+        private static string[] GetKindApparelTags(PawnKindDef kind)
+        {
+            if (kind != null && kind.apparelTags != null && kind.apparelTags.Count > 0)
+            {
+                return kind.apparelTags.ToArray();
+            }
+            return new[] { "IndustrialBasic", "Neolithic" };
         }
 
         private static void RemoveAllApparel(Pawn pawn)
