@@ -2820,7 +2820,7 @@ namespace TheMarkedMen
                 return;
             }
 
-            TryFireRaidIncident();
+            TryFireRaidIncident(true);
             ScheduleNextRaid(ticks);
         }
 
@@ -2917,7 +2917,7 @@ namespace TheMarkedMen
                 return;
             }
 
-            if (TryFireHordeIncident())
+            if (TryFireHordeIncident(true))
             {
                 ScheduleNextHorde(ticks);
             }
