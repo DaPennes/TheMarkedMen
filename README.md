@@ -21,7 +21,6 @@ A highly contagious pathogen that spreads through multiple vectors:
 
 - **Close contact** with infected individuals
 - **Blood exposure** from combat or butchering infected corpses
-- **Contaminated food** from infected sources
 - **Corpse contamination** from decaying infected remains
 - **Assault transmission** from melee attacks by the infected
 - **RJW integration** (optional, auto-detected)
@@ -31,7 +30,6 @@ Infection progression:
 1. **Exposure** -- pawns are exposed through any of the transmission vectors
 2. **Progression** -- the virus progresses through stages, visible as a facial rash tattoo
 3. **Resolution** -- most victims transform into hostile infected; rare survivors develop immunity
-4. **Immunity** -- immune pawns are permanently protected and cannot be reinfected
 
 Protection factors:
 
@@ -95,17 +93,6 @@ Characteristics:
 - Rare traders, visitors, and travelers
 - Very rare orbital traders
 - Custom threat cycle comps with configurable MTB and points factors
-
-### Predator Intelligence Framework
-
-The infected use an AI system for tracking and pursuing prey:
-
-- **Memory Grid** -- tracks scent trails, noise sources, and memory locations on the map
-- **Scent tracking** -- infected follow scent trails left by moving pawns
-- **Noise detection** -- gunfire, explosions, and construction attract infected
-- **Pursuit state machine** -- infected switch between wandering, investigating, pursuing, and flanking states
-- **Interception and flanking** -- infected coordinate to cut off fleeing colonists
-- **Debug overlay** -- visualize scent (red dots), noise (green dots), and memory (blue dots) on the map
 
 ### Dormant Infection System (Lost Survivor)
 
@@ -280,6 +267,7 @@ The mod includes a custom scenario (The Marked Men) that sets up a balanced outb
 ## Credits
 
 - **Author:** Dapennes
+- **Friend:** Wh1te_russh 
 - **Inspiration:** The Crossed comic series by Garth Ennis and Jacen Burrows
 - **Dependencies:** Harmony (brrainz.harmony)
 
