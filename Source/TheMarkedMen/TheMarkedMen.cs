@@ -87,7 +87,7 @@ namespace TheMarkedMen
         public float probeFrequencyMultiplier = 1f;
         public int firstMarkedRaidDay = 45;
         public float raidPointsMultiplier = 1f;
-        public float minimumRaidPoints = 9000f;
+        public float minimumRaidPoints = 5000f;
         public float raidEscalationPerRaid = DefaultRaidEscalationPerRaid;
         public float raidEscalationMaxBonus = DefaultRaidEscalationMaxBonus;
         public bool allowGroupedEdgeArrival = true;
@@ -329,7 +329,7 @@ namespace TheMarkedMen
             Scribe_Values.Look(ref probeFrequencyMultiplier, "probeFrequencyMultiplier", 1f);
             Scribe_Values.Look(ref firstMarkedRaidDay, "firstMarkedRaidDay", 45);
             Scribe_Values.Look(ref raidPointsMultiplier, "raidPointsMultiplier", 1f);
-            Scribe_Values.Look(ref minimumRaidPoints, "minimumRaidPoints", 9000f);
+            Scribe_Values.Look(ref minimumRaidPoints, "minimumRaidPoints", 5000f);
             Scribe_Values.Look(ref raidEscalationPerRaid, "raidEscalationPerRaid", DefaultRaidEscalationPerRaid);
             Scribe_Values.Look(ref raidEscalationMaxBonus, "raidEscalationMaxBonus", DefaultRaidEscalationMaxBonus);
             Scribe_Values.Look(ref allowGroupedEdgeArrival, "allowGroupedEdgeArrival", true);
@@ -471,7 +471,7 @@ namespace TheMarkedMen
                     probeFrequencyMultiplier = 1f;
                     firstMarkedRaidDay = 45;
                     raidPointsMultiplier = 1f;
-                    minimumRaidPoints = 9000f;
+                    minimumRaidPoints = 5000f;
                     raidEscalationPerRaid = DefaultRaidEscalationPerRaid;
                     raidEscalationMaxBonus = DefaultRaidEscalationMaxBonus;
                     ResetArrivalDefaults();
