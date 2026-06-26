@@ -596,15 +596,15 @@
         <painFactor>0</painFactor>
         <blocksMentalBreaks>true</blocksMentalBreaks>
         <statFactors>
-          <MoveSpeed>1.20</MoveSpeed>
-          <MeleeCooldownFactor>0.70</MeleeCooldownFactor>
-          <IncomingDamageFactor>0.70</IncomingDamageFactor>
+          <MoveSpeed>1.25</MoveSpeed>
+          <MeleeCooldownFactor>0.68</MeleeCooldownFactor>
+          <IncomingDamageFactor>0.72</IncomingDamageFactor>
           <StaggerDurationFactor>0.35</StaggerDurationFactor>
         </statFactors>
         <statOffsets>
           <ShootingAccuracyPawn>4</ShootingAccuracyPawn>
-          <MeleeHitChance>4</MeleeHitChance>
-          <MeleeDodgeChance>3</MeleeDodgeChance>
+          <MeleeHitChance>3</MeleeHitChance>
+          <MeleeDodgeChance>2</MeleeDodgeChance>
           <PainShockThreshold>0.40</PainShockThreshold>
         </statOffsets>
       </li>
@@ -625,16 +625,16 @@
         <blocksMentalBreaks>true</blocksMentalBreaks>
         <statFactors>
           <MoveSpeed>1.30</MoveSpeed>
-          <MeleeCooldownFactor>0.55</MeleeCooldownFactor>
-          <IncomingDamageFactor>0.55</IncomingDamageFactor>
-          <StaggerDurationFactor>0.25</StaggerDurationFactor>
+          <MeleeCooldownFactor>0.52</MeleeCooldownFactor>
+          <IncomingDamageFactor>0.50</IncomingDamageFactor>
+          <StaggerDurationFactor>0.22</StaggerDurationFactor>
           <ArmorRating_Sharp>0.30</ArmorRating_Sharp>
           <ArmorRating_Blunt>0.30</ArmorRating_Blunt>
         </statFactors>
         <statOffsets>
-          <ShootingAccuracyPawn>6</ShootingAccuracyPawn>
+          <ShootingAccuracyPawn>5</ShootingAccuracyPawn>
           <MeleeHitChance>6</MeleeHitChance>
-          <MeleeDodgeChance>5</MeleeDodgeChance>
+          <MeleeDodgeChance>4</MeleeDodgeChance>
           <PainShockThreshold>0.55</PainShockThreshold>
         </statOffsets>
       </li>
@@ -654,17 +654,17 @@
         <painFactor>0</painFactor>
         <blocksMentalBreaks>true</blocksMentalBreaks>
         <statFactors>
-          <MoveSpeed>1.50</MoveSpeed>
-          <MeleeCooldownFactor>0.40</MeleeCooldownFactor>
-          <IncomingDamageFactor>0.35</IncomingDamageFactor>
-          <StaggerDurationFactor>0.15</StaggerDurationFactor>
+          <MoveSpeed>1.45</MoveSpeed>
+          <MeleeCooldownFactor>0.38</MeleeCooldownFactor>
+          <IncomingDamageFactor>0.32</IncomingDamageFactor>
+          <StaggerDurationFactor>0.12</StaggerDurationFactor>
           <ArmorRating_Sharp>0.50</ArmorRating_Sharp>
           <ArmorRating_Blunt>0.50</ArmorRating_Blunt>
         </statFactors>
         <statOffsets>
-          <ShootingAccuracyPawn>8</ShootingAccuracyPawn>
-          <MeleeHitChance>10</MeleeHitChance>
-          <MeleeDodgeChance>8</MeleeDodgeChance>
+          <ShootingAccuracyPawn>7</ShootingAccuracyPawn>
+          <MeleeHitChance>9</MeleeHitChance>
+          <MeleeDodgeChance>7</MeleeDodgeChance>
           <PainShockThreshold>0.75</PainShockThreshold>
         </statOffsets>
       </li>

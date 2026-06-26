@@ -4953,6 +4953,7 @@ namespace TheMarkedMen
                 pawn.health.AddHediff(CADefOf.CrossedStrength);
             }
 
+            AssignCrossedApparel(pawn);
             ApplyEliteTierHediff(pawn);
             AssignEliteEquipment(pawn);
 
@@ -5065,6 +5066,46 @@ namespace TheMarkedMen
             }
 
             TryEquipBestWeapon(pawn, rangedTags);
+        }
+
+        public static void AssignCrossedApparel(Pawn pawn)
+        {
+            if (pawn == null || pawn.apparel == null || !IsCrossedFactionPawn(pawn)) return;
+
+            string[] tags = new[] { "IndustrialMilitary", "IndustrialMilitaryAdvanced", "SpacerMilitary" };
+
+            bool hasBodyArmor = false;
+            bool hasHelmet = false;
+            for (int i = 0; i < pawn.apparel.WornApparel.Count; i++)
+            {
+                Apparel ap = pawn.apparel.WornApparel[i];
+                if (ap.def.apparel.LastLayer == ApparelLayerDefOf.Middle) hasBodyArmor = true;
+                if (ap.def.apparel.LastLayer == ApparelLayerDefOf.Overhead) hasHelmet = true;
+            }
+
+            if (!hasBodyArmor)
+            {
+                ThingDef best = FindBestApparelByTags(ApparelLayerDefOf.Middle, tags, d => d.GetStatValueAbstract(StatDefOf.ArmorRating_Sharp));
+                if (best == null) best = DefDatabase<ThingDef>.GetNamedSilentFail("Apparel_FlakVest");
+                if (best == null) best = DefDatabase<ThingDef>.GetNamedSilentFail("Apparel_FlakJacket");
+                if (best != null)
+                {
+                    Apparel armor = (Apparel)ThingMaker.MakeThing(best);
+                    pawn.apparel.Wear(armor);
+                }
+            }
+
+            if (!hasHelmet)
+            {
+                ThingDef best = FindBestApparelByTags(ApparelLayerDefOf.Overhead, tags, d => d.GetStatValueAbstract(StatDefOf.ArmorRating_Sharp));
+                if (best == null) best = DefDatabase<ThingDef>.GetNamedSilentFail("Apparel_FlakHelmet");
+                if (best == null) best = DefDatabase<ThingDef>.GetNamedSilentFail("Apparel_SimpleHelmet");
+                if (best != null)
+                {
+                    Apparel helmet = (Apparel)ThingMaker.MakeThing(best);
+                    pawn.apparel.Wear(helmet);
+                }
+            }
         }
 
         private static ThingDef FindBestApparelByTags(ApparelLayerDef layer, string[] tags, Func<ThingDef, float> scoreFunc = null)

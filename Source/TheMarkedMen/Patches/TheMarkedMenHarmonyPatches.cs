@@ -334,6 +334,7 @@ namespace TheMarkedMen
         public static void Postfix(Pawn __result)
         {
             if (__result == null) return;
+            CrossedUtility.AssignCrossedApparel(__result);
             CrossedUtility.ApplyEliteTierHediff(__result);
             CrossedUtility.AssignEliteEquipment(__result);
         }

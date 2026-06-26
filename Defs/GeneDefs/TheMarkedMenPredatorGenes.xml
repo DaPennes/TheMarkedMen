@@ -9,7 +9,7 @@
     <biostatMet>0</biostatMet>
     <selectionWeight>0</selectionWeight>
     <descriptionHyperlinks>
-      <li><NeedDef>CA_MarkedBloodlustNeed</NeedDef></li>
+      <li>CA_MarkedBloodlustNeed</li>
     </descriptionHyperlinks>
     <exclusionTags>
       <li>Bloodlust</li>
