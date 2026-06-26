@@ -4958,32 +4958,10 @@ namespace TheMarkedMen
         {
             if (pawn == null || pawn.health == null || !IsCrossedFactionPawn(pawn)) return;
 
-            int maxBionics;
-            float perPartChance;
+            if (pawn.kindDef != CADefOf.MarkedMan) return;
 
-            if (pawn.kindDef == CADefOf.MarkedMan)
-            {
-                maxBionics = 3;
-                perPartChance = 0.5f;
-            }
-            else if (pawn.kindDef == CADefOf.CrossedAlpha)
-            {
-                maxBionics = 2;
-                perPartChance = 0.4f;
-            }
-            else if (pawn.kindDef == CADefOf.CrossedWarlord)
-            {
-                maxBionics = 2;
-                perPartChance = 0.3f;
-            }
-            else
-            {
-                TheMarkedMenSettings settings = TheMarkedMenMod.Settings;
-                float baseChance = settings?.crossedBionicChance ?? 0.02f;
-                if (baseChance <= 0f) return;
-                maxBionics = 1;
-                perPartChance = baseChance;
-            }
+            int maxBionics = 3;
+            float perPartChance = 0.5f;
 
             int installed = 0;
             TryInstallBionic(pawn, "BionicEye", BodyPartDefOf.Eye, perPartChance, ref installed, maxBionics);
@@ -7477,11 +7455,19 @@ namespace TheMarkedMen
 
         private static List<Pawn> GenerateRaidPawns(int count, float points, Faction faction)
         {
-            List<Pawn> pawns = new List<Pawn>(count);
-            bool alphaAdded = false;
+            List<Pawn> pawns = new List<Pawn>(count + 1);
+
+            Pawn leader = PawnGenerator.GeneratePawn(CADefOf.MarkedMan, faction);
+            if (leader != null)
+            {
+                CrossedUtility.ApplyClassHediffs(leader);
+                CrossedUtility.ApplyInfectedTattoo(leader);
+                pawns.Add(leader);
+            }
+
             for (int i = 0; i < count; i++)
             {
-                PawnKindDef kind = PickRaidKind(points, count, !alphaAdded);
+                PawnKindDef kind = PickRaidKind(points, count, false);
                 if (kind == null)
                 {
                     break;
@@ -7493,7 +7479,6 @@ namespace TheMarkedMen
                     continue;
                 }
 
-                alphaAdded = alphaAdded || kind == CADefOf.CrossedAlpha || kind == CADefOf.CrossedWarlord || kind == CADefOf.MarkedMan;
                 CrossedUtility.ApplyClassHediffs(pawn);
                 CrossedUtility.ApplyInfectedTattoo(pawn);
                 pawns.Add(pawn);
@@ -7703,11 +7688,19 @@ namespace TheMarkedMen
 
         private static List<Pawn> GenerateHordePawns(int count, float points, Faction faction, Map map)
         {
-            List<Pawn> pawns = new List<Pawn>(count);
-            bool alphaAdded = false;
+            List<Pawn> pawns = new List<Pawn>(count + 1);
+
+            Pawn leader = PawnGenerator.GeneratePawn(CADefOf.MarkedMan, faction, map.Tile);
+            if (leader != null)
+            {
+                CrossedUtility.ApplyClassHediffs(leader);
+                CrossedUtility.ApplyInfectedTattoo(leader);
+                pawns.Add(leader);
+            }
+
             for (int i = 0; i < count; i++)
             {
-                PawnKindDef kind = PickHordeKind(points, count, !alphaAdded);
+                PawnKindDef kind = PickHordeKind(points, count, false);
                 if (kind == null)
                 {
                     break;
@@ -7719,7 +7712,6 @@ namespace TheMarkedMen
                     continue;
                 }
 
-                alphaAdded = alphaAdded || kind == CADefOf.CrossedAlpha || kind == CADefOf.CrossedWarlord || kind == CADefOf.MarkedMan;
                 CrossedUtility.ApplyClassHediffs(pawn);
                 CrossedUtility.ApplyInfectedTattoo(pawn);
                 pawns.Add(pawn);
