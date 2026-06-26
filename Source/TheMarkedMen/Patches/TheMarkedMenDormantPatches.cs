@@ -37,36 +37,12 @@ namespace TheMarkedMen
         }
     }
 
-    [HarmonyPatch]
-    public static class Patch_DormantMarkHideFromHealthCard
-    {
-        [HarmonyTargetMethod]
-        public static MethodBase TargetMethod()
-        {
-            return AccessTools.Method(typeof(HealthCardUtility), "DrawHediffListing");
-        }
-
-        [HarmonyPrefix]
-        public static bool Prefix(Pawn pawn)
-        {
-            if (pawn?.health == null) return true;
-            Hediff dormant = pawn.health.hediffSet?.GetFirstHediffOfDef(CADefOf.CA_DormantMark);
-            if (dormant != null && !dormant.Visible)
-            {
-                return true;
-            }
-            return true;
-        }
-    }
-
     [HarmonyPatch(typeof(Pawn), nameof(Pawn.SpawnSetup))]
     public static class Patch_DormantMarkOnSpawn
     {
         public static void Postfix(Pawn __instance)
         {
             if (__instance == null || __instance.health == null) return;
-            Hediff dormant = __instance.health?.hediffSet?.GetFirstHediffOfDef(CADefOf.CA_DormantMark);
-            if (dormant == null) return;
         }
     }
 }

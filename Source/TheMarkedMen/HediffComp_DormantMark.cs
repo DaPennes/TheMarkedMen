@@ -17,6 +17,11 @@ namespace TheMarkedMen
         }
     }
 
+    public class Hediff_DormantMark : HediffWithComps
+    {
+        public override bool Visible => false;
+    }
+
     public class HediffCompProperties_DormantMark : HediffCompProperties
     {
         public float dormantMinDays = 8f;

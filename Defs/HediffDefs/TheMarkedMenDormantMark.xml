@@ -4,7 +4,7 @@
     <defName>CA_DormantMark</defName>
     <label>dormant mark</label>
     <description>A latent Marked Virus infection that has not yet activated. The host shows no symptoms and carries the infection without visible signs. The dormant phase may last days or weeks before triggering under stress, proximity to active Crossed signals, or random viral breakthrough.</description>
-    <hediffClass>HediffWithComps</hediffClass>
+    <hediffClass>TheMarkedMen.Hediff_DormantMark</hediffClass>
     <initialSeverity>0.01</initialSeverity>
     <maxSeverity>0.01</maxSeverity>
     <lethalSeverity>1</lethalSeverity>
