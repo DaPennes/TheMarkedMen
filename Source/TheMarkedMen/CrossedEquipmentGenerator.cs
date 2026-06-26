@@ -472,7 +472,28 @@ namespace TheMarkedMen
 
         private static bool CanUseWeapon(Pawn pawn, ThingDef def)
         {
-            return def?.IsWeapon == true && def.weaponTags != null && def.weaponTags.Count > 0;
+            if (def?.IsWeapon != true || def.weaponTags == null || def.weaponTags.Count == 0)
+                return false;
+
+            if (def.IsRangedWeapon)
+            {
+                float range = def.GetStatValueAbstract(StatDefOf.RangedWeapon_Cooldown) > 0f
+                    ? def.Verbs?.FirstOrDefault()?.range ?? 0f
+                    : 0f;
+                if (range > 75f)
+                    return false;
+            }
+
+            float mass = def.GetStatValueAbstract(StatDefOf.Mass);
+            if (mass > 40f)
+                return false;
+
+            if (def.weaponTags.Any(t => t.IndexOf("Mounted", StringComparison.OrdinalIgnoreCase) >= 0
+                                     || t.IndexOf("Siege", StringComparison.OrdinalIgnoreCase) >= 0
+                                     || t.IndexOf("Turret", StringComparison.OrdinalIgnoreCase) >= 0))
+                return false;
+
+            return true;
         }
 
         private static int ClassifyApparel(ThingDef def)
