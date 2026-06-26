@@ -308,12 +308,24 @@ namespace TheMarkedMen
                 for (int i = pawn.apparel.WornApparel.Count - 1; i >= 0; i--)
                 {
                     Apparel ap = pawn.apparel.WornApparel[i];
+                    if (ap.Destroyed) continue;
                     pawn.apparel.Remove(ap);
-                    if (!ap.Destroyed) ap.Destroy();
+                    if (!ap.Destroyed)
+                        ap.Destroy(DestroyMode.Vanish);
                 }
             }
 
             pawn.equipment?.DestroyAllEquipment();
+
+            if (pawn.inventory != null)
+            {
+                for (int i = pawn.inventory.innerContainer.Count - 1; i >= 0; i--)
+                {
+                    Thing t = pawn.inventory.innerContainer[i];
+                    if (!t.Destroyed)
+                        t.Destroy(DestroyMode.Vanish);
+                }
+            }
         }
 
         private static void EquipApparel(Pawn pawn, ThingDef def, int tier)
