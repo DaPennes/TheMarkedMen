@@ -10,19 +10,54 @@ namespace TheMarkedMen
         public IntVec3 spawnSpot;
         public Map spawnMap;
 
+        private List<DiaOption> cachedChoices;
+
         public override IEnumerable<DiaOption> Choices
         {
             get
             {
-                yield return new DiaOption("CA_LostSurvivor_Accept".Translate(pawn.Named("PAWN")).Resolve())
+                if (cachedChoices == null)
                 {
-                    action = AcceptAction
-                };
+                    cachedChoices = new List<DiaOption>();
 
-                yield return new DiaOption("CA_LostSurvivor_Reject".Translate())
-                {
-                    action = RejectAction
-                };
+                    string acceptText = "CA_LostSurvivor_Accept".Translate(pawn.Named("PAWN")).Resolve();
+                    string rejectText = "CA_LostSurvivor_Reject".Translate();
+
+                    cachedChoices.Add(new DiaOption(acceptText)
+                    {
+                        action = delegate
+                        {
+                            try
+                            {
+                                pawn.SetFaction(Faction.OfPlayer);
+                                GenSpawn.Spawn(pawn, spawnSpot, spawnMap, Rot4.Random);
+                                ApplyDormantMark(pawn);
+                            }
+                            catch (System.Exception ex)
+                            {
+                                Log.Error("[TheMarkedMen] Accept action error: " + ex);
+                            }
+                            Find.LetterStack.RemoveLetter(this);
+                        }
+                    });
+
+                    cachedChoices.Add(new DiaOption(rejectText)
+                    {
+                        action = delegate
+                        {
+                            try
+                            {
+                                pawn.Destroy(DestroyMode.Vanish);
+                            }
+                            catch (System.Exception ex)
+                            {
+                                Log.Error("[TheMarkedMen] Reject action error: " + ex);
+                            }
+                            Find.LetterStack.RemoveLetter(this);
+                        }
+                    });
+                }
+                return cachedChoices;
             }
         }
 
@@ -32,18 +67,6 @@ namespace TheMarkedMen
             Scribe_References.Look(ref pawn, "pawn");
             Scribe_Values.Look(ref spawnSpot, "spawnSpot");
             Scribe_References.Look(ref spawnMap, "spawnMap");
-        }
-
-        private void AcceptAction()
-        {
-            pawn.SetFaction(Faction.OfPlayer);
-            GenSpawn.Spawn(pawn, spawnSpot, spawnMap, Rot4.Random);
-            ApplyDormantMark(pawn);
-        }
-
-        private void RejectAction()
-        {
-            pawn.Destroy(DestroyMode.Vanish);
         }
 
         private void ApplyDormantMark(Pawn pawn)
