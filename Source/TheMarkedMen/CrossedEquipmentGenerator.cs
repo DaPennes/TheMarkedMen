@@ -309,9 +309,8 @@ namespace TheMarkedMen
                 {
                     Apparel ap = pawn.apparel.WornApparel[i];
                     if (ap.Destroyed) continue;
+                    ap.Destroy(DestroyMode.Vanish);
                     pawn.apparel.Remove(ap);
-                    if (!ap.Destroyed)
-                        ap.Destroy(DestroyMode.Vanish);
                 }
             }
 
