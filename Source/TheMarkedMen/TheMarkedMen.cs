@@ -5050,19 +5050,24 @@ namespace TheMarkedMen
             if (pawn == null || pawn.Dead) return;
             if (pawn.kindDef != CADefOf.CrossedWarlord && pawn.kindDef != CADefOf.CrossedAlpha && pawn.kindDef != CADefOf.MarkedMan) return;
 
+            RemoveAllApparel(pawn);
             pawn.equipment?.DestroyAllEquipment();
-            pawn.apparel?.DestroyAll();
 
-            string[] armorTags = new[] { "SpacerMilitary", "IndustrialMilitaryAdvanced" };
-            string[] shieldTags = new[] { "SpacerMilitary", "IndustrialAdvanced" };
-            string[] rangedTags = new[] { "SpacerGun", "GunHeavy", "IndustrialGunAdvanced" };
+            string[] eliteTags = new[] { "SpacerMilitary", "IndustrialMilitaryAdvanced", "IndustrialMilitary", "Spacer", "VAE_Military", "VAE_Spacer" };
+            string[] shieldTags = new[] { "SpacerMilitary", "IndustrialAdvanced", "Spacer", "Military" };
+            string[] rangedTags = new[] { "SpacerGun", "GunHeavy", "IndustrialGunAdvanced", "VWESpacer", "VWEHeavy", "IndustrialGun" };
 
-            TryEquipBestBodyArmor(pawn, armorTags);
-            TryEquipBestHelmet(pawn, armorTags);
+            TryEquipRandomApparel(pawn, ApparelLayerDefOf.OnSkin, eliteTags, d => d.GetStatValueAbstract(StatDefOf.ArmorRating_Sharp),
+                new[] { "Apparel_Techshirt", "Apparel_FlakShirt", "Apparel_ButtonDownShirt" });
+            TryEquipRandomApparel(pawn, ApparelLayerDefOf.Middle, eliteTags, d => d.GetStatValueAbstract(StatDefOf.ArmorRating_Sharp),
+                new[] { "Apparel_MarineArmor", "Apparel_SpacerArmor", "Apparel_CataphractArmor", "Apparel_FlakVest", "VFE_Apparel_SpacerArmor" });
+            TryEquipRandomApparel(pawn, ApparelLayerDefOf.Overhead, eliteTags, d => d.GetStatValueAbstract(StatDefOf.ArmorRating_Sharp),
+                new[] { "Apparel_MarineHelmet", "Apparel_SpacerHelmet", "Apparel_CataphractHelmet", "Apparel_FlakHelmet", "VFE_Apparel_SpacerHelmet" });
 
             if (pawn.kindDef == CADefOf.CrossedAlpha || pawn.kindDef == CADefOf.MarkedMan)
             {
-                TryEquipBestShield(pawn, shieldTags);
+                TryEquipRandomApparel(pawn, ApparelLayerDefOf.Belt, shieldTags, d => d.GetStatValueAbstract(StatDefOf.EnergyShieldEnergyMax),
+                    new[] { "Apparel_ShieldBelt" });
             }
 
             TryEquipBestWeapon(pawn, rangedTags);
@@ -5072,45 +5077,56 @@ namespace TheMarkedMen
         {
             if (pawn == null || pawn.apparel == null || !IsCrossedFactionPawn(pawn)) return;
 
-            string[] tags = new[] { "IndustrialMilitary", "IndustrialMilitaryAdvanced", "SpacerMilitary" };
+            string[] tags = new[] { "IndustrialMilitary", "IndustrialMilitaryAdvanced", "SpacerMilitary", "Industrial", "Military", "VAE_Military" };
 
             bool hasBodyArmor = false;
             bool hasHelmet = false;
+            bool hasShirt = false;
             for (int i = 0; i < pawn.apparel.WornApparel.Count; i++)
             {
                 Apparel ap = pawn.apparel.WornApparel[i];
                 if (ap.def.apparel.LastLayer == ApparelLayerDefOf.Middle) hasBodyArmor = true;
                 if (ap.def.apparel.LastLayer == ApparelLayerDefOf.Overhead) hasHelmet = true;
+                if (ap.def.apparel.LastLayer == ApparelLayerDefOf.OnSkin) hasShirt = true;
             }
 
             if (!hasBodyArmor)
             {
-                ThingDef best = FindBestApparelByTags(ApparelLayerDefOf.Middle, tags, d => d.GetStatValueAbstract(StatDefOf.ArmorRating_Sharp));
-                if (best == null) best = DefDatabase<ThingDef>.GetNamedSilentFail("Apparel_FlakVest");
-                if (best == null) best = DefDatabase<ThingDef>.GetNamedSilentFail("Apparel_FlakJacket");
-                if (best != null)
-                {
-                    Apparel armor = (Apparel)ThingMaker.MakeThing(best);
-                    pawn.apparel.Wear(armor);
-                }
+                TryEquipRandomApparel(pawn, ApparelLayerDefOf.Middle, tags, d => d.GetStatValueAbstract(StatDefOf.ArmorRating_Sharp),
+                    new[] { "Apparel_FlakVest", "Apparel_FlakJacket", "Apparel_MarineArmor" });
             }
 
             if (!hasHelmet)
             {
-                ThingDef best = FindBestApparelByTags(ApparelLayerDefOf.Overhead, tags, d => d.GetStatValueAbstract(StatDefOf.ArmorRating_Sharp));
-                if (best == null) best = DefDatabase<ThingDef>.GetNamedSilentFail("Apparel_FlakHelmet");
-                if (best == null) best = DefDatabase<ThingDef>.GetNamedSilentFail("Apparel_SimpleHelmet");
-                if (best != null)
-                {
-                    Apparel helmet = (Apparel)ThingMaker.MakeThing(best);
-                    pawn.apparel.Wear(helmet);
-                }
+                TryEquipRandomApparel(pawn, ApparelLayerDefOf.Overhead, tags, d => d.GetStatValueAbstract(StatDefOf.ArmorRating_Sharp),
+                    new[] { "Apparel_FlakHelmet", "Apparel_SimpleHelmet", "Apparel_MarineHelmet" });
+            }
+
+            if (!hasShirt)
+            {
+                TryEquipRandomApparel(pawn, ApparelLayerDefOf.OnSkin, new[] { "IndustrialMilitary", "Industrial", "Military", "VAE_Military" },
+                    null, new[] { "Apparel_Techshirt", "Apparel_FlakShirt", "Apparel_ButtonDownShirt" });
             }
         }
 
-        private static ThingDef FindBestApparelByTags(ApparelLayerDef layer, string[] tags, Func<ThingDef, float> scoreFunc = null)
+        private static void RemoveAllApparel(Pawn pawn)
         {
-            ThingDef best = null;
+            if (pawn.apparel == null) return;
+            List<Apparel> worn = pawn.apparel.WornApparel;
+            for (int i = worn.Count - 1; i >= 0; i--)
+            {
+                Apparel ap = worn[i];
+                pawn.apparel.Remove(ap);
+                if (!ap.Destroyed) ap.Destroy();
+            }
+        }
+
+        private static void TryEquipRandomApparel(Pawn pawn, ApparelLayerDef layer, string[] tags,
+            Func<ThingDef, float> scoreFunc, string[] fallbackDefNames)
+        {
+            if (pawn.apparel == null) return;
+
+            List<ThingDef> candidates = new List<ThingDef>();
             float bestScore = -1f;
             foreach (ThingDef def in DefDatabase<ThingDef>.AllDefs)
             {
@@ -5127,13 +5143,47 @@ namespace TheMarkedMen
                 }
                 if (!hasTag) continue;
                 float score = scoreFunc != null ? scoreFunc(def) : def.GetStatValueAbstract(StatDefOf.MaxHitPoints);
-                if (score > bestScore)
+                if (score > bestScore * 0.7f)
                 {
-                    bestScore = score;
-                    best = def;
+                    if (candidates.Count < 5)
+                    {
+                        candidates.Add(def);
+                    }
+                    else if (score > bestScore)
+                    {
+                        candidates.RemoveAt(0);
+                        candidates.Add(def);
+                    }
+                    if (score > bestScore) bestScore = score;
                 }
             }
-            return best;
+
+            ThingDef chosen = null;
+            if (candidates.Count > 0)
+            {
+                chosen = candidates[Rand.RangeInclusive(0, candidates.Count - 1)];
+            }
+
+            if (chosen == null && fallbackDefNames != null)
+            {
+                List<ThingDef> fallbackPool = new List<ThingDef>();
+                for (int i = 0; i < fallbackDefNames.Length; i++)
+                {
+                    ThingDef fb = DefDatabase<ThingDef>.GetNamedSilentFail(fallbackDefNames[i]);
+                    if (fb != null && fb.apparel != null && fb.apparel.LastLayer == layer)
+                    {
+                        fallbackPool.Add(fb);
+                    }
+                }
+                if (fallbackPool.Count > 0)
+                {
+                    chosen = fallbackPool[Rand.RangeInclusive(0, fallbackPool.Count - 1)];
+                }
+            }
+
+            if (chosen == null) return;
+            Apparel apparel = (Apparel)ThingMaker.MakeThing(chosen);
+            pawn.apparel.Wear(apparel);
         }
 
         private static ThingDef FindBestWeaponByTags(string[] tags)
@@ -5161,35 +5211,6 @@ namespace TheMarkedMen
                 }
             }
             return best;
-        }
-
-        private static void TryEquipBestBodyArmor(Pawn pawn, string[] tags)
-        {
-            ThingDef best = FindBestApparelByTags(ApparelLayerDefOf.Middle, tags, d => d.GetStatValueAbstract(StatDefOf.ArmorRating_Sharp));
-            if (best == null) best = DefDatabase<ThingDef>.GetNamedSilentFail("Apparel_MarineArmor");
-            if (best == null) best = DefDatabase<ThingDef>.GetNamedSilentFail("Apparel_CataphractArmor");
-            if (best == null) return;
-            Apparel armor = (Apparel)ThingMaker.MakeThing(best);
-            pawn.apparel.Wear(armor);
-        }
-
-        private static void TryEquipBestHelmet(Pawn pawn, string[] tags)
-        {
-            ThingDef best = FindBestApparelByTags(ApparelLayerDefOf.Overhead, tags, d => d.GetStatValueAbstract(StatDefOf.ArmorRating_Sharp));
-            if (best == null) best = DefDatabase<ThingDef>.GetNamedSilentFail("Apparel_MarineHelmet");
-            if (best == null) best = DefDatabase<ThingDef>.GetNamedSilentFail("Apparel_CataphractHelmet");
-            if (best == null) return;
-            Apparel helmet = (Apparel)ThingMaker.MakeThing(best);
-            pawn.apparel.Wear(helmet);
-        }
-
-        private static void TryEquipBestShield(Pawn pawn, string[] tags)
-        {
-            ThingDef best = FindBestApparelByTags(ApparelLayerDefOf.Belt, tags, d => d.GetStatValueAbstract(StatDefOf.EnergyShieldEnergyMax));
-            if (best == null) best = DefDatabase<ThingDef>.GetNamedSilentFail("Apparel_ShieldBelt");
-            if (best == null) return;
-            Apparel shield = (Apparel)ThingMaker.MakeThing(best);
-            pawn.apparel.Wear(shield);
         }
 
         private static void TryEquipBestWeapon(Pawn pawn, string[] tags)
