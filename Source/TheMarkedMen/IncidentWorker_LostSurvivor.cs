@@ -75,15 +75,17 @@ namespace TheMarkedMen
             }
             if (!dropSpot.IsValid) return false;
 
-            GenSpawn.Spawn(survivor, dropSpot, map, Rot4.Random);
-
             ChoiceLetter_LostSurvivor letter = (ChoiceLetter_LostSurvivor)LetterMaker.MakeLetter(
                 def.letterLabel ?? "CA_LostSurvivor_Title".Translate(),
                 def.letterText ?? "CA_LostSurvivor_Desc".Translate(survivor.Named("PAWN")).Resolve(),
                 DefDatabase<LetterDef>.GetNamed("CA_LostSurvivorLetter"),
-                new LookTargets(survivor));
+                new LookTargets(dropSpot, map));
 
             letter.pawn = survivor;
+            letter.spawnSpot = dropSpot;
+            letter.spawnMap = map;
+            letter.title = def.letterLabel ?? "CA_LostSurvivor_Title".Translate();
+            letter.Text = def.letterText ?? "CA_LostSurvivor_Desc".Translate(survivor.Named("PAWN")).Resolve();
 
             Find.LetterStack.ReceiveLetter(letter);
             return true;

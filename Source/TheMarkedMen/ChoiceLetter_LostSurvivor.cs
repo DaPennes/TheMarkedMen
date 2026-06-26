@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using RimWorld;
-using RimWorld.Planet;
 using Verse;
 
 namespace TheMarkedMen
@@ -8,35 +7,22 @@ namespace TheMarkedMen
     public class ChoiceLetter_LostSurvivor : ChoiceLetter
     {
         public Pawn pawn;
+        public IntVec3 spawnSpot;
+        public Map spawnMap;
 
         public override IEnumerable<DiaOption> Choices
         {
             get
             {
-                var options = new List<DiaOption>();
-
-                options.Add(new DiaOption("CA_LostSurvivor_Accept".Translate(pawn.Named("PAWN")).Resolve())
+                yield return new DiaOption("CA_LostSurvivor_Accept".Translate(pawn.Named("PAWN")).Resolve())
                 {
-                    action = delegate
-                    {
-                        pawn.SetFaction(Faction.OfPlayer);
-                        ApplyDormantMark(pawn);
-                    }
-                });
+                    action = AcceptAction
+                };
 
-                options.Add(new DiaOption("CA_LostSurvivor_Reject".Translate())
+                yield return new DiaOption("CA_LostSurvivor_Reject".Translate())
                 {
-                    action = delegate
-                    {
-                        if (pawn.Spawned)
-                        {
-                            pawn.DeSpawn();
-                        }
-                        Find.WorldPawns.PassToWorld(pawn, PawnDiscardDecideMode.Discard);
-                    }
-                });
-
-                return options;
+                    action = RejectAction
+                };
             }
         }
 
@@ -44,6 +30,20 @@ namespace TheMarkedMen
         {
             base.ExposeData();
             Scribe_References.Look(ref pawn, "pawn");
+            Scribe_Values.Look(ref spawnSpot, "spawnSpot");
+            Scribe_References.Look(ref spawnMap, "spawnMap");
+        }
+
+        private void AcceptAction()
+        {
+            pawn.SetFaction(Faction.OfPlayer);
+            GenSpawn.Spawn(pawn, spawnSpot, spawnMap, Rot4.Random);
+            ApplyDormantMark(pawn);
+        }
+
+        private void RejectAction()
+        {
+            pawn.Destroy(DestroyMode.Vanish);
         }
 
         private void ApplyDormantMark(Pawn pawn)
