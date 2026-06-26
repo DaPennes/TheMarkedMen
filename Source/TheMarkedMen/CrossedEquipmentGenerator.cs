@@ -83,7 +83,7 @@ namespace TheMarkedMen
 
         private static readonly Dictionary<PawnKindDef, ApparelCategory> KindApparelMask = new()
         {
-            { CADefOf.CrossedCivilian,   ApparelCategory.Civilian | ApparelCategory.Shield },
+            { CADefOf.CrossedCivilian,   ApparelCategory.Civilian },
             { CADefOf.CrossedScout,      ApparelCategory.Civilian | ApparelCategory.LightArmor | ApparelCategory.Shield },
             { CADefOf.CrossedHunter,     ApparelCategory.Civilian | ApparelCategory.LightArmor },
             { CADefOf.CrossedShooter,    ApparelCategory.LightArmor | ApparelCategory.HeavyArmor },
@@ -595,8 +595,7 @@ namespace TheMarkedMen
 
         private static float HeadgearChanceForKind(PawnKindDef kind, int tier)
         {
-            // Per-kind headgear chance for visual distinction
-            if (kind == CADefOf.CrossedCivilian) return Mathf.Lerp(0.20f, 0.50f, tier / 6f);
+            if (kind == CADefOf.CrossedCivilian) return 0f;
             if (kind == CADefOf.CrossedScout) return Mathf.Lerp(0.30f, 0.70f, tier / 6f);
             if (kind == CADefOf.CrossedHunter) return Mathf.Lerp(0.35f, 0.75f, tier / 6f);
             if (kind == CADefOf.CrossedPyromaniac) return Mathf.Lerp(0.15f, 0.40f, tier / 6f);
