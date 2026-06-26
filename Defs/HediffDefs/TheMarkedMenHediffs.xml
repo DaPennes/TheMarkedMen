@@ -566,17 +566,21 @@
     <tendable>false</tendable>
     <maxSeverity>1</maxSeverity>
     <initialSeverity>1</initialSeverity>
-    <statFactors>
-      <MoveSpeed>1.15</MoveSpeed>
-      <MeleeCooldownFactor>0.85</MeleeCooldownFactor>
-      <IncomingDamageFactor>0.90</IncomingDamageFactor>
-      <StaggerDurationFactor>0.75</StaggerDurationFactor>
-    </statFactors>
-    <statOffsets>
-      <MeleeHitChance>3</MeleeHitChance>
-      <MeleeDodgeChance>3</MeleeDodgeChance>
-      <PainShockThreshold>0.25</PainShockThreshold>
-    </statOffsets>
+    <stages>
+      <li>
+        <statFactors>
+          <MoveSpeed>1.15</MoveSpeed>
+          <MeleeCooldownFactor>0.85</MeleeCooldownFactor>
+          <IncomingDamageFactor>0.90</IncomingDamageFactor>
+          <StaggerDurationFactor>0.75</StaggerDurationFactor>
+        </statFactors>
+        <statOffsets>
+          <MeleeHitChance>3</MeleeHitChance>
+          <MeleeDodgeChance>3</MeleeDodgeChance>
+          <PainShockThreshold>0.25</PainShockThreshold>
+        </statOffsets>
+      </li>
+    </stages>
   </HediffDef>
   <HediffDef>
     <defName>CA_WarlordTier</defName>

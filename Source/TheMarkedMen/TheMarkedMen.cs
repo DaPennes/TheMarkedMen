@@ -191,7 +191,7 @@ namespace TheMarkedMen
         public float dormantMarkTriggerMultiplier = 1f;
         public float dormantMarkAlphaChance = 0.10f;
         public float dormantMarkGroupVariantChance = 0f;
-        public float crossedBionicChance = 0.3f;
+        public float crossedBionicChance = 0.02f;
 
         private int settingsVersion = CurrentSettingsVersion;
         private string currentPreset = "Outbreak simulator";
@@ -4968,27 +4968,51 @@ namespace TheMarkedMen
 
         public static void ApplyRandomBionics(Pawn pawn)
         {
-            if (pawn == null || pawn.health == null) return;
+            if (pawn == null || pawn.health == null || !IsCrossedFactionPawn(pawn)) return;
 
-            TheMarkedMenSettings settings = TheMarkedMenMod.Settings;
-            float chance = settings?.crossedBionicChance ?? 0.3f;
-            if (chance <= 0f) return;
+            int maxBionics;
+            float perPartChance;
 
-            TryInstallBionic(pawn, "BionicEye", BodyPartDefOf.Eye, chance);
-            TryInstallBionic(pawn, "BionicArm", BodyPartDefOf.Arm, chance);
-            TryInstallBionic(pawn, "AdvBionicArm", BodyPartDefOf.Arm, chance * 0.15f);
-            TryInstallBionic(pawn, "BionicLeg", BodyPartDefOf.Leg, chance);
-            TryInstallBionic(pawn, "AdvBionicLeg", BodyPartDefOf.Leg, chance * 0.15f);
-            TryInstallBionic(pawn, "BionicHeart", BodyPartDefOf.Heart, chance * 0.4f);
-            TryInstallBionic(pawn, "BionicStomach", DefDatabase<BodyPartDef>.GetNamedSilentFail("Stomach"), chance * 0.4f);
-            TryInstallBionic(pawn, "BionicLung", BodyPartDefOf.Lung, chance * 0.3f);
-            TryInstallBionic(pawn, "BionicKidney", DefDatabase<BodyPartDef>.GetNamedSilentFail("Kidney"), chance * 0.3f);
-            TryInstallBionic(pawn, "BionicEar", DefDatabase<BodyPartDef>.GetNamedSilentFail("Ear"), chance * 0.2f);
+            if (pawn.kindDef == CADefOf.MarkedMan)
+            {
+                maxBionics = 3;
+                perPartChance = 0.5f;
+            }
+            else if (pawn.kindDef == CADefOf.CrossedAlpha)
+            {
+                maxBionics = 2;
+                perPartChance = 0.4f;
+            }
+            else if (pawn.kindDef == CADefOf.CrossedWarlord)
+            {
+                maxBionics = 2;
+                perPartChance = 0.3f;
+            }
+            else
+            {
+                TheMarkedMenSettings settings = TheMarkedMenMod.Settings;
+                float baseChance = settings?.crossedBionicChance ?? 0.02f;
+                if (baseChance <= 0f) return;
+                maxBionics = 1;
+                perPartChance = baseChance;
+            }
+
+            int installed = 0;
+            TryInstallBionic(pawn, "BionicEye", BodyPartDefOf.Eye, perPartChance, ref installed, maxBionics);
+            TryInstallBionic(pawn, "BionicArm", BodyPartDefOf.Arm, perPartChance, ref installed, maxBionics);
+            TryInstallBionic(pawn, "AdvBionicArm", BodyPartDefOf.Arm, perPartChance * 0.2f, ref installed, maxBionics);
+            TryInstallBionic(pawn, "BionicLeg", BodyPartDefOf.Leg, perPartChance, ref installed, maxBionics);
+            TryInstallBionic(pawn, "AdvBionicLeg", BodyPartDefOf.Leg, perPartChance * 0.2f, ref installed, maxBionics);
+            TryInstallBionic(pawn, "BionicHeart", BodyPartDefOf.Heart, perPartChance * 0.5f, ref installed, maxBionics);
+            TryInstallBionic(pawn, "BionicStomach", DefDatabase<BodyPartDef>.GetNamedSilentFail("Stomach"), perPartChance * 0.5f, ref installed, maxBionics);
+            TryInstallBionic(pawn, "BionicLung", BodyPartDefOf.Lung, perPartChance * 0.4f, ref installed, maxBionics);
+            TryInstallBionic(pawn, "BionicKidney", DefDatabase<BodyPartDef>.GetNamedSilentFail("Kidney"), perPartChance * 0.4f, ref installed, maxBionics);
+            TryInstallBionic(pawn, "BionicEar", DefDatabase<BodyPartDef>.GetNamedSilentFail("Ear"), perPartChance * 0.3f, ref installed, maxBionics);
         }
 
-        private static void TryInstallBionic(Pawn pawn, string hediffDefName, BodyPartDef bodyPartDef, float chance)
+        private static void TryInstallBionic(Pawn pawn, string hediffDefName, BodyPartDef bodyPartDef, float chance, ref int installed, int maxBionics)
         {
-            if (bodyPartDef == null || Rand.Value >= chance) return;
+            if (installed >= maxBionics || bodyPartDef == null || Rand.Value >= chance) return;
 
             HediffDef hediffDef = DefDatabase<HediffDef>.GetNamedSilentFail(hediffDefName);
             if (hediffDef == null) return;
@@ -5002,6 +5026,7 @@ namespace TheMarkedMen
 
             Hediff implant = HediffMaker.MakeHediff(hediffDef, pawn, part);
             pawn.health.AddHediff(implant);
+            installed++;
         }
 
         private static void ApplyEliteTierHediff(Pawn pawn)
