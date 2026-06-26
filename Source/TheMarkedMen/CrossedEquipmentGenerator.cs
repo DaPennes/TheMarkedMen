@@ -302,6 +302,8 @@ namespace TheMarkedMen
                 EquipPyromaniacWeapon(pawn);
             else
                 EquipWeapon(pawn, weaponTier);
+
+            StripDisallowedApparel(pawn);
         }
 
         private static void EquipShirt(Pawn pawn, int tier)
@@ -522,6 +524,21 @@ namespace TheMarkedMen
             }
         }
 
+        private static void StripDisallowedApparel(Pawn pawn)
+        {
+            if (pawn?.apparel == null) return;
+            for (int i = pawn.apparel.WornApparel.Count - 1; i >= 0; i--)
+            {
+                Apparel ap = pawn.apparel.WornApparel[i];
+                if (ap.Destroyed) continue;
+                if (!IsAllowedForKind(pawn.kindDef, ap.def))
+                {
+                    ap.Destroy(DestroyMode.Vanish);
+                    pawn.apparel.Remove(ap);
+                }
+            }
+        }
+
         private static void EquipApparel(Pawn pawn, ThingDef def, int tier)
         {
             ThingDef stuff = null;
@@ -657,8 +674,8 @@ namespace TheMarkedMen
 
         private static bool IsAllowedForKind(PawnKindDef kind, ThingDef def)
         {
-            if (def?.apparel == null) return true;
-            if (!apparelRoles.TryGetValue(def, out var role)) return true;
+            if (def?.apparel == null) return false;
+            if (!apparelRoles.TryGetValue(def, out var role)) return false;
             return KindApparelMask.TryGetValue(kind, out var mask) && (mask & role) != 0;
         }
 
