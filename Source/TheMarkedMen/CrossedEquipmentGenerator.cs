@@ -153,6 +153,9 @@ namespace TheMarkedMen
             if (!IsCrossedKind(pawn.kindDef))
                 return;
 
+            if (HasEquipment(pawn))
+                return;
+
             StripEquipment(pawn);
 
             if (pawn.kindDef == CADefOf.CrossedPyromaniac)
@@ -301,8 +304,18 @@ namespace TheMarkedMen
             return false;
         }
 
-        private static void StripEquipment(Pawn pawn)
+        private static bool HasEquipment(Pawn pawn)
         {
+            if (pawn.apparel != null && pawn.apparel.WornApparel.Count > 0)
+                return true;
+            if (pawn.equipment != null && pawn.equipment.Primary != null)
+                return true;
+            return false;
+        }
+
+        public static void StripEquipment(Pawn pawn)
+        {
+            if (pawn == null) return;
             if (pawn.apparel != null)
             {
                 for (int i = pawn.apparel.WornApparel.Count - 1; i >= 0; i--)
