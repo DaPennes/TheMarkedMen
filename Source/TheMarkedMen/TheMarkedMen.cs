@@ -5054,30 +5054,17 @@ namespace TheMarkedMen
 
             string[] armorTags = new[] { "SpacerMilitary", "IndustrialMilitaryAdvanced" };
             string[] shieldTags = new[] { "SpacerMilitary", "IndustrialAdvanced" };
+            string[] rangedTags = new[] { "SpacerGun", "GunHeavy", "IndustrialGunAdvanced" };
 
-            if (pawn.kindDef == CADefOf.CrossedWarlord)
+            TryEquipBestBodyArmor(pawn, armorTags);
+            TryEquipBestHelmet(pawn, armorTags);
+
+            if (pawn.kindDef == CADefOf.CrossedAlpha || pawn.kindDef == CADefOf.MarkedMan)
             {
-                TryEquipBestBodyArmor(pawn, armorTags);
-                TryEquipBestHelmet(pawn, armorTags);
-                TryEquipBestWeapon(pawn, new[] { "SpacerGun", "GunHeavy" });
-                TryEquipBestWeapon(pawn, new[] { "MedievalMeleeAdvanced", "MedievalMeleeDecent" });
-            }
-            else if (pawn.kindDef == CADefOf.CrossedAlpha)
-            {
-                TryEquipBestBodyArmor(pawn, armorTags);
-                TryEquipBestHelmet(pawn, armorTags);
-                TryEquipBestWeapon(pawn, new[] { "SpacerGun" });
-                TryEquipBestWeapon(pawn, new[] { "MedievalMeleeAdvanced" });
                 TryEquipBestShield(pawn, shieldTags);
             }
-            else if (pawn.kindDef == CADefOf.MarkedMan)
-            {
-                TryEquipBestBodyArmor(pawn, armorTags);
-                TryEquipBestHelmet(pawn, armorTags);
-                TryEquipBestWeapon(pawn, new[] { "SpacerGun", "GunHeavy" });
-                TryEquipBestWeapon(pawn, new[] { "MedievalMeleeAdvanced" });
-                TryEquipBestShield(pawn, shieldTags);
-            }
+
+            TryEquipBestWeapon(pawn, rangedTags);
         }
 
         private static ThingDef FindBestApparelByTags(ApparelLayerDef layer, string[] tags, Func<ThingDef, float> scoreFunc = null)
@@ -5167,8 +5154,7 @@ namespace TheMarkedMen
         private static void TryEquipBestWeapon(Pawn pawn, string[] tags)
         {
             if (pawn.equipment == null) return;
-            int currentCount = pawn.equipment.AllEquipmentListForReading.Count;
-            if (currentCount >= 2) return;
+            if (pawn.equipment.AllEquipmentListForReading.Count >= 1) return;
 
             ThingDef best = FindBestWeaponByTags(tags);
             if (best == null)
@@ -5181,7 +5167,13 @@ namespace TheMarkedMen
                 }
             }
             if (best == null) return;
-            ThingWithComps weapon = (ThingWithComps)ThingMaker.MakeThing(best);
+            ThingDef stuff = null;
+            if (best.MadeFromStuff)
+            {
+                stuff = DefDatabase<ThingDef>.GetNamedSilentFail("Plasteel");
+                if (stuff == null) stuff = DefDatabase<ThingDef>.GetNamedSilentFail("Steel");
+            }
+            ThingWithComps weapon = stuff != null ? (ThingWithComps)ThingMaker.MakeThing(best, stuff) : (ThingWithComps)ThingMaker.MakeThing(best);
             pawn.equipment.AddEquipment(weapon);
         }
 
