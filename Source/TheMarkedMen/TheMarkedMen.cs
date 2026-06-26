@@ -190,7 +190,7 @@ namespace TheMarkedMen
         public float dormantMarkTriggerMultiplier = 1f;
         public float dormantMarkAlphaChance = 0.10f;
         public float dormantMarkGroupVariantChance = 0f;
-        public float crossedBionicChance = 0.02f;
+
 
         private int settingsVersion = CurrentSettingsVersion;
         private string currentPreset = "Outbreak simulator";
@@ -428,7 +428,7 @@ namespace TheMarkedMen
             Scribe_Values.Look(ref dormantMarkTriggerMultiplier, "dormantMarkTriggerMultiplier", 1f);
             Scribe_Values.Look(ref dormantMarkAlphaChance, "dormantMarkAlphaChance", 0.10f);
             Scribe_Values.Look(ref dormantMarkGroupVariantChance, "dormantMarkGroupVariantChance", 0f);
-            Scribe_Values.Look(ref crossedBionicChance, "crossedBionicChance", 0.3f);
+
             Scribe_Values.Look(ref currentPreset, "currentPreset", "Outbreak simulator");
             Scribe_Collections.Look(ref sectionOpenStates, "sectionOpenStates", LookMode.Value, LookMode.Value);
             if (sectionOpenStates == null)
@@ -734,8 +734,6 @@ namespace TheMarkedMen
             DrawFloat(listing, "Trigger sensitivity", ref dormantMarkTriggerMultiplier, 0f, 5f, "dormantMarkTriggerMultiplier", "Multiplier for trigger chances (combat damage, near-death, witnessing other transformations, Crossed signal proximity). Higher values make activation more likely.");
             DrawFloat(listing, "Alpha variant chance", ref dormantMarkAlphaChance, 0f, 1f, "dormantMarkAlphaChance", "Chance that the transformed survivor is an Alpha variant (spawns escorting Crossed on activation). Doubled for prisoner survivors.");
             DrawFloat(listing, "Group variant chance", ref dormantMarkGroupVariantChance, 0f, 1f, "dormantMarkGroupVariantChance", "Chance that multiple dormant carriers activate simultaneously. Set to 0 to disable group activations.");
-            DrawFloat(listing, "Bionic implant chance", ref crossedBionicChance, 0f, 1f, "crossedBionicChance", "Base probability per body part category for randomly granting bionic implants to turned Crossed pawns. Higher values make Crossed pawns more dangerous.");
-
             DrawSectionHeader(listing, "Optional RimJobWorld Bridge", "Only applies when RimJobWorld is installed. The bridge adds no hard dependency.");
             DrawHelp(listing, "RimJobWorld detected right now: " + (TheMarkedMenRjwCompatibility.IsRjwLoaded() ? "yes" : "no") + ".");
             DrawCheckbox(listing, "Auto-enable the RimJobWorld bridge when detected", ref rjwAutoEnableWhenInstalled, "Automatically turns on the bridge after RimJobWorld is found in the active mod list.");
