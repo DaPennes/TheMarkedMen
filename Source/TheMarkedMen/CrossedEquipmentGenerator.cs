@@ -11,13 +11,39 @@ namespace TheMarkedMen
     {
         private const int TierCount = 7;
 
+        [Flags]
+        private enum ApparelCategory
+        {
+            None = 0,
+            Civilian = 1 << 0,
+            LightArmor = 1 << 1,
+            HeavyArmor = 1 << 2,
+            Shield = 1 << 3,
+        }
+
         private static List<ThingDef>[] bodyApparelByTier;
         private static List<ThingDef>[] armorByTier;
         private static List<ThingDef>[] headgearByTier;
         private static List<ThingDef>[] shieldsByTier;
         private static List<ThingDef>[] weaponsByTier;
+        private static Dictionary<ThingDef, ApparelCategory> apparelRoles;
         private static bool cacheBuilt;
         private static bool initAttempted;
+
+        private static readonly Dictionary<PawnKindDef, ApparelCategory> KindApparelMask = new()
+        {
+            { CADefOf.CrossedCivilian,   ApparelCategory.Civilian | ApparelCategory.Shield },
+            { CADefOf.CrossedScout,      ApparelCategory.Civilian | ApparelCategory.LightArmor | ApparelCategory.Shield },
+            { CADefOf.CrossedHunter,     ApparelCategory.Civilian | ApparelCategory.LightArmor },
+            { CADefOf.CrossedShooter,    ApparelCategory.LightArmor | ApparelCategory.HeavyArmor },
+            { CADefOf.CrossedRaider,     ApparelCategory.LightArmor | ApparelCategory.HeavyArmor | ApparelCategory.Shield },
+            { CADefOf.CrossedSoldier,    ApparelCategory.LightArmor | ApparelCategory.HeavyArmor | ApparelCategory.Shield },
+            { CADefOf.CrossedBrute,      ApparelCategory.HeavyArmor | ApparelCategory.LightArmor },
+            { CADefOf.CrossedPyromaniac, ApparelCategory.Civilian | ApparelCategory.LightArmor },
+            { CADefOf.CrossedAlpha,      ApparelCategory.HeavyArmor | ApparelCategory.LightArmor | ApparelCategory.Shield },
+            { CADefOf.CrossedWarlord,    ApparelCategory.HeavyArmor | ApparelCategory.LightArmor | ApparelCategory.Shield },
+            { CADefOf.MarkedMan,         ApparelCategory.HeavyArmor | ApparelCategory.LightArmor | ApparelCategory.Shield },
+        };
 
         private static readonly Dictionary<PawnKindDef, float[]> KindTierWeights = new Dictionary<PawnKindDef, float[]>
         {
@@ -87,12 +113,16 @@ namespace TheMarkedMen
                     weaponsByTier[i] = new List<ThingDef>();
                 }
 
+                apparelRoles = new Dictionary<ThingDef, ApparelCategory>();
+
                 foreach (ThingDef def in DefDatabase<ThingDef>.AllDefs)
                 {
                     if (def?.apparel == null)
                         continue;
 
                     int tier = ClassifyApparel(def);
+                    ApparelCategory role = ClassifyApparelRole(def);
+                    apparelRoles[def] = role;
                     ApparelLayerDef layer = def.apparel.LastLayer;
                     bool isHeadgear = def.apparel.bodyPartGroups?.Any(g => g == BodyPartGroupDefOf.FullHead
                                                                          || g == BodyPartGroupDefOf.UpperHead) == true;
@@ -193,7 +223,8 @@ namespace TheMarkedMen
                     d.apparel?.LastLayer == ApparelLayerDefOf.OnSkin &&
                     !d.apparel.bodyPartGroups.Contains(BodyPartGroupDefOf.Legs) &&
                     d.apparel.bodyPartGroups.Contains(BodyPartGroupDefOf.Torso) &&
-                    CanWear(pawn, d));
+                    CanWear(pawn, d) &&
+                    IsAllowedForKind(pawn.kindDef, d));
                 if (shirt != null)
                     EquipApparel(pawn, shirt, tier);
             }
@@ -203,7 +234,8 @@ namespace TheMarkedMen
                 ThingDef pants = PickFromTier(bodyApparelByTier, tier, d =>
                     d.apparel?.LastLayer == ApparelLayerDefOf.OnSkin &&
                     d.apparel.bodyPartGroups.Contains(BodyPartGroupDefOf.Legs) &&
-                    CanWear(pawn, d));
+                    CanWear(pawn, d) &&
+                    IsAllowedForKind(pawn.kindDef, d));
                 if (pants != null)
                     EquipApparel(pawn, pants, tier);
             }
@@ -214,7 +246,7 @@ namespace TheMarkedMen
             if (HasLayer(pawn, ApparelLayerDefOf.Middle) || HasLayer(pawn, ApparelLayerDefOf.Shell))
                 return;
 
-            ThingDef armor = PickFromTier(armorByTier, tier, d => CanWear(pawn, d));
+            ThingDef armor = PickFromTier(armorByTier, tier, d => CanWear(pawn, d) && IsAllowedForKind(pawn.kindDef, d));
             if (armor != null)
                 EquipApparel(pawn, armor, tier);
         }
@@ -227,7 +259,7 @@ namespace TheMarkedMen
             if (!Rand.Chance(HeadgearChanceForTier(tier)))
                 return;
 
-            ThingDef headgear = PickFromTier(headgearByTier, tier, d => CanWear(pawn, d));
+            ThingDef headgear = PickFromTier(headgearByTier, tier, d => CanWear(pawn, d) && IsAllowedForKind(pawn.kindDef, d));
             if (headgear != null)
                 EquipApparel(pawn, headgear, tier);
         }
@@ -240,7 +272,7 @@ namespace TheMarkedMen
             if (!Rand.Chance(ShieldChanceForKind(pawn.kindDef)))
                 return;
 
-            List<ThingDef> pool = shieldsByTier[tier].Where(d => CanWear(pawn, d)).ToList();
+            List<ThingDef> pool = shieldsByTier[tier].Where(d => CanWear(pawn, d) && IsAllowedForKind(pawn.kindDef, d)).ToList();
             if (pool.Count == 0) return;
 
             EquipApparel(pawn, pool.RandomElement(), tier);
@@ -461,6 +493,37 @@ namespace TheMarkedMen
                 Log.Warning("[The Marked Men] CanWear check failed for " + (def?.defName ?? "null") + ": " + ex.Message);
                 return false;
             }
+        }
+
+        private static bool IsAllowedForKind(PawnKindDef kind, ThingDef def)
+        {
+            if (def?.apparel == null) return true;
+            if (!apparelRoles.TryGetValue(def, out var role)) return true;
+            return KindApparelMask.TryGetValue(kind, out var mask) && (mask & role) != 0;
+        }
+
+        private static ApparelCategory ClassifyApparelRole(ThingDef def)
+        {
+            if (IsShield(def)) return ApparelCategory.Shield;
+
+            string name = def.defName;
+
+            bool hasHeavyKeyword = name.IndexOf("Marine", StringComparison.OrdinalIgnoreCase) >= 0
+                || name.IndexOf("Cataphract", StringComparison.OrdinalIgnoreCase) >= 0
+                || name.IndexOf("Warcasket", StringComparison.OrdinalIgnoreCase) >= 0
+                || name.IndexOf("Phoenix", StringComparison.OrdinalIgnoreCase) >= 0;
+
+            bool hasLightKeyword = name.IndexOf("Flak", StringComparison.OrdinalIgnoreCase) >= 0
+                || name.IndexOf("Vest", StringComparison.OrdinalIgnoreCase) >= 0
+                || name.IndexOf("Bullet", StringComparison.OrdinalIgnoreCase) >= 0
+                || name.IndexOf("BombPack", StringComparison.OrdinalIgnoreCase) >= 0
+                || name.IndexOf("TorchBelt", StringComparison.OrdinalIgnoreCase) >= 0;
+
+            float sharp = def.GetStatValueAbstract(StatDefOf.ArmorRating_Sharp);
+
+            if (sharp >= 0.40f || hasHeavyKeyword) return ApparelCategory.HeavyArmor;
+            if (sharp >= 0.15f || hasLightKeyword) return ApparelCategory.LightArmor;
+            return ApparelCategory.Civilian;
         }
 
         private static bool IsCrossedKind(PawnKindDef kind)
