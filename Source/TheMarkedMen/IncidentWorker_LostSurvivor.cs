@@ -67,11 +67,6 @@ namespace TheMarkedMen
 
             if (CrossedUtility.Component?.EnsureCrossedFaction() == null) return false;
 
-            Pawn survivor = TryGenerateSurvivor(map);
-            if (survivor == null) return false;
-
-            Find.WorldPawns.PassToWorld(survivor, PawnDiscardDecideMode.KeepForever);
-
             IntVec3 dropSpot = CellFinder.RandomEdgeCell(map);
             if (!dropSpot.IsValid)
             {
@@ -80,18 +75,12 @@ namespace TheMarkedMen
             if (!dropSpot.IsValid) return false;
 
             string title = def.letterLabel ?? "CA_LostSurvivor_Title".Translate();
-            string desc = def.letterText ?? "CA_LostSurvivor_Desc".Translate(survivor.Named("PAWN")).Resolve();
-            string acceptText = "CA_LostSurvivor_Accept".Translate(survivor.Named("PAWN")).Resolve();
+            string desc = def.letterText ?? "CA_LostSurvivor_Desc".Translate();
+            string acceptText = "CA_LostSurvivor_Accept".Translate();
             string rejectText = "CA_LostSurvivor_Reject".Translate();
 
-            ChoiceLetter_LostSurvivor letter = (ChoiceLetter_LostSurvivor)LetterMaker.MakeLetter(
-                title, desc,
-                DefDatabase<LetterDef>.GetNamed("CA_LostSurvivorLetter"),
-                new LookTargets(dropSpot, map));
-
-            letter.pawn = survivor;
-            letter.title = title;
-            letter.Text = desc;
+            StandardLetter letter = (StandardLetter)LetterMaker.MakeLetter(
+                title, desc, LetterDefOf.NeutralEvent, new LookTargets(dropSpot, map));
 
             Find.LetterStack.ReceiveLetter(letter);
 
@@ -99,9 +88,10 @@ namespace TheMarkedMen
             DiaOption acceptOpt = new DiaOption(acceptText);
             acceptOpt.action = delegate
             {
-                if (Find.WorldPawns.Contains(survivor))
+                Pawn survivor = TryGenerateSurvivor(map);
+                if (survivor == null)
                 {
-                    Find.WorldPawns.RemovePawn(survivor);
+                    return;
                 }
                 survivor.SetFaction(Faction.OfPlayer);
                 GenSpawn.Spawn(survivor, dropSpot, map, Rot4.Random);
@@ -112,14 +102,6 @@ namespace TheMarkedMen
             DiaOption rejectOpt = new DiaOption(rejectText);
             rejectOpt.action = delegate
             {
-                if (Find.WorldPawns.Contains(survivor))
-                {
-                    Find.WorldPawns.RemovePawn(survivor);
-                }
-                if (!survivor.Destroyed)
-                {
-                    survivor.Destroy(DestroyMode.Vanish);
-                }
             };
             node.options.Add(rejectOpt);
 
