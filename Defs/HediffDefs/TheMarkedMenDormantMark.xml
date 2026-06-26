@@ -11,11 +11,6 @@
     <tendable>false</tendable>
     <isBad>false</isBad>
     <makesSickThought>false</makesSickThought>
-    <neverBleeds>true</neverBleeds>
-    <alwaysShowSeverity>false</alwaysShowSeverity>
-    <allowNegativeSeverity>false</allowNegativeSeverity>
-    <hiddenFromPawn>true</hiddenFromPawn>
-    <hiddenFromAnimalTab>true</hiddenFromAnimalTab>
     <scenarioCanAdd>false</scenarioCanAdd>
     <comps>
       <li Class="TheMarkedMen.HediffCompProperties_DormantMark">

@@ -7650,6 +7650,108 @@ namespace TheMarkedMen
             Report(success, "DevMode: Survivor encounter incident fired.", "DevMode: Could not fire survivor encounter. Ensure the crossed faction exists.");
         }
 
+        [DebugAction(DebugCategory, "Spawn lost survivor with dormant mark", allowedGameStates = AllowedGameStates.PlayingOnMap, actionType = DebugActionType.Action, displayPriority = 930)]
+        public static void SpawnLostSurvivor()
+        {
+            if (!TheMarkedMenSettings.DebugActionsEnabled)
+            {
+                Report(false, null, "DevMode: The Marked Men debug actions are disabled in mod settings.");
+                return;
+            }
+
+            Map map = Find.CurrentMap;
+            if (map == null)
+            {
+                Report(false, null, "DevMode: No active map.");
+                return;
+            }
+
+            if (CrossedUtility.Component?.EnsureCrossedFaction() == null)
+            {
+                Report(false, null, "DevMode: Crossed faction does not exist yet. Start a game first.");
+                return;
+            }
+
+            IncidentDef incidentDef = DefDatabase<IncidentDef>.GetNamedSilentFail("CA_LostSurvivor");
+            if (incidentDef == null)
+            {
+                Report(false, null, "DevMode: CA_LostSurvivor incident def not found. Check XML.");
+                return;
+            }
+
+            IncidentParms parms = new IncidentParms
+            {
+                target = map,
+                faction = CrossedUtility.Component.EnsureCrossedFaction(),
+                forced = true
+            };
+
+            bool success = incidentDef.Worker.TryExecute(parms);
+            Report(success, "DevMode: Lost Survivor incident fired.", "DevMode: Could not fire Lost Survivor incident.");
+        }
+
+        [DebugAction(DebugCategory, "Trigger dormant mark on targeted pawn", allowedGameStates = AllowedGameStates.PlayingOnMap, actionType = DebugActionType.ToolMap, displayPriority = 920)]
+        public static void TriggerDormantMark()
+        {
+            if (!TheMarkedMenSettings.DebugActionsEnabled)
+            {
+                Report(false, null, "DevMode: The Marked Men debug actions are disabled in mod settings.");
+                return;
+            }
+
+            Pawn pawn = UI.MouseCell().GetThingList(Find.CurrentMap).OfType<Pawn>().FirstOrDefault();
+            if (pawn == null)
+            {
+                Report(false, null, "DevMode: No pawn at cursor position.");
+                return;
+            }
+
+            Hediff dormant = pawn.health?.hediffSet?.GetFirstHediffOfDef(CADefOf.CA_DormantMark);
+            if (dormant == null)
+            {
+                Report(false, null, "DevMode: Targeted pawn does not have the dormant mark.");
+                return;
+            }
+
+            HediffComp_DormantMark comp = dormant.TryGetComp<HediffComp_DormantMark>();
+            if (comp == null || comp.IsActivated)
+            {
+                Report(false, null, "DevMode: Dormant mark is already activated or comp missing.");
+                return;
+            }
+
+            comp.AttemptTransformation("debug force trigger");
+        }
+
+        [DebugAction(DebugCategory, "List dormant carriers on map", allowedGameStates = AllowedGameStates.PlayingOnMap, actionType = DebugActionType.Action, displayPriority = 910)]
+        public static void ListDormantCarriers()
+        {
+            if (!TheMarkedMenSettings.DebugActionsEnabled)
+            {
+                Report(false, null, "DevMode: The Marked Men debug actions are disabled in mod settings.");
+                return;
+            }
+
+            Map map = Find.CurrentMap;
+            if (map == null) return;
+
+            int count = 0;
+            foreach (Pawn pawn in map.mapPawns.AllPawnsSpawned)
+            {
+                Hediff dormant = pawn.health?.hediffSet?.GetFirstHediffOfDef(CADefOf.CA_DormantMark);
+                if (dormant == null) continue;
+                HediffComp_DormantMark comp = dormant.TryGetComp<HediffComp_DormantMark>();
+                if (comp == null || comp.IsActivated) continue;
+
+                int ticksLeft = comp.TicksUntilActivation;
+                float daysLeft = ticksLeft / (float)GenDate.TicksPerDay;
+                count++;
+                Log.Message($"[TheMarkedMen] Dormant carrier: {pawn.LabelShort}, days until activation: {daysLeft:F1}, tick: {Find.TickManager.TicksGame}");
+            }
+
+            Report(count > 0, $"DevMode: Found {count} dormant carrier(s) on map. Check debug log for details.", "DevMode: No dormant carriers found on this map.");
+        }
+
         private static TheMarkedMenGameComponent Component => Current.Game?.GetComponent<TheMarkedMenGameComponent>();
 
         private static void Report(bool success, string successText, string failureText)

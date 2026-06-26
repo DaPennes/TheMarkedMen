@@ -46,6 +46,15 @@ namespace TheMarkedMen
 
         public bool IsActivated => activated;
 
+        public int TicksUntilActivation
+        {
+            get
+            {
+                if (activationTick < 0 || activated) return 0;
+                return Math.Max(0, activationTick - Find.TickManager.TicksGame);
+            }
+        }
+
         public override void CompPostPostAdd(DamageInfo? dinfo)
         {
             base.CompPostPostAdd(dinfo);
