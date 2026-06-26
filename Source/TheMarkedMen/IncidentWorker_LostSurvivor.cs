@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Linq;
 using RimWorld;
 using RimWorld.Planet;
@@ -78,19 +79,53 @@ namespace TheMarkedMen
             }
             if (!dropSpot.IsValid) return false;
 
+            string title = def.letterLabel ?? "CA_LostSurvivor_Title".Translate();
+            string desc = def.letterText ?? "CA_LostSurvivor_Desc".Translate(survivor.Named("PAWN")).Resolve();
+            string acceptText = "CA_LostSurvivor_Accept".Translate(survivor.Named("PAWN")).Resolve();
+            string rejectText = "CA_LostSurvivor_Reject".Translate();
+
             ChoiceLetter_LostSurvivor letter = (ChoiceLetter_LostSurvivor)LetterMaker.MakeLetter(
-                def.letterLabel ?? "CA_LostSurvivor_Title".Translate(),
-                def.letterText ?? "CA_LostSurvivor_Desc".Translate(survivor.Named("PAWN")).Resolve(),
+                title, desc,
                 DefDatabase<LetterDef>.GetNamed("CA_LostSurvivorLetter"),
                 new LookTargets(dropSpot, map));
 
             letter.pawn = survivor;
-            letter.spawnSpot = dropSpot;
-            letter.spawnMap = map;
-            letter.title = def.letterLabel ?? "CA_LostSurvivor_Title".Translate();
-            letter.Text = def.letterText ?? "CA_LostSurvivor_Desc".Translate(survivor.Named("PAWN")).Resolve();
+            letter.title = title;
+            letter.Text = desc;
 
             Find.LetterStack.ReceiveLetter(letter);
+
+            DiaNode node = new DiaNode(desc);
+            DiaOption acceptOpt = new DiaOption(acceptText);
+            acceptOpt.action = delegate
+            {
+                if (Find.WorldPawns.Contains(survivor))
+                {
+                    Find.WorldPawns.RemovePawn(survivor);
+                }
+                survivor.SetFaction(Faction.OfPlayer);
+                GenSpawn.Spawn(survivor, dropSpot, map, Rot4.Random);
+                ApplyDormantMark(survivor);
+            };
+            node.options.Add(acceptOpt);
+
+            DiaOption rejectOpt = new DiaOption(rejectText);
+            rejectOpt.action = delegate
+            {
+                if (Find.WorldPawns.Contains(survivor))
+                {
+                    Find.WorldPawns.RemovePawn(survivor);
+                }
+                if (!survivor.Destroyed)
+                {
+                    survivor.Destroy(DestroyMode.Vanish);
+                }
+            };
+            node.options.Add(rejectOpt);
+
+            Dialog_NodeTree dialog = new Dialog_NodeTree(node, false, false, title);
+            Find.WindowStack.Add(dialog);
+
             return true;
         }
 
@@ -108,6 +143,20 @@ namespace TheMarkedMen
                 return pawn;
             }
             return null;
+        }
+
+        private void ApplyDormantMark(Pawn pawn)
+        {
+            if (pawn == null || pawn.health == null)
+            {
+                return;
+            }
+            if (pawn.health.hediffSet.HasHediff(CADefOf.CA_DormantMark))
+            {
+                return;
+            }
+            Hediff dormantMark = HediffMaker.MakeHediff(CADefOf.CA_DormantMark, pawn);
+            pawn.health.AddHediff(dormantMark);
         }
     }
 }
