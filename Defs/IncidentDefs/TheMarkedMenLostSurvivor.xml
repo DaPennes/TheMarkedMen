@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+  <IncidentDef>
+    <defName>CA_LostSurvivor</defName>
+    <label>Lost Survivor arrives</label>
+    <targetTags>
+      <li>Map_PlayerHome</li>
+    </targetTags>
+    <workerClass>TheMarkedMen.IncidentWorker_LostSurvivor</workerClass>
+    <baseChance>0.25</baseChance>
+    <minRefireDays>3</minRefireDays>
+    <earliestDay>4</earliestDay>
+    <category>Misc</category>
+    <pointsScaleable>false</pointsScaleable>
+    <letterLabel>Lost survivor found</letterLabel>
+    <letterText>A disoriented survivor has wandered into the colony. They claim to have been separated from their group days ago and have been traveling alone since. Something about their story feels incomplete, but they seem grateful for shelter.
+
+{PAWN_definite} has joined.</letterText>
+    <letterDef>NeutralEvent</letterDef>
+  </IncidentDef>
+</Defs>

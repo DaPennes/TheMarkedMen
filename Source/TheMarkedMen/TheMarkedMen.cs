@@ -184,6 +184,14 @@ namespace TheMarkedMen
         public bool survivorEncountersEnabled = true;
         public float survivorEncounterChance = 0.5f;
 
+        public bool lostSurvivorEnabled = true;
+        public float lostSurvivorFrequencyMultiplier = 1f;
+        public float dormantMarkMinDays = 8f;
+        public float dormantMarkMaxDays = 30f;
+        public float dormantMarkTriggerMultiplier = 1f;
+        public float dormantMarkAlphaChance = 0.10f;
+        public float dormantMarkGroupVariantChance = 0f;
+
         private int settingsVersion = CurrentSettingsVersion;
         private string currentPreset = "Outbreak simulator";
         private Vector2 scrollPosition;
@@ -414,6 +422,13 @@ namespace TheMarkedMen
             Scribe_Values.Look(ref urbanAmbushesEnabled, "urbanAmbushesEnabled", true);
             Scribe_Values.Look(ref survivorEncountersEnabled, "survivorEncountersEnabled", true);
             Scribe_Values.Look(ref survivorEncounterChance, "survivorEncounterChance", 0.5f);
+            Scribe_Values.Look(ref lostSurvivorEnabled, "lostSurvivorEnabled", true);
+            Scribe_Values.Look(ref lostSurvivorFrequencyMultiplier, "lostSurvivorFrequencyMultiplier", 1f);
+            Scribe_Values.Look(ref dormantMarkMinDays, "dormantMarkMinDays", 8f);
+            Scribe_Values.Look(ref dormantMarkMaxDays, "dormantMarkMaxDays", 30f);
+            Scribe_Values.Look(ref dormantMarkTriggerMultiplier, "dormantMarkTriggerMultiplier", 1f);
+            Scribe_Values.Look(ref dormantMarkAlphaChance, "dormantMarkAlphaChance", 0.10f);
+            Scribe_Values.Look(ref dormantMarkGroupVariantChance, "dormantMarkGroupVariantChance", 0f);
             Scribe_Values.Look(ref currentPreset, "currentPreset", "Outbreak simulator");
             Scribe_Collections.Look(ref sectionOpenStates, "sectionOpenStates", LookMode.Value, LookMode.Value);
             if (sectionOpenStates == null)
@@ -712,6 +727,15 @@ namespace TheMarkedMen
             DrawCheckbox(listing, "Enable urban ambush incidents", ref urbanAmbushesEnabled, "Allows incident-driven ambush events on Ancient Urban Ruins maps in addition to map-component ambushes.");
             DrawCheckbox(listing, "Enable survivor encounters", ref survivorEncountersEnabled, "When enabled, survivor encounters in the ruins may be genuine survivors, hidden infected, or traps leading to infestations.");
             DrawFloat(listing, "Survivor encounter chance modifier", ref survivorEncounterChance, 0f, 1f, "survivorEncounterChance", "Multiplier for survivor encounter incident frequency in urban ruins. Higher values mean more survivor events.");
+
+            DrawSectionHeader(listing, "Lost Survivors", "Controls the Lost Survivor incident. A seemingly normal colonist joins but carries a dormant Marked Virus infection that may activate days or weeks later with unpredictable consequences.");
+            DrawCheckbox(listing, "Enable Lost Survivor incidents", ref lostSurvivorEnabled, "When enabled, the storyteller can send a lost survivor carrying a dormant Marked Virus infection. The survivor appears normal until the dormant mark activates.");
+            DrawFloat(listing, "Lost Survivor frequency", ref lostSurvivorFrequencyMultiplier, 0f, 5f, "lostSurvivorFrequencyMultiplier", "Multiplier for how often Lost Survivor incidents occur. Set to 0 to disable.");
+            DrawFloat(listing, "Min dormant days", ref dormantMarkMinDays, 1f, 60f, "dormantMarkMinDays", "Minimum in-game days before the dormant mark can activate.");
+            DrawFloat(listing, "Max dormant days", ref dormantMarkMaxDays, 1f, 120f, "dormantMarkMaxDays", "Maximum in-game days before the dormant mark will activate.");
+            DrawFloat(listing, "Trigger sensitivity", ref dormantMarkTriggerMultiplier, 0f, 5f, "dormantMarkTriggerMultiplier", "Multiplier for trigger chances (combat damage, near-death, witnessing other transformations, Crossed signal proximity). Higher values make activation more likely.");
+            DrawFloat(listing, "Alpha variant chance", ref dormantMarkAlphaChance, 0f, 1f, "dormantMarkAlphaChance", "Chance that the transformed survivor is an Alpha variant (spawns escorting Crossed on activation). Doubled for prisoner survivors.");
+            DrawFloat(listing, "Group variant chance", ref dormantMarkGroupVariantChance, 0f, 1f, "dormantMarkGroupVariantChance", "Chance that multiple dormant carriers activate simultaneously. Set to 0 to disable group activations.");
 
             DrawSectionHeader(listing, "Optional RimJobWorld Bridge", "Only applies when RimJobWorld is installed. The bridge adds no hard dependency.");
             DrawHelp(listing, "RimJobWorld detected right now: " + (TheMarkedMenRjwCompatibility.IsRjwLoaded() ? "yes" : "no") + ".");
@@ -1473,6 +1497,14 @@ namespace TheMarkedMen
         private static ThoughtDef bloodthirstyCraving;
         private static ThoughtDef overwhelmingBloodlust;
         private static ThoughtDef predatorPatience;
+        private static ThoughtDef witnessedCrossedTransformation;
+        private static HediffDef dormantMark;
+        private static IncidentDef lostSurvivor;
+        private static ThoughtDef betrayedByColonist;
+        private static ThoughtDef betrayedByColonistSocial;
+        private static ThoughtDef lovedOneTurned;
+        private static ThoughtDef suspiciousOfColonists;
+        private static ThoughtDef mercifulKill;
 
         public static HediffDef CrossVirus => crossVirus ?? (crossVirus = DefDatabase<HediffDef>.GetNamedSilentFail("CA_CrossVirus"));
         public static HediffDef CrossVirusImmunity => crossVirusImmunity ?? (crossVirusImmunity = DefDatabase<HediffDef>.GetNamedSilentFail("CA_CrossVirusImmunity"));
@@ -1482,6 +1514,7 @@ namespace TheMarkedMen
         public static HediffDef Panic => panic ?? (panic = DefDatabase<HediffDef>.GetNamedSilentFail("CA_CrossedPanic"));
         public static HediffDef PsychicAura => psychicAura ?? (psychicAura = DefDatabase<HediffDef>.GetNamedSilentFail("CA_PsychicAura"));
         public static ThoughtDef CrossedSocialTerror => crossedSocialTerror ?? (crossedSocialTerror = DefDatabase<ThoughtDef>.GetNamedSilentFail("CA_CrossedSocialTerror"));
+        public static ThoughtDef CA_WitnessedCrossedTransformation => witnessedCrossedTransformation ?? (witnessedCrossedTransformation = DefDatabase<ThoughtDef>.GetNamedSilentFail("CA_WitnessedCrossedTransformation"));
         public static FactionDef CrossedFaction => crossedFaction ?? (crossedFaction = DefDatabase<FactionDef>.GetNamedSilentFail("CA_CrossedFaction"));
         public static InteractionDef CrossedPredatoryTaunt => crossedPredatoryTaunt ?? (crossedPredatoryTaunt = DefDatabase<InteractionDef>.GetNamedSilentFail("CA_CrossedPredatoryTaunt"));
         public static InteractionDef CrossedFalseMercy => crossedFalseMercy ?? (crossedFalseMercy = DefDatabase<InteractionDef>.GetNamedSilentFail("CA_CrossedFalseMercy"));
@@ -1518,6 +1551,13 @@ namespace TheMarkedMen
         public static ThoughtDef BloodthirstyCraving => bloodthirstyCraving ?? (bloodthirstyCraving = DefDatabase<ThoughtDef>.GetNamedSilentFail("CA_BloodthirstyCraving"));
         public static ThoughtDef OverwhelmingBloodlust => overwhelmingBloodlust ?? (overwhelmingBloodlust = DefDatabase<ThoughtDef>.GetNamedSilentFail("CA_OverwhelmingBloodlust"));
         public static ThoughtDef PredatorPatience => predatorPatience ?? (predatorPatience = DefDatabase<ThoughtDef>.GetNamedSilentFail("CA_PredatorPatience"));
+        public static HediffDef CA_DormantMark => dormantMark ?? (dormantMark = DefDatabase<HediffDef>.GetNamedSilentFail("CA_DormantMark"));
+        public static IncidentDef CA_LostSurvivor => lostSurvivor ?? (lostSurvivor = DefDatabase<IncidentDef>.GetNamedSilentFail("CA_LostSurvivor"));
+        public static ThoughtDef CA_BetrayedByColonist => betrayedByColonist ?? (betrayedByColonist = DefDatabase<ThoughtDef>.GetNamedSilentFail("CA_BetrayedByColonist"));
+        public static ThoughtDef CA_BetrayedByColonistSocial => betrayedByColonistSocial ?? (betrayedByColonistSocial = DefDatabase<ThoughtDef>.GetNamedSilentFail("CA_BetrayedByColonistSocial"));
+        public static ThoughtDef CA_LovedOneTurned => lovedOneTurned ?? (lovedOneTurned = DefDatabase<ThoughtDef>.GetNamedSilentFail("CA_LovedOneTurned"));
+        public static ThoughtDef CA_SuspiciousOfColonists => suspiciousOfColonists ?? (suspiciousOfColonists = DefDatabase<ThoughtDef>.GetNamedSilentFail("CA_SuspiciousOfColonists"));
+        public static ThoughtDef CA_MercifulKill => mercifulKill ?? (mercifulKill = DefDatabase<ThoughtDef>.GetNamedSilentFail("CA_MercifulKill"));
 
         public static bool IsCrossedFaceTattoo(TattooDef tattoo)
         {

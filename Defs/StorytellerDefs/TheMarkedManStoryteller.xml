@@ -159,6 +159,19 @@
         </allowedTargetTags>
       </li>
 
+      <!-- Lost Survivor - dormant infection threat -->
+      <li Class="StorytellerCompProperties_OnOffCycle">
+        <incident>CA_LostSurvivor</incident>
+        <minDaysPassed>4</minDaysPassed>
+        <onDays>5.0</onDays>
+        <offDays>3.0</offDays>
+        <minSpacingDays>3.0</minSpacingDays>
+        <numIncidentsRange>1~1</numIncidentsRange>
+        <allowedTargetTags>
+          <li>Map_PlayerHome</li>
+        </allowedTargetTags>
+      </li>
+
       <!-- Random chaos core - everything hits without warning -->
       <li Class="StorytellerCompProperties_RandomMain">
         <allowedTargetTags>

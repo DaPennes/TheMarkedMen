@@ -22,4 +22,27 @@
   <CA_OverwhelmingBloodlust_Desc>The battle consumed everything. There is only the kill.</CA_OverwhelmingBloodlust_Desc>
   <CA_PredatorPatience_Label>predator's patience</CA_PredatorPatience_Label>
   <CA_PredatorPatience_Desc>Watching. Waiting. The prey does not know it is already marked.</CA_PredatorPatience_Desc>
+
+  <!-- Lost Survivor System -->
+  <CA_LostSurvivor_Title>Lost survivor found</CA_LostSurvivor_Title>
+  <CA_LostSurvivor_Desc>A disoriented survivor has wandered into the colony. They claim to have been separated from their group days ago and have been traveling alone since. Something about their story feels incomplete, but they seem grateful for shelter.
+
+{PAWN_definite} has joined.</CA_LostSurvivor_Desc>
+  <CA_LostSurvivor_Betrayal_Label>Dormant infection activated!</CA_LostSurvivor_Betrayal_Label>
+  <CA_LostSurvivor_Betrayal_Text>The dormant Marked Virus infection in {PAWN_labelShort} has suddenly activated! The colonist you took in was carrying the pathogen without visible symptoms — until now.
+
+{PAWN_labelShort} transforms before your eyes, joining the Marked Men. No warning. No chance to prepare. Just the terrible realization that the threat was already inside.</CA_LostSurvivor_Betrayal_Text>
+  <CA_DormantMark_Label>dormant mark</CA_DormantMark_Label>
+  <CA_DormantMark_Desc>A latent Marked Virus infection that has not yet activated. The host shows no symptoms and carries the infection without visible signs.</CA_DormantMark_Desc>
+
+  <!-- Betrayal Thoughts -->
+  <CA_BetrayedByColonist_Label>betrayed by colonist</CA_BetrayedByColonist_Label>
+  <CA_BetrayedByColonist_Desc>Someone I trusted was carrying the Marked Virus. They were one of us until they weren't.</CA_BetrayedByColonist_Desc>
+  <CA_BetrayedByColonistSocial_Label>betrayed by</CA_BetrayedByColonistSocial_Label>
+  <CA_LovedOneTurned_Label>loved one transformed</CA_LovedOneTurned_Label>
+  <CA_LovedOneTurned_Desc>A lover, spouse, or close friend was taken by the Marked Virus. What was left behind wore their face but was not them anymore.</CA_LovedOneTurned_Desc>
+  <CA_SuspiciousOfColonists_Label>suspicious of colonists</CA_SuspiciousOfColonists_Label>
+  <CA_SuspiciousOfColonists_Desc>If one of them was carrying the infection without knowing, any of them could be.</CA_SuspiciousOfColonists_Desc>
+  <CA_MercifulKill_Label>merciful execution</CA_MercifulKill_Label>
+  <CA_MercifulKill_Desc>I put down a colonist before they could turn. It was the right call, but that does not make it easier.</CA_MercifulKill_Desc>
 </LanguageData>

@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+  <HediffDef>
+    <defName>CA_DormantMark</defName>
+    <label>dormant mark</label>
+    <description>A latent Marked Virus infection that has not yet activated. The host shows no symptoms and carries the infection without visible signs. The dormant phase may last days or weeks before triggering under stress, proximity to active Crossed signals, or random viral breakthrough.</description>
+    <hediffClass>HediffWithComps</hediffClass>
+    <initialSeverity>0.01</initialSeverity>
+    <maxSeverity>0.01</maxSeverity>
+    <lethalSeverity>1</lethalSeverity>
+    <tendable>false</tendable>
+    <isBad>false</isBad>
+    <makesSickThought>false</makesSickThought>
+    <neverBleeds>true</neverBleeds>
+    <alwaysShowSeverity>false</alwaysShowSeverity>
+    <allowNegativeSeverity>false</allowNegativeSeverity>
+    <hiddenFromPawn>true</hiddenFromPawn>
+    <hiddenFromAnimalTab>true</hiddenFromAnimalTab>
+    <scenarioCanAdd>false</scenarioCanAdd>
+    <comps>
+      <li Class="TheMarkedMen.HediffCompProperties_DormantMark">
+        <dormantMinDays>8</dormantMinDays>
+        <dormantMaxDays>30</dormantMaxDays>
+        <triggerOnDamageThreshold>0.15</triggerOnDamageThreshold>
+        <triggerOnWitnessChance>0.10</triggerOnWitnessChance>
+        <triggerOnNearDeathChance>0.40</triggerOnNearDeathChance>
+        <triggerOnSignalChance>0.25</triggerOnSignalChance>
+        <socialHediffRadius>12</socialHediffRadius>
+        <socialHediffDurationTicks>60000</socialHediffDurationTicks>
+        <alphaChance>0.10</alphaChance>
+      </li>
+    </comps>
+  </HediffDef>
+</Defs>

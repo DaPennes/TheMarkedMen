@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+  <ThoughtDef>
+    <defName>CA_BetrayedByColonist</defName>
+    <durationDays>12</durationDays>
+    <stackLimit>1</stackLimit>
+    <stages>
+      <li>
+        <label>betrayed by colonist</label>
+        <description>Someone I trusted was carrying the Marked Virus. They were one of us until they weren't. I watched them turn into a monster.</description>
+        <baseMoodEffect>-15</baseMoodEffect>
+      </li>
+    </stages>
+  </ThoughtDef>
+
+  <ThoughtDef>
+    <defName>CA_BetrayedByColonistSocial</defName>
+    <thoughtClass>Thought_MemorySocial</thoughtClass>
+    <durationDays>20</durationDays>
+    <stackLimit>5</stackLimit>
+    <stackLimitForSameOtherPawn>1</stackLimitForSameOtherPawn>
+    <stackedEffectMultiplier>0.85</stackedEffectMultiplier>
+    <developmentalStageFilter>Baby, Child, Adult</developmentalStageFilter>
+    <socialTargetDevelopmentalStageFilter>Baby, Child, Adult</socialTargetDevelopmentalStageFilter>
+    <nullifyingHediffs>
+      <li MayRequire="Ludeon.RimWorld.Anomaly">Inhumanized</li>
+    </nullifyingHediffs>
+    <stages>
+      <li>
+        <label>betrayed by</label>
+        <baseOpinionOffset>-85</baseOpinionOffset>
+      </li>
+    </stages>
+    <thoughtToMake>CA_BetrayedByColonist</thoughtToMake>
+  </ThoughtDef>
+
+  <ThoughtDef>
+    <defName>CA_LovedOneTurned</defName>
+    <durationDays>20</durationDays>
+    <stackLimit>1</stackLimit>
+    <stages>
+      <li>
+        <label>loved one transformed</label>
+        <description>A lover, spouse, or close friend was taken by the Marked Virus. What was left behind wore their face but was not them anymore.</description>
+        <baseMoodEffect>-25</baseMoodEffect>
+      </li>
+    </stages>
+  </ThoughtDef>
+
+  <ThoughtDef>
+    <defName>CA_SuspiciousOfColonists</defName>
+    <durationDays>8</durationDays>
+    <stackLimit>1</stackLimit>
+    <stages>
+      <li>
+        <label>suspicious of colonists</label>
+        <description>If one of them was carrying the infection without knowing, any of them could be. I catch myself watching everyone a little too closely now.</description>
+        <baseMoodEffect>-8</baseMoodEffect>
+      </li>
+    </stages>
+  </ThoughtDef>
+
+  <ThoughtDef>
+    <defName>CA_MercifulKill</defName>
+    <durationDays>10</durationDays>
+    <stackLimit>1</stackLimit>
+    <stages>
+      <li>
+        <label>merciful execution</label>
+        <description>I put down a colonist before they could turn. It was the right call, but that does not make it easier.</description>
+        <baseMoodEffect>-12</baseMoodEffect>
+      </li>
+    </stages>
+  </ThoughtDef>
+</Defs>
