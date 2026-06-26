@@ -21,17 +21,17 @@ namespace TheMarkedMen
 
         private static readonly Dictionary<PawnKindDef, float[]> KindTierWeights = new Dictionary<PawnKindDef, float[]>
         {
-            { CADefOf.CrossedCivilian,  new[] { 0.70f, 0.20f, 0.07f, 0.02f, 0.008f, 0.002f, 0f     } },
-            { CADefOf.CrossedScout,     new[] { 0.20f, 0.50f, 0.22f, 0.06f, 0.02f,  0f,     0f     } },
-            { CADefOf.CrossedHunter,    new[] { 0.15f, 0.45f, 0.30f, 0.08f, 0.02f,  0f,     0f     } },
-            { CADefOf.CrossedShooter,   new[] { 0.05f, 0.15f, 0.50f, 0.22f, 0.07f,  0.01f,  0f     } },
-            { CADefOf.CrossedRaider,    new[] { 0.03f, 0.10f, 0.35f, 0.35f, 0.14f,  0.03f,  0f     } },
-            { CADefOf.CrossedSoldier,   new[] { 0f,    0.05f, 0.15f, 0.35f, 0.30f,  0.13f,  0.02f  } },
-            { CADefOf.CrossedBrute,     new[] { 0f,    0.03f, 0.12f, 0.30f, 0.35f,  0.18f,  0.02f  } },
-            { CADefOf.CrossedPyromaniac,new[] { 0.10f, 0.25f, 0.40f, 0.18f, 0.06f,  0.01f,  0f     } },
-            { CADefOf.CrossedAlpha,     new[] { 0f,    0f,    0.05f, 0.15f, 0.35f,  0.32f,  0.13f  } },
-            { CADefOf.CrossedWarlord,   new[] { 0f,    0f,    0f,    0.05f, 0.20f,  0.40f,  0.35f  } },
-            { CADefOf.MarkedMan,        new[] { 0f,    0f,    0f,    0.02f, 0.08f,  0.30f,  0.60f  } },
+            { CADefOf.CrossedCivilian,  new[] { 0.70f, 0.22f, 0.08f, 0f,    0f,    0f,    0f     } },
+            { CADefOf.CrossedScout,     new[] { 0.15f, 0.45f, 0.30f, 0.10f, 0f,    0f,    0f     } },
+            { CADefOf.CrossedHunter,    new[] { 0.10f, 0.40f, 0.35f, 0.15f, 0f,    0f,    0f     } },
+            { CADefOf.CrossedShooter,   new[] { 0.05f, 0.15f, 0.45f, 0.25f, 0.08f, 0.02f, 0f     } },
+            { CADefOf.CrossedRaider,    new[] { 0.03f, 0.10f, 0.30f, 0.35f, 0.18f, 0.04f, 0f     } },
+            { CADefOf.CrossedSoldier,   new[] { 0f,    0.05f, 0.15f, 0.30f, 0.30f, 0.17f, 0.03f  } },
+            { CADefOf.CrossedBrute,     new[] { 0f,    0.03f, 0.12f, 0.25f, 0.35f, 0.22f, 0.03f  } },
+            { CADefOf.CrossedPyromaniac,new[] { 0.08f, 0.22f, 0.38f, 0.22f, 0.10f, 0f,    0f     } },
+            { CADefOf.CrossedAlpha,     new[] { 0f,    0f,    0.05f, 0.15f, 0.35f, 0.32f, 0.13f  } },
+            { CADefOf.CrossedWarlord,   new[] { 0f,    0f,    0f,    0.05f, 0.20f, 0.40f, 0.35f  } },
+            { CADefOf.MarkedMan,        new[] { 0f,    0f,    0f,    0.02f, 0.08f, 0.30f, 0.60f  } },
         };
 
         private static readonly float[][] QualityWeights =
