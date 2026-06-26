@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using System.Linq;
 using RimWorld;
 using RimWorld.Planet;
@@ -67,6 +66,9 @@ namespace TheMarkedMen
 
             if (CrossedUtility.Component?.EnsureCrossedFaction() == null) return false;
 
+            Pawn survivor = TryGenerateSurvivor(map);
+            if (survivor == null) return false;
+
             IntVec3 dropSpot = CellFinder.RandomEdgeCell(map);
             if (!dropSpot.IsValid)
             {
@@ -74,39 +76,14 @@ namespace TheMarkedMen
             }
             if (!dropSpot.IsValid) return false;
 
-            string title = def.letterLabel ?? "CA_LostSurvivor_Title".Translate();
-            string desc = def.letterText ?? "CA_LostSurvivor_Desc".Translate();
-            string acceptText = "CA_LostSurvivor_Accept".Translate();
-            string rejectText = "CA_LostSurvivor_Reject".Translate();
+            GenSpawn.Spawn(survivor, dropSpot, map, Rot4.Random);
 
-            StandardLetter letter = (StandardLetter)LetterMaker.MakeLetter(
-                title, desc, LetterDefOf.NeutralEvent, new LookTargets(dropSpot, map));
+            ApplyDormantMark(survivor);
 
-            Find.LetterStack.ReceiveLetter(letter);
+            string label = def.letterLabel.Formatted(survivor.Named("PAWN")).AdjustedFor(survivor, "PAWN");
+            string text = def.letterText.Formatted(survivor.Named("PAWN")).AdjustedFor(survivor, "PAWN");
 
-            DiaNode node = new DiaNode(desc);
-            DiaOption acceptOpt = new DiaOption(acceptText);
-            acceptOpt.action = delegate
-            {
-                Pawn survivor = TryGenerateSurvivor(map);
-                if (survivor == null)
-                {
-                    return;
-                }
-                survivor.SetFaction(Faction.OfPlayer);
-                GenSpawn.Spawn(survivor, dropSpot, map, Rot4.Random);
-                ApplyDormantMark(survivor);
-            };
-            node.options.Add(acceptOpt);
-
-            DiaOption rejectOpt = new DiaOption(rejectText);
-            rejectOpt.action = delegate
-            {
-            };
-            node.options.Add(rejectOpt);
-
-            Dialog_NodeTree dialog = new Dialog_NodeTree(node, false, false, title);
-            Find.WindowStack.Add(dialog);
+            SendStandardLetter(label, text, LetterDefOf.PositiveEvent, parms, survivor);
 
             return true;
         }
