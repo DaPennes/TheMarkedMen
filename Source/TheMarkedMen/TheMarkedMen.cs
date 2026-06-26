@@ -191,6 +191,7 @@ namespace TheMarkedMen
         public float dormantMarkTriggerMultiplier = 1f;
         public float dormantMarkAlphaChance = 0.10f;
         public float dormantMarkGroupVariantChance = 0f;
+        public float crossedBionicChance = 0.3f;
 
         private int settingsVersion = CurrentSettingsVersion;
         private string currentPreset = "Outbreak simulator";
@@ -429,6 +430,7 @@ namespace TheMarkedMen
             Scribe_Values.Look(ref dormantMarkTriggerMultiplier, "dormantMarkTriggerMultiplier", 1f);
             Scribe_Values.Look(ref dormantMarkAlphaChance, "dormantMarkAlphaChance", 0.10f);
             Scribe_Values.Look(ref dormantMarkGroupVariantChance, "dormantMarkGroupVariantChance", 0f);
+            Scribe_Values.Look(ref crossedBionicChance, "crossedBionicChance", 0.3f);
             Scribe_Values.Look(ref currentPreset, "currentPreset", "Outbreak simulator");
             Scribe_Collections.Look(ref sectionOpenStates, "sectionOpenStates", LookMode.Value, LookMode.Value);
             if (sectionOpenStates == null)
@@ -736,6 +738,7 @@ namespace TheMarkedMen
             DrawFloat(listing, "Trigger sensitivity", ref dormantMarkTriggerMultiplier, 0f, 5f, "dormantMarkTriggerMultiplier", "Multiplier for trigger chances (combat damage, near-death, witnessing other transformations, Crossed signal proximity). Higher values make activation more likely.");
             DrawFloat(listing, "Alpha variant chance", ref dormantMarkAlphaChance, 0f, 1f, "dormantMarkAlphaChance", "Chance that the transformed survivor is an Alpha variant (spawns escorting Crossed on activation). Doubled for prisoner survivors.");
             DrawFloat(listing, "Group variant chance", ref dormantMarkGroupVariantChance, 0f, 1f, "dormantMarkGroupVariantChance", "Chance that multiple dormant carriers activate simultaneously. Set to 0 to disable group activations.");
+            DrawFloat(listing, "Bionic implant chance", ref crossedBionicChance, 0f, 1f, "crossedBionicChance", "Base probability per body part category for randomly granting bionic implants to turned Crossed pawns. Higher values make Crossed pawns more dangerous.");
 
             DrawSectionHeader(listing, "Optional RimJobWorld Bridge", "Only applies when RimJobWorld is installed. The bridge adds no hard dependency.");
             DrawHelp(listing, "RimJobWorld detected right now: " + (TheMarkedMenRjwCompatibility.IsRjwLoaded() ? "yes" : "no") + ".");
@@ -1500,6 +1503,7 @@ namespace TheMarkedMen
         private static ThoughtDef witnessedCrossedTransformation;
         private static HediffDef dormantMark;
         private static HediffDef crossedRampage;
+        private static HediffDef crossedStrength;
         private static IncidentDef lostSurvivor;
         private static ThoughtDef betrayedByColonist;
         private static ThoughtDef betrayedByColonistSocial;
@@ -1554,6 +1558,7 @@ namespace TheMarkedMen
         public static ThoughtDef PredatorPatience => predatorPatience ?? (predatorPatience = DefDatabase<ThoughtDef>.GetNamedSilentFail("CA_PredatorPatience"));
         public static HediffDef CA_DormantMark => dormantMark ?? (dormantMark = DefDatabase<HediffDef>.GetNamedSilentFail("CA_DormantMark"));
         public static HediffDef CrossedRampage => crossedRampage ?? (crossedRampage = DefDatabase<HediffDef>.GetNamedSilentFail("CA_CrossedRampage"));
+        public static HediffDef CrossedStrength => crossedStrength ?? (crossedStrength = DefDatabase<HediffDef>.GetNamedSilentFail("CA_CrossedStrength"));
         public static IncidentDef CA_LostSurvivor => lostSurvivor ?? (lostSurvivor = DefDatabase<IncidentDef>.GetNamedSilentFail("CA_LostSurvivor"));
         public static ThoughtDef CA_BetrayedByColonist => betrayedByColonist ?? (betrayedByColonist = DefDatabase<ThoughtDef>.GetNamedSilentFail("CA_BetrayedByColonist"));
         public static ThoughtDef CA_BetrayedByColonistSocial => betrayedByColonistSocial ?? (betrayedByColonistSocial = DefDatabase<ThoughtDef>.GetNamedSilentFail("CA_BetrayedByColonistSocial"));
@@ -4937,9 +4942,57 @@ namespace TheMarkedMen
                 pawn.health.AddHediff(CADefOf.BloodRush);
             }
 
+            if (IsCrossedFactionPawn(pawn) && CADefOf.CrossedStrength != null && !pawn.health.hediffSet.HasHediff(CADefOf.CrossedStrength))
+            {
+                pawn.health.AddHediff(CADefOf.CrossedStrength);
+            }
+
+            if (IsCrossedFactionPawn(pawn))
+            {
+                ApplyRandomBionics(pawn);
+            }
+
             ApplyInfectedTattoo(pawn);
             EnsureCrossedBasicClothingOnly(pawn);
             EnsureCrossedPyromaniacMolotov(pawn);
+        }
+
+        public static void ApplyRandomBionics(Pawn pawn)
+        {
+            if (pawn == null || pawn.health == null) return;
+
+            TheMarkedMenSettings settings = TheMarkedMenMod.Settings;
+            float chance = settings?.crossedBionicChance ?? 0.3f;
+            if (chance <= 0f) return;
+
+            TryInstallBionic(pawn, "BionicEye", BodyPartDefOf.Eye, chance);
+            TryInstallBionic(pawn, "BionicArm", BodyPartDefOf.Arm, chance);
+            TryInstallBionic(pawn, "AdvBionicArm", BodyPartDefOf.Arm, chance * 0.15f);
+            TryInstallBionic(pawn, "BionicLeg", BodyPartDefOf.Leg, chance);
+            TryInstallBionic(pawn, "AdvBionicLeg", BodyPartDefOf.Leg, chance * 0.15f);
+            TryInstallBionic(pawn, "BionicHeart", BodyPartDefOf.Heart, chance * 0.4f);
+            TryInstallBionic(pawn, "BionicStomach", DefDatabase<BodyPartDef>.GetNamedSilentFail("Stomach"), chance * 0.4f);
+            TryInstallBionic(pawn, "BionicLung", BodyPartDefOf.Lung, chance * 0.3f);
+            TryInstallBionic(pawn, "BionicKidney", DefDatabase<BodyPartDef>.GetNamedSilentFail("Kidney"), chance * 0.3f);
+            TryInstallBionic(pawn, "BionicEar", DefDatabase<BodyPartDef>.GetNamedSilentFail("Ear"), chance * 0.2f);
+        }
+
+        private static void TryInstallBionic(Pawn pawn, string hediffDefName, BodyPartDef bodyPartDef, float chance)
+        {
+            if (bodyPartDef == null || Rand.Value >= chance) return;
+
+            HediffDef hediffDef = DefDatabase<HediffDef>.GetNamedSilentFail(hediffDefName);
+            if (hediffDef == null) return;
+
+            IEnumerable<BodyPartRecord> parts = pawn.RaceProps.body.GetPartsWithDef(bodyPartDef);
+            if (parts == null || !parts.Any()) return;
+
+            BodyPartRecord part = parts.RandomElement();
+            if (pawn.health.hediffSet.HasDirectlyAddedPartFor(part)) return;
+            if (pawn.health.hediffSet.PartIsMissing(part)) return;
+
+            Hediff implant = HediffMaker.MakeHediff(hediffDef, pawn, part);
+            pawn.health.AddHediff(implant);
         }
 
         public static void EnsurePredatorHediffs(Pawn pawn)

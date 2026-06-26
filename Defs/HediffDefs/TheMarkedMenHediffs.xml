@@ -557,4 +557,25 @@
       </li>
     </comps>
   </HediffDef>
+  <HediffDef>
+    <defName>CA_CrossedStrength</defName>
+    <label>marked strength</label>
+    <description>The Marked Virus enhances the host's physical capabilities beyond normal human limits.</description>
+    <hediffClass>HediffWithComps</hediffClass>
+    <isBad>false</isBad>
+    <tendable>false</tendable>
+    <maxSeverity>1</maxSeverity>
+    <initialSeverity>1</initialSeverity>
+    <statFactors>
+      <MoveSpeed>1.15</MoveSpeed>
+      <MeleeCooldownFactor>0.85</MeleeCooldownFactor>
+      <IncomingDamageFactor>0.90</IncomingDamageFactor>
+      <StaggerDurationFactor>0.75</StaggerDurationFactor>
+    </statFactors>
+    <statOffsets>
+      <MeleeHitChance>3</MeleeHitChance>
+      <MeleeDodgeChance>3</MeleeDodgeChance>
+      <PainShockThreshold>0.25</PainShockThreshold>
+    </statOffsets>
+  </HediffDef>
 </Defs>
