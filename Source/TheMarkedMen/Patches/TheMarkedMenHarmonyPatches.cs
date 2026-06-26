@@ -324,7 +324,6 @@ namespace TheMarkedMen
         public static void Postfix(Pawn __result)
         {
             CrossedEquipmentGenerator.StripEquipment(__result);
-            CrossedUtility.EnsureCrossedPyromaniacMolotov(__result);
         }
     }
 
