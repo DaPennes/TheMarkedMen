@@ -327,19 +327,6 @@ namespace TheMarkedMen
         }
     }
 
-    [HarmonyPatch(typeof(PawnGenerator), nameof(PawnGenerator.GeneratePawn), typeof(PawnGenerationRequest))]
-    public static class Patch_CrossedEliteEquipment
-    {
-        [HarmonyPostfix]
-        public static void Postfix(Pawn __result)
-        {
-            if (__result == null) return;
-            CrossedUtility.AssignCrossedApparel(__result);
-            CrossedUtility.ApplyEliteTierHediff(__result);
-            CrossedUtility.AssignEliteEquipment(__result);
-        }
-    }
-
     [HarmonyPatch]
     public static class Patch_DoorNoise
     {

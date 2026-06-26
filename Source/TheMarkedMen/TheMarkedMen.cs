@@ -4940,9 +4940,7 @@ namespace TheMarkedMen
                 pawn.health.AddHediff(CADefOf.CrossedStrength);
             }
 
-            AssignCrossedApparel(pawn);
             ApplyEliteTierHediff(pawn);
-            AssignEliteEquipment(pawn);
 
             if (IsCrossedFactionPawn(pawn))
             {
