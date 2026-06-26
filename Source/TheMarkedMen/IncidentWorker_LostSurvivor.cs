@@ -1,18 +1,12 @@
-using System;
-using System.Collections.Generic;
+using System.Linq;
 using RimWorld;
-using RimWorld.Planet;
-using UnityEngine;
 using Verse;
 
 namespace TheMarkedMen
 {
     public class IncidentWorker_LostSurvivor : IncidentWorker
     {
-        private const float MinDormancyDays = 8f;
-        private const float MaxDormancyDays = 30f;
         private const int MaxSurvivorPawnRetries = 10;
-        private const int MinColonistsForSurvivor = 0;
 
         private static TheMarkedMenGameComponent Component => CrossedUtility.Component;
 
@@ -53,7 +47,7 @@ namespace TheMarkedMen
             {
                 return false;
             }
-            if (map.mapPawns.FreeColonistsSpawnedCount < MinColonistsForSurvivor)
+            if (map.mapPawns.FreeColonistsSpawnedCount <= 0)
             {
                 return false;
             }
@@ -61,17 +55,6 @@ namespace TheMarkedMen
             {
                 return false;
             }
-            if (CanAddPawn(map) == false)
-            {
-                return false;
-            }
-            return true;
-        }
-
-        private bool CanAddPawn(Map map)
-        {
-            int pawnCount = map.mapPawns.FreeColonistsSpawnedCount;
-            if (pawnCount <= 0) return false;
             return true;
         }
 
@@ -80,73 +63,46 @@ namespace TheMarkedMen
             Map map = parms.target as Map;
             if (map == null) return false;
 
-            Faction crossed = Component?.EnsureCrossedFaction();
-            if (crossed == null) return false;
+            if (CrossedUtility.Component?.EnsureCrossedFaction() == null) return false;
 
-            Pawn survivor = TryGenerateSurvivor(parms, map, crossed);
+            Pawn survivor = TryGenerateSurvivor(map);
             if (survivor == null) return false;
 
-            IntVec3 dropSpot = FindDropSpot(map);
-            if (dropSpot == IntVec3.Invalid) return false;
+            IntVec3 dropSpot = CellFinder.RandomEdgeCell(map);
+            if (!dropSpot.IsValid)
+            {
+                dropSpot = CellFinderLoose.RandomCellWith(c => c.Walkable(map), map, 100);
+            }
+            if (!dropSpot.IsValid) return false;
 
             GenSpawn.Spawn(survivor, dropSpot, map, Rot4.Random);
-            ApplyDormantMark(survivor);
 
-            string label = def.letterLabel ?? "CA_LostSurvivor_Title".Translate();
-            string text = def.letterText ?? "CA_LostSurvivor_Desc".Translate(survivor.Named("PAWN")).Resolve();
-            Find.LetterStack.ReceiveLetter(label, text, def.letterDef ?? LetterDefOf.NeutralEvent, new LookTargets(survivor));
+            ChoiceLetter_LostSurvivor letter = (ChoiceLetter_LostSurvivor)LetterMaker.MakeLetter(
+                def.letterLabel ?? "CA_LostSurvivor_Title".Translate(),
+                def.letterText ?? "CA_LostSurvivor_Desc".Translate(survivor.Named("PAWN")).Resolve(),
+                DefDatabase<LetterDef>.GetNamed("CA_LostSurvivorLetter"),
+                new LookTargets(survivor));
 
+            letter.pawn = survivor;
+
+            Find.LetterStack.ReceiveLetter(letter);
             return true;
         }
 
-        private Pawn TryGenerateSurvivor(IncidentParms parms, Map map, Faction faction)
+        private Pawn TryGenerateSurvivor(Map map)
         {
             for (int i = 0; i < MaxSurvivorPawnRetries; i++)
             {
-                PawnKindDef kind = PawnKindDefOf.Colonist;
-                Faction survivorFaction = Faction.OfPlayer;
-                Pawn pawn = PawnGenerator.GeneratePawn(kind, survivorFaction);
+                Pawn pawn = PawnGenerator.GeneratePawn(PawnKindDefOf.Colonist, Faction.OfPlayer);
                 if (pawn == null) continue;
-
-                if (!CanBeSurvivor(pawn, map)) continue;
-
-                pawn.SetFaction(Faction.OfPlayer);
+                if (pawn.Dead) continue;
+                if (pawn.RaceProps == null || !pawn.RaceProps.Humanlike) continue;
+                if (pawn.IsQuestLodger()) continue;
+                if (pawn.IsMutant) continue;
+                if (CrossedUtility.IsInfectedPawn(pawn)) continue;
                 return pawn;
             }
             return null;
-        }
-
-        private bool CanBeSurvivor(Pawn pawn, Map map)
-        {
-            if (pawn == null || pawn.Dead) return false;
-            if (pawn.RaceProps == null || !pawn.RaceProps.Humanlike) return false;
-            if (pawn.IsQuestLodger()) return false;
-            if (pawn.IsMutant) return false;
-            if (pawn.Faction != null && pawn.Faction != Faction.OfPlayer) return false;
-            if (CrossedUtility.IsInfectedPawn(pawn)) return false;
-            if (pawn.health?.hediffSet?.HasHediff(CADefOf.CA_DormantMark) == true) return false;
-            return true;
-        }
-
-        private void ApplyDormantMark(Pawn pawn)
-        {
-            if (pawn == null || pawn.health == null) return;
-            Hediff dormantMark = HediffMaker.MakeHediff(CADefOf.CA_DormantMark, pawn);
-            pawn.health.AddHediff(dormantMark);
-        }
-
-        private IntVec3 FindDropSpot(Map map)
-        {
-            IntVec3 spot = CellFinderLoose.RandomCellWith(
-                c => c.Standable(map) && !c.Fogged(map) && c.GetRoom(map) != null && !c.GetRoom(map).IsPrisonCell,
-                map, 100);
-            if (spot == IntVec3.Invalid)
-            {
-                spot = CellFinderLoose.RandomCellWith(
-                    c => c.Standable(map) && !c.Fogged(map),
-                    map, 100);
-            }
-            return spot;
         }
     }
 }

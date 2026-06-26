@@ -13,9 +13,7 @@
     <category>Misc</category>
     <pointsScaleable>false</pointsScaleable>
     <letterLabel>Lost survivor found</letterLabel>
-    <letterText>A disoriented survivor has wandered into the colony. They claim to have been separated from their group days ago and have been traveling alone since. Something about their story feels incomplete, but they seem grateful for shelter.
-
-{PAWN_definite} has joined.</letterText>
+    <letterText>A disoriented survivor has wandered to the colony's edge. They claim to have been separated from their group days ago and have been traveling alone since. Something about their story feels incomplete, but they seem grateful for shelter.</letterText>
     <letterDef>NeutralEvent</letterDef>
   </IncidentDef>
 </Defs>

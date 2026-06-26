@@ -25,9 +25,9 @@
 
   <!-- Lost Survivor System -->
   <CA_LostSurvivor_Title>Lost survivor found</CA_LostSurvivor_Title>
-  <CA_LostSurvivor_Desc>A disoriented survivor has wandered into the colony. They claim to have been separated from their group days ago and have been traveling alone since. Something about their story feels incomplete, but they seem grateful for shelter.
-
-{PAWN_definite} has joined.</CA_LostSurvivor_Desc>
+  <CA_LostSurvivor_Desc>A disoriented survivor has wandered to the colony's edge. They claim to have been separated from their group days ago and have been traveling alone since. Something about their story feels incomplete, but they seem grateful for shelter.</CA_LostSurvivor_Desc>
+  <CA_LostSurvivor_Accept>Accept {PAWN_labelShort}</CA_LostSurvivor_Accept>
+  <CA_LostSurvivor_Reject>Send away</CA_LostSurvivor_Reject>
   <CA_LostSurvivor_Betrayal_Label>Dormant infection activated!</CA_LostSurvivor_Betrayal_Label>
   <CA_LostSurvivor_Betrayal_Text>The dormant Marked Virus infection in {PAWN_labelShort} has suddenly activated! The colonist you took in was carrying the pathogen without visible symptoms — until now.
 
