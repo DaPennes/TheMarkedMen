@@ -10,54 +10,47 @@ namespace TheMarkedMen
         public IntVec3 spawnSpot;
         public Map spawnMap;
 
-        private List<DiaOption> cachedChoices;
-
         public override IEnumerable<DiaOption> Choices
         {
             get
             {
-                if (cachedChoices == null)
+                string acceptText = "CA_LostSurvivor_Accept".Translate(pawn.Named("PAWN")).Resolve();
+                string rejectText = "CA_LostSurvivor_Reject".Translate();
+
+                List<DiaOption> list = new List<DiaOption>();
+
+                list.Add(new DiaOption(acceptText)
                 {
-                    cachedChoices = new List<DiaOption>();
-
-                    string acceptText = "CA_LostSurvivor_Accept".Translate(pawn.Named("PAWN")).Resolve();
-                    string rejectText = "CA_LostSurvivor_Reject".Translate();
-
-                    cachedChoices.Add(new DiaOption(acceptText)
+                    action = delegate
                     {
-                        action = delegate
+                        if (Find.WorldPawns.Contains(pawn))
                         {
-                            try
-                            {
-                                pawn.SetFaction(Faction.OfPlayer);
-                                GenSpawn.Spawn(pawn, spawnSpot, spawnMap, Rot4.Random);
-                                ApplyDormantMark(pawn);
-                            }
-                            catch (System.Exception ex)
-                            {
-                                Log.Error("[TheMarkedMen] Accept action error: " + ex);
-                            }
-                            Find.LetterStack.RemoveLetter(this);
+                            Find.WorldPawns.RemovePawn(pawn);
                         }
-                    });
+                        pawn.SetFaction(Faction.OfPlayer);
+                        GenSpawn.Spawn(pawn, spawnSpot, spawnMap, Rot4.Random);
+                        ApplyDormantMark(pawn);
+                        Find.LetterStack.RemoveLetter(this);
+                    }
+                });
 
-                    cachedChoices.Add(new DiaOption(rejectText)
+                list.Add(new DiaOption(rejectText)
+                {
+                    action = delegate
                     {
-                        action = delegate
+                        if (Find.WorldPawns.Contains(pawn))
                         {
-                            try
-                            {
-                                pawn.Destroy(DestroyMode.Vanish);
-                            }
-                            catch (System.Exception ex)
-                            {
-                                Log.Error("[TheMarkedMen] Reject action error: " + ex);
-                            }
-                            Find.LetterStack.RemoveLetter(this);
+                            Find.WorldPawns.RemovePawn(pawn);
                         }
-                    });
-                }
-                return cachedChoices;
+                        if (!pawn.Destroyed)
+                        {
+                            pawn.Destroy(DestroyMode.Vanish);
+                        }
+                        Find.LetterStack.RemoveLetter(this);
+                    }
+                });
+
+                return list;
             }
         }
 

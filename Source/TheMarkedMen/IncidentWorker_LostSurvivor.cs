@@ -1,5 +1,6 @@
 using System.Linq;
 using RimWorld;
+using RimWorld.Planet;
 using Verse;
 
 namespace TheMarkedMen
@@ -67,6 +68,8 @@ namespace TheMarkedMen
 
             Pawn survivor = TryGenerateSurvivor(map);
             if (survivor == null) return false;
+
+            Find.WorldPawns.PassToWorld(survivor, PawnDiscardDecideMode.KeepForever);
 
             IntVec3 dropSpot = CellFinder.RandomEdgeCell(map);
             if (!dropSpot.IsValid)
