@@ -36,6 +36,12 @@ namespace TheMarkedMen
         private static bool cacheBuilt;
         private static bool initAttempted;
 
+        private static readonly HashSet<string> ExcludedDefNames = new()
+        {
+            "VAE_Headgear_TrooperHelmet",
+            "VAE_Apparel_TrooperArmor",
+        };
+
         private static readonly BodyPartGroupDef LegsGroup;
         private static readonly BodyPartGroupDef TorsoGroup;
         private static readonly BodyPartGroupDef HandsGroup;
@@ -175,6 +181,9 @@ namespace TheMarkedMen
                 foreach (ThingDef def in DefDatabase<ThingDef>.AllDefs)
                 {
                     if (def?.apparel == null)
+                        continue;
+
+                    if (ExcludedDefNames.Contains(def.defName))
                         continue;
 
                     int tier = ClassifyApparel(def);
