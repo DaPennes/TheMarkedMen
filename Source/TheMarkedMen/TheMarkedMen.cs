@@ -1504,6 +1504,9 @@ namespace TheMarkedMen
         private static HediffDef dormantMark;
         private static HediffDef crossedRampage;
         private static HediffDef crossedStrength;
+        private static HediffDef warlordTier;
+        private static HediffDef alphaTier;
+        private static HediffDef markedTier;
         private static IncidentDef lostSurvivor;
         private static ThoughtDef betrayedByColonist;
         private static ThoughtDef betrayedByColonistSocial;
@@ -1559,6 +1562,9 @@ namespace TheMarkedMen
         public static HediffDef CA_DormantMark => dormantMark ?? (dormantMark = DefDatabase<HediffDef>.GetNamedSilentFail("CA_DormantMark"));
         public static HediffDef CrossedRampage => crossedRampage ?? (crossedRampage = DefDatabase<HediffDef>.GetNamedSilentFail("CA_CrossedRampage"));
         public static HediffDef CrossedStrength => crossedStrength ?? (crossedStrength = DefDatabase<HediffDef>.GetNamedSilentFail("CA_CrossedStrength"));
+        public static HediffDef WarlordTier => warlordTier ?? (warlordTier = DefDatabase<HediffDef>.GetNamedSilentFail("CA_WarlordTier"));
+        public static HediffDef AlphaTier => alphaTier ?? (alphaTier = DefDatabase<HediffDef>.GetNamedSilentFail("CA_AlphaTier"));
+        public static HediffDef MarkedTier => markedTier ?? (markedTier = DefDatabase<HediffDef>.GetNamedSilentFail("CA_MarkedTier"));
         public static IncidentDef CA_LostSurvivor => lostSurvivor ?? (lostSurvivor = DefDatabase<IncidentDef>.GetNamedSilentFail("CA_LostSurvivor"));
         public static ThoughtDef CA_BetrayedByColonist => betrayedByColonist ?? (betrayedByColonist = DefDatabase<ThoughtDef>.GetNamedSilentFail("CA_BetrayedByColonist"));
         public static ThoughtDef CA_BetrayedByColonistSocial => betrayedByColonistSocial ?? (betrayedByColonistSocial = DefDatabase<ThoughtDef>.GetNamedSilentFail("CA_BetrayedByColonistSocial"));
@@ -4947,6 +4953,9 @@ namespace TheMarkedMen
                 pawn.health.AddHediff(CADefOf.CrossedStrength);
             }
 
+            ApplyEliteTierHediff(pawn);
+            AssignEliteEquipment(pawn);
+
             if (IsCrossedFactionPawn(pawn))
             {
                 ApplyRandomBionics(pawn);
@@ -4993,6 +5002,87 @@ namespace TheMarkedMen
 
             Hediff implant = HediffMaker.MakeHediff(hediffDef, pawn, part);
             pawn.health.AddHediff(implant);
+        }
+
+        private static void ApplyEliteTierHediff(Pawn pawn)
+        {
+            if (pawn == null || pawn.health == null || !IsCrossedFactionPawn(pawn)) return;
+
+            HediffDef tierDef = null;
+            if (pawn.kindDef == CADefOf.CrossedWarlord) tierDef = CADefOf.WarlordTier;
+            else if (pawn.kindDef == CADefOf.CrossedAlpha) tierDef = CADefOf.AlphaTier;
+            else if (pawn.kindDef == CADefOf.MarkedMan) tierDef = CADefOf.MarkedTier;
+
+            if (tierDef != null && !pawn.health.hediffSet.HasHediff(tierDef))
+            {
+                pawn.health.AddHediff(tierDef);
+            }
+        }
+
+        private static void AssignEliteEquipment(Pawn pawn)
+        {
+            if (pawn == null || pawn.Dead) return;
+            if (pawn.kindDef != CADefOf.CrossedWarlord && pawn.kindDef != CADefOf.CrossedAlpha && pawn.kindDef != CADefOf.MarkedMan) return;
+
+            pawn.equipment?.DestroyAllEquipment();
+            pawn.apparel?.DestroyAll();
+
+            if (pawn.kindDef == CADefOf.CrossedWarlord)
+            {
+                TryEquipArmor(pawn, "Apparel_MarineArmor", "Apparel_MarineHelmet");
+                TryEquipWeapon(pawn, "Gun_ChargeRifle");
+                if (Rand.Chance(0.5f))
+                    TryEquipWeapon(pawn, "Melee_Monosword");
+            }
+            else if (pawn.kindDef == CADefOf.CrossedAlpha)
+            {
+                TryEquipArmor(pawn, "Apparel_CataphractArmor", "Apparel_CataphractHelmet");
+                TryEquipWeapon(pawn, "Gun_ChargeLance");
+                TryEquipWeapon(pawn, "Melee_Monosword");
+                TryEquipUtility(pawn, "Apparel_ShieldBelt");
+            }
+            else if (pawn.kindDef == CADefOf.MarkedMan)
+            {
+                TryEquipArmor(pawn, "Apparel_CataphractArmor", "Apparel_CataphractHelmet");
+                TryEquipWeapon(pawn, "Gun_ChargeRifle");
+                TryEquipWeapon(pawn, "Melee_Monosword");
+                TryEquipUtility(pawn, "Apparel_ShieldBelt");
+            }
+        }
+
+        private static void TryEquipArmor(Pawn pawn, string bodyArmorDefName, string helmetDefName)
+        {
+            ThingDef bodyDef = DefDatabase<ThingDef>.GetNamedSilentFail(bodyArmorDefName);
+            if (bodyDef != null)
+            {
+                Apparel armor = (Apparel)ThingMaker.MakeThing(bodyDef);
+                pawn.apparel.Wear(armor);
+            }
+
+            ThingDef helmetDef = DefDatabase<ThingDef>.GetNamedSilentFail(helmetDefName);
+            if (helmetDef != null)
+            {
+                Apparel helmet = (Apparel)ThingMaker.MakeThing(helmetDef);
+                pawn.apparel.Wear(helmet);
+            }
+        }
+
+        private static void TryEquipWeapon(Pawn pawn, string weaponDefName)
+        {
+            ThingDef weaponDef = DefDatabase<ThingDef>.GetNamedSilentFail(weaponDefName);
+            if (weaponDef == null) return;
+
+            ThingWithComps weapon = (ThingWithComps)ThingMaker.MakeThing(weaponDef);
+            pawn.equipment.AddEquipment(weapon);
+        }
+
+        private static void TryEquipUtility(Pawn pawn, string apparelDefName)
+        {
+            ThingDef apparelDef = DefDatabase<ThingDef>.GetNamedSilentFail(apparelDefName);
+            if (apparelDef == null) return;
+
+            Apparel apparel = (Apparel)ThingMaker.MakeThing(apparelDef);
+            pawn.apparel.Wear(apparel);
         }
 
         public static void EnsurePredatorHediffs(Pawn pawn)

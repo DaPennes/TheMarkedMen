@@ -578,4 +578,92 @@
       <PainShockThreshold>0.25</PainShockThreshold>
     </statOffsets>
   </HediffDef>
+  <HediffDef>
+    <defName>CA_WarlordTier</defName>
+    <label>warlord tier</label>
+    <description>This Warlord has undergone severe neural and muscular reinforcement. Its tactical instincts are amplified and its body is conditioned for sustained assault.</description>
+    <hediffClass>HediffWithComps</hediffClass>
+    <isBad>false</isBad>
+    <tendable>false</tendable>
+    <maxSeverity>1</maxSeverity>
+    <initialSeverity>1</initialSeverity>
+    <stages>
+      <li>
+        <painFactor>0</painFactor>
+        <blocksMentalBreaks>true</blocksMentalBreaks>
+        <statFactors>
+          <MoveSpeed>1.20</MoveSpeed>
+          <MeleeCooldownFactor>0.70</MeleeCooldownFactor>
+          <IncomingDamageFactor>0.70</IncomingDamageFactor>
+          <StaggerDurationFactor>0.35</StaggerDurationFactor>
+        </statFactors>
+        <statOffsets>
+          <ShootingAccuracyPawn>4</ShootingAccuracyPawn>
+          <MeleeHitChance>4</MeleeHitChance>
+          <MeleeDodgeChance>3</MeleeDodgeChance>
+          <PainShockThreshold>0.40</PainShockThreshold>
+        </statOffsets>
+      </li>
+    </stages>
+  </HediffDef>
+  <HediffDef>
+    <defName>CA_AlphaTier</defName>
+    <label>alpha tier</label>
+    <description>This Alpha's infection has hybridized with its nervous system, granting preternatural reflexes and dense muscle fiber reinforcement. Armor-piercing strikes and near-complete pain suppression.</description>
+    <hediffClass>HediffWithComps</hediffClass>
+    <isBad>false</isBad>
+    <tendable>false</tendable>
+    <maxSeverity>1</maxSeverity>
+    <initialSeverity>1</initialSeverity>
+    <stages>
+      <li>
+        <painFactor>0</painFactor>
+        <blocksMentalBreaks>true</blocksMentalBreaks>
+        <statFactors>
+          <MoveSpeed>1.30</MoveSpeed>
+          <MeleeCooldownFactor>0.55</MeleeCooldownFactor>
+          <IncomingDamageFactor>0.55</IncomingDamageFactor>
+          <StaggerDurationFactor>0.25</StaggerDurationFactor>
+          <ArmorRating_Sharp>0.30</ArmorRating_Sharp>
+          <ArmorRating_Blunt>0.30</ArmorRating_Blunt>
+        </statFactors>
+        <statOffsets>
+          <ShootingAccuracyPawn>6</ShootingAccuracyPawn>
+          <MeleeHitChance>6</MeleeHitChance>
+          <MeleeDodgeChance>5</MeleeDodgeChance>
+          <PainShockThreshold>0.55</PainShockThreshold>
+        </statOffsets>
+      </li>
+    </stages>
+  </HediffDef>
+  <HediffDef>
+    <defName>CA_MarkedTier</defName>
+    <label>marked tier</label>
+    <description>The Marked Virus has achieved complete saturation. The host is no longer organic — it is a living weapon of apex lethality. Cellular regeneration and subdermal armor make it nearly impossible to put down.</description>
+    <hediffClass>HediffWithComps</hediffClass>
+    <isBad>false</isBad>
+    <tendable>false</tendable>
+    <maxSeverity>1</maxSeverity>
+    <initialSeverity>1</initialSeverity>
+    <stages>
+      <li>
+        <painFactor>0</painFactor>
+        <blocksMentalBreaks>true</blocksMentalBreaks>
+        <statFactors>
+          <MoveSpeed>1.50</MoveSpeed>
+          <MeleeCooldownFactor>0.40</MeleeCooldownFactor>
+          <IncomingDamageFactor>0.35</IncomingDamageFactor>
+          <StaggerDurationFactor>0.15</StaggerDurationFactor>
+          <ArmorRating_Sharp>0.50</ArmorRating_Sharp>
+          <ArmorRating_Blunt>0.50</ArmorRating_Blunt>
+        </statFactors>
+        <statOffsets>
+          <ShootingAccuracyPawn>8</ShootingAccuracyPawn>
+          <MeleeHitChance>10</MeleeHitChance>
+          <MeleeDodgeChance>8</MeleeDodgeChance>
+          <PainShockThreshold>0.75</PainShockThreshold>
+        </statOffsets>
+      </li>
+    </stages>
+  </HediffDef>
 </Defs>
