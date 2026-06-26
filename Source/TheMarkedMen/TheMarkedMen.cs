@@ -5182,7 +5182,17 @@ namespace TheMarkedMen
             }
 
             if (chosen == null) return;
-            Apparel apparel = (Apparel)ThingMaker.MakeThing(chosen);
+            ThingDef stuff = null;
+            if (chosen.MadeFromStuff)
+            {
+                string[] stuffDefs = { "Plasteel", "Steel", "Devilstrand", "Hyperweave", "Synthread", "Cloth" };
+                for (int i = 0; i < stuffDefs.Length; i++)
+                {
+                    stuff = DefDatabase<ThingDef>.GetNamedSilentFail(stuffDefs[i]);
+                    if (stuff != null) break;
+                }
+            }
+            Apparel apparel = (Apparel)(stuff != null ? ThingMaker.MakeThing(chosen, stuff) : ThingMaker.MakeThing(chosen));
             pawn.apparel.Wear(apparel);
         }
 
