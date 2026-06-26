@@ -13,17 +13,18 @@ namespace TheMarkedMen
         {
             get
             {
-                yield return new DiaOption("CA_LostSurvivor_Accept".Translate(pawn.Named("PAWN")).Resolve())
+                var options = new List<DiaOption>();
+
+                options.Add(new DiaOption("CA_LostSurvivor_Accept".Translate(pawn.Named("PAWN")).Resolve())
                 {
                     action = delegate
                     {
                         pawn.SetFaction(Faction.OfPlayer);
                         ApplyDormantMark(pawn);
-                        Find.LetterStack.RemoveLetter(this);
                     }
-                };
+                });
 
-                yield return new DiaOption("CA_LostSurvivor_Reject".Translate())
+                options.Add(new DiaOption("CA_LostSurvivor_Reject".Translate())
                 {
                     action = delegate
                     {
@@ -32,9 +33,10 @@ namespace TheMarkedMen
                             pawn.DeSpawn();
                         }
                         Find.WorldPawns.PassToWorld(pawn, PawnDiscardDecideMode.Discard);
-                        Find.LetterStack.RemoveLetter(this);
                     }
-                };
+                });
+
+                return options;
             }
         }
 
