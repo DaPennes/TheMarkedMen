@@ -26,4 +26,20 @@
       </li>
     </comps>
   </HediffDef>
+  <HediffDef>
+    <defName>CA_CrossedRampage</defName>
+    <label>rampaging</label>
+    <description>This Crossed is in a frenzied rampage, attacking everything in sight without restraint.</description>
+    <hediffClass>HediffWithComps</hediffClass>
+    <isBad>false</isBad>
+    <tendable>false</tendable>
+    <maxSeverity>1</maxSeverity>
+    <initialSeverity>1</initialSeverity>
+    <comps>
+      <li Class="HediffCompProperties_Disappears">
+        <disappearsAfterTicks>60000</disappearsAfterTicks>
+        <showRemainingTime>true</showRemainingTime>
+      </li>
+    </comps>
+  </HediffDef>
 </Defs>

@@ -142,6 +142,8 @@ namespace TheMarkedMen
             }
         }
 
+        private static bool cascadeInProgress;
+
         public void AttemptTransformation(string trigger = "unknown")
         {
             if (activated) return;
@@ -150,11 +152,13 @@ namespace TheMarkedMen
 
             activated = true;
 
-            if (pawn.Spawned && pawn.Map != null)
+            Map map = pawn.Spawned ? pawn.Map : null;
+
+            if (map != null)
             {
-                for (int i = 0; i < pawn.Map.mapPawns.FreeColonistsSpawned.Count; i++)
+                for (int i = 0; i < map.mapPawns.FreeColonistsSpawned.Count; i++)
                 {
-                    Pawn witness = pawn.Map.mapPawns.FreeColonistsSpawned[i];
+                    Pawn witness = map.mapPawns.FreeColonistsSpawned[i];
                     if (witness == pawn || witness.Dead || witness.needs?.mood == null) continue;
 
                     Thought_Memory thought = ThoughtMaker.MakeThought(CADefOf.CA_WitnessedCrossedTransformation) as Thought_Memory;
@@ -178,7 +182,7 @@ namespace TheMarkedMen
             bool isAlpha = settings != null && Rand.Chance(settings.dormantMarkAlphaChance * (pawn.IsPrisonerOfColony ? 2f : 1f));
             bool isGroup = settings != null && Rand.Chance(settings.dormantMarkGroupVariantChance);
 
-            if (isAlpha && pawn.Spawned && pawn.Map != null)
+            if (isAlpha && map != null)
             {
                 TrySpawnEscorts(pawn);
             }
@@ -187,7 +191,9 @@ namespace TheMarkedMen
 
             CrossedUtility.TransformPawn(pawn, suppressNotification: false, infector: null);
 
-            if (pawn.Spawned && pawn.Map != null)
+            ApplyRampageHediff(pawn);
+
+            if (map != null)
             {
                 string letterLabel = "CA_LostSurvivor_Betrayal_Label".Translate();
                 string letterText = "CA_LostSurvivor_Betrayal_Text".Translate(pawn.Named("PAWN")).Resolve();
@@ -195,6 +201,46 @@ namespace TheMarkedMen
             }
 
             DormantMarkLog.Verbose($"[TheMarkedMen] Dormant Mark activated on {pawn.LabelShort}: {trigger}");
+
+            if (!cascadeInProgress && map != null)
+            {
+                CascadeAwakenings(map);
+            }
+        }
+
+        private static void CascadeAwakenings(Map map)
+        {
+            cascadeInProgress = true;
+            try
+            {
+                IReadOnlyList<Pawn> allPawns = map.mapPawns.AllPawnsSpawned;
+                for (int i = 0; i < allPawns.Count; i++)
+                {
+                    Pawn other = allPawns[i];
+                    if (other == null || other.Dead || other.health == null) continue;
+
+                    Hediff dormant = other.health.hediffSet.GetFirstHediffOfDef(CADefOf.CA_DormantMark);
+                    if (dormant == null) continue;
+
+                    HediffComp_DormantMark comp = dormant.TryGetComp<HediffComp_DormantMark>();
+                    if (comp == null || comp.activated) continue;
+
+                    comp.AttemptTransformation("cascade: another dormant carrier awakened nearby");
+                }
+            }
+            finally
+            {
+                cascadeInProgress = false;
+            }
+        }
+
+        private static void ApplyRampageHediff(Pawn pawn)
+        {
+            if (pawn == null || pawn.Dead || pawn.health == null) return;
+            if (pawn.health.hediffSet.HasHediff(CADefOf.CrossedRampage)) return;
+
+            Hediff rampage = HediffMaker.MakeHediff(CADefOf.CrossedRampage, pawn);
+            pawn.health.AddHediff(rampage);
         }
 
         private void TrySpawnEscorts(Pawn pawn)

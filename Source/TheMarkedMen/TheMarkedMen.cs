@@ -1499,6 +1499,7 @@ namespace TheMarkedMen
         private static ThoughtDef predatorPatience;
         private static ThoughtDef witnessedCrossedTransformation;
         private static HediffDef dormantMark;
+        private static HediffDef crossedRampage;
         private static IncidentDef lostSurvivor;
         private static ThoughtDef betrayedByColonist;
         private static ThoughtDef betrayedByColonistSocial;
@@ -1552,6 +1553,7 @@ namespace TheMarkedMen
         public static ThoughtDef OverwhelmingBloodlust => overwhelmingBloodlust ?? (overwhelmingBloodlust = DefDatabase<ThoughtDef>.GetNamedSilentFail("CA_OverwhelmingBloodlust"));
         public static ThoughtDef PredatorPatience => predatorPatience ?? (predatorPatience = DefDatabase<ThoughtDef>.GetNamedSilentFail("CA_PredatorPatience"));
         public static HediffDef CA_DormantMark => dormantMark ?? (dormantMark = DefDatabase<HediffDef>.GetNamedSilentFail("CA_DormantMark"));
+        public static HediffDef CrossedRampage => crossedRampage ?? (crossedRampage = DefDatabase<HediffDef>.GetNamedSilentFail("CA_CrossedRampage"));
         public static IncidentDef CA_LostSurvivor => lostSurvivor ?? (lostSurvivor = DefDatabase<IncidentDef>.GetNamedSilentFail("CA_LostSurvivor"));
         public static ThoughtDef CA_BetrayedByColonist => betrayedByColonist ?? (betrayedByColonist = DefDatabase<ThoughtDef>.GetNamedSilentFail("CA_BetrayedByColonist"));
         public static ThoughtDef CA_BetrayedByColonistSocial => betrayedByColonistSocial ?? (betrayedByColonistSocial = DefDatabase<ThoughtDef>.GetNamedSilentFail("CA_BetrayedByColonistSocial"));
@@ -5341,6 +5343,11 @@ namespace TheMarkedMen
                 return false;
             }
 
+            if (HasRampageHediff(pawn))
+            {
+                return TryIssueRampageJob(pawn);
+            }
+
             bool pyromaniac = CrossedUtility.IsCrossedPyromaniac(pawn);
             if (pyromaniac)
             {
@@ -5415,6 +5422,11 @@ namespace TheMarkedMen
             if (!CanUseTacticalAI(pawn))
             {
                 return false;
+            }
+
+            if (HasRampageHediff(pawn))
+            {
+                return TryIssueRampageJob(pawn);
             }
 
             bool pyromaniac = CrossedUtility.IsCrossedPyromaniac(pawn);
@@ -6044,6 +6056,39 @@ namespace TheMarkedMen
             }
 
             return false;
+        }
+
+        internal static bool HasRampageHediff(Pawn pawn)
+        {
+            return pawn?.health?.hediffSet?.HasHediff(CADefOf.CrossedRampage) == true;
+        }
+
+        private static bool TryIssueRampageJob(Pawn pawn)
+        {
+            if (!pawn.Spawned || pawn.Map == null) return false;
+
+            Pawn best = null;
+            float bestDist = float.MaxValue;
+            IntVec3 pos = pawn.Position;
+            Map map = pawn.Map;
+
+            IReadOnlyList<Pawn> allPawns = map.mapPawns.AllPawnsSpawned;
+            for (int i = 0; i < allPawns.Count; i++)
+            {
+                Pawn candidate = allPawns[i];
+                if (candidate == pawn || candidate.Dead || candidate.Downed) continue;
+                if (candidate.RaceProps == null || !candidate.RaceProps.Humanlike) continue;
+
+                float dist = candidate.Position.DistanceToSquared(pos);
+                if (dist >= bestDist) continue;
+
+                best = candidate;
+                bestDist = dist;
+            }
+
+            if (best == null) return false;
+
+            return TryAssignAttackJob(pawn, best, true);
         }
     }
 
