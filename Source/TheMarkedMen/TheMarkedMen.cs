@@ -5029,7 +5029,7 @@ namespace TheMarkedMen
             installed++;
         }
 
-        private static void ApplyEliteTierHediff(Pawn pawn)
+        public static void ApplyEliteTierHediff(Pawn pawn)
         {
             if (pawn == null || pawn.health == null || !IsCrossedFactionPawn(pawn)) return;
 
@@ -5044,7 +5044,7 @@ namespace TheMarkedMen
             }
         }
 
-        private static void AssignEliteEquipment(Pawn pawn)
+        public static void AssignEliteEquipment(Pawn pawn)
         {
             if (pawn == null || pawn.Dead) return;
             if (pawn.kindDef != CADefOf.CrossedWarlord && pawn.kindDef != CADefOf.CrossedAlpha && pawn.kindDef != CADefOf.MarkedMan) return;
@@ -5052,62 +5052,137 @@ namespace TheMarkedMen
             pawn.equipment?.DestroyAllEquipment();
             pawn.apparel?.DestroyAll();
 
+            string[] armorTags = new[] { "SpacerMilitary", "IndustrialMilitaryAdvanced" };
+            string[] shieldTags = new[] { "SpacerMilitary", "IndustrialAdvanced" };
+
             if (pawn.kindDef == CADefOf.CrossedWarlord)
             {
-                TryEquipArmor(pawn, "Apparel_MarineArmor", "Apparel_MarineHelmet");
-                TryEquipWeapon(pawn, "Gun_ChargeRifle");
-                if (Rand.Chance(0.5f))
-                    TryEquipWeapon(pawn, "Melee_Monosword");
+                TryEquipBestBodyArmor(pawn, armorTags);
+                TryEquipBestHelmet(pawn, armorTags);
+                TryEquipBestWeapon(pawn, new[] { "SpacerGun", "GunHeavy" });
+                TryEquipBestWeapon(pawn, new[] { "MedievalMeleeAdvanced", "MedievalMeleeDecent" });
             }
             else if (pawn.kindDef == CADefOf.CrossedAlpha)
             {
-                TryEquipArmor(pawn, "Apparel_CataphractArmor", "Apparel_CataphractHelmet");
-                TryEquipWeapon(pawn, "Gun_ChargeLance");
-                TryEquipWeapon(pawn, "Melee_Monosword");
-                TryEquipUtility(pawn, "Apparel_ShieldBelt");
+                TryEquipBestBodyArmor(pawn, armorTags);
+                TryEquipBestHelmet(pawn, armorTags);
+                TryEquipBestWeapon(pawn, new[] { "SpacerGun" });
+                TryEquipBestWeapon(pawn, new[] { "MedievalMeleeAdvanced" });
+                TryEquipBestShield(pawn, shieldTags);
             }
             else if (pawn.kindDef == CADefOf.MarkedMan)
             {
-                TryEquipArmor(pawn, "Apparel_CataphractArmor", "Apparel_CataphractHelmet");
-                TryEquipWeapon(pawn, "Gun_ChargeRifle");
-                TryEquipWeapon(pawn, "Melee_Monosword");
-                TryEquipUtility(pawn, "Apparel_ShieldBelt");
+                TryEquipBestBodyArmor(pawn, armorTags);
+                TryEquipBestHelmet(pawn, armorTags);
+                TryEquipBestWeapon(pawn, new[] { "SpacerGun", "GunHeavy" });
+                TryEquipBestWeapon(pawn, new[] { "MedievalMeleeAdvanced" });
+                TryEquipBestShield(pawn, shieldTags);
             }
         }
 
-        private static void TryEquipArmor(Pawn pawn, string bodyArmorDefName, string helmetDefName)
+        private static ThingDef FindBestApparelByTags(ApparelLayerDef layer, string[] tags, Func<ThingDef, float> scoreFunc = null)
         {
-            ThingDef bodyDef = DefDatabase<ThingDef>.GetNamedSilentFail(bodyArmorDefName);
-            if (bodyDef != null)
+            ThingDef best = null;
+            float bestScore = -1f;
+            foreach (ThingDef def in DefDatabase<ThingDef>.AllDefs)
             {
-                Apparel armor = (Apparel)ThingMaker.MakeThing(bodyDef);
-                pawn.apparel.Wear(armor);
+                if (!def.IsApparel || def.apparel == null) continue;
+                if (def.apparel.LastLayer != layer) continue;
+                bool hasTag = false;
+                for (int i = 0; i < tags.Length; i++)
+                {
+                    for (int j = 0; j < def.apparel.tags.Count; j++)
+                    {
+                        if (def.apparel.tags[j] == tags[i]) { hasTag = true; break; }
+                    }
+                    if (hasTag) break;
+                }
+                if (!hasTag) continue;
+                float score = scoreFunc != null ? scoreFunc(def) : def.GetStatValueAbstract(StatDefOf.MaxHitPoints);
+                if (score > bestScore)
+                {
+                    bestScore = score;
+                    best = def;
+                }
             }
-
-            ThingDef helmetDef = DefDatabase<ThingDef>.GetNamedSilentFail(helmetDefName);
-            if (helmetDef != null)
-            {
-                Apparel helmet = (Apparel)ThingMaker.MakeThing(helmetDef);
-                pawn.apparel.Wear(helmet);
-            }
+            return best;
         }
 
-        private static void TryEquipWeapon(Pawn pawn, string weaponDefName)
+        private static ThingDef FindBestWeaponByTags(string[] tags)
         {
-            ThingDef weaponDef = DefDatabase<ThingDef>.GetNamedSilentFail(weaponDefName);
-            if (weaponDef == null) return;
+            ThingDef best = null;
+            float bestScore = -1f;
+            foreach (ThingDef def in DefDatabase<ThingDef>.AllDefs)
+            {
+                if (!def.IsWeapon || def.weaponTags == null || def.weaponTags.Count == 0) continue;
+                bool hasTag = false;
+                for (int i = 0; i < tags.Length; i++)
+                {
+                    for (int j = 0; j < def.weaponTags.Count; j++)
+                    {
+                        if (def.weaponTags[j] == tags[i]) { hasTag = true; break; }
+                    }
+                    if (hasTag) break;
+                }
+                if (!hasTag) continue;
+                float dps = (def.GetStatValueAbstract(StatDefOf.RangedWeapon_DamageMultiplier) + def.GetStatValueAbstract(StatDefOf.MeleeWeapon_DamageMultiplier)) * def.GetStatValueAbstract(StatDefOf.MarketValue);
+                if (dps > bestScore)
+                {
+                    bestScore = dps;
+                    best = def;
+                }
+            }
+            return best;
+        }
 
-            ThingWithComps weapon = (ThingWithComps)ThingMaker.MakeThing(weaponDef);
+        private static void TryEquipBestBodyArmor(Pawn pawn, string[] tags)
+        {
+            ThingDef best = FindBestApparelByTags(ApparelLayerDefOf.Middle, tags, d => d.GetStatValueAbstract(StatDefOf.ArmorRating_Sharp));
+            if (best == null) best = DefDatabase<ThingDef>.GetNamedSilentFail("Apparel_MarineArmor");
+            if (best == null) best = DefDatabase<ThingDef>.GetNamedSilentFail("Apparel_CataphractArmor");
+            if (best == null) return;
+            Apparel armor = (Apparel)ThingMaker.MakeThing(best);
+            pawn.apparel.Wear(armor);
+        }
+
+        private static void TryEquipBestHelmet(Pawn pawn, string[] tags)
+        {
+            ThingDef best = FindBestApparelByTags(ApparelLayerDefOf.Overhead, tags, d => d.GetStatValueAbstract(StatDefOf.ArmorRating_Sharp));
+            if (best == null) best = DefDatabase<ThingDef>.GetNamedSilentFail("Apparel_MarineHelmet");
+            if (best == null) best = DefDatabase<ThingDef>.GetNamedSilentFail("Apparel_CataphractHelmet");
+            if (best == null) return;
+            Apparel helmet = (Apparel)ThingMaker.MakeThing(best);
+            pawn.apparel.Wear(helmet);
+        }
+
+        private static void TryEquipBestShield(Pawn pawn, string[] tags)
+        {
+            ThingDef best = FindBestApparelByTags(ApparelLayerDefOf.Belt, tags, d => d.GetStatValueAbstract(StatDefOf.EnergyShieldEnergyMax));
+            if (best == null) best = DefDatabase<ThingDef>.GetNamedSilentFail("Apparel_ShieldBelt");
+            if (best == null) return;
+            Apparel shield = (Apparel)ThingMaker.MakeThing(best);
+            pawn.apparel.Wear(shield);
+        }
+
+        private static void TryEquipBestWeapon(Pawn pawn, string[] tags)
+        {
+            if (pawn.equipment == null) return;
+            int currentCount = pawn.equipment.AllEquipmentListForReading.Count;
+            if (currentCount >= 2) return;
+
+            ThingDef best = FindBestWeaponByTags(tags);
+            if (best == null)
+            {
+                string[] fallbacks = { "Gun_ChargeRifle", "Melee_Monosword", "Gun_ChargeLance" };
+                for (int i = 0; i < fallbacks.Length; i++)
+                {
+                    best = DefDatabase<ThingDef>.GetNamedSilentFail(fallbacks[i]);
+                    if (best != null) break;
+                }
+            }
+            if (best == null) return;
+            ThingWithComps weapon = (ThingWithComps)ThingMaker.MakeThing(best);
             pawn.equipment.AddEquipment(weapon);
-        }
-
-        private static void TryEquipUtility(Pawn pawn, string apparelDefName)
-        {
-            ThingDef apparelDef = DefDatabase<ThingDef>.GetNamedSilentFail(apparelDefName);
-            if (apparelDef == null) return;
-
-            Apparel apparel = (Apparel)ThingMaker.MakeThing(apparelDef);
-            pawn.apparel.Wear(apparel);
         }
 
         public static void EnsurePredatorHediffs(Pawn pawn)
