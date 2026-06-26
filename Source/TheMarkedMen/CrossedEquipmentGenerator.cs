@@ -72,14 +72,11 @@ namespace TheMarkedMen
 
             try
             {
-                for (int i = 0; i < TierCount; i++)
-                {
-                    bodyApparelByTier = new List<ThingDef>[TierCount];
-                    armorByTier = new List<ThingDef>[TierCount];
-                    headgearByTier = new List<ThingDef>[TierCount];
-                    shieldsByTier = new List<ThingDef>[TierCount];
-                    weaponsByTier = new List<ThingDef>[TierCount];
-                }
+                bodyApparelByTier = new List<ThingDef>[TierCount];
+                armorByTier = new List<ThingDef>[TierCount];
+                headgearByTier = new List<ThingDef>[TierCount];
+                shieldsByTier = new List<ThingDef>[TierCount];
+                weaponsByTier = new List<ThingDef>[TierCount];
 
                 for (int i = 0; i < TierCount; i++)
                 {
@@ -148,9 +145,6 @@ namespace TheMarkedMen
                 BuildCache();
 
             if (!cacheBuilt)
-                return;
-
-            if (!IsCrossedKind(pawn.kindDef))
                 return;
 
             if (HasEquipment(pawn))
@@ -445,8 +439,9 @@ namespace TheMarkedMen
                 return def.apparel?.LastLayer == ApparelLayerDefOf.Belt
                     && def.GetStatValueAbstract(StatDefOf.EnergyShieldEnergyMax) > 0f;
             }
-            catch
+            catch (Exception ex)
             {
+                Log.Warning("[The Marked Men] IsShield check failed for " + (def?.defName ?? "null") + ": " + ex.Message);
                 return false;
             }
         }
@@ -461,8 +456,9 @@ namespace TheMarkedMen
                 return def.apparel.bodyPartGroups == null || def.apparel.bodyPartGroups.Count == 0
                     || def.apparel.bodyPartGroups.Any(g => pawn.RaceProps.body.AllParts.Any(p => p.groups.Contains(g)));
             }
-            catch
+            catch (Exception ex)
             {
+                Log.Warning("[The Marked Men] CanWear check failed for " + (def?.defName ?? "null") + ": " + ex.Message);
                 return false;
             }
         }
@@ -489,9 +485,7 @@ namespace TheMarkedMen
 
             if (def.IsRangedWeapon)
             {
-                float range = def.GetStatValueAbstract(StatDefOf.RangedWeapon_Cooldown) > 0f
-                    ? def.Verbs?.FirstOrDefault()?.range ?? 0f
-                    : 0f;
+                float range = def.Verbs?.FirstOrDefault()?.range ?? 0f;
                 if (range > 75f)
                     return false;
             }
@@ -513,16 +507,13 @@ namespace TheMarkedMen
             if (def?.apparel == null) return 0;
 
             float sharp = def.GetStatValueAbstract(StatDefOf.ArmorRating_Sharp);
-            float blunt = def.GetStatValueAbstract(StatDefOf.ArmorRating_Blunt);
-            float heat = def.GetStatValueAbstract(StatDefOf.ArmorRating_Heat);
-            float maxArmor = Mathf.Max(sharp, blunt, heat);
 
-            if (maxArmor >= 0.55f) return 6;
-            if (maxArmor >= 0.45f) return 5;
-            if (maxArmor >= 0.35f) return 4;
-            if (maxArmor >= 0.25f) return 3;
-            if (maxArmor >= 0.15f) return 2;
-            if (maxArmor >= 0.06f) return 1;
+            if (sharp >= 0.55f) return 6;
+            if (sharp >= 0.45f) return 5;
+            if (sharp >= 0.35f) return 4;
+            if (sharp >= 0.25f) return 3;
+            if (sharp >= 0.15f) return 2;
+            if (sharp >= 0.06f) return 1;
             return 0;
         }
 

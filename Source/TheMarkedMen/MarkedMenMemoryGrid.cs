@@ -538,6 +538,7 @@ namespace TheMarkedMen
 
         private void RemoveOldestScent()
         {
+            if (scentMarkers.Count == 0) return;
             int oldestTick = int.MaxValue;
             int oldestIndex = 0;
             for (int i = 0; i < scentMarkers.Count; i++)
@@ -553,6 +554,7 @@ namespace TheMarkedMen
 
         private void RemoveOldestNoise()
         {
+            if (noiseEvents.Count == 0) return;
             int oldestTick = int.MaxValue;
             int oldestIndex = 0;
             for (int i = 0; i < noiseEvents.Count; i++)

@@ -3925,22 +3925,6 @@ namespace TheMarkedMen
             }
         }
 
-        private static void RestoreFleeStateForMarkedPawn(Pawn pawn)
-        {
-            if (pawn?.mindState == null)
-            {
-                return;
-            }
-
-            RemoveFearlessDueToCrossVirusTag(pawn);
-            pawn.mindState.canFleeIndividual = true;
-            MentalStateHandler handler = pawn.mindState.mentalStateHandler;
-            if (handler != null)
-            {
-                handler.neverFleeIndividual = false;
-            }
-        }
-
         private static void MarkFearlessDueToCrossVirus(Pawn pawn)
         {
             if (pawn == null || IsCrossedFactionPawn(pawn))
