@@ -5797,6 +5797,20 @@ namespace TheMarkedMen
                 return TryTakeTacticalJob(pawn, attackJob, forceCurrentJob);
             }
 
+            float dist = pawn.Position.DistanceTo(target.Position);
+            float range = verb.verbProps.range;
+            if (dist <= range * 1.5f || dist <= 12f)
+            {
+                Job closeJob = JobMaker.MakeJob(JobDefOf.Goto, target.Position, target);
+                closeJob.expiryInterval = 30;
+                closeJob.checkOverrideOnExpire = true;
+                closeJob.canBashDoors = TheMarkedMenSettings.DoorTargetingEnabled;
+                closeJob.canBashFences = true;
+                closeJob.attackDoorIfTargetLost = TheMarkedMenSettings.DoorTargetingEnabled;
+                closeJob.locomotionUrgency = LocomotionUrgency.Sprint;
+                return TryTakeTacticalJob(pawn, closeJob, forceCurrentJob);
+            }
+
             if (!TryFindRangedCastPosition(pawn, target, verb, out IntVec3 castPosition))
             {
                 return false;
