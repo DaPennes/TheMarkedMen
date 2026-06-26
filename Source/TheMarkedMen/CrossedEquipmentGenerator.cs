@@ -133,7 +133,7 @@ namespace TheMarkedMen
         {
             new[] { "Cloth", "Bluefur", "Bearfur" },
             new[] { "Cloth", "Synthread", "Bluefur", "Wolfskin" },
-            new[] { "Cloth", "Synthread", "Devilstrand", "Steel" },
+            new[] { "Cloth", "Synthread", "Devilstrand" },
             new[] { "Synthread", "Devilstrand", "Hyperweave", "Steel", "Plasteel" },
             new[] { "Devilstrand", "Hyperweave", "Plasteel", "Uranium" },
             new[] { "Hyperweave", "Plasteel", "Uranium" },
