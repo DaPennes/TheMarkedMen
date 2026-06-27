@@ -256,12 +256,13 @@ namespace TheMarkedMen
                 Pawn escort = PawnGenerator.GeneratePawn(kind, crossed);
                 if (escort == null) continue;
 
+                CrossedUtility.ApplyClassHediffs(escort);
+                CrossedUtility.ApplyInfectedTattoo(escort);
+
                 IntVec3 spot = CellFinder.RandomClosewalkCellNear(pawn.Position, pawn.Map, 5);
                 if (spot.IsValid && spot.Standable(pawn.Map))
                 {
                     GenSpawn.Spawn(escort, spot, pawn.Map, Rot4.Random);
-                    CrossedUtility.ApplyClassHediffs(escort);
-                    CrossedUtility.ApplyInfectedTattoo(escort);
                 }
             }
         }

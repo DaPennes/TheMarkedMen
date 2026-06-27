@@ -8230,12 +8230,6 @@ namespace TheMarkedMen
 
         protected override void PostProcessGeneratedPawnsAfterSpawning(List<Pawn> generatedPawns)
         {
-            for (int i = 0; i < generatedPawns.Count; i++)
-            {
-                CrossedUtility.ApplyClassHediffs(generatedPawns[i]);
-                CrossedUtility.ApplyInfectedTattoo(generatedPawns[i]);
-            }
-
             CrossedUtility.ApplyGeneratedRaidKindTuning(generatedPawns);
         }
 
@@ -8331,6 +8325,9 @@ namespace TheMarkedMen
                 {
                     continue;
                 }
+
+                CrossedUtility.ApplyClassHediffs(pawn);
+                CrossedUtility.ApplyInfectedTattoo(pawn);
 
                 alphaAdded = alphaAdded || kind == CADefOf.CrossedAlpha || kind == CADefOf.CrossedWarlord || kind == CADefOf.MarkedMan;
                 pawns.Add(pawn);

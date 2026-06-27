@@ -556,6 +556,11 @@ namespace TheMarkedMen
         public static void StripEquipment(Pawn pawn)
         {
             if (pawn == null) return;
+            if (pawn.Spawned)
+            {
+                Log.Warning("[The Marked Men] StripEquipment called on spawned pawn " + pawn.LabelShort + " — skipping to prevent item drops. Equipment should be assigned before spawning.");
+                return;
+            }
             if (pawn.apparel != null)
             {
                 for (int i = pawn.apparel.WornApparel.Count - 1; i >= 0; i--)

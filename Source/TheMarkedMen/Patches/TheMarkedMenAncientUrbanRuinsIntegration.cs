@@ -462,9 +462,9 @@ namespace TheMarkedMen
                     continue;
                 }
 
-                GenSpawn.Spawn(pawn, spawnPos, map, Rot4.Random);
                 CrossedUtility.ApplyClassHediffs(pawn);
                 CrossedUtility.ApplyInfectedTattoo(pawn);
+                GenSpawn.Spawn(pawn, spawnPos, map, Rot4.Random);
                 EnsureUrbanLord(pawn, faction);
 
                 totalInfectedSpawned++;
@@ -525,9 +525,9 @@ namespace TheMarkedMen
                     continue;
                 }
 
-                GenSpawn.Spawn(pawn, spawnPos, map, Rot4.Random);
                 CrossedUtility.ApplyClassHediffs(pawn);
                 CrossedUtility.ApplyInfectedTattoo(pawn);
+                GenSpawn.Spawn(pawn, spawnPos, map, Rot4.Random);
                 EnsureUrbanLord(pawn, faction);
                 totalInfectedSpawned++;
             }
@@ -669,9 +669,9 @@ namespace TheMarkedMen
                     continue;
                 }
 
-                GenSpawn.Spawn(pawn, spawnPos, map, Rot4.Random);
                 CrossedUtility.ApplyClassHediffs(pawn);
                 CrossedUtility.ApplyInfectedTattoo(pawn);
+                GenSpawn.Spawn(pawn, spawnPos, map, Rot4.Random);
                 EnsureUrbanLord(pawn, faction);
                 totalInfectedSpawned++;
             }
@@ -771,9 +771,9 @@ namespace TheMarkedMen
                     continue;
                 }
 
-                GenSpawn.Spawn(pawn, spawnPos, map, Rot4.Random);
                 CrossedUtility.ApplyClassHediffs(pawn);
                 CrossedUtility.ApplyInfectedTattoo(pawn);
+                GenSpawn.Spawn(pawn, spawnPos, map, Rot4.Random);
                 EnsureUrbanLord(pawn, faction);
                 ambushPawns.Add(pawn);
             }
@@ -938,9 +938,9 @@ namespace TheMarkedMen
                     continue;
                 }
 
-                GenSpawn.Spawn(pawn, spawnPos, map, Rot4.Random);
                 CrossedUtility.ApplyClassHediffs(pawn);
                 CrossedUtility.ApplyInfectedTattoo(pawn);
+                GenSpawn.Spawn(pawn, spawnPos, map, Rot4.Random);
                 pawns.Add(pawn);
             }
 
