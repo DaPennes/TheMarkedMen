@@ -614,7 +614,7 @@ namespace TheMarkedMen
             DrawFloat(listing, "Horde frequency multiplier", ref hordeFrequencyMultiplier, 0f, MaxMarkedRaidFrequencyMultiplier, "hordeFrequencyMultiplier", "Multiplier for horde events after the global multiplier is applied.");
             DrawFloat(listing, "Scouting probe frequency multiplier", ref probeFrequencyMultiplier, 0f, MaxMarkedRaidFrequencyMultiplier, "probeFrequencyMultiplier", "Multiplier for small probe incidents after the global multiplier is applied.");
             DrawHelp(listing, "Effective frequencies: warbands " + MultiplierText(EffectiveWarbandFrequencyMultiplier) + ", hordes " + MultiplierText(EffectiveHordeFrequencyMultiplier) + ", probes " + MultiplierText(EffectiveProbeFrequencyMultiplier) + ".");
-            DrawFloat(listing, "Raid strength multiplier", ref raidPointsMultiplier, 0.05f, 10f, "raidPointsMultiplier", "Scales incident points after the minimum point floor is applied.");
+            DrawFloat(listing, "Raid strength multiplier", ref raidPointsMultiplier, 0.05f, 99999f, "raidPointsMultiplier", "Scales incident points after the minimum point floor is applied.");
             DrawFloat(listing, "Minimum raid points", ref minimumRaidPoints, 0f, 100000f, "minimumRaidPoints", "Point floor for generated Marked Men attacks. Higher values make even early raids larger.");
             DrawFloat(listing, "Escalation gained per warband", ref raidEscalationPerRaid, 0f, 2f, "raidEscalationPerRaid", "Extra raid strength added after each scheduled warband starts.");
             DrawFloat(listing, "Escalation maximum bonus", ref raidEscalationMaxBonus, 0f, 20f, "raidEscalationMaxBonus", "Maximum accumulated escalation bonus from repeated warbands.");
@@ -1098,7 +1098,7 @@ namespace TheMarkedMen
             hordeFrequencyMultiplier = Mathf.Clamp(hordeFrequencyMultiplier, 0f, MaxMarkedRaidFrequencyMultiplier);
             probeFrequencyMultiplier = Mathf.Clamp(probeFrequencyMultiplier, 0f, MaxMarkedRaidFrequencyMultiplier);
             firstMarkedRaidDay = Mathf.Clamp(firstMarkedRaidDay, 1, 600);
-            raidPointsMultiplier = Mathf.Clamp(raidPointsMultiplier, 0.05f, 10f);
+            raidPointsMultiplier = Mathf.Max(0.05f, raidPointsMultiplier);
             minimumRaidPoints = Mathf.Clamp(minimumRaidPoints, 0f, 100000f);
             raidEscalationPerRaid = Mathf.Clamp(raidEscalationPerRaid, 0f, 2f);
             raidEscalationMaxBonus = Mathf.Clamp(raidEscalationMaxBonus, 0f, 20f);
@@ -2885,7 +2885,7 @@ namespace TheMarkedMen
             float minimum = Mathf.Max(raidDef == null ? 120f : raidDef.minThreatPoints, TheMarkedMenMod.Settings?.minimumRaidPoints ?? 120f);
             float storytellerPoints = map == null ? minimum : StorytellerUtility.DefaultThreatPointsNow(map);
             float points = Mathf.Max(existingPoints, storytellerPoints, minimum);
-            float pressure = Mathf.InverseLerp(120f, 3600f, points);
+            float pressure = Mathf.InverseLerp(5000f, 50000f, points);
             return Mathf.Max(minimum, points * Mathf.Lerp(0.9f, 1.12f, pressure));
         }
 
@@ -3129,7 +3129,7 @@ namespace TheMarkedMen
         private static int CalculateAdjustedHordeIntervalTicks(Map map, bool allowRandomize)
         {
             float points = map == null ? 120f : StorytellerUtility.DefaultThreatPointsNow(map);
-            float pressure = Mathf.InverseLerp(120f, 3600f, points);
+            float pressure = Mathf.InverseLerp(5000f, 50000f, points);
             float threatScale = CurrentThreatScale();
             float pressureFactor = Mathf.Lerp(1f, 0.72f, pressure);
             float difficultyFactor = Mathf.Clamp(1f / Mathf.Sqrt(threatScale), 0.75f, 1f);
@@ -3176,7 +3176,7 @@ namespace TheMarkedMen
             float minimum = Mathf.Max(hordeDef == null ? 120f : hordeDef.minThreatPoints, TheMarkedMenMod.Settings?.minimumRaidPoints ?? 120f);
             float storytellerPoints = map == null ? minimum : StorytellerUtility.DefaultThreatPointsNow(map);
             float points = Mathf.Max(existingPoints, storytellerPoints, minimum);
-            float pressure = Mathf.InverseLerp(120f, 3600f, points);
+            float pressure = Mathf.InverseLerp(5000f, 50000f, points);
             return Mathf.Max(minimum, points * Mathf.Lerp(0.95f, 1.18f, pressure));
         }
 
@@ -3235,8 +3235,8 @@ namespace TheMarkedMen
 
         public Alert_MarkedMenRaidCountdown()
         {
-            defaultLabel = "Marked Men raid scheduled";
-            defaultExplanation = "A scheduled Marked Men raid is approaching.";
+            defaultLabel = "Remaining:";
+            defaultExplanation = "The chronometer flickers. The Marked will come when they are ready.";
             defaultPriority = AlertPriority.Medium;
         }
 
@@ -3278,7 +3278,7 @@ namespace TheMarkedMen
                 return defaultLabel;
             }
 
-            return "Marked Men raid " + FormatLabelTimeRemaining(ticksUntilRaid);
+            return FormatTimeRemaining(ticksUntilRaid);
         }
 
         public override TaggedString GetExplanation()
@@ -3289,8 +3289,7 @@ namespace TheMarkedMen
                 return defaultExplanation;
             }
 
-            return "Something stirs beyond the perimeter. The Marked are gathering. They will come at their appointed time.\n\n"
-                + "Time remaining: " + FormatTimeRemaining(ticksUntilRaid) + ".";
+            return "Something stirs beyond the perimeter. The Marked are gathering. They will come at their appointed time.";
         }
 
         private static string FormatLabelTimeRemaining(int ticksUntilRaid)
@@ -6721,56 +6720,12 @@ namespace TheMarkedMen
     {
         public static string BuildRaidLetterLabel(string fallbackLabel, List<Pawn> pawns, float points)
         {
-            string fallback = fallbackLabel.NullOrEmpty() ? "Marked Men warband" : fallbackLabel;
-            if (!TheMarkedMenSettings.DetailedRaidLetters)
-            {
-                return fallback;
-            }
-
-            int count = CountActivePawns(pawns);
-            string pressure = DescribeThreatTier(points);
-            if (count <= 0)
-            {
-                return points > 0f ? fallback + ": " + pressure : fallback;
-            }
-
-            return fallback + ": " + count + " infected, " + pressure;
+            return "The Marked have arrived.";
         }
 
         public static string BuildRaidLetterText(string baseText, List<Pawn> pawns, IncidentParms parms, bool horde)
         {
-            float points = Mathf.Max(0f, parms?.points ?? 0f);
-            Map map = parms?.target as Map;
-            string text = baseText.NullOrEmpty()
-                ? "A group of infected Marked Men has reached the colony."
-                : baseText;
-
-            if (!TheMarkedMenSettings.DetailedRaidLetters)
-            {
-                return text;
-            }
-
-            List<string> details = new List<string>();
-            details.Add("Detected infected: " + CountActivePawns(pawns));
-            details.Add("Threat pressure: " + points.ToString("F0") + " (" + DescribeThreatTier(points) + ")");
-            details.Add("Approach: " + DescribeApproach(map, pawns));
-            details.Add("Assault pattern: " + DescribeAssaultPattern(parms, horde));
-
-            string composition = DescribeComposition(pawns);
-            if (!composition.NullOrEmpty())
-            {
-                details.Add("Composition: " + composition);
-            }
-
-            string priority = DescribePriorityTargets(pawns);
-            if (!priority.NullOrEmpty())
-            {
-                details.Add("Priority targets: " + priority);
-            }
-
-            details.Add("Containment: keep wounded and doctors away from melee contact, isolate infected blood, and hold sealed fallback doors.");
-
-            return text + "\n\n" + string.Join("\n", details.ToArray());
+            return "The chronometer ticks. The Marked are here. Hold the line.";
         }
 
         public static string DescribeThreatTier(float points)
@@ -7575,7 +7530,7 @@ namespace TheMarkedMen
         {
             float storytellerPoints = map == null ? minThreatPoints : StorytellerUtility.DefaultThreatPointsNow(map);
             float points = Mathf.Max(existingPoints, storytellerPoints * 0.45f, minThreatPoints);
-            return TheMarkedMenSettings.ApplyRaidPointSettings(Mathf.Clamp(points, minThreatPoints, 650f));
+            return TheMarkedMenSettings.ApplyRaidPointSettings(points);
         }
 
         private static int CalculateProbeCount(float points, int requestedCount)
@@ -7590,7 +7545,7 @@ namespace TheMarkedMen
                 return Mathf.Clamp(requestedCount, minCount, maxCount);
             }
 
-            float normalizedThreat = Mathf.InverseLerp(80f, 650f, points);
+            float normalizedThreat = Mathf.InverseLerp(5000f, 50000f, points);
             int expected = Mathf.RoundToInt(Mathf.Lerp(minCount, maxCount, normalizedThreat));
             int variance = Mathf.Clamp(Mathf.RoundToInt(expected * 0.2f), 1, 2);
             return Rand.RangeInclusive(Mathf.Max(minCount, expected - variance), Mathf.Min(maxCount, expected + variance));
@@ -7624,7 +7579,7 @@ namespace TheMarkedMen
 
         private static PawnKindDef PickProbeKind(float points)
         {
-            float normalizedThreat = Mathf.InverseLerp(80f, 650f, points);
+            float normalizedThreat = Mathf.InverseLerp(5000f, 50000f, points);
             PawnKindDef selected = null;
             float totalWeight = 0f;
 
