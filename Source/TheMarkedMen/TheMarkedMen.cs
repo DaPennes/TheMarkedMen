@@ -5046,7 +5046,17 @@ namespace TheMarkedMen
         public static ThingDef GetMolotovWeaponDef()
         {
             ThingDef molotov = DefDatabase<ThingDef>.GetNamedSilentFail("Weapon_GrenadeMolotov");
-            return molotov ?? DefDatabase<ThingDef>.AllDefs.FirstOrDefault(IsMolotovWeapon);
+            if (molotov != null)
+                return molotov;
+
+            List<ThingDef> allDefs = DefDatabase<ThingDef>.AllDefsListForReading;
+            for (int i = 0; i < allDefs.Count; i++)
+            {
+                if (IsMolotovWeapon(allDefs[i]))
+                    return allDefs[i];
+            }
+
+            return null;
         }
 
         public static bool EnsureCrossedPyromaniacMolotov(Pawn pawn)
@@ -5057,7 +5067,7 @@ namespace TheMarkedMen
             }
 
             ThingWithComps current = pawn.equipment.Primary;
-            if (IsMolotovWeapon(current?.def))
+            if (current != null && !current.Destroyed && IsMolotovWeapon(current.def))
             {
                 return true;
             }
@@ -5068,7 +5078,15 @@ namespace TheMarkedMen
                 return false;
             }
 
-            pawn.equipment.DestroyAllEquipment();
+            List<ThingWithComps> allEquip = pawn.equipment.AllEquipmentListForReading;
+            for (int i = allEquip.Count - 1; i >= 0; i--)
+            {
+                ThingWithComps eq = allEquip[i];
+                if (eq == null || eq.Destroyed) continue;
+                pawn.equipment.Remove(eq);
+                eq.Destroy(DestroyMode.Vanish);
+            }
+
             pawn.equipment.AddEquipment((ThingWithComps)ThingMaker.MakeThing(molotov));
             return true;
         }
