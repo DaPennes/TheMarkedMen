@@ -7175,18 +7175,18 @@ namespace TheMarkedMen
 
         private static PawnKindDef PickRaidKind(float points, int count, bool allowAlpha)
         {
-            float normalizedThreat = Mathf.InverseLerp(120f, 2400f, points);
+            float normalizedThreat = Mathf.InverseLerp(5000f, 50000f, points);
             PawnKindDef selected = null;
             float totalWeight = 0f;
 
             AddWeightedKind(ref selected, ref totalWeight, CADefOf.CrossedCivilian, 14f);
             AddWeightedKind(ref selected, ref totalWeight, CADefOf.CrossedScout, Mathf.Lerp(3f, 8f, normalizedThreat));
             AddWeightedKind(ref selected, ref totalWeight, CADefOf.CrossedHunter, Mathf.Lerp(3f, 8f, normalizedThreat));
-            AddWeightedKind(ref selected, ref totalWeight, CADefOf.CrossedShooter, points >= 180f ? Mathf.Lerp(4f, 10f, normalizedThreat) : 2f);
-            AddWeightedKind(ref selected, ref totalWeight, CADefOf.CrossedRaider, points >= 300f ? Mathf.Lerp(2f, 6f, normalizedThreat) : 0f);
-            AddWeightedKind(ref selected, ref totalWeight, CADefOf.CrossedSoldier, points >= 400f ? Mathf.Lerp(1f, 5f, normalizedThreat) : 0f);
-            AddWeightedKind(ref selected, ref totalWeight, CADefOf.CrossedBrute, points >= 500f ? Mathf.Lerp(0.5f, 3f, normalizedThreat) : 0f);
-            AddWeightedKind(ref selected, ref totalWeight, CADefOf.CrossedPyromaniac, points >= 250f ? Mathf.Lerp(1f, 3f, normalizedThreat) : 0f);
+            AddWeightedKind(ref selected, ref totalWeight, CADefOf.CrossedShooter, Mathf.Lerp(4f, 10f, normalizedThreat));
+            AddWeightedKind(ref selected, ref totalWeight, CADefOf.CrossedRaider, Mathf.Lerp(2f, 6f, normalizedThreat));
+            AddWeightedKind(ref selected, ref totalWeight, CADefOf.CrossedSoldier, Mathf.Lerp(1f, 5f, normalizedThreat));
+            AddWeightedKind(ref selected, ref totalWeight, CADefOf.CrossedBrute, Mathf.Lerp(0.5f, 3f, normalizedThreat));
+            AddWeightedKind(ref selected, ref totalWeight, CADefOf.CrossedPyromaniac, Mathf.Lerp(1f, 3f, normalizedThreat));
             AddWeightedKind(ref selected, ref totalWeight, CADefOf.CrossedAlpha, allowAlpha && count >= 8 && points >= 1000f ? 0.5f : 0f);
             AddWeightedKind(ref selected, ref totalWeight, CADefOf.CrossedWarlord, allowAlpha && count >= 12 && points >= 1800f ? 0.15f : 0f);
             AddWeightedKind(ref selected, ref totalWeight, CADefOf.MarkedMan, allowAlpha && count >= 15 && points >= 3000f ? 0.05f : 0f);
@@ -7347,7 +7347,7 @@ namespace TheMarkedMen
                 return Mathf.Clamp(requestedCount, minCount, maxCount);
             }
 
-            float normalizedThreat = Mathf.InverseLerp(120f, 3600f, points);
+            float normalizedThreat = Mathf.InverseLerp(5000f, 50000f, points);
             float threatScale = CurrentThreatScale();
             float storytellerCountFactor = Mathf.Clamp(Mathf.Sqrt(threatScale), 0.7f, 1.35f);
             int expected = Mathf.RoundToInt(Mathf.Lerp(minCount, maxCount, normalizedThreat) * storytellerCountFactor);
@@ -7361,7 +7361,7 @@ namespace TheMarkedMen
         {
             float storytellerPoints = map == null ? minThreatPoints : StorytellerUtility.DefaultThreatPointsNow(map);
             float points = Mathf.Max(existingPoints, storytellerPoints, minThreatPoints);
-            float pressure = Mathf.InverseLerp(120f, 3600f, points);
+            float pressure = Mathf.InverseLerp(5000f, 50000f, points);
             return TheMarkedMenSettings.ApplyRaidPointSettings(Mathf.Max(minThreatPoints, points * Mathf.Lerp(0.95f, 1.18f, pressure)));
         }
 
@@ -7408,21 +7408,21 @@ namespace TheMarkedMen
 
         private static PawnKindDef PickHordeKind(float points, int count, bool allowAlpha)
         {
-            float normalizedThreat = Mathf.InverseLerp(120f, 2400f, points);
+            float normalizedThreat = Mathf.InverseLerp(5000f, 50000f, points);
             PawnKindDef selected = null;
             float totalWeight = 0f;
 
             AddWeightedKind(ref selected, ref totalWeight, CADefOf.CrossedCivilian, 14f);
             AddWeightedKind(ref selected, ref totalWeight, CADefOf.CrossedScout, Mathf.Lerp(2f, 6f, normalizedThreat));
             AddWeightedKind(ref selected, ref totalWeight, CADefOf.CrossedHunter, Mathf.Lerp(2.5f, 8.5f, normalizedThreat));
-            AddWeightedKind(ref selected, ref totalWeight, CADefOf.CrossedShooter, points >= 220f ? Mathf.Lerp(2f, 6f, normalizedThreat) : 1f);
-            AddWeightedKind(ref selected, ref totalWeight, CADefOf.CrossedRaider, points >= 300f ? Mathf.Lerp(1f, 4f, normalizedThreat) : 0f);
-            AddWeightedKind(ref selected, ref totalWeight, CADefOf.CrossedSoldier, points >= 400f ? Mathf.Lerp(0.5f, 3f, Mathf.InverseLerp(400f, 2400f, points)) : 0f);
-            AddWeightedKind(ref selected, ref totalWeight, CADefOf.CrossedBrute, points >= 500f ? Mathf.Lerp(1f, 4.5f, Mathf.InverseLerp(500f, 2400f, points)) : 0f);
-            AddWeightedKind(ref selected, ref totalWeight, CADefOf.CrossedPyromaniac, points >= 300f ? 3.5f : 1.25f);
-            AddWeightedKind(ref selected, ref totalWeight, CADefOf.CrossedAlpha, allowAlpha && count >= 10 && points >= 1200f ? 0.55f : 0f);
-            AddWeightedKind(ref selected, ref totalWeight, CADefOf.CrossedWarlord, allowAlpha && count >= 15 && points >= 2000f ? 0.15f : 0f);
-            AddWeightedKind(ref selected, ref totalWeight, CADefOf.MarkedMan, allowAlpha && count >= 20 && points >= 3500f ? 0.05f : 0f);
+            AddWeightedKind(ref selected, ref totalWeight, CADefOf.CrossedShooter, Mathf.Lerp(2f, 6f, normalizedThreat));
+            AddWeightedKind(ref selected, ref totalWeight, CADefOf.CrossedRaider, Mathf.Lerp(1f, 4f, normalizedThreat));
+            AddWeightedKind(ref selected, ref totalWeight, CADefOf.CrossedSoldier, Mathf.Lerp(0.5f, 3f, normalizedThreat));
+            AddWeightedKind(ref selected, ref totalWeight, CADefOf.CrossedBrute, Mathf.Lerp(1f, 4.5f, normalizedThreat));
+            AddWeightedKind(ref selected, ref totalWeight, CADefOf.CrossedPyromaniac, 3.5f);
+            AddWeightedKind(ref selected, ref totalWeight, CADefOf.CrossedAlpha, allowAlpha && count >= 10 ? 0.55f : 0f);
+            AddWeightedKind(ref selected, ref totalWeight, CADefOf.CrossedWarlord, allowAlpha && count >= 15 ? 0.15f : 0f);
+            AddWeightedKind(ref selected, ref totalWeight, CADefOf.MarkedMan, allowAlpha && count >= 20 ? 0.05f : 0f);
 
             return selected ?? CADefOf.CrossedCivilian ?? CADefOf.CrossedScout ?? CADefOf.CrossedHunter;
         }
@@ -8035,7 +8035,7 @@ namespace TheMarkedMen
             float minimum = Mathf.Max(incident?.minThreatPoints ?? 120f, TheMarkedMenMod.Settings?.minimumRaidPoints ?? 120f);
             float storytellerPoints = map == null ? minimum : StorytellerUtility.DefaultThreatPointsNow(map);
             float points = Mathf.Max(existingPoints, storytellerPoints, minimum);
-            float pressure = Mathf.InverseLerp(120f, 3600f, points);
+            float pressure = Mathf.InverseLerp(5000f, 50000f, points);
             float pressureFactor = Mathf.Lerp(1.05f, 1.35f, pressure);
             float randomFactor = Props.pointsFactorRange.RandomInRange;
             float storytellerFactor = CalculateStorytellerThreatFactor();
@@ -8284,7 +8284,7 @@ namespace TheMarkedMen
                 return Mathf.Clamp(requestedCount, minCount, maxCount);
             }
 
-            float normalizedThreat = Mathf.InverseLerp(80f, 2000f, points);
+            float normalizedThreat = Mathf.InverseLerp(5000f, 50000f, points);
             int expected = Mathf.RoundToInt(Mathf.Lerp(minCount, maxCount, normalizedThreat));
 
             if (IsMarkedManStoryteller)
@@ -8323,7 +8323,7 @@ namespace TheMarkedMen
 
         private PawnKindDef PickAmbushKind(float points, int count, bool allowAlpha)
         {
-            float normalizedThreat = Mathf.InverseLerp(80f, 2000f, points);
+            float normalizedThreat = Mathf.InverseLerp(5000f, 50000f, points);
             float storytellerFactor = IsMarkedManStoryteller ? 1.5f : 1f;
 
             PawnKindDef selected = null;
@@ -8331,10 +8331,10 @@ namespace TheMarkedMen
 
             AddWeightedKind(ref selected, ref totalWeight, CADefOf.CrossedCivilian, 8f);
             AddWeightedKind(ref selected, ref totalWeight, CADefOf.CrossedHunter, Mathf.Lerp(3f, 10f, normalizedThreat) * storytellerFactor);
-            AddWeightedKind(ref selected, ref totalWeight, CADefOf.CrossedScout, points >= 150f ? Mathf.Lerp(2f, 6f, normalizedThreat) : 1f);
-            AddWeightedKind(ref selected, ref totalWeight, CADefOf.CrossedPyromaniac, points >= 250f ? Mathf.Lerp(1f, 4f, normalizedThreat) * storytellerFactor : 0.5f);
-            AddWeightedKind(ref selected, ref totalWeight, CADefOf.CrossedBrute, points >= 400f ? Mathf.Lerp(0.5f, 3f, Mathf.InverseLerp(400f, 2000f, points)) * storytellerFactor : 0f);
-            AddWeightedKind(ref selected, ref totalWeight, CADefOf.CrossedAlpha, allowAlpha && count >= 8 && points >= 1000f ? 0.4f : 0f);
+            AddWeightedKind(ref selected, ref totalWeight, CADefOf.CrossedScout, Mathf.Lerp(2f, 6f, normalizedThreat));
+            AddWeightedKind(ref selected, ref totalWeight, CADefOf.CrossedPyromaniac, Mathf.Lerp(1f, 4f, normalizedThreat) * storytellerFactor);
+            AddWeightedKind(ref selected, ref totalWeight, CADefOf.CrossedBrute, Mathf.Lerp(0.5f, 3f, normalizedThreat) * storytellerFactor);
+            AddWeightedKind(ref selected, ref totalWeight, CADefOf.CrossedAlpha, allowAlpha && count >= 8 ? 0.4f : 0f);
 
             return selected ?? CADefOf.CrossedCivilian ?? CADefOf.CrossedHunter ?? CADefOf.CrossedScout;
         }

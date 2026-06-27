@@ -261,7 +261,13 @@ namespace TheMarkedMen
 
         private static bool CoversAnyGroup(ThingDef def, BodyPartGroupDef group)
         {
-            return def.apparel?.bodyPartGroups?.Any(g => g == group) == true;
+            List<BodyPartGroupDef> groups = def.apparel?.bodyPartGroups;
+            if (groups == null) return false;
+            for (int i = 0; i < groups.Count; i++)
+            {
+                if (groups[i] == group) return true;
+            }
+            return false;
         }
 
         public static void AssignEquipment(Pawn pawn)
@@ -404,10 +410,10 @@ namespace TheMarkedMen
             if (!Rand.Chance(ShieldChanceForKind(pawn.kindDef)))
                 return;
 
-            List<ThingDef> pool = shieldsByTier[tier].Where(d => CanWear(pawn, d) && IsAllowedForKind(pawn.kindDef, d)).ToList();
-            if (pool.Count == 0) return;
+            ThingDef shield = PickFromTier(shieldsByTier, tier, d => CanWear(pawn, d) && IsAllowedForKind(pawn.kindDef, d));
+            if (shield == null) return;
 
-            EquipApparel(pawn, pool.RandomElement(), tier);
+            EquipApparel(pawn, shield, tier);
         }
 
         private static void EquipAccessory(Pawn pawn, int tier)
@@ -418,15 +424,18 @@ namespace TheMarkedMen
             if (!Rand.Chance(0.15f))
                 return;
 
-            List<ThingDef> pool = accessoriesByTier[tier].Where(d => CanWear(pawn, d) && IsAllowedForKind(pawn.kindDef, d)).ToList();
-            if (pool.Count == 0) return;
+            ThingDef accessory = PickFromTier(accessoriesByTier, tier, d => CanWear(pawn, d) && IsAllowedForKind(pawn.kindDef, d));
+            if (accessory == null) return;
 
-            EquipApparel(pawn, pool.RandomElement(), tier);
+            EquipApparel(pawn, accessory, tier);
         }
 
         private static void EquipWeapon(Pawn pawn, int tier)
         {
-            if (pawn.equipment == null || pawn.equipment.Primary != null)
+            if (pawn.equipment == null)
+                return;
+
+            if (pawn.equipment.Primary != null && !pawn.equipment.Primary.Destroyed)
                 return;
 
             ThingDef weapon = PickFromTier(weaponsByTier, tier, d => CanUseWeapon(pawn, d));
@@ -439,16 +448,40 @@ namespace TheMarkedMen
             ThingDef stuff = null;
             if (weapon.MadeFromStuff)
             {
-                for (int i = 0; i < StuffMaterials[tier].Length; i++)
+                string[] mats = StuffMaterials[tier];
+                for (int i = 0; i < mats.Length; i++)
                 {
-                    stuff = DefDatabase<ThingDef>.GetNamedSilentFail(StuffMaterials[tier][i]);
+                    stuff = DefDatabase<ThingDef>.GetNamedSilentFail(mats[i]);
                     if (stuff != null) break;
+                }
+
+                if (stuff == null)
+                {
+                    for (int t = tier - 1; t >= 0; t--)
+                    {
+                        string[] fallbackMats = StuffMaterials[t];
+                        for (int i = 0; i < fallbackMats.Length; i++)
+                        {
+                            stuff = DefDatabase<ThingDef>.GetNamedSilentFail(fallbackMats[i]);
+                            if (stuff != null) break;
+                        }
+                        if (stuff != null) break;
+                    }
                 }
             }
 
-            ThingWithComps thing = stuff != null
-                ? (ThingWithComps)ThingMaker.MakeThing(weapon, stuff)
-                : (ThingWithComps)ThingMaker.MakeThing(weapon);
+            ThingWithComps thing;
+            try
+            {
+                thing = stuff != null
+                    ? (ThingWithComps)ThingMaker.MakeThing(weapon, stuff)
+                    : (ThingWithComps)ThingMaker.MakeThing(weapon);
+            }
+            catch (Exception ex)
+            {
+                Log.Warning("[The Marked Men] EquipWeapon failed for " + (weapon?.defName ?? "null") + ": " + ex.Message);
+                return;
+            }
 
             ApplyQualityAndHP(thing, tier);
             pawn.equipment.AddEquipment(thing);
@@ -458,10 +491,16 @@ namespace TheMarkedMen
         {
             if (pawn.equipment == null) return;
 
-            pawn.equipment.DestroyAllEquipment();
+            List<ThingWithComps> allEquip = pawn.equipment.AllEquipmentListForReading;
+            for (int i = allEquip.Count - 1; i >= 0; i--)
+            {
+                ThingWithComps eq = allEquip[i];
+                if (eq == null || eq.Destroyed) continue;
+                pawn.equipment.Remove(eq);
+                eq.Destroy(DestroyMode.Vanish);
+            }
 
-            ThingDef molotov = DefDatabase<ThingDef>.AllDefs.FirstOrDefault(d =>
-                d.IsWeapon && d.defName.IndexOf("Molotov", StringComparison.OrdinalIgnoreCase) >= 0);
+            ThingDef molotov = CrossedUtility.GetMolotovWeaponDef();
             if (molotov == null) return;
 
             ThingWithComps weapon = (ThingWithComps)ThingMaker.MakeThing(molotov);
@@ -490,10 +529,27 @@ namespace TheMarkedMen
 
         private static bool HasEquipment(Pawn pawn)
         {
-            if (pawn.apparel != null && pawn.apparel.WornApparel.Count > 0)
-                return true;
-            if (pawn.equipment != null && pawn.equipment.Primary != null)
-                return true;
+            if (pawn.apparel != null)
+            {
+                for (int i = 0; i < pawn.apparel.WornApparel.Count; i++)
+                {
+                    Apparel ap = pawn.apparel.WornApparel[i];
+                    if (ap != null && !ap.Destroyed)
+                        return true;
+                }
+            }
+
+            if (pawn.equipment != null)
+            {
+                List<ThingWithComps> allEquip = pawn.equipment.AllEquipmentListForReading;
+                for (int i = 0; i < allEquip.Count; i++)
+                {
+                    ThingWithComps eq = allEquip[i];
+                    if (eq != null && !eq.Destroyed)
+                        return true;
+                }
+            }
+
             return false;
         }
 
@@ -505,21 +561,32 @@ namespace TheMarkedMen
                 for (int i = pawn.apparel.WornApparel.Count - 1; i >= 0; i--)
                 {
                     Apparel ap = pawn.apparel.WornApparel[i];
-                    if (ap.Destroyed) continue;
-                    ap.Destroy(DestroyMode.Vanish);
+                    if (ap == null || ap.Destroyed) continue;
                     pawn.apparel.Remove(ap);
+                    ap.Destroy(DestroyMode.Vanish);
                 }
             }
 
-            pawn.equipment?.DestroyAllEquipment();
+            if (pawn.equipment != null)
+            {
+                List<ThingWithComps> allEquip = pawn.equipment.AllEquipmentListForReading;
+                for (int i = allEquip.Count - 1; i >= 0; i--)
+                {
+                    ThingWithComps eq = allEquip[i];
+                    if (eq == null || eq.Destroyed) continue;
+                    pawn.equipment.Remove(eq);
+                    eq.Destroy(DestroyMode.Vanish);
+                }
+            }
 
             if (pawn.inventory != null)
             {
                 for (int i = pawn.inventory.innerContainer.Count - 1; i >= 0; i--)
                 {
                     Thing t = pawn.inventory.innerContainer[i];
-                    if (!t.Destroyed)
-                        t.Destroy(DestroyMode.Vanish);
+                    if (t == null || t.Destroyed) continue;
+                    pawn.inventory.innerContainer.Remove(t);
+                    t.Destroy(DestroyMode.Vanish);
                 }
             }
         }
@@ -530,11 +597,11 @@ namespace TheMarkedMen
             for (int i = pawn.apparel.WornApparel.Count - 1; i >= 0; i--)
             {
                 Apparel ap = pawn.apparel.WornApparel[i];
-                if (ap.Destroyed) continue;
+                if (ap == null || ap.Destroyed) continue;
                 if (!IsAllowedForKind(pawn.kindDef, ap.def))
                 {
-                    ap.Destroy(DestroyMode.Vanish);
                     pawn.apparel.Remove(ap);
+                    ap.Destroy(DestroyMode.Vanish);
                 }
             }
         }
@@ -544,16 +611,40 @@ namespace TheMarkedMen
             ThingDef stuff = null;
             if (def.MadeFromStuff)
             {
-                for (int i = 0; i < StuffMaterials[tier].Length; i++)
+                string[] mats = StuffMaterials[tier];
+                for (int i = 0; i < mats.Length; i++)
                 {
-                    stuff = DefDatabase<ThingDef>.GetNamedSilentFail(StuffMaterials[tier][i]);
+                    stuff = DefDatabase<ThingDef>.GetNamedSilentFail(mats[i]);
                     if (stuff != null) break;
+                }
+
+                if (stuff == null)
+                {
+                    for (int t = tier - 1; t >= 0; t--)
+                    {
+                        string[] fallbackMats = StuffMaterials[t];
+                        for (int i = 0; i < fallbackMats.Length; i++)
+                        {
+                            stuff = DefDatabase<ThingDef>.GetNamedSilentFail(fallbackMats[i]);
+                            if (stuff != null) break;
+                        }
+                        if (stuff != null) break;
+                    }
                 }
             }
 
-            Apparel apparel = (Apparel)(stuff != null
-                ? ThingMaker.MakeThing(def, stuff)
-                : ThingMaker.MakeThing(def));
+            Apparel apparel;
+            try
+            {
+                apparel = (Apparel)(stuff != null
+                    ? ThingMaker.MakeThing(def, stuff)
+                    : ThingMaker.MakeThing(def));
+            }
+            catch (Exception ex)
+            {
+                Log.Warning("[The Marked Men] EquipApparel failed for " + (def?.defName ?? "null") + ": " + ex.Message);
+                return;
+            }
 
             ApplyQualityAndHP(apparel, tier);
             pawn.apparel.Wear(apparel);
@@ -575,9 +666,27 @@ namespace TheMarkedMen
         {
             for (int t = baseTier; t >= 0; t--)
             {
-                List<ThingDef> candidates = pools[t].Where(filter).ToList();
-                if (candidates.Count > 0)
-                    return candidates.RandomElement();
+                List<ThingDef> pool = pools[t];
+                int count = 0;
+                for (int i = 0; i < pool.Count; i++)
+                {
+                    if (filter(pool[i]))
+                        count++;
+                }
+
+                if (count == 0)
+                    continue;
+
+                int idx = Rand.RangeInclusive(0, count - 1);
+                for (int i = 0; i < pool.Count; i++)
+                {
+                    if (filter(pool[i]))
+                    {
+                        if (idx == 0)
+                            return pool[i];
+                        idx--;
+                    }
+                }
             }
             return null;
         }
@@ -662,8 +771,20 @@ namespace TheMarkedMen
 
             try
             {
-                return def.apparel.bodyPartGroups == null || def.apparel.bodyPartGroups.Count == 0
-                    || def.apparel.bodyPartGroups.Any(g => pawn.RaceProps.body.AllParts.Any(p => p.groups.Contains(g)));
+                if (def.apparel.bodyPartGroups == null || def.apparel.bodyPartGroups.Count == 0)
+                    return true;
+                List<BodyPartGroupDef> groups = def.apparel.bodyPartGroups;
+                List<BodyPartRecord> allParts = pawn.RaceProps.body.AllParts;
+                for (int gi = 0; gi < groups.Count; gi++)
+                {
+                    BodyPartGroupDef g = groups[gi];
+                    for (int pi = 0; pi < allParts.Count; pi++)
+                    {
+                        if (allParts[pi].groups.Contains(g))
+                            return true;
+                    }
+                }
+                return false;
             }
             catch (Exception ex)
             {
@@ -725,7 +846,10 @@ namespace TheMarkedMen
 
             if (def.IsRangedWeapon)
             {
-                float range = def.Verbs?.FirstOrDefault()?.range ?? 0f;
+                List<VerbProperties> verbs = def.Verbs;
+                float range = 0f;
+                if (verbs != null && verbs.Count > 0)
+                    range = verbs[0].range;
                 if (range > 75f)
                     return false;
             }
@@ -734,10 +858,14 @@ namespace TheMarkedMen
             if (mass > 40f)
                 return false;
 
-            if (def.weaponTags.Any(t => t.IndexOf("Mounted", StringComparison.OrdinalIgnoreCase) >= 0
-                                     || t.IndexOf("Siege", StringComparison.OrdinalIgnoreCase) >= 0
-                                     || t.IndexOf("Turret", StringComparison.OrdinalIgnoreCase) >= 0))
-                return false;
+            for (int i = 0; i < def.weaponTags.Count; i++)
+            {
+                string tag = def.weaponTags[i];
+                if (tag.IndexOf("Mounted", StringComparison.OrdinalIgnoreCase) >= 0
+                    || tag.IndexOf("Siege", StringComparison.OrdinalIgnoreCase) >= 0
+                    || tag.IndexOf("Turret", StringComparison.OrdinalIgnoreCase) >= 0)
+                    return false;
+            }
 
             return true;
         }
