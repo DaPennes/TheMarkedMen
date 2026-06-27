@@ -703,7 +703,7 @@ namespace TheMarkedMen
             return ApparelCategory.Civilian;
         }
 
-        private static bool IsCrossedKind(PawnKindDef kind)
+        internal static bool IsCrossedKind(PawnKindDef kind)
         {
             return kind == CADefOf.CrossedCivilian
                 || kind == CADefOf.CrossedScout
