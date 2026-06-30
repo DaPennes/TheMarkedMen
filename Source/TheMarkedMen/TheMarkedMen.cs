@@ -43,7 +43,7 @@ namespace TheMarkedMen
 
     public sealed class TheMarkedMenSettings : ModSettings
     {
-        private const int CurrentSettingsVersion = 11;
+        private const int CurrentSettingsVersion = 12;
         public const float InfectionTransmissionChance = 0.45f;
         public const float DefaultMarkedRaidFrequencyMultiplier = 2f;
         public const float MinMarkedRaidFrequencyMultiplier = 0f;
@@ -197,6 +197,14 @@ namespace TheMarkedMen
         public float dormantMarkAlphaChance = 0.10f;
         public float dormantMarkGroupVariantChance = 0f;
 
+        public bool prisonerInfectionEnabled = true;
+        public float prisonerInfectionChance = 0.15f;
+        public bool prisonerSelfHarmEnabled = true;
+        public float prisonerSelfHarmStageDays = 5f;
+        public float prisonerSelfHarmSuicideDays = 15f;
+        public float prisonerEscapeAggressionMultiplier = 1f;
+        public bool prisonerCosmeticEnabled = true;
+        public bool prisonerDebugLogging;
 
         private int settingsVersion = CurrentSettingsVersion;
         private string currentPreset = "Outbreak simulator";
@@ -438,6 +446,15 @@ namespace TheMarkedMen
             Scribe_Values.Look(ref dormantMarkTriggerMultiplier, "dormantMarkTriggerMultiplier", 1f);
             Scribe_Values.Look(ref dormantMarkAlphaChance, "dormantMarkAlphaChance", 0.10f);
             Scribe_Values.Look(ref dormantMarkGroupVariantChance, "dormantMarkGroupVariantChance", 0f);
+
+            Scribe_Values.Look(ref prisonerInfectionEnabled, "prisonerInfectionEnabled", true);
+            Scribe_Values.Look(ref prisonerInfectionChance, "prisonerInfectionChance", 0.15f);
+            Scribe_Values.Look(ref prisonerSelfHarmEnabled, "prisonerSelfHarmEnabled", true);
+            Scribe_Values.Look(ref prisonerSelfHarmStageDays, "prisonerSelfHarmStageDays", 5f);
+            Scribe_Values.Look(ref prisonerSelfHarmSuicideDays, "prisonerSelfHarmSuicideDays", 15f);
+            Scribe_Values.Look(ref prisonerEscapeAggressionMultiplier, "prisonerEscapeAggressionMultiplier", 1f);
+            Scribe_Values.Look(ref prisonerCosmeticEnabled, "prisonerCosmeticEnabled", true);
+            Scribe_Values.Look(ref prisonerDebugLogging, "prisonerDebugLogging", false);
 
             Scribe_Values.Look(ref currentPreset, "currentPreset", "Outbreak simulator");
             Scribe_Collections.Look(ref sectionOpenStates, "sectionOpenStates", LookMode.Value, LookMode.Value);
@@ -750,6 +767,17 @@ namespace TheMarkedMen
             DrawFloat(listing, "Trigger sensitivity", ref dormantMarkTriggerMultiplier, 0f, 5f, "dormantMarkTriggerMultiplier", "Multiplier for trigger chances (combat damage, near-death, witnessing other transformations, Crossed signal proximity). Higher values make activation more likely.");
             DrawFloat(listing, "Alpha variant chance", ref dormantMarkAlphaChance, 0f, 1f, "dormantMarkAlphaChance", "Chance that the transformed survivor is an Alpha variant (spawns escorting Crossed on activation). Doubled for prisoner survivors.");
             DrawFloat(listing, "Group variant chance", ref dormantMarkGroupVariantChance, 0f, 1f, "dormantMarkGroupVariantChance", "Chance that multiple dormant carriers activate simultaneously. Set to 0 to disable group activations.");
+
+            DrawSectionHeader(listing, "Marked Prisoners", "Controls how the Marked Virus behaves in captured prisoners. Marked prisoners cannot be recruited, will attack wardens, harm themselves over time, and escape aggressively.");
+            DrawCheckbox(listing, "Enable prisoner infection system", ref prisonerInfectionEnabled, "When enabled, Marked prisoners are unrecruitable, attack wardens during interaction, progress through self-harm stages, and escape with aggression.");
+            DrawFloat(listing, "Infection chance per warden interaction", ref prisonerInfectionChance, 0f, 1f, "prisonerInfectionChance", "Chance per warden interaction that a Marked prisoner attacks and tries to infect the warden.");
+            DrawCheckbox(listing, "Enable self-harm behavior", ref prisonerSelfHarmEnabled, "When enabled, Marked prisoners progressively harm themselves over time, culminating in suicide.");
+            DrawFloat(listing, "Days before self-harm stage progression", ref prisonerSelfHarmStageDays, 1f, 60f, "prisonerSelfHarmStageDays", "How many in-game days between self-harm stages. Each stage inflicts worse damage.");
+            DrawFloat(listing, "Days before suicide", ref prisonerSelfHarmSuicideDays, 1f, 90f, "prisonerSelfHarmSuicideDays", "How many in-game days before a Marked prisoner attempts suicide with severe self-mutilation.");
+            DrawFloat(listing, "Escape aggression multiplier", ref prisonerEscapeAggressionMultiplier, 0f, 5f, "prisonerEscapeAggressionMultiplier", "How aggressively Marked prisoners attack during prison breaks. Higher values mean they target more distant priority targets.");
+            DrawCheckbox(listing, "Enable cosmetic behaviors", ref prisonerCosmeticEnabled, "When enabled, Marked prisoners pace, growl, scream, and pound walls. Visual only, no mechanical effects.");
+            DrawCheckbox(listing, "Debug logging for prisoner system", ref prisonerDebugLogging, "Writes prisoner infection system debug messages to the RimWorld log.");
+
             DrawSectionHeader(listing, "Optional RimJobWorld Bridge", "Only applies when RimJobWorld is installed. The bridge adds no hard dependency.");
             DrawHelp(listing, "RimJobWorld detected right now: " + (TheMarkedMenRjwCompatibility.IsRjwLoaded() ? "yes" : "no") + ".");
             DrawCheckbox(listing, "Auto-enable the RimJobWorld bridge when detected", ref rjwAutoEnableWhenInstalled, "Automatically turns on the bridge after RimJobWorld is found in the active mod list.");
@@ -1174,6 +1202,10 @@ namespace TheMarkedMen
             epicenterSpawnChance = Mathf.Clamp01(epicenterSpawnChance);
             survivorEncounterChance = Mathf.Clamp01(survivorEncounterChance);
             aurMinimumSpawnDistance = Mathf.Clamp(aurMinimumSpawnDistance, 10f, 100f);
+            prisonerInfectionChance = Mathf.Clamp01(prisonerInfectionChance);
+            prisonerSelfHarmStageDays = Mathf.Clamp(prisonerSelfHarmStageDays, 1f, 60f);
+            prisonerSelfHarmSuicideDays = Mathf.Clamp(prisonerSelfHarmSuicideDays, 1f, 90f);
+            prisonerEscapeAggressionMultiplier = Mathf.Clamp(prisonerEscapeAggressionMultiplier, 0f, 5f);
         }
 
         private void ApplyDefaultPreset(bool updatePreset)

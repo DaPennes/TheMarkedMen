@@ -49,4 +49,21 @@
   <!-- Survivor Armor -->
   <CA_SurvivorArmor_Label>survivor armor</CA_SurvivorArmor_Label>
   <CA_SurvivorArmor_Desc>A set of reinforced armor assembled from scavenged materials. Uneven plates, patched fabric, and improvised padding offer decent protection against the Marked, though the fit is far from uniform.</CA_SurvivorArmor_Desc>
+
+  <!-- Marked Prisoner System -->
+  <CA_MarkedPrisoner_RecruitBlocked>The Marked Virus has completely overwritten {PAWN_labelShort}'s will. They can no longer be recruited, their mind is no longer their own.</CA_MarkedPrisoner_RecruitBlocked>
+  <CA_MarkedPrisoner_Attack>{PRISONER_labelShort} lunges at {TARGET_labelShort} with a vicious {TYPE}!</CA_MarkedPrisoner_Attack>
+  <CA_MarkedPrisoner_SelfHarm_Bruise>{PAWN_labelShort} slams their body against the cell walls and floor, leaving dark, spreading bruises across their skin.</CA_MarkedPrisoner_SelfHarm_Bruise>
+  <CA_MarkedPrisoner_SelfHarm_Cut>{PAWN_labelShort} digs their nails into their own flesh, tearing shallow wounds that weep blood.</CA_MarkedPrisoner_SelfHarm_Cut>
+  <CA_MarkedPrisoner_SelfHarm_Mutilate>{PAWN_labelShort} savagely tears at their own body, mutilating themselves beyond recognition.</CA_MarkedPrisoner_SelfHarm_Mutilate>
+  <CA_MarkedPrisoner_Suicide>{PAWN_labelShort} has killed themselves. The Marked Virus drove them to a final, violent end rather than allow capture.</CA_MarkedPrisoner_Suicide>
+  <CA_MarkedPrisoner_Suicide_Label>Marked prisoner suicide</CA_MarkedPrisoner_Suicide_Label>
+  <CA_MarkedPrisoner_DeathReason_Suicide>Self-inflicted death driven by the Marked Virus</CA_MarkedPrisoner_DeathReason_Suicide>
+  <CA_MarkedPrisoner_DeathReason_NeckSnap>Self-inflicted neck snap driven by the Marked Virus</CA_MarkedPrisoner_DeathReason_NeckSnap>
+  <CA_MarkedPrisoner_DeathReason_BloodLoss>Self-inflicted fatal blood loss driven by the Marked Virus</CA_MarkedPrisoner_DeathReason_BloodLoss>
+  <CA_MarkedPrisoner_DeathReason_OrganFailure>Self-inflicted critical organ damage driven by the Marked Virus</CA_MarkedPrisoner_DeathReason_OrganFailure>
+  <CA_MarkedPrisoner_CosmeticScream>{PAWN_labelShort} lets out an inhuman, guttural scream that echoes through the cell block.</CA_MarkedPrisoner_CosmeticScream>
+  <CA_MarkedPrisoner_CosmeticGrowl>{PAWN_labelShort} paces the cell, growling and muttering in a language no one recognizes.</CA_MarkedPrisoner_CosmeticGrowl>
+  <CA_MarkedPrisoner_CosmeticLaugh>{PAWN_labelShort} bursts into manic, hollow laughter that raises the hairs on the back of your neck.</CA_MarkedPrisoner_CosmeticLaugh>
+  <CA_MarkedPrisoner_CosmeticPound>{PAWN_labelShort} pounds against the cell walls with bloody fists, testing for weaknesses.</CA_MarkedPrisoner_CosmeticPound>
 </LanguageData>
