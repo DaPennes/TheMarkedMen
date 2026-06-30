@@ -172,25 +172,17 @@ namespace TheMarkedMen
 			}
 		}
 
-		private static void MarkFearlessDueToCrossVirus(Pawn pawn)
-		{
-			if (pawn == null || IsCrossedFactionPawn(pawn))
-			{
-				return;
-			}
+        private static void MarkFearlessDueToCrossVirus(Pawn pawn)
+        {
+            if (pawn == null || IsCrossedFactionPawn(pawn))
+            {
+                return;
+            }
 
-			if (pawn.questTags == null)
-			{
-				pawn.questTags = new List<string>();
-			}
+            AddQuestTagIfMissing(pawn, FearlessDueToCrossVirusTag);
+        }
 
-			if (!pawn.questTags.Contains(FearlessDueToCrossVirusTag))
-			{
-				pawn.questTags.Add(FearlessDueToCrossVirusTag);
-			}
-		}
-
-		private static bool RemoveFearlessDueToCrossVirusTag(Pawn pawn)
+        private static bool RemoveFearlessDueToCrossVirusTag(Pawn pawn)
 		{
 			List<string> tags = pawn?.questTags;
 			if (tags == null)
@@ -241,34 +233,18 @@ namespace TheMarkedMen
 				return;
 			}
 
-			if (pawn.questTags == null)
-			{
-				pawn.questTags = new List<string>();
-			}
+            AddQuestTagIfMissing(pawn, ReanimatedQuestTag);
+        }
 
-			if (!pawn.questTags.Contains(ReanimatedQuestTag))
-			{
-				pawn.questTags.Add(ReanimatedQuestTag);
-			}
-		}
+        public static void MarkDiedFromMarkedVirus(Pawn pawn)
+        {
+            if (pawn == null)
+            {
+                return;
+            }
 
-		public static void MarkDiedFromMarkedVirus(Pawn pawn)
-		{
-			if (pawn == null)
-			{
-				return;
-			}
-
-			if (pawn.questTags == null)
-			{
-				pawn.questTags = new List<string>();
-			}
-
-			if (!pawn.questTags.Contains(MarkedVirusFatalityQuestTag))
-			{
-				pawn.questTags.Add(MarkedVirusFatalityQuestTag);
-			}
-		}
+            AddQuestTagIfMissing(pawn, MarkedVirusFatalityQuestTag);
+        }
 
 		private static bool WasReanimatedAsCrossed(Pawn pawn)
 		{
@@ -341,12 +317,7 @@ namespace TheMarkedMen
 				return false;
 			}
 
-			if (pawn.questTags == null)
-			{
-				pawn.questTags = new List<string>();
-			}
-
-			bool changed = AddQuestTagIfMissing(pawn, MarkedVillageFounderTag);
+            bool changed = AddQuestTagIfMissing(pawn, MarkedVillageFounderTag);
 			if (!pawn.questTags.Contains(MarkedVillageRashRolledTag))
 			{
 				changed |= AddQuestTagIfMissing(pawn, MarkedVillageRashRolledTag);
@@ -375,18 +346,9 @@ namespace TheMarkedMen
 				return false;
 			}
 
-			if (pawn.questTags == null)
-			{
-				pawn.questTags = new List<string>();
-			}
+            bool added = AddQuestTagIfMissing(pawn, StarterLineageResistanceTag);
 
-			bool added = !pawn.questTags.Contains(StarterLineageResistanceTag);
-			if (added)
-			{
-				pawn.questTags.Add(StarterLineageResistanceTag);
-			}
-
-			GrantCrossVirusImmunity(pawn);
+            GrantCrossVirusImmunity(pawn);
 			return added;
 		}
 
@@ -430,16 +392,14 @@ namespace TheMarkedMen
 				&& !IsCrossedPawn(pawn);
 		}
 
-		private static bool AddQuestTagIfMissing(Pawn pawn, string tag)
-		{
-			if (pawn?.questTags == null || pawn.questTags.Contains(tag))
-			{
-				return false;
-			}
-
-			pawn.questTags.Add(tag);
-			return true;
-		}
+        private static bool AddQuestTagIfMissing(Pawn pawn, string tag)
+        {
+            if (pawn == null) return false;
+            if (pawn.questTags == null) pawn.questTags = new List<string>();
+            if (pawn.questTags.Contains(tag)) return false;
+            pawn.questTags.Add(tag);
+            return true;
+        }
 
 		private static bool HasStarterLineageParent(Pawn pawn)
 		{
@@ -1184,36 +1144,48 @@ namespace TheMarkedMen
 			EnsureCrossedPyromaniacMolotov(pawn);
 		}
 
-		public static void ApplyRandomBionics(Pawn pawn)
-		{
-			if (pawn == null || pawn.health == null || !IsCrossedFactionPawn(pawn)) return;
+        private static readonly BodyPartDef StomachBodyPartDef = DefDatabase<BodyPartDef>.GetNamedSilentFail("Stomach");
+        private static readonly BodyPartDef KidneyBodyPartDef = DefDatabase<BodyPartDef>.GetNamedSilentFail("Kidney");
+        private static readonly BodyPartDef EarBodyPartDef = DefDatabase<BodyPartDef>.GetNamedSilentFail("Ear");
 
-			if (pawn.kindDef != CADefOf.MarkedMan) return;
+        private static readonly HediffDef BionicEyeHediffDef = DefDatabase<HediffDef>.GetNamedSilentFail("BionicEye");
+        private static readonly HediffDef BionicArmHediffDef = DefDatabase<HediffDef>.GetNamedSilentFail("BionicArm");
+        private static readonly HediffDef AdvBionicArmHediffDef = DefDatabase<HediffDef>.GetNamedSilentFail("AdvBionicArm");
+        private static readonly HediffDef BionicLegHediffDef = DefDatabase<HediffDef>.GetNamedSilentFail("BionicLeg");
+        private static readonly HediffDef AdvBionicLegHediffDef = DefDatabase<HediffDef>.GetNamedSilentFail("AdvBionicLeg");
+        private static readonly HediffDef BionicHeartHediffDef = DefDatabase<HediffDef>.GetNamedSilentFail("BionicHeart");
+        private static readonly HediffDef BionicStomachHediffDef = DefDatabase<HediffDef>.GetNamedSilentFail("BionicStomach");
+        private static readonly HediffDef BionicLungHediffDef = DefDatabase<HediffDef>.GetNamedSilentFail("BionicLung");
+        private static readonly HediffDef BionicKidneyHediffDef = DefDatabase<HediffDef>.GetNamedSilentFail("BionicKidney");
+        private static readonly HediffDef BionicEarHediffDef = DefDatabase<HediffDef>.GetNamedSilentFail("BionicEar");
 
-			int maxBionics = 3;
-			float perPartChance = 0.5f;
+        public static void ApplyRandomBionics(Pawn pawn)
+        {
+            if (pawn == null || pawn.health == null || !IsCrossedFactionPawn(pawn)) return;
 
-			int installed = 0;
-			TryInstallBionic(pawn, "BionicEye", BodyPartDefOf.Eye, perPartChance, ref installed, maxBionics);
-			TryInstallBionic(pawn, "BionicArm", BodyPartDefOf.Arm, perPartChance, ref installed, maxBionics);
-			TryInstallBionic(pawn, "AdvBionicArm", BodyPartDefOf.Arm, perPartChance * 0.2f, ref installed, maxBionics);
-			TryInstallBionic(pawn, "BionicLeg", BodyPartDefOf.Leg, perPartChance, ref installed, maxBionics);
-			TryInstallBionic(pawn, "AdvBionicLeg", BodyPartDefOf.Leg, perPartChance * 0.2f, ref installed, maxBionics);
-			TryInstallBionic(pawn, "BionicHeart", BodyPartDefOf.Heart, perPartChance * 0.5f, ref installed, maxBionics);
-			TryInstallBionic(pawn, "BionicStomach", DefDatabase<BodyPartDef>.GetNamedSilentFail("Stomach"), perPartChance * 0.5f, ref installed, maxBionics);
-			TryInstallBionic(pawn, "BionicLung", BodyPartDefOf.Lung, perPartChance * 0.4f, ref installed, maxBionics);
-			TryInstallBionic(pawn, "BionicKidney", DefDatabase<BodyPartDef>.GetNamedSilentFail("Kidney"), perPartChance * 0.4f, ref installed, maxBionics);
-			TryInstallBionic(pawn, "BionicEar", DefDatabase<BodyPartDef>.GetNamedSilentFail("Ear"), perPartChance * 0.3f, ref installed, maxBionics);
-		}
+            if (pawn.kindDef != CADefOf.MarkedMan) return;
 
-		private static void TryInstallBionic(Pawn pawn, string hediffDefName, BodyPartDef bodyPartDef, float chance, ref int installed, int maxBionics)
-		{
-			if (installed >= maxBionics || bodyPartDef == null || Rand.Value >= chance) return;
+            int maxBionics = 3;
+            float perPartChance = 0.5f;
 
-			HediffDef hediffDef = DefDatabase<HediffDef>.GetNamedSilentFail(hediffDefName);
-			if (hediffDef == null) return;
+            int installed = 0;
+            TryInstallBionic(pawn, BionicEyeHediffDef, BodyPartDefOf.Eye, perPartChance, ref installed, maxBionics);
+            TryInstallBionic(pawn, BionicArmHediffDef, BodyPartDefOf.Arm, perPartChance, ref installed, maxBionics);
+            TryInstallBionic(pawn, AdvBionicArmHediffDef, BodyPartDefOf.Arm, perPartChance * 0.2f, ref installed, maxBionics);
+            TryInstallBionic(pawn, BionicLegHediffDef, BodyPartDefOf.Leg, perPartChance, ref installed, maxBionics);
+            TryInstallBionic(pawn, AdvBionicLegHediffDef, BodyPartDefOf.Leg, perPartChance * 0.2f, ref installed, maxBionics);
+            TryInstallBionic(pawn, BionicHeartHediffDef, BodyPartDefOf.Heart, perPartChance * 0.5f, ref installed, maxBionics);
+            TryInstallBionic(pawn, BionicStomachHediffDef, StomachBodyPartDef, perPartChance * 0.5f, ref installed, maxBionics);
+            TryInstallBionic(pawn, BionicLungHediffDef, BodyPartDefOf.Lung, perPartChance * 0.4f, ref installed, maxBionics);
+            TryInstallBionic(pawn, BionicKidneyHediffDef, KidneyBodyPartDef, perPartChance * 0.4f, ref installed, maxBionics);
+            TryInstallBionic(pawn, BionicEarHediffDef, EarBodyPartDef, perPartChance * 0.3f, ref installed, maxBionics);
+        }
 
-			IEnumerable<BodyPartRecord> parts = pawn.RaceProps.body.GetPartsWithDef(bodyPartDef);
+        private static void TryInstallBionic(Pawn pawn, HediffDef hediffDef, BodyPartDef bodyPartDef, float chance, ref int installed, int maxBionics)
+        {
+            if (installed >= maxBionics || bodyPartDef == null || hediffDef == null || Rand.Value >= chance) return;
+
+            IEnumerable<BodyPartRecord> parts = pawn.RaceProps.body.GetPartsWithDef(bodyPartDef);
 			if (parts == null || !parts.Any()) return;
 
 			BodyPartRecord part = parts.RandomElement();
@@ -1293,21 +1265,28 @@ namespace TheMarkedMen
 					|| def.weaponTags != null && def.weaponTags.Contains("GrenadeMolotov"));
 		}
 
-		public static ThingDef GetMolotovWeaponDef()
-		{
-			ThingDef molotov = DefDatabase<ThingDef>.GetNamedSilentFail("Weapon_GrenadeMolotov");
-			if (molotov != null)
-				return molotov;
+        private static ThingDef _cachedMolotovDef;
 
-			List<ThingDef> allDefs = DefDatabase<ThingDef>.AllDefsListForReading;
-			for (int i = 0; i < allDefs.Count; i++)
-			{
-				if (IsMolotovWeapon(allDefs[i]))
-					return allDefs[i];
-			}
+        public static ThingDef GetMolotovWeaponDef()
+        {
+            if (_cachedMolotovDef != null) return _cachedMolotovDef;
 
-			return null;
-		}
+            _cachedMolotovDef = DefDatabase<ThingDef>.GetNamedSilentFail("Weapon_GrenadeMolotov");
+            if (_cachedMolotovDef != null)
+                return _cachedMolotovDef;
+
+            List<ThingDef> allDefs = DefDatabase<ThingDef>.AllDefsListForReading;
+            for (int i = 0; i < allDefs.Count; i++)
+            {
+                if (IsMolotovWeapon(allDefs[i]))
+                {
+                    _cachedMolotovDef = allDefs[i];
+                    return _cachedMolotovDef;
+                }
+            }
+
+            return null;
+        }
 
 		public static bool EnsureCrossedPyromaniacMolotov(Pawn pawn)
 		{

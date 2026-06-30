@@ -183,7 +183,7 @@ namespace TheMarkedMen
             }
 
             Map map = initiator.Map;
-            List<Pawn> allPawns = map.mapPawns.AllPawnsSpawned.ToList();
+            IReadOnlyList<Pawn> allPawns = map.mapPawns.AllPawnsSpawned;
             for (int i = 0; i < allPawns.Count; i++)
             {
                 Pawn pawn = allPawns[i];

@@ -24,6 +24,12 @@ namespace TheMarkedMen
         private const float MaxInfightingTargetDistanceSquared = 2500f;
         private const string WaitDownedJobDefName = "Wait_Downed";
 
+        private static readonly string[] InfrastructureDefNames = { "Battery", "Generator", "Solar", "Geothermal", "Power", "Comms", "Console" };
+        private static readonly string[] MedicalDefNames = { "Hospital", "Bed", "Research", "Lab", "Scanner" };
+        private static readonly string[] FoodDefNames = { "Nutrient", "Hydroponics", "Cooler", "Freezer", "Food" };
+        private static readonly string[] DefensiveDefNames = { "Turret", "Mortar" };
+        private static readonly string[] DoorDefNames = { "Door", "Wall", "Gate" };
+
         public static bool TryIssueTacticalJob(Pawn pawn)
         {
             if (!CanUseTacticalAI(pawn))
@@ -714,27 +720,27 @@ namespace TheMarkedMen
                 score += 90f;
             }
 
-            if (TheMarkedMenSettings.PriorityTargetingEnabled && ContainsAny(defName, "Battery", "Generator", "Solar", "Geothermal", "Power", "Comms", "Console"))
+            if (TheMarkedMenSettings.PriorityTargetingEnabled && ContainsAny(defName, InfrastructureDefNames))
             {
                 score += 70f;
             }
 
-            if (TheMarkedMenSettings.PriorityTargetingEnabled && ContainsAny(defName, "Hospital", "Bed", "Research", "Lab", "Scanner"))
+            if (TheMarkedMenSettings.PriorityTargetingEnabled && ContainsAny(defName, MedicalDefNames))
             {
                 score += 60f;
             }
 
-            if (TheMarkedMenSettings.PriorityTargetingEnabled && (ContainsAny(defName, "Nutrient", "Hydroponics", "Cooler", "Freezer", "Food") || label.IndexOf("food", StringComparison.OrdinalIgnoreCase) >= 0))
+            if (TheMarkedMenSettings.PriorityTargetingEnabled && (ContainsAny(defName, FoodDefNames) || label.IndexOf("food", StringComparison.OrdinalIgnoreCase) >= 0))
             {
                 score += 45f;
             }
 
-            if (TheMarkedMenSettings.PriorityTargetingEnabled && ContainsAny(defName, "Turret", "Mortar"))
+            if (TheMarkedMenSettings.PriorityTargetingEnabled && ContainsAny(defName, DefensiveDefNames))
             {
                 score += 55f;
             }
 
-            if (TheMarkedMenSettings.DoorTargetingEnabled && ContainsAny(defName, "Door", "Wall", "Gate"))
+            if (TheMarkedMenSettings.DoorTargetingEnabled && ContainsAny(defName, DoorDefNames))
             {
                 score += 30f;
             }
@@ -747,7 +753,7 @@ namespace TheMarkedMen
             return score - Mathf.Sqrt(distanceSquared) * 0.75f;
         }
 
-        private static bool ContainsAny(string value, params string[] needles)
+        private static bool ContainsAny(string value, string[] needles)
         {
             for (int i = 0; i < needles.Length; i++)
             {

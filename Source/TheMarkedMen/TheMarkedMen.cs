@@ -61,6 +61,11 @@ namespace TheMarkedMen
         private const float PresetButtonHeight = 32f;
         private const float PresetButtonGap = 4f;
         private const string CustomPresetName = "Custom";
+        private const string DefaultPresetName = "Default";
+        private const string OutbreakPresetName = "Outbreak simulator";
+        private const string CasualPresetName = "Casual";
+        private const string VanillaLikePresetName = "Vanilla-like";
+        private const string BrutalPresetName = "Brutal";
         private static readonly Color HelpTextColor = new Color(0.72f, 0.72f, 0.72f);
         private static readonly Color SectionHeaderColor = new Color(0.22f, 0.24f, 0.26f, 1f);
         private static readonly Color SectionHeaderHoverColor = new Color(0.28f, 0.30f, 0.33f, 1f);
@@ -208,7 +213,7 @@ namespace TheMarkedMen
         public float prisonerEscapeChance = 0.04f;
 
         private int settingsVersion = CurrentSettingsVersion;
-        private string currentPreset = "Outbreak simulator";
+        private string currentPreset = OutbreakPresetName;
         private Vector2 scrollPosition;
         private readonly Dictionary<string, string> numericBuffers = new Dictionary<string, string>();
         private Dictionary<string, bool> sectionOpenStates = new Dictionary<string, bool>();
@@ -458,7 +463,7 @@ namespace TheMarkedMen
             Scribe_Values.Look(ref prisonerDebugLogging, "prisonerDebugLogging", false);
             Scribe_Values.Look(ref prisonerEscapeChance, "prisonerEscapeChance", 0.04f);
 
-            Scribe_Values.Look(ref currentPreset, "currentPreset", "Outbreak simulator");
+            Scribe_Values.Look(ref currentPreset, "currentPreset", OutbreakPresetName);
             Scribe_Collections.Look(ref sectionOpenStates, "sectionOpenStates", LookMode.Value, LookMode.Value);
             if (sectionOpenStates == null)
             {
@@ -525,7 +530,7 @@ namespace TheMarkedMen
                     socialTerrorStrength = 1f;
                     ResetStoryDefaults();
                     ResetPerformanceDefaults();
-                    currentPreset = "Default";
+                    currentPreset = DefaultPresetName;
                 }
 
                 if (loadedSettingsVersion < 8 && UsesLegacyDefaultVirusOutcome())
@@ -563,7 +568,7 @@ namespace TheMarkedMen
                     markedMenGuaranteedInfection = true;
                 }
 
-                if (loadedSettingsVersion < 11 && (string.IsNullOrEmpty(currentPreset) || currentPreset == "Default"))
+                if (loadedSettingsVersion < 11 && (string.IsNullOrEmpty(currentPreset) || currentPreset == DefaultPresetName))
                 {
                     ApplyOutbreakDefaults(false);
                 }
@@ -907,10 +912,10 @@ namespace TheMarkedMen
 
             Rect row = listing.GetRect(PresetButtonHeight, 1f);
             float buttonWidth = (row.width - (PresetButtonGap * 4f)) / 5f;
-            DrawPresetButton(new Rect(row.x, row.y, buttonWidth, row.height), "Casual", "Slower raids, lower exposure risk, smaller hordes, and more immune survivors.", ApplyCasualPreset);
-            DrawPresetButton(new Rect(row.x + (buttonWidth + PresetButtonGap), row.y, buttonWidth, row.height), "Vanilla-like", "Keeps the faction dangerous while staying closer to ordinary RimWorld pacing.", ApplyVanillaLikePreset);
-            DrawPresetButton(new Rect(row.x + ((buttonWidth + PresetButtonGap) * 2f), row.y, buttonWidth, row.height), "Default", "Restores the intended baseline tuning for the mod.", () => ApplyDefaultPreset(true));
-            DrawPresetButton(new Rect(row.x + ((buttonWidth + PresetButtonGap) * 3f), row.y, buttonWidth, row.height), "Brutal", "Faster, harder, less forgiving raids with stronger infection pressure.", ApplyBrutalPreset);
+            DrawPresetButton(new Rect(row.x, row.y, buttonWidth, row.height), CasualPresetName, "Slower raids, lower exposure risk, smaller hordes, and more immune survivors.", ApplyCasualPreset);
+            DrawPresetButton(new Rect(row.x + (buttonWidth + PresetButtonGap), row.y, buttonWidth, row.height), VanillaLikePresetName, "Keeps the faction dangerous while staying closer to ordinary RimWorld pacing.", ApplyVanillaLikePreset);
+            DrawPresetButton(new Rect(row.x + ((buttonWidth + PresetButtonGap) * 2f), row.y, buttonWidth, row.height), DefaultPresetName, "Restores the intended baseline tuning for the mod.", () => ApplyDefaultPreset(true));
+            DrawPresetButton(new Rect(row.x + ((buttonWidth + PresetButtonGap) * 3f), row.y, buttonWidth, row.height), BrutalPresetName, "Faster, harder, less forgiving raids with stronger infection pressure.", ApplyBrutalPreset);
             DrawPresetButton(new Rect(row.x + ((buttonWidth + PresetButtonGap) * 4f), row.y, buttonWidth, row.height), "Outbreak", "Large outbreak pressure with faster spread, larger hordes, and faster corpse cycling.", ApplyOutbreakPreset);
             listing.Gap(6f);
         }
@@ -1272,7 +1277,7 @@ namespace TheMarkedMen
         private void ApplyCasualPreset()
         {
             ApplyBaselinePreset(false);
-            currentPreset = "Casual";
+            currentPreset = CasualPresetName;
             markedRaidFrequencyMultiplier = 0.5f;
             warbandFrequencyMultiplier = 0.7f;
             hordeFrequencyMultiplier = 0.5f;
@@ -1315,7 +1320,7 @@ namespace TheMarkedMen
         private void ApplyVanillaLikePreset()
         {
             ApplyBaselinePreset(false);
-            currentPreset = "Vanilla-like";
+            currentPreset = VanillaLikePresetName;
             markedRaidFrequencyMultiplier = 0.75f;
             hordeFrequencyMultiplier = 0.6f;
             firstMarkedRaidDay = 50;
@@ -1332,7 +1337,7 @@ namespace TheMarkedMen
         private void ApplyBrutalPreset()
         {
             ApplyBaselinePreset(false);
-            currentPreset = "Brutal";
+            currentPreset = BrutalPresetName;
             randomizeMarkedRaids = true;
             markedRaidFrequencyMultiplier = 1.6f;
             warbandFrequencyMultiplier = 1.4f;
@@ -1385,7 +1390,7 @@ namespace TheMarkedMen
         private void ApplyOutbreakDefaults(bool updatePreset)
         {
             ApplyBaselinePreset(false);
-            currentPreset = "Outbreak simulator";
+            currentPreset = OutbreakPresetName;
             scheduledWarbandsEnabled = true;
             scheduledHordesEnabled = true;
             scoutingProbesEnabled = true;
@@ -1433,7 +1438,7 @@ namespace TheMarkedMen
             socialTerrorStrength = 1.25f;
             if (!updatePreset)
             {
-                currentPreset = "Outbreak simulator";
+                currentPreset = OutbreakPresetName;
             }
 
             ClampSettings();
@@ -3047,47 +3052,6 @@ namespace TheMarkedMen
             }
         }
 
-        private static void ForceImmediateAssaultLord(Faction faction, Map map, List<Pawn> pawns, float points)
-        {
-            if (faction == null || map == null || pawns == null || pawns.Count == 0)
-            {
-                return;
-            }
-
-            List<Pawn> attackers = CrossedLordCleanupUtility.CollectValidSpawnedLordPawns(pawns, map, faction);
-            for (int i = 0; i < attackers.Count; i++)
-            {
-                Pawn pawn = attackers[i];
-                if (LordUtility.TryGetLord(pawn, out Lord existingLord))
-                {
-                    existingLord.RemovePawn(pawn);
-                }
-            }
-
-            if (attackers.Count == 0)
-            {
-                return;
-            }
-
-            LordMaker.MakeNewLord(faction, new LordJob_AssaultColony(faction, false, false, false, false, false, points >= 700f, true), map, attackers);
-            for (int i = 0; i < attackers.Count; i++)
-            {
-                Pawn pawn = attackers[i];
-                if (pawn?.jobs == null)
-                {
-                    continue;
-                }
-
-                if (pawn.jobs.curJob != null)
-                {
-                    pawn.jobs.EndCurrentJob(JobCondition.InterruptForced, true, true);
-                }
-                else
-                {
-                    pawn.jobs.CheckForJobOverride(0f, true);
-                }
-            }
-        }
     }
 
     public sealed class IncidentWorker_CrossedHorde : IncidentWorker
