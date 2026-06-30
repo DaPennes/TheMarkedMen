@@ -722,20 +722,6 @@ namespace TheMarkedMen
                 return;
             }
 
-            if (buildingPositions.Count == 0)
-            {
-                return;
-            }
-
-            int index = Rand.Range(0, buildingPositions.Count);
-            IntVec3 ambushPos = buildingPositions[index];
-
-            if (!SpawnValidationService.CanSpawnUrbanAmbush(map, ambushPos))
-            {
-                TheMarkedMenAncientUrbanRuinsIntegration.LogVerbose("[TheMarkedMen] TryFireMapAmbush: ambush blocked by SpawnValidationService at " + ambushPos);
-                return;
-            }
-
             TheMarkedMenGameComponent component = CrossedUtility.Component;
             Faction faction = component?.EnsureCrossedFaction();
             if (faction == null)
@@ -754,13 +740,8 @@ namespace TheMarkedMen
                     continue;
                 }
 
-                IntVec3 spawnPos = CellFinder.RandomClosewalkCellNear(ambushPos, map, 10, null);
-                if (!spawnPos.IsValid || !spawnPos.Standable(map) || spawnPos.Fogged(map))
-                {
-                    continue;
-                }
-
-                if (SpawnValidationService.CanSpawnUrbanAmbush(map, spawnPos) == false)
+                IntVec3 spawnPos = FindUrbanAmbushEdgeSpawn();
+                if (!spawnPos.IsValid)
                 {
                     continue;
                 }
@@ -781,9 +762,33 @@ namespace TheMarkedMen
             if (ambushPawns.Count > 0)
             {
                 string label = "Urban ambush";
-                string text = "Marked Men spring from cover in the ruins!";
+                string text = "Marked Men approach from the outskirts!";
                 Find.LetterStack.ReceiveLetter(label, text, LetterDefOf.ThreatSmall, new LookTargets(ambushPawns[0]));
             }
+        }
+
+        private IntVec3 FindUrbanAmbushEdgeSpawn()
+        {
+            for (int i = 0; i < 50; i++)
+            {
+                IntVec3 cell = CellFinder.RandomEdgeCell(map);
+                if (cell.IsValid && cell.Standable(map) && !cell.Fogged(map) && SpawnValidationService.CanSpawnUrbanAmbush(map, cell))
+                {
+                    return cell;
+                }
+            }
+
+            IntVec3 result;
+            if (CellFinder.TryFindRandomEdgeCellWith(
+                (IntVec3 c) => c.Standable(map) && !c.Fogged(map) && SpawnValidationService.CanSpawnUrbanAmbush(map, c),
+                map,
+                0f,
+                out result))
+            {
+                return result;
+            }
+
+            return IntVec3.Invalid;
         }
 
         private int CountUrbanInfected()
@@ -905,14 +910,10 @@ namespace TheMarkedMen
                 return false;
             }
 
-            IReadOnlyList<Pawn> colonists = map.mapPawns.FreeColonistsSpawned;
-            if (colonists == null || colonists.Count == 0)
+            if (map.mapPawns == null || !map.mapPawns.AnyFreeColonistSpawned)
             {
                 return false;
             }
-
-            Pawn target = colonists[Rand.Range(0, colonists.Count)];
-            IntVec3 ambushCenter = target.Position;
 
             float density = TheMarkedMenMod.Settings?.urbanInfectionDensity ?? 1f;
             int count = Mathf.Clamp(Mathf.RoundToInt(Rand.Range(MinAmbushCount, MaxAmbushCount * density)), MinAmbushCount, MaxAmbushCount);
@@ -926,8 +927,8 @@ namespace TheMarkedMen
                     continue;
                 }
 
-                IntVec3 spawnPos = CellFinder.RandomClosewalkCellNear(ambushCenter, map, 12, null);
-                if (!spawnPos.IsValid || !spawnPos.Standable(map) || spawnPos.Fogged(map))
+                IntVec3 spawnPos = FindIncidentAmbushEdgeSpawn(map);
+                if (!spawnPos.IsValid)
                 {
                     continue;
                 }
@@ -953,9 +954,33 @@ namespace TheMarkedMen
             LordMaker.MakeNewLord(crossed, lordJob, map, pawns);
 
             string label = def.letterLabel ?? "Urban ambush";
-            string text = def.letterText ?? "Marked Men ambush from the ruins!";
+            string text = def.letterText ?? "Marked Men pour in from the city edge!";
             Find.LetterStack.ReceiveLetter(label, text, def.letterDef ?? LetterDefOf.ThreatSmall, new LookTargets(pawns[0]));
             return true;
+        }
+
+        private static IntVec3 FindIncidentAmbushEdgeSpawn(Map map)
+        {
+            for (int i = 0; i < 50; i++)
+            {
+                IntVec3 cell = CellFinder.RandomEdgeCell(map);
+                if (cell.IsValid && cell.Standable(map) && !cell.Fogged(map) && SpawnValidationService.CanSpawnUrbanAmbush(map, cell))
+                {
+                    return cell;
+                }
+            }
+
+            IntVec3 result;
+            if (CellFinder.TryFindRandomEdgeCellWith(
+                (IntVec3 c) => c.Standable(map) && !c.Fogged(map) && SpawnValidationService.CanSpawnUrbanAmbush(map, c),
+                map,
+                0f,
+                out result))
+            {
+                return result;
+            }
+
+            return IntVec3.Invalid;
         }
 
         private static PawnKindDef PickUrbanAmbushKind(float density)

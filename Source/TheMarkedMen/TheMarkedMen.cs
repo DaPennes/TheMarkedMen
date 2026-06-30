@@ -24,6 +24,7 @@ namespace TheMarkedMen
             harmony.PatchAll(Assembly.GetExecutingAssembly());
             CrossedOptionalHarmonyPatches.Apply(harmony);
             TheMarkedMenAncientUrbanRuinsIntegration.Apply(harmony);
+            TheMarkedMenAncientUrbanRuinsSpawnPatch.Apply(harmony);
             LongEventHandler.ExecuteWhenFinished(() => Settings?.AutoEnableRjwIntegrationIfInstalled());
             LongEventHandler.ExecuteWhenFinished(CrossedUtility.ApplyMarkedVirusResistanceEquippedStatOffsets);
             LongEventHandler.ExecuteWhenFinished(CrossedCompatibility.LogDetectedMods);
@@ -86,7 +87,7 @@ namespace TheMarkedMen
         public float hordeFrequencyMultiplier = 1f;
         public float probeFrequencyMultiplier = 1f;
         public int firstMarkedRaidDay = 45;
-        public float raidPointsMultiplier = 2f;
+        public float raidPointsMultiplier = 2000f;
         public float minimumRaidPoints = 5000f;
         public float raidEscalationPerRaid = DefaultRaidEscalationPerRaid;
         public float raidEscalationMaxBonus = DefaultRaidEscalationMaxBonus;
@@ -182,6 +183,11 @@ namespace TheMarkedMen
         public bool urbanAmbushesEnabled = true;
         public bool survivorEncountersEnabled = true;
         public float survivorEncounterChance = 0.5f;
+
+        public bool aurSpawnPatchEnabled = true;
+        public float aurMinimumSpawnDistance = 35f;
+        public bool aurPreferEdgeSpawn = true;
+        public bool aurSpawnPatchDebugLogging;
 
         public bool lostSurvivorEnabled = true;
         public float lostSurvivorFrequencyMultiplier = 1f;
@@ -421,6 +427,10 @@ namespace TheMarkedMen
             Scribe_Values.Look(ref urbanAmbushesEnabled, "urbanAmbushesEnabled", true);
             Scribe_Values.Look(ref survivorEncountersEnabled, "survivorEncountersEnabled", true);
             Scribe_Values.Look(ref survivorEncounterChance, "survivorEncounterChance", 0.5f);
+            Scribe_Values.Look(ref aurSpawnPatchEnabled, "aurSpawnPatchEnabled", true);
+            Scribe_Values.Look(ref aurMinimumSpawnDistance, "aurMinimumSpawnDistance", 35f);
+            Scribe_Values.Look(ref aurPreferEdgeSpawn, "aurPreferEdgeSpawn", true);
+            Scribe_Values.Look(ref aurSpawnPatchDebugLogging, "aurSpawnPatchDebugLogging", false);
             Scribe_Values.Look(ref lostSurvivorEnabled, "lostSurvivorEnabled", true);
             Scribe_Values.Look(ref lostSurvivorFrequencyMultiplier, "lostSurvivorFrequencyMultiplier", 1f);
             Scribe_Values.Look(ref dormantMarkMinDays, "dormantMarkMinDays", 8f);
@@ -614,7 +624,7 @@ namespace TheMarkedMen
             DrawFloat(listing, "Horde frequency multiplier", ref hordeFrequencyMultiplier, 0f, MaxMarkedRaidFrequencyMultiplier, "hordeFrequencyMultiplier", "Multiplier for horde events after the global multiplier is applied.");
             DrawFloat(listing, "Scouting probe frequency multiplier", ref probeFrequencyMultiplier, 0f, MaxMarkedRaidFrequencyMultiplier, "probeFrequencyMultiplier", "Multiplier for small probe incidents after the global multiplier is applied.");
             DrawHelp(listing, "Effective frequencies: warbands " + MultiplierText(EffectiveWarbandFrequencyMultiplier) + ", hordes " + MultiplierText(EffectiveHordeFrequencyMultiplier) + ", probes " + MultiplierText(EffectiveProbeFrequencyMultiplier) + ".");
-            DrawFloat(listing, "Raid strength multiplier", ref raidPointsMultiplier, 0.05f, 99999f, "raidPointsMultiplier", "Scales incident points after the minimum point floor is applied.");
+            DrawFloat(listing, "Raid strength multiplier", ref raidPointsMultiplier, 0.05f, 1E+09f, "raidPointsMultiplier", "Scales incident points after the minimum point floor is applied.");
             DrawFloat(listing, "Minimum raid points", ref minimumRaidPoints, 0f, 100000f, "minimumRaidPoints", "Point floor for generated Marked Men attacks. Higher values make even early raids larger.");
             DrawFloat(listing, "Escalation gained per warband", ref raidEscalationPerRaid, 0f, 2f, "raidEscalationPerRaid", "Extra raid strength added after each scheduled warband starts.");
             DrawFloat(listing, "Escalation maximum bonus", ref raidEscalationMaxBonus, 0f, 20f, "raidEscalationMaxBonus", "Maximum accumulated escalation bonus from repeated warbands.");
@@ -725,6 +735,12 @@ namespace TheMarkedMen
             DrawCheckbox(listing, "Enable urban ambush incidents", ref urbanAmbushesEnabled, "Allows incident-driven ambush events on Ancient Urban Ruins maps in addition to map-component ambushes.");
             DrawCheckbox(listing, "Enable survivor encounters", ref survivorEncountersEnabled, "When enabled, survivor encounters in the ruins may be genuine survivors, hidden infected, or traps leading to infestations.");
             DrawFloat(listing, "Survivor encounter chance modifier", ref survivorEncounterChance, 0f, 1f, "survivorEncounterChance", "Multiplier for survivor encounter incident frequency in urban ruins. Higher values mean more survivor events.");
+
+            DrawSectionHeader(listing, "AUR Spawn Protection", "Controls enemy spawn positions on Ancient Urban Ruins maps. Prevents enemies from appearing too close to colonists by redirecting their spawn positions to map edges or a minimum distance away.");
+            DrawCheckbox(listing, "Enable spawn distance protection", ref aurSpawnPatchEnabled, "When enabled, enemies spawning on Ancient Urban Ruins maps are placed at a safer minimum distance from colonists, animals, and mechs. Only applies when Ancient Urban Ruins is loaded.");
+            DrawFloat(listing, "Minimum spawn distance", ref aurMinimumSpawnDistance, 10f, 100f, "aurMinimumSpawnDistance", "Minimum distance in cells that enemies must be kept from any colonist, animal, or mech. Higher values give more reaction time but may reduce valid spawn positions.");
+            DrawCheckbox(listing, "Prefer map edge spawning", ref aurPreferEdgeSpawn, "When enabled, the patch tries to spawn enemies from map edges first. Falls back to distance-based placement if all edge cells are blocked by ruins or mountains.");
+            DrawCheckbox(listing, "Debug logging for spawn protection", ref aurSpawnPatchDebugLogging, "Writes detailed spawn protection debug messages to the RimWorld log. Useful for troubleshooting spawn placement issues.");
 
             DrawSectionHeader(listing, "Lost Survivors", "Controls the Lost Survivor incident. A seemingly normal colonist joins but carries a dormant Marked Virus infection that may activate days or weeks later with unpredictable consequences.");
             DrawCheckbox(listing, "Enable Lost Survivor incidents", ref lostSurvivorEnabled, "When enabled, the storyteller can send a lost survivor carrying a dormant Marked Virus infection. The survivor appears normal until the dormant mark activates.");
@@ -1157,6 +1173,7 @@ namespace TheMarkedMen
             dormantInfestationFrequency = Mathf.Clamp(dormantInfestationFrequency, 0f, 5f);
             epicenterSpawnChance = Mathf.Clamp01(epicenterSpawnChance);
             survivorEncounterChance = Mathf.Clamp01(survivorEncounterChance);
+            aurMinimumSpawnDistance = Mathf.Clamp(aurMinimumSpawnDistance, 10f, 100f);
         }
 
         private void ApplyDefaultPreset(bool updatePreset)
