@@ -122,7 +122,39 @@ namespace TheMarkedMen
                 }
 
                 EnsurePrisonerMindState(pawn);
+                TryStartEscape(pawn, tick);
             }
+        }
+
+        private void TryStartEscape(Pawn pawn, int tick)
+        {
+            if (Settings == null || !Settings.prisonerInfectionEnabled)
+            {
+                return;
+            }
+
+            if (pawn.Downed || pawn.Dead || !pawn.Spawned)
+            {
+                return;
+            }
+
+            if (PrisonBreakUtility.IsPrisonBreaking(pawn))
+            {
+                return;
+            }
+
+            if (!PrisonBreakUtility.CanParticipateInPrisonBreak(pawn))
+            {
+                return;
+            }
+
+            float chancePerRareTick = Settings.prisonerEscapeChance / (60000f / RareTickInterval);
+            if (!Rand.Chance(chancePerRareTick))
+            {
+                return;
+            }
+
+            PrisonBreakUtility.StartPrisonBreak(pawn);
         }
 
         private void TickSelfHarm()

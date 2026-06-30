@@ -205,6 +205,7 @@ namespace TheMarkedMen
         public float prisonerEscapeAggressionMultiplier = 1f;
         public bool prisonerCosmeticEnabled = true;
         public bool prisonerDebugLogging;
+        public float prisonerEscapeChance = 0.04f;
 
         private int settingsVersion = CurrentSettingsVersion;
         private string currentPreset = "Outbreak simulator";
@@ -455,6 +456,7 @@ namespace TheMarkedMen
             Scribe_Values.Look(ref prisonerEscapeAggressionMultiplier, "prisonerEscapeAggressionMultiplier", 1f);
             Scribe_Values.Look(ref prisonerCosmeticEnabled, "prisonerCosmeticEnabled", true);
             Scribe_Values.Look(ref prisonerDebugLogging, "prisonerDebugLogging", false);
+            Scribe_Values.Look(ref prisonerEscapeChance, "prisonerEscapeChance", 0.04f);
 
             Scribe_Values.Look(ref currentPreset, "currentPreset", "Outbreak simulator");
             Scribe_Collections.Look(ref sectionOpenStates, "sectionOpenStates", LookMode.Value, LookMode.Value);
@@ -776,6 +778,7 @@ namespace TheMarkedMen
             DrawFloat(listing, "Days before suicide", ref prisonerSelfHarmSuicideDays, 1f, 90f, "prisonerSelfHarmSuicideDays", "How many in-game days before a Marked prisoner attempts suicide with severe self-mutilation.");
             DrawFloat(listing, "Escape aggression multiplier", ref prisonerEscapeAggressionMultiplier, 0f, 5f, "prisonerEscapeAggressionMultiplier", "How aggressively Marked prisoners attack during prison breaks. Higher values mean they target more distant priority targets.");
             DrawCheckbox(listing, "Enable cosmetic behaviors", ref prisonerCosmeticEnabled, "When enabled, Marked prisoners pace, growl, scream, and pound walls. Visual only, no mechanical effects.");
+            DrawFloat(listing, "Daily escape chance", ref prisonerEscapeChance, 0f, 1f, "prisonerEscapeChance", "Base chance per day that a Marked prisoner independently attempts to break out. They attack and try to infect anyone nearby during the escape.");
             DrawCheckbox(listing, "Debug logging for prisoner system", ref prisonerDebugLogging, "Writes prisoner infection system debug messages to the RimWorld log.");
 
             DrawSectionHeader(listing, "Optional RimJobWorld Bridge", "Only applies when RimJobWorld is installed. The bridge adds no hard dependency.");
@@ -1206,6 +1209,7 @@ namespace TheMarkedMen
             prisonerSelfHarmStageDays = Mathf.Clamp(prisonerSelfHarmStageDays, 1f, 60f);
             prisonerSelfHarmSuicideDays = Mathf.Clamp(prisonerSelfHarmSuicideDays, 1f, 90f);
             prisonerEscapeAggressionMultiplier = Mathf.Clamp(prisonerEscapeAggressionMultiplier, 0f, 5f);
+            prisonerEscapeChance = Mathf.Clamp01(prisonerEscapeChance);
         }
 
         private void ApplyDefaultPreset(bool updatePreset)

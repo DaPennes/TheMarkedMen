@@ -225,6 +225,9 @@ namespace TheMarkedMen
                 attackJob.expiryInterval = 300;
                 attackJob.checkOverrideOnExpire = true;
                 pawn.jobs.TryTakeOrderedJob(attackJob, JobTag.Misc);
+
+                float infectChance = 0.5f;
+                CrossedUtility.TryExpose(target, infectChance, "marked prisoner escape attack", pawn);
             }
 
             if (settings.prisonerDebugLogging)
