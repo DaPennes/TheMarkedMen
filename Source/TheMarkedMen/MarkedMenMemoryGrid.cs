@@ -6,28 +6,52 @@ using Verse;
 
 namespace TheMarkedMen
 {
-    public struct ScentMarker
+    public struct ScentMarker : IExposable
     {
         public IntVec3 position;
         public float strength;
         public int createdTick;
         public int sourcePawnId;
+
+        public void ExposeData()
+        {
+            Scribe_Values.Look(ref position, "position");
+            Scribe_Values.Look(ref strength, "strength", 0f);
+            Scribe_Values.Look(ref createdTick, "createdTick", 0);
+            Scribe_Values.Look(ref sourcePawnId, "sourcePawnId", 0);
+        }
     }
 
-    public struct NoiseEvent
+    public struct NoiseEvent : IExposable
     {
         public IntVec3 position;
         public float strength;
         public int createdTick;
         public int decayTicks;
+
+        public void ExposeData()
+        {
+            Scribe_Values.Look(ref position, "position");
+            Scribe_Values.Look(ref strength, "strength", 0f);
+            Scribe_Values.Look(ref createdTick, "createdTick", 0);
+            Scribe_Values.Look(ref decayTicks, "decayTicks", 0);
+        }
     }
 
-    public struct MemoryEvent
+    public struct MemoryEvent : IExposable
     {
         public IntVec3 position;
         public int lastSeenTick;
         public int pawnId;
         public bool wasHostile;
+
+        public void ExposeData()
+        {
+            Scribe_Values.Look(ref position, "position");
+            Scribe_Values.Look(ref lastSeenTick, "lastSeenTick", 0);
+            Scribe_Values.Look(ref pawnId, "pawnId", 0);
+            Scribe_Values.Look(ref wasHostile, "wasHostile", false);
+        }
     }
 
     public class MarkedMenMemoryGrid : MapComponent

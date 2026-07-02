@@ -90,7 +90,7 @@
         <minRandomDaysPassed>0.05</minRandomDaysPassed>
         <minSpacingDays>0.25</minSpacingDays>
         <pointsFactorRange>1.15~2.2</pointsFactorRange>
-        <storytellerThreatScaleMultiplier>5</storytellerThreatScaleMultiplier>
+        <storytellerThreatScaleMultiplier>1</storytellerThreatScaleMultiplier>
       </li>
 
       <!-- Marked Men probe - constant scouting pressure -->

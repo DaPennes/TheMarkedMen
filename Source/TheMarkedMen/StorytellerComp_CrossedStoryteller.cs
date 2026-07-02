@@ -12,7 +12,7 @@ namespace TheMarkedMen
         public float minRandomDaysPassed = 0.05f;
         public float minSpacingDays = 0.45f;
         public FloatRange pointsFactorRange = new FloatRange(1.05f, 1.85f);
-        public float storytellerThreatScaleMultiplier = 5f;
+        public float storytellerThreatScaleMultiplier = 1f;
 
         public StorytellerCompProperties_CrossedStoryteller()
         {
