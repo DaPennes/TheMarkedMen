@@ -60,6 +60,31 @@ namespace TheMarkedMen
             cache.Clear();
         }
 
+        public static void PruneDestroyedMaps()
+        {
+            List<Map> toRemove = null;
+            foreach (KeyValuePair<Map, MapClass> kvp in cache)
+            {
+                Map map = kvp.Key;
+                if (map == null || map.info == null || !Find.Maps.Contains(map))
+                {
+                    if (toRemove == null)
+                    {
+                        toRemove = new List<Map>();
+                    }
+                    toRemove.Add(map);
+                }
+            }
+
+            if (toRemove != null)
+            {
+                for (int i = 0; i < toRemove.Count; i++)
+                {
+                    cache.Remove(toRemove[i]);
+                }
+            }
+        }
+
         public static bool IsUrbanRuinMap(Map map)
         {
             return GetMapClass(map) == MapClass.UrbanRuinMap;

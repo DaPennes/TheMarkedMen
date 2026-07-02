@@ -56,6 +56,9 @@ namespace TheMarkedMen
         {
         }
 
+        private int nextCleanupTick;
+        private const int CleanupInterval = 600;
+
         public override void MapComponentTick()
         {
             int tick = Find.TickManager.TicksGame;
@@ -82,6 +85,58 @@ namespace TheMarkedMen
             {
                 nextRareTick = tick + RareTickInterval;
                 TickRare();
+            }
+
+            if (tick >= nextCleanupTick)
+            {
+                nextCleanupTick = tick + CleanupInterval;
+                PruneStaleEntries();
+            }
+        }
+
+        private void PruneStaleEntries()
+        {
+            List<Pawn> infected = GetInfectedPawns();
+            HashSet<int> validIds = new HashSet<int>();
+            for (int i = 0; i < infected.Count; i++)
+            {
+                Pawn pawn = infected[i];
+                if (pawn != null && !pawn.Dead && pawn.Spawned)
+                {
+                    validIds.Add(pawn.thingIDNumber);
+                }
+            }
+
+            PruneDict(pursuitStates, validIds);
+            PruneDict(lastTargetSeenTick, validIds);
+            PruneDict(lastKnownTargetPos, validIds);
+            PruneDict(lastFlankTick, validIds);
+            PruneDict(lastScentInvestigation, validIds);
+            PruneDict(lastNoiseInvestigation, validIds);
+            PruneDict(lastMemoryInvestigation, validIds);
+        }
+
+        private static void PruneDict<T>(Dictionary<int, T> dict, HashSet<int> validIds)
+        {
+            List<int> toRemove = null;
+            foreach (int key in dict.Keys)
+            {
+                if (!validIds.Contains(key))
+                {
+                    if (toRemove == null)
+                    {
+                        toRemove = new List<int>();
+                    }
+                    toRemove.Add(key);
+                }
+            }
+
+            if (toRemove != null)
+            {
+                for (int i = 0; i < toRemove.Count; i++)
+                {
+                    dict.Remove(toRemove[i]);
+                }
             }
         }
 
@@ -687,6 +742,7 @@ namespace TheMarkedMen
             Scribe_Values.Look(ref nextNormalTick, "nextNormalTick", 0);
             Scribe_Values.Look(ref nextSlowTick, "nextSlowTick", 0);
             Scribe_Values.Look(ref nextRareTick, "nextRareTick", 0);
+            Scribe_Values.Look(ref nextCleanupTick, "nextCleanupTick", 0);
         }
 
         public static MarkedMenAIManager GetForMap(Map map)

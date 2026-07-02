@@ -11,7 +11,6 @@ namespace TheMarkedMen
 {
     public static class CrossedTacticalAI
     {
-        private const int TacticalRetargetInterval = 6;
         private const int TacticalJobExpiryTicks = 90;
         private const int TacticalMoveExpiryTicks = 180;
         private const int RangedCastSearchMaxRegions = 80;

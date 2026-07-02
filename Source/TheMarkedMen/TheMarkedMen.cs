@@ -163,7 +163,7 @@ namespace TheMarkedMen
         public int maxContagionTargetsPerPulse = 3;
         public int corpseContaminationIntervalTicks = 750;
         public int maxCorpsesPerPulse = 2;
-        public int tacticalRetargetIntervalTicks = 6;
+        public int tacticalRetargetIntervalTicks = 60;
         public int infightingCheckIntervalTicks = 1000;
         public int lordCleanupIntervalTicks = 250;
         public int infectedStateMaintenanceIntervalTicks = 2500;
@@ -417,7 +417,7 @@ namespace TheMarkedMen
             Scribe_Values.Look(ref maxContagionTargetsPerPulse, "maxContagionTargetsPerPulse", 3);
             Scribe_Values.Look(ref corpseContaminationIntervalTicks, "corpseContaminationIntervalTicks", 750);
             Scribe_Values.Look(ref maxCorpsesPerPulse, "maxCorpsesPerPulse", 2);
-            Scribe_Values.Look(ref tacticalRetargetIntervalTicks, "tacticalRetargetIntervalTicks", 6);
+            Scribe_Values.Look(ref tacticalRetargetIntervalTicks, "tacticalRetargetIntervalTicks", 60);
             Scribe_Values.Look(ref infightingCheckIntervalTicks, "infightingCheckIntervalTicks", 1000);
             Scribe_Values.Look(ref lordCleanupIntervalTicks, "lordCleanupIntervalTicks", 250);
             Scribe_Values.Look(ref infectedStateMaintenanceIntervalTicks, "infectedStateMaintenanceIntervalTicks", 2500);
@@ -741,7 +741,7 @@ namespace TheMarkedMen
             DrawInt(listing, "Max contagion targets per pulse", ref maxContagionTargetsPerPulse, 0, 50, "maxContagionTargetsPerPulse", "Maximum nearby pawns checked by each contagion pulse. Set to 0 to disable pulse-based close-contact spread.");
             DrawInt(listing, "Ticks between corpse contamination pulses", ref corpseContaminationIntervalTicks, 60, GenDate.TicksPerDay, "corpseContaminationIntervalTicks", "How often infected pawns try to contaminate nearby corpses.");
             DrawInt(listing, "Max corpses checked per pulse", ref maxCorpsesPerPulse, 0, 50, "maxCorpsesPerPulse", "Maximum nearby corpses checked during each corpse contamination pulse. Set to 0 to disable corpse contamination.");
-            DrawInt(listing, "Ticks between tactical retarget checks", ref tacticalRetargetIntervalTicks, 1, 2500, "tacticalRetargetIntervalTicks", "How often infected pawns can reconsider tactical targets.");
+            DrawInt(listing, "Ticks between tactical retarget checks", ref tacticalRetargetIntervalTicks, 1, 2500, "tacticalRetargetIntervalTicks", "How often infected pawns can reconsider tactical targets. Higher values improve performance by reducing scans for new targets.");
             DrawInt(listing, "Ticks between infighting checks", ref infightingCheckIntervalTicks, 60, GenDate.TicksPerDay, "infightingCheckIntervalTicks", "How often infected pawns can roll for infighting behavior.");
             DrawInt(listing, "Ticks between lord cleanup checks", ref lordCleanupIntervalTicks, 60, GenDate.TicksPerDay, "lordCleanupIntervalTicks", "How often the mod cleans up invalid raid lord state.");
             DrawInt(listing, "Ticks between infected-state maintenance", ref infectedStateMaintenanceIntervalTicks, 60, GenDate.TicksPerDay, "infectedStateMaintenanceIntervalTicks", "How often infected pawns refresh state such as faction-specific visuals.");
@@ -1489,7 +1489,7 @@ namespace TheMarkedMen
             maxContagionTargetsPerPulse = 3;
             corpseContaminationIntervalTicks = 750;
             maxCorpsesPerPulse = 2;
-            tacticalRetargetIntervalTicks = 6;
+            tacticalRetargetIntervalTicks = 60;
             infightingCheckIntervalTicks = 1000;
             lordCleanupIntervalTicks = 250;
             infectedStateMaintenanceIntervalTicks = 2500;
@@ -1749,6 +1749,7 @@ namespace TheMarkedMen
             InitializeStarterLineageResistance();
             EnsureInfectedStateOnLoadedPawns();
             TryFireScheduledHorde(ticks);
+            MapClassificationService.PruneDestroyedMaps();
         }
 
         public bool NoteCorpseLingering(Pawn pawn, int currentTick, int observedTicks)

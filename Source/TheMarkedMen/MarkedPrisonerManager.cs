@@ -45,6 +45,9 @@ namespace TheMarkedMen
 
         private TheMarkedMenSettings Settings => TheMarkedMenMod.Settings;
 
+        private int nextCleanupTick;
+        private const int CleanupInterval = 600;
+
         public override void MapComponentTick()
         {
             int tick = Find.TickManager.TicksGame;
@@ -77,6 +80,55 @@ namespace TheMarkedMen
             {
                 nextPrisonerRefreshTick = tick + PrisonerRefreshInterval;
                 RefreshPrisoners();
+            }
+
+            if (tick >= nextCleanupTick)
+            {
+                nextCleanupTick = tick + CleanupInterval;
+                PruneStaleEntries();
+            }
+        }
+
+        private void PruneStaleEntries()
+        {
+            HashSet<int> validIds = new HashSet<int>();
+            for (int i = 0; i < cachedMarkedPrisoners.Count; i++)
+            {
+                Pawn pawn = cachedMarkedPrisoners[i];
+                if (pawn != null && !pawn.Dead && pawn.Spawned && pawn.IsPrisonerOfColony)
+                {
+                    validIds.Add(pawn.thingIDNumber);
+                }
+            }
+
+            PruneDict(imprisonmentStartTick, validIds);
+            PruneDict(lastSuccessfulAttackTick, validIds);
+            PruneDict(selfHarmStage, validIds);
+            PruneDict(nextSelfHarmStageTick, validIds);
+            PruneDict(lastCosmeticTick, validIds);
+        }
+
+        private static void PruneDict<T>(Dictionary<int, T> dict, HashSet<int> validIds)
+        {
+            List<int> toRemove = null;
+            foreach (int key in dict.Keys)
+            {
+                if (!validIds.Contains(key))
+                {
+                    if (toRemove == null)
+                    {
+                        toRemove = new List<int>();
+                    }
+                    toRemove.Add(key);
+                }
+            }
+
+            if (toRemove != null)
+            {
+                for (int i = 0; i < toRemove.Count; i++)
+                {
+                    dict.Remove(toRemove[i]);
+                }
             }
         }
 
@@ -742,6 +794,7 @@ namespace TheMarkedMen
             Scribe_Values.Look(ref nextSelfHarmTick, "nextSelfHarmTick", 0);
             Scribe_Values.Look(ref nextCosmeticTick, "nextCosmeticTick", 0);
             Scribe_Values.Look(ref nextPrisonerRefreshTick, "nextPrisonerRefreshTick", 0);
+            Scribe_Values.Look(ref nextCleanupTick, "nextCleanupTick", 0);
 
             Scribe_Collections.Look(ref imprisonmentStartTick, "imprisonmentStartTick", LookMode.Value, LookMode.Value);
             Scribe_Collections.Look(ref lastSuccessfulAttackTick, "lastSuccessfulAttackTick", LookMode.Value, LookMode.Value);
