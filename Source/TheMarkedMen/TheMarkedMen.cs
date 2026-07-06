@@ -43,7 +43,7 @@ namespace TheMarkedMen
 
     public sealed class TheMarkedMenSettings : ModSettings
     {
-        private const int CurrentSettingsVersion = 12;
+        private const int CurrentSettingsVersion = 13;
         public const float InfectionTransmissionChance = 0.45f;
         public const float DefaultMarkedRaidFrequencyMultiplier = 2f;
         public const float MinMarkedRaidFrequencyMultiplier = 0f;
@@ -93,7 +93,8 @@ namespace TheMarkedMen
         public float probeFrequencyMultiplier = 1f;
         public int firstMarkedRaidDay = 45;
         public float raidPointsMultiplier = 2000f;
-        public float minimumRaidPoints = 5000f;
+        public float minimumRaidPoints = 2000f;
+        public float maximumRaidPoints = 10000f;
         public float raidEscalationPerRaid = DefaultRaidEscalationPerRaid;
         public float raidEscalationMaxBonus = DefaultRaidEscalationMaxBonus;
         public bool allowGroupedEdgeArrival = true;
@@ -349,7 +350,8 @@ namespace TheMarkedMen
             Scribe_Values.Look(ref probeFrequencyMultiplier, "probeFrequencyMultiplier", 1f);
             Scribe_Values.Look(ref firstMarkedRaidDay, "firstMarkedRaidDay", 45);
             Scribe_Values.Look(ref raidPointsMultiplier, "raidPointsMultiplier", 2f);
-            Scribe_Values.Look(ref minimumRaidPoints, "minimumRaidPoints", 5000f);
+            Scribe_Values.Look(ref minimumRaidPoints, "minimumRaidPoints", 2000f);
+            Scribe_Values.Look(ref maximumRaidPoints, "maximumRaidPoints", 10000f);
             Scribe_Values.Look(ref raidEscalationPerRaid, "raidEscalationPerRaid", DefaultRaidEscalationPerRaid);
             Scribe_Values.Look(ref raidEscalationMaxBonus, "raidEscalationMaxBonus", DefaultRaidEscalationMaxBonus);
             Scribe_Values.Look(ref allowGroupedEdgeArrival, "allowGroupedEdgeArrival", true);
@@ -505,7 +507,8 @@ namespace TheMarkedMen
                     probeFrequencyMultiplier = 1f;
                     firstMarkedRaidDay = 45;
                     raidPointsMultiplier = 2f;
-                    minimumRaidPoints = 5000f;
+                    minimumRaidPoints = 2000f;
+                    maximumRaidPoints = 10000f;
                     raidEscalationPerRaid = DefaultRaidEscalationPerRaid;
                     raidEscalationMaxBonus = DefaultRaidEscalationMaxBonus;
                     ResetArrivalDefaults();
@@ -571,6 +574,11 @@ namespace TheMarkedMen
                 if (loadedSettingsVersion < 11 && (string.IsNullOrEmpty(currentPreset) || currentPreset == DefaultPresetName))
                 {
                     ApplyOutbreakDefaults(false);
+                }
+
+                if (loadedSettingsVersion < 13)
+                {
+                    maximumRaidPoints = 10000f;
                 }
 
                 settingsVersion = CurrentSettingsVersion;
@@ -649,7 +657,8 @@ namespace TheMarkedMen
             DrawFloat(listing, "Scouting probe frequency multiplier", ref probeFrequencyMultiplier, 0f, MaxMarkedRaidFrequencyMultiplier, "probeFrequencyMultiplier", "Multiplier for small probe incidents after the global multiplier is applied.");
             DrawHelp(listing, "Effective frequencies: warbands " + MultiplierText(EffectiveWarbandFrequencyMultiplier) + ", hordes " + MultiplierText(EffectiveHordeFrequencyMultiplier) + ", probes " + MultiplierText(EffectiveProbeFrequencyMultiplier) + ".");
             DrawFloat(listing, "Raid strength multiplier", ref raidPointsMultiplier, 0.05f, 1E+09f, "raidPointsMultiplier", "Scales incident points after the minimum point floor is applied.");
-            DrawFloat(listing, "Minimum raid points", ref minimumRaidPoints, 0f, 100000f, "minimumRaidPoints", "Point floor for generated Marked Men attacks. Higher values make even early raids larger.");
+            DrawFloat(listing, "Minimum raid points", ref minimumRaidPoints, 0f, maximumRaidPoints, "minimumRaidPoints", "Point floor for generated Marked Men attacks. Higher values make even early raids larger.");
+            DrawFloat(listing, "Maximum raid points", ref maximumRaidPoints, minimumRaidPoints, 100000f, "maximumRaidPoints", "Hard point ceiling for generated Marked Men attacks. Prevents extreme late-game raids from exceeding this value.");
             DrawFloat(listing, "Escalation gained per warband", ref raidEscalationPerRaid, 0f, 2f, "raidEscalationPerRaid", "Extra raid strength added after each scheduled warband starts.");
             DrawFloat(listing, "Escalation maximum bonus", ref raidEscalationMaxBonus, 0f, 20f, "raidEscalationMaxBonus", "Maximum accumulated escalation bonus from repeated warbands.");
             DrawCheckbox(listing, "Allow grouped edge arrivals", ref allowGroupedEdgeArrival, "Allows raiders to enter together from one map edge.");
@@ -801,7 +810,7 @@ namespace TheMarkedMen
                 return Mathf.Max(120f, points);
             }
 
-            return Mathf.Max(0f, Mathf.Max(points, settings.minimumRaidPoints) * settings.raidPointsMultiplier);
+            return Mathf.Clamp(Mathf.Max(points, settings.minimumRaidPoints) * settings.raidPointsMultiplier, 0f, settings.maximumRaidPoints);
         }
 
         public static float CurrentTerminalTransformationChance(HediffCompProperties_CrossVirus props)
@@ -1151,7 +1160,8 @@ namespace TheMarkedMen
             probeFrequencyMultiplier = Mathf.Clamp(probeFrequencyMultiplier, 0f, MaxMarkedRaidFrequencyMultiplier);
             firstMarkedRaidDay = Mathf.Clamp(firstMarkedRaidDay, 1, 600);
             raidPointsMultiplier = Mathf.Max(0.05f, raidPointsMultiplier);
-            minimumRaidPoints = Mathf.Clamp(minimumRaidPoints, 0f, 100000f);
+            minimumRaidPoints = Mathf.Clamp(minimumRaidPoints, 0f, maximumRaidPoints);
+            maximumRaidPoints = Mathf.Clamp(maximumRaidPoints, minimumRaidPoints, 100000f);
             raidEscalationPerRaid = Mathf.Clamp(raidEscalationPerRaid, 0f, 2f);
             raidEscalationMaxBonus = Mathf.Clamp(raidEscalationMaxBonus, 0f, 20f);
             civilianWeightMultiplier = Mathf.Clamp(civilianWeightMultiplier, 0f, 5f);
@@ -1234,7 +1244,8 @@ namespace TheMarkedMen
             probeFrequencyMultiplier = 1f;
             firstMarkedRaidDay = 45;
             raidPointsMultiplier = 1f;
-            minimumRaidPoints = 9000f;
+            minimumRaidPoints = 2000f;
+            maximumRaidPoints = 10000f;
             raidEscalationPerRaid = DefaultRaidEscalationPerRaid;
             raidEscalationMaxBonus = DefaultRaidEscalationMaxBonus;
             ResetArrivalDefaults();
