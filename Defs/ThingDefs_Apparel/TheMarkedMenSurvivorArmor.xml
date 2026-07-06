@@ -41,6 +41,7 @@
         <li>Arms</li>
       </bodyPartGroups>
       <wornGraphicPath>Thing/Pawn/Humanlike/Apparel/SurvivorArmor/MarkedSurvivor</wornGraphicPath>
+      <wornGraphicClass>Graphic_Multi</wornGraphicClass>
       <layers>
         <li>Middle</li>
       </layers>
