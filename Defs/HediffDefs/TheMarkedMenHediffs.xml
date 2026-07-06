@@ -176,14 +176,14 @@
         <painFactor>0</painFactor>
         <blocksMentalBreaks>true</blocksMentalBreaks>
         <statFactors>
-          <MoveSpeed>1.45</MoveSpeed>
-          <MeleeCooldownFactor>0.56</MeleeCooldownFactor>
+          <MoveSpeed>1.35</MoveSpeed>
+          <MeleeCooldownFactor>0.65</MeleeCooldownFactor>
           <IncomingDamageFactor>0.9</IncomingDamageFactor>
           <StaggerDurationFactor>0.25</StaggerDurationFactor>
         </statFactors>
         <statOffsets>
-          <MeleeHitChance>6</MeleeHitChance>
-          <MeleeDodgeChance>4</MeleeDodgeChance>
+          <MeleeHitChance>4</MeleeHitChance>
+          <MeleeDodgeChance>3</MeleeDodgeChance>
           <PainShockThreshold>0.25</PainShockThreshold>
           <MentalBreakThreshold>-0.25</MentalBreakThreshold>
         </statOffsets>
@@ -202,8 +202,8 @@
         <painFactor>0</painFactor>
         <blocksMentalBreaks>true</blocksMentalBreaks>
         <statFactors>
-          <MoveSpeed>1.18</MoveSpeed>
-          <MeleeCooldownFactor>0.68</MeleeCooldownFactor>
+          <MoveSpeed>1.12</MoveSpeed>
+          <MeleeCooldownFactor>0.72</MeleeCooldownFactor>
           <PsychicSensitivity>0.15</PsychicSensitivity>
           <StaggerDurationFactor>0.35</StaggerDurationFactor>
         </statFactors>
@@ -403,9 +403,9 @@
         <painFactor>0</painFactor>
         <blocksMentalBreaks>true</blocksMentalBreaks>
         <statFactors>
-          <MoveSpeed>1.35</MoveSpeed>
-          <MeleeCooldownFactor>0.55</MeleeCooldownFactor>
-          <IncomingDamageFactor>0.65</IncomingDamageFactor>
+          <MoveSpeed>1.20</MoveSpeed>
+          <MeleeCooldownFactor>0.65</MeleeCooldownFactor>
+          <IncomingDamageFactor>0.80</IncomingDamageFactor>
           <StaggerDurationFactor>0.20</StaggerDurationFactor>
         </statFactors>
         <statOffsets>
@@ -569,15 +569,14 @@
     <stages>
       <li>
         <statFactors>
-          <MoveSpeed>1.15</MoveSpeed>
-          <MeleeCooldownFactor>0.85</MeleeCooldownFactor>
-          <IncomingDamageFactor>0.90</IncomingDamageFactor>
+          <MoveSpeed>1.08</MoveSpeed>
+          <MeleeCooldownFactor>0.92</MeleeCooldownFactor>
           <StaggerDurationFactor>0.75</StaggerDurationFactor>
         </statFactors>
         <statOffsets>
           <MeleeHitChance>3</MeleeHitChance>
-          <MeleeDodgeChance>3</MeleeDodgeChance>
-          <PainShockThreshold>0.25</PainShockThreshold>
+          <MeleeDodgeChance>2</MeleeDodgeChance>
+          <PainShockThreshold>0.15</PainShockThreshold>
         </statOffsets>
       </li>
     </stages>
@@ -596,16 +595,16 @@
         <painFactor>0</painFactor>
         <blocksMentalBreaks>true</blocksMentalBreaks>
         <statFactors>
-          <MoveSpeed>1.25</MoveSpeed>
-          <MeleeCooldownFactor>0.68</MeleeCooldownFactor>
-          <IncomingDamageFactor>0.72</IncomingDamageFactor>
+          <MoveSpeed>1.18</MoveSpeed>
+          <MeleeCooldownFactor>0.75</MeleeCooldownFactor>
+          <IncomingDamageFactor>0.78</IncomingDamageFactor>
           <StaggerDurationFactor>0.35</StaggerDurationFactor>
         </statFactors>
         <statOffsets>
-          <ShootingAccuracyPawn>4</ShootingAccuracyPawn>
+          <ShootingAccuracyPawn>3</ShootingAccuracyPawn>
           <MeleeHitChance>3</MeleeHitChance>
           <MeleeDodgeChance>2</MeleeDodgeChance>
-          <PainShockThreshold>0.40</PainShockThreshold>
+          <PainShockThreshold>0.35</PainShockThreshold>
         </statOffsets>
       </li>
     </stages>
@@ -624,18 +623,18 @@
         <painFactor>0</painFactor>
         <blocksMentalBreaks>true</blocksMentalBreaks>
         <statFactors>
-          <MoveSpeed>1.30</MoveSpeed>
-          <MeleeCooldownFactor>0.52</MeleeCooldownFactor>
-          <IncomingDamageFactor>0.50</IncomingDamageFactor>
+          <MoveSpeed>1.22</MoveSpeed>
+          <MeleeCooldownFactor>0.60</MeleeCooldownFactor>
+          <IncomingDamageFactor>0.58</IncomingDamageFactor>
           <StaggerDurationFactor>0.22</StaggerDurationFactor>
           <ArmorRating_Sharp>0.30</ArmorRating_Sharp>
           <ArmorRating_Blunt>0.30</ArmorRating_Blunt>
         </statFactors>
         <statOffsets>
-          <ShootingAccuracyPawn>5</ShootingAccuracyPawn>
-          <MeleeHitChance>6</MeleeHitChance>
+          <ShootingAccuracyPawn>4</ShootingAccuracyPawn>
+          <MeleeHitChance>5</MeleeHitChance>
           <MeleeDodgeChance>4</MeleeDodgeChance>
-          <PainShockThreshold>0.55</PainShockThreshold>
+          <PainShockThreshold>0.50</PainShockThreshold>
         </statOffsets>
       </li>
     </stages>
@@ -654,18 +653,18 @@
         <painFactor>0</painFactor>
         <blocksMentalBreaks>true</blocksMentalBreaks>
         <statFactors>
-          <MoveSpeed>1.45</MoveSpeed>
-          <MeleeCooldownFactor>0.38</MeleeCooldownFactor>
-          <IncomingDamageFactor>0.32</IncomingDamageFactor>
-          <StaggerDurationFactor>0.12</StaggerDurationFactor>
-          <ArmorRating_Sharp>0.50</ArmorRating_Sharp>
-          <ArmorRating_Blunt>0.50</ArmorRating_Blunt>
+          <MoveSpeed>1.32</MoveSpeed>
+          <MeleeCooldownFactor>0.45</MeleeCooldownFactor>
+          <IncomingDamageFactor>0.40</IncomingDamageFactor>
+          <StaggerDurationFactor>0.18</StaggerDurationFactor>
+          <ArmorRating_Sharp>0.40</ArmorRating_Sharp>
+          <ArmorRating_Blunt>0.40</ArmorRating_Blunt>
         </statFactors>
         <statOffsets>
-          <ShootingAccuracyPawn>7</ShootingAccuracyPawn>
-          <MeleeHitChance>9</MeleeHitChance>
-          <MeleeDodgeChance>7</MeleeDodgeChance>
-          <PainShockThreshold>0.75</PainShockThreshold>
+          <ShootingAccuracyPawn>6</ShootingAccuracyPawn>
+          <MeleeHitChance>8</MeleeHitChance>
+          <MeleeDodgeChance>6</MeleeDodgeChance>
+          <PainShockThreshold>0.65</PainShockThreshold>
         </statOffsets>
       </li>
     </stages>

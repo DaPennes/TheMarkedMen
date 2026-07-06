@@ -1115,7 +1115,7 @@ namespace TheMarkedMen
 				pawn.health.AddHediff(CADefOf.BloodRush);
 			}
 
-			if ((pawn.kindDef == CADefOf.CrossedAlpha || pawn.kindDef == CADefOf.CrossedWarlord || pawn.kindDef == CADefOf.MarkedMan)
+			if ((pawn.kindDef == CADefOf.CrossedAlpha || pawn.kindDef == CADefOf.CrossedWarlord)
 				&& CADefOf.CommandAura != null && !pawn.health.hediffSet.HasHediff(CADefOf.CommandAura))
 			{
 				pawn.health.AddHediff(CADefOf.CommandAura);
@@ -1126,7 +1126,10 @@ namespace TheMarkedMen
 				pawn.health.AddHediff(CADefOf.BloodRush);
 			}
 
-			if (IsCrossedFactionPawn(pawn) && CADefOf.CrossedStrength != null && !pawn.health.hediffSet.HasHediff(CADefOf.CrossedStrength))
+			if (IsCrossedFactionPawn(pawn) && CADefOf.CrossedStrength != null
+				&& pawn.kindDef != CADefOf.CrossedBrute && pawn.kindDef != CADefOf.CrossedAlpha
+				&& pawn.kindDef != CADefOf.CrossedWarlord && pawn.kindDef != CADefOf.MarkedMan
+				&& !pawn.health.hediffSet.HasHediff(CADefOf.CrossedStrength))
 			{
 				pawn.health.AddHediff(CADefOf.CrossedStrength);
 			}
