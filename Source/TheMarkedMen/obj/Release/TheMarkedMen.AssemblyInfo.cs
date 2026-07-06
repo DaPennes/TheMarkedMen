@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("TheMarkedMen")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Release")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+a2f083d40a09f134c6f210553580a3715a036f49")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+3a317e0b43d41a7f81cd58d502d24cf5d4f4efe6")]
 [assembly: System.Reflection.AssemblyProductAttribute("TheMarkedMen")]
 [assembly: System.Reflection.AssemblyTitleAttribute("TheMarkedMen")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

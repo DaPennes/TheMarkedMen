@@ -15,7 +15,7 @@ namespace TheMarkedMen
         private const int SelfHarmCheckInterval = GenDate.TicksPerDay;
         private const int CosmeticCheckInterval = 180;
         private const int PrisonerRefreshInterval = 250;
-        private const int MinPrisonerDistanceForAttack = 4;
+        private const int MinPrisonerDistanceForAttack = 1;
         private const float PoundDoorNoiseStrength = 0.35f;
         private const int PoundDoorNoiseDecay = 800;
         private const float PoundWallNoiseStrength = 0.25f;
@@ -143,12 +143,15 @@ namespace TheMarkedMen
             for (int i = 0; i < cachedMarkedPrisoners.Count; i++)
             {
                 Pawn pawn = cachedMarkedPrisoners[i];
-                if (pawn == null || pawn.Dead || !pawn.Spawned || !pawn.IsPrisonerOfColony)
+                if (pawn == null || pawn.Dead || !pawn.Spawned || !pawn.IsPrisonerOfColony || pawn.Downed)
                 {
                     continue;
                 }
 
-                CheckNearbyInteraction(pawn, tick);
+                if (!CheckNearbyInteraction(pawn, tick))
+                {
+                    TryBreakDoor(pawn);
+                }
             }
         }
 
@@ -456,25 +459,25 @@ namespace TheMarkedMen
             }
         }
 
-        private void CheckNearbyInteraction(Pawn pawn, int tick)
+        private bool CheckNearbyInteraction(Pawn pawn, int tick)
         {
             if (Settings == null || !Settings.prisonerInfectionEnabled)
             {
-                return;
+                return false;
             }
 
             int id = pawn.thingIDNumber;
             int lastCosmetic = lastCosmeticTick.TryGetValue(id, out int lastCos) ? lastCos : 0;
             if (tick - lastCosmetic < 120)
             {
-                return;
+                return false;
             }
 
             IntVec3 pos = pawn.Position;
             Map pawnMap = pawn.Map;
             if (pawnMap == null)
             {
-                return;
+                return false;
             }
 
             float closestDistSq = MinPrisonerDistanceForAttack * MinPrisonerDistanceForAttack;
@@ -508,9 +511,11 @@ namespace TheMarkedMen
                 {
                     lastCosmeticTick[id] = tick;
                     TryWardenAttack(pawn, other, tick);
-                    return;
+                    return true;
                 }
             }
+
+            return false;
         }
 
         private void TryWardenAttack(Pawn prisoner, Pawn target, int tick)
@@ -711,6 +716,47 @@ namespace TheMarkedMen
                     MarkedMenMemoryGrid memory = MarkedMenMemoryGrid.GetForMap(pawn.Map);
                     memory?.AddNoise(wallPos, PoundWallNoiseStrength, PoundWallNoiseDecay);
                 }
+            }
+        }
+
+        private void TryBreakDoor(Pawn pawn)
+        {
+            if (!pawn.Spawned || pawn.Map == null || pawn.Downed || pawn.Dead || pawn.Map.listerBuildings == null)
+            {
+                return;
+            }
+
+            if (pawn.jobs?.curDriver?.job?.def == JobDefOf.AttackMelee)
+            {
+                return;
+            }
+
+            Building_Door targetDoor = null;
+            float nearestDist = 25f;
+            List<Building> allBuildings = pawn.Map.listerBuildings.allBuildingsColonist;
+            for (int i = 0; i < allBuildings.Count; i++)
+            {
+                Building_Door door = allBuildings[i] as Building_Door;
+                if (door == null || door.Open || door.Faction != Faction.OfPlayer)
+                {
+                    continue;
+                }
+
+                float dist = pawn.Position.DistanceToSquared(door.Position);
+                if (dist < nearestDist)
+                {
+                    targetDoor = door;
+                    nearestDist = dist;
+                }
+            }
+
+            if (targetDoor != null && pawn.CanReach(targetDoor, PathEndMode.Touch, Danger.Deadly))
+            {
+                Job job = JobMaker.MakeJob(JobDefOf.AttackMelee, targetDoor);
+                job.canBashDoors = true;
+                job.locomotionUrgency = LocomotionUrgency.Sprint;
+                job.expiryInterval = 300;
+                pawn.jobs.TryTakeOrderedJob(job, JobTag.Misc);
             }
         }
 
