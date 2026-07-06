@@ -20,7 +20,7 @@
         <painFactor>0.5</painFactor>
         <blocksMentalBreaks>true</blocksMentalBreaks>
         <statFactors>
-          <MoveSpeed>1.03</MoveSpeed>
+          <MoveSpeed>1.02</MoveSpeed>
           <MeleeCooldownFactor>0.96</MeleeCooldownFactor>
         </statFactors>
         <statOffsets>
@@ -55,7 +55,7 @@
         <painFactor>0.1</painFactor>
         <blocksMentalBreaks>true</blocksMentalBreaks>
         <statFactors>
-          <MoveSpeed>1.06</MoveSpeed>
+          <MoveSpeed>1.04</MoveSpeed>
           <MeleeCooldownFactor>0.9</MeleeCooldownFactor>
           <SocialImpact>0.35</SocialImpact>
         </statFactors>
@@ -71,7 +71,7 @@
         <blocksMentalBreaks>true</blocksMentalBreaks>
         <blocksInspirations>true</blocksInspirations>
         <statFactors>
-          <MoveSpeed>1.15</MoveSpeed>
+          <MoveSpeed>1.10</MoveSpeed>
           <MeleeCooldownFactor>0.76</MeleeCooldownFactor>
           <IncomingDamageFactor>0.9</IncomingDamageFactor>
           <PsychicSensitivity>0.55</PsychicSensitivity>
@@ -97,7 +97,7 @@
         <blocksInspirations>true</blocksInspirations>
         <pctAllThoughtNullification>1</pctAllThoughtNullification>
         <statFactors>
-          <MoveSpeed>1.25</MoveSpeed>
+          <MoveSpeed>1.15</MoveSpeed>
           <MeleeCooldownFactor>0.52</MeleeCooldownFactor>
           <IncomingDamageFactor>0.70</IncomingDamageFactor>
           <PsychicSensitivity>0.25</PsychicSensitivity>
@@ -176,7 +176,7 @@
         <painFactor>0</painFactor>
         <blocksMentalBreaks>true</blocksMentalBreaks>
         <statFactors>
-          <MoveSpeed>1.28</MoveSpeed>
+          <MoveSpeed>1.18</MoveSpeed>
           <MeleeCooldownFactor>0.65</MeleeCooldownFactor>
           <IncomingDamageFactor>0.9</IncomingDamageFactor>
           <StaggerDurationFactor>0.25</StaggerDurationFactor>
@@ -202,7 +202,7 @@
         <painFactor>0</painFactor>
         <blocksMentalBreaks>true</blocksMentalBreaks>
         <statFactors>
-          <MoveSpeed>1.10</MoveSpeed>
+          <MoveSpeed>1.08</MoveSpeed>
           <MeleeCooldownFactor>0.72</MeleeCooldownFactor>
           <PsychicSensitivity>0.15</PsychicSensitivity>
           <StaggerDurationFactor>0.35</StaggerDurationFactor>
@@ -228,7 +228,7 @@
     <stages>
       <li>
         <statFactors>
-          <MoveSpeed>1.10</MoveSpeed>
+          <MoveSpeed>1.08</MoveSpeed>
           <PsychicSensitivity>0.4</PsychicSensitivity>
           <StaggerDurationFactor>0.3</StaggerDurationFactor>
         </statFactors>
@@ -260,7 +260,7 @@
     <stages>
       <li>
         <statFactors>
-          <MoveSpeed>1.20</MoveSpeed>
+          <MoveSpeed>1.12</MoveSpeed>
         </statFactors>
         <statOffsets>
           <AimingDelayFactor>-0.15</AimingDelayFactor>
@@ -297,7 +297,7 @@
     <stages>
       <li>
         <statFactors>
-          <MoveSpeed>1.10</MoveSpeed>
+          <MoveSpeed>1.08</MoveSpeed>
           <StaggerDurationFactor>0.65</StaggerDurationFactor>
         </statFactors>
         <statOffsets>
@@ -316,7 +316,7 @@
     <stages>
       <li>
         <statFactors>
-          <MoveSpeed>1.08</MoveSpeed>
+          <MoveSpeed>1.06</MoveSpeed>
           <MeleeCooldownFactor>0.78</MeleeCooldownFactor>
           <IncomingDamageFactor>0.85</IncomingDamageFactor>
         </statFactors>
@@ -358,7 +358,7 @@
     <stages>
       <li>
         <statFactors>
-          <MoveSpeed>1.10</MoveSpeed>
+          <MoveSpeed>1.08</MoveSpeed>
         </statFactors>
         <statOffsets>
           <MeleeHitChance>3</MeleeHitChance>
@@ -378,7 +378,7 @@
     <stages>
       <li>
         <statFactors>
-          <MoveSpeed>1.10</MoveSpeed>
+          <MoveSpeed>1.08</MoveSpeed>
           <IncomingDamageFactor>0.80</IncomingDamageFactor>
         </statFactors>
         <statOffsets>
@@ -403,7 +403,7 @@
         <painFactor>0</painFactor>
         <blocksMentalBreaks>true</blocksMentalBreaks>
         <statFactors>
-          <MoveSpeed>1.18</MoveSpeed>
+          <MoveSpeed>1.12</MoveSpeed>
           <MeleeCooldownFactor>0.65</MeleeCooldownFactor>
           <IncomingDamageFactor>0.80</IncomingDamageFactor>
           <StaggerDurationFactor>0.20</StaggerDurationFactor>
@@ -428,7 +428,7 @@
     <stages>
       <li>
         <statFactors>
-          <MoveSpeed>1.30</MoveSpeed>
+          <MoveSpeed>1.18</MoveSpeed>
           <MeleeCooldownFactor>0.70</MeleeCooldownFactor>
           <StaggerDurationFactor>0.40</StaggerDurationFactor>
         </statFactors>
@@ -466,7 +466,7 @@
         <minSeverity>0.67</minSeverity>
         <label>frenzied</label>
         <statFactors>
-          <MoveSpeed>1.10</MoveSpeed>
+          <MoveSpeed>1.06</MoveSpeed>
           <MeleeCooldownFactor>0.70</MeleeCooldownFactor>
           <IncomingDamageFactor>0.90</IncomingDamageFactor>
         </statFactors>
@@ -487,7 +487,7 @@
     <stages>
       <li>
         <statFactors>
-          <MoveSpeed>1.08</MoveSpeed>
+          <MoveSpeed>1.05</MoveSpeed>
           <MeleeCooldownFactor>0.85</MeleeCooldownFactor>
           <StaggerDurationFactor>0.75</StaggerDurationFactor>
         </statFactors>
@@ -523,7 +523,7 @@
         <minSeverity>0.75</minSeverity>
         <label>overwhelming force</label>
         <statFactors>
-          <MoveSpeed>1.08</MoveSpeed>
+          <MoveSpeed>1.05</MoveSpeed>
           <MeleeCooldownFactor>0.80</MeleeCooldownFactor>
         </statFactors>
         <statOffsets>
@@ -569,7 +569,7 @@
     <stages>
       <li>
         <statFactors>
-          <MoveSpeed>1.06</MoveSpeed>
+          <MoveSpeed>1.04</MoveSpeed>
           <MeleeCooldownFactor>0.92</MeleeCooldownFactor>
           <StaggerDurationFactor>0.75</StaggerDurationFactor>
         </statFactors>
@@ -595,7 +595,7 @@
         <painFactor>0</painFactor>
         <blocksMentalBreaks>true</blocksMentalBreaks>
         <statFactors>
-          <MoveSpeed>1.15</MoveSpeed>
+          <MoveSpeed>1.10</MoveSpeed>
           <MeleeCooldownFactor>0.75</MeleeCooldownFactor>
           <IncomingDamageFactor>0.78</IncomingDamageFactor>
           <StaggerDurationFactor>0.35</StaggerDurationFactor>
@@ -623,7 +623,7 @@
         <painFactor>0</painFactor>
         <blocksMentalBreaks>true</blocksMentalBreaks>
         <statFactors>
-          <MoveSpeed>1.18</MoveSpeed>
+          <MoveSpeed>1.12</MoveSpeed>
           <MeleeCooldownFactor>0.60</MeleeCooldownFactor>
           <IncomingDamageFactor>0.58</IncomingDamageFactor>
           <StaggerDurationFactor>0.22</StaggerDurationFactor>
@@ -653,7 +653,7 @@
         <painFactor>0</painFactor>
         <blocksMentalBreaks>true</blocksMentalBreaks>
         <statFactors>
-          <MoveSpeed>1.25</MoveSpeed>
+          <MoveSpeed>1.15</MoveSpeed>
           <MeleeCooldownFactor>0.45</MeleeCooldownFactor>
           <IncomingDamageFactor>0.40</IncomingDamageFactor>
           <StaggerDurationFactor>0.18</StaggerDurationFactor>
