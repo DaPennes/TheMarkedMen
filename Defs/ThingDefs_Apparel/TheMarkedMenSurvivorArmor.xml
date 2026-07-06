@@ -40,8 +40,10 @@
         <li>Shoulders</li>
         <li>Arms</li>
       </bodyPartGroups>
-      <wornGraphicPath>Thing/Pawn/Humanlike/Apparel/SurvivorArmor/MarkedSurvivor</wornGraphicPath>
-      <wornGraphicClass>Graphic_Multi</wornGraphicClass>
+      <wornGraphicData>
+        <texPath>Thing/Pawn/Humanlike/Apparel/SurvivorArmor/MarkedSurvivor</texPath>
+        <graphicClass>Graphic_Multi</graphicClass>
+      </wornGraphicData>
       <layers>
         <li>Middle</li>
       </layers>
