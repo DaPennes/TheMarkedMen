@@ -28,7 +28,7 @@
           <PainShockThreshold>0.08</PainShockThreshold>
         </statOffsets>
         <statFactors>
-          <MoveSpeed>1.05</MoveSpeed>
+          <MoveSpeed>1.04</MoveSpeed>
           <MeleeCooldownFactor>0.92</MeleeCooldownFactor>
         </statFactors>
       </li>
@@ -44,7 +44,7 @@
           <MentalBreakThreshold>-0.10</MentalBreakThreshold>
         </statOffsets>
         <statFactors>
-          <MoveSpeed>1.10</MoveSpeed>
+          <MoveSpeed>1.08</MoveSpeed>
           <MeleeCooldownFactor>0.85</MeleeCooldownFactor>
           <StaggerDurationFactor>0.70</StaggerDurationFactor>
         </statFactors>
@@ -61,7 +61,7 @@
           <MentalBreakThreshold>-0.20</MentalBreakThreshold>
         </statOffsets>
         <statFactors>
-          <MoveSpeed>1.18</MoveSpeed>
+          <MoveSpeed>1.12</MoveSpeed>
           <MeleeCooldownFactor>0.78</MeleeCooldownFactor>
           <IncomingDamageFactor>0.92</IncomingDamageFactor>
           <StaggerDurationFactor>0.50</StaggerDurationFactor>
