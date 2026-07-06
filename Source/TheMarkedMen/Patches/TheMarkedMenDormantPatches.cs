@@ -43,6 +43,27 @@ namespace TheMarkedMen
         public static void Postfix(Pawn __instance)
         {
             if (__instance == null || __instance.health == null) return;
+
+            if (!__instance.IsColonist || __instance.Dead || __instance.Destroyed) return;
+
+            if (!TheMarkedMenMod.Settings?.lostSurvivorEnabled ?? true) return;
+
+            Hediff existing = __instance.health.hediffSet.GetFirstHediffOfDef(CADefOf.CA_DormantMark);
+            if (existing != null) return;
+
+            if (!IsLostSurvivorPawn(__instance)) return;
+
+            Hediff dormantMark = HediffMaker.MakeHediff(CADefOf.CA_DormantMark, __instance);
+            __instance.health.AddHediff(dormantMark);
+        }
+
+        private static bool IsLostSurvivorPawn(Pawn pawn)
+        {
+            if (pawn == null) return false;
+
+            if (pawn.questTags != null && pawn.questTags.Contains("CA_LostSurvivor")) return true;
+
+            return false;
         }
     }
 }

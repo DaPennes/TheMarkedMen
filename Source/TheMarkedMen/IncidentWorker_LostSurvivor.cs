@@ -80,10 +80,9 @@ namespace TheMarkedMen
 
             ApplyDormantMark(survivor);
 
-            string label = def.letterLabel.Formatted(survivor.Named("PAWN")).AdjustedFor(survivor, "PAWN");
-            string text = def.letterText.Formatted(survivor.Named("PAWN")).AdjustedFor(survivor, "PAWN");
-
-            SendStandardLetter(label, text, LetterDefOf.PositiveEvent, parms, survivor);
+            ChoiceLetter_LostSurvivor choiceLetter = (ChoiceLetter_LostSurvivor)LetterMaker.MakeLetter(def.letterLabel, def.letterText, def.letterDef, new LookTargets(survivor));
+            choiceLetter.pawn = survivor;
+            Find.LetterStack.ReceiveLetter(choiceLetter);
 
             return true;
         }
