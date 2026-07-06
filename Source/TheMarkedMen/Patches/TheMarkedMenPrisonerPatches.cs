@@ -215,24 +215,40 @@ namespace TheMarkedMen
                 pawn.mindState.mentalStateHandler.neverFleeIndividual = true;
             }
 
-            float rangeMult = Mathf.Max(0.1f, settings.prisonerEscapeAggressionMultiplier);
-            Pawn target = MarkedMenPrisonerUtility.SelectBestAttackTarget(pawn, pawn.Map, rangeMult);
-            if (target != null)
+            // Scan the prison room for non-infected targets first
+            Pawn roomTarget = CrossedTacticalAI.FindRoomTarget(pawn);
+            if (roomTarget != null)
             {
-                Job attackJob = JobMaker.MakeJob(JobDefOf.AttackMelee, target);
+                Job attackJob = JobMaker.MakeJob(JobDefOf.AttackMelee, roomTarget);
                 attackJob.canBashDoors = true;
                 attackJob.locomotionUrgency = LocomotionUrgency.Sprint;
-                attackJob.expiryInterval = 300;
+                attackJob.expiryInterval = 600;
                 attackJob.checkOverrideOnExpire = true;
                 pawn.jobs.TryTakeOrderedJob(attackJob, JobTag.Misc);
 
                 float infectChance = 0.5f;
-                CrossedUtility.TryExpose(target, infectChance, "marked prisoner escape attack", pawn);
+                CrossedUtility.TryExpose(roomTarget, infectChance, "marked prisoner escape attack", pawn);
+
+                if (settings.prisonerDebugLogging)
+                {
+                    Log.Message($"[TheMarkedMen] Marked prisoner {pawn.LabelShort} found target {roomTarget.LabelShort} in cell room");
+                }
+                return;
+            }
+
+            // No target in room - scan for 15 seconds before breaking out
+            CrossedTacticalAI.NotifyEscapeScanStarted(pawn);
+            if (!CrossedTacticalAI.TryIssueTacticalJob(pawn))
+            {
+                Job waitJob = JobMaker.MakeJob(JobDefOf.Wait, 900);
+                waitJob.checkOverrideOnExpire = true;
+                waitJob.expiryInterval = 900;
+                pawn.jobs.TryTakeOrderedJob(waitJob, JobTag.Misc);
             }
 
             if (settings.prisonerDebugLogging)
             {
-                Log.Message($"[TheMarkedMen] Marked prisoner {pawn.LabelShort} is escaping with aggression modifier");
+                Log.Message($"[TheMarkedMen] Marked prisoner {pawn.LabelShort} is scanning the cell room for 15 seconds");
             }
         }
     }

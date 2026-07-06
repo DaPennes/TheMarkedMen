@@ -12,6 +12,8 @@ namespace TheMarkedMen
     public static class CrossedTacticalAI
     {
         private const int TacticalJobExpiryTicks = 90;
+        private static readonly Dictionary<int, int> escapeScanStartTicks = new Dictionary<int, int>();
+        private const int EscapeRoomScanDuration = 900;
         private const int TacticalMoveExpiryTicks = 180;
         private const int RangedCastSearchMaxRegions = 80;
         private const float MaxTacticalTargetDistance = 120f;
@@ -29,6 +31,14 @@ namespace TheMarkedMen
         private static readonly string[] DefensiveDefNames = { "Turret", "Mortar" };
         private static readonly string[] DoorDefNames = { "Door", "Wall", "Gate" };
 
+        public static void NotifyEscapeScanStarted(Pawn pawn)
+        {
+            if (pawn != null)
+            {
+                escapeScanStartTicks[pawn.thingIDNumber] = Find.TickManager.TicksGame;
+            }
+        }
+
         public static bool TryIssueTacticalJob(Pawn pawn)
         {
             if (!CanUseTacticalAI(pawn))
@@ -39,6 +49,24 @@ namespace TheMarkedMen
             if (HasRampageHediff(pawn))
             {
                 return TryIssueRampageJob(pawn);
+            }
+
+            int pawnId = pawn.thingIDNumber;
+            if (escapeScanStartTicks.TryGetValue(pawnId, out int escapeStart))
+            {
+                int ticksSinceEscape = Find.TickManager.TicksGame - escapeStart;
+                if (ticksSinceEscape < EscapeRoomScanDuration)
+                {
+                    Pawn roomTarget = FindRoomTarget(pawn);
+                    if (roomTarget != null)
+                    {
+                        escapeScanStartTicks.Remove(pawnId);
+                        pawn.jobs.EndCurrentJob(JobCondition.InterruptForced);
+                        return TryAssignAttackJob(pawn, roomTarget, true);
+                    }
+                    return false;
+                }
+                escapeScanStartTicks.Remove(pawnId);
             }
 
             bool pyromaniac = CrossedUtility.IsCrossedPyromaniac(pawn);
@@ -768,6 +796,57 @@ namespace TheMarkedMen
         internal static bool HasRampageHediff(Pawn pawn)
         {
             return pawn?.health?.hediffSet?.HasHediff(CADefOf.CrossedRampage) == true;
+        }
+
+        public static Pawn FindRoomTarget(Pawn pawn)
+        {
+            Room room = pawn.GetRoom();
+            if (room == null || pawn.Map == null)
+            {
+                return null;
+            }
+
+            Pawn best = null;
+            float bestScore = 0f;
+
+            IReadOnlyList<Pawn> allPawns = pawn.Map.mapPawns.AllPawnsSpawned;
+            for (int i = 0; i < allPawns.Count; i++)
+            {
+                Pawn other = allPawns[i];
+                if (other == pawn || other.Dead || other.Downed || !other.RaceProps.Humanlike)
+                {
+                    continue;
+                }
+
+                if (CrossedUtility.IsCrossedPawn(other))
+                {
+                    continue;
+                }
+
+                if (!other.IsColonist && !other.IsPrisonerOfColony && !other.IsSlaveOfColony && !other.IsFreeColonist)
+                {
+                    continue;
+                }
+
+                if (other.GetRoom() != room)
+                {
+                    continue;
+                }
+
+                float distSq = pawn.Position.DistanceToSquared(other.Position);
+                float score = 500f / Mathf.Max(1f, distSq);
+                if (other.IsColonist || other.IsFreeColonist)
+                {
+                    score += 100f;
+                }
+                if (score > bestScore)
+                {
+                    bestScore = score;
+                    best = other;
+                }
+            }
+
+            return best;
         }
 
         private static bool TryIssueRampageJob(Pawn pawn)
