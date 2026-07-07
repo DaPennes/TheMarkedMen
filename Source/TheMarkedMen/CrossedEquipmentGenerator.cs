@@ -636,21 +636,20 @@ namespace TheMarkedMen
                 }
             }
 
-            Apparel apparel;
+            Apparel apparel = null;
             try
             {
                 apparel = (Apparel)(stuff != null
                     ? ThingMaker.MakeThing(def, stuff)
                     : ThingMaker.MakeThing(def));
+                ApplyQualityAndHP(apparel, tier);
+                pawn.apparel.Wear(apparel);
             }
             catch (Exception ex)
             {
                 Log.Warning("[The Marked Men] EquipApparel failed for " + (def?.defName ?? "null") + ": " + ex.Message);
-                return;
+                apparel?.Destroy(DestroyMode.Vanish);
             }
-
-            ApplyQualityAndHP(apparel, tier);
-            pawn.apparel.Wear(apparel);
         }
 
         private static void ApplyQualityAndHP(Thing thing, int tier)
