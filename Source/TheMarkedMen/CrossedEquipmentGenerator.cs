@@ -284,8 +284,6 @@ namespace TheMarkedMen
             if (HasEquipment(pawn))
                 return;
 
-            StripEquipment(pawn);
-
             int bodyTier = RollTier(KindTierWeights[pawn.kindDef]);
             int midTier = RollTier(KindTierWeights[pawn.kindDef]);
             int outerTier = RollTier(KindTierWeights[pawn.kindDef]);

@@ -326,6 +326,7 @@ namespace TheMarkedMen
             if (__result?.kindDef != null && CrossedEquipmentGenerator.IsCrossedKind(__result.kindDef))
             {
                 CrossedEquipmentGenerator.StripEquipment(__result);
+                CrossedEquipmentGenerator.AssignEquipment(__result);
             }
         }
     }
