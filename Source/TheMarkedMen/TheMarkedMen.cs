@@ -2965,6 +2965,19 @@ namespace TheMarkedMen
                 parms.raidArrivalMode = PawnsArrivalModeDefOf.EdgeWalkIn;
             }
 
+            IntVec3 _;
+            bool needsEdge = parms.raidArrivalMode == PawnsArrivalModeDefOf.EdgeWalkIn
+                || parms.raidArrivalMode == PawnsArrivalModeDefOf.EdgeWalkInGroups
+                || parms.raidArrivalMode == PawnsArrivalModeDefOf.EdgeWalkInDistributed
+                || parms.raidArrivalMode == PawnsArrivalModeDefOf.EdgeWalkInDistributedGroups;
+
+            if (needsEdge && !CellFinder.TryFindRandomEdgeCellWith(c => c.Standable(map), map, 0f, out _))
+            {
+                for (int i = 0; i < pawns.Count; i++)
+                    pawns[i]?.Destroy(DestroyMode.Vanish);
+                return false;
+            }
+
             parms.raidArrivalMode.Worker.Arrive(pawns, parms);
             pawns = CrossedLordCleanupUtility.CollectValidSpawnedLordPawns(pawns, map, crossed);
             if (pawns.Count == 0)
@@ -3120,6 +3133,19 @@ namespace TheMarkedMen
             if (parms.raidArrivalMode?.Worker == null || !parms.raidArrivalMode.Worker.CanUseWith(parms))
             {
                 parms.raidArrivalMode = PawnsArrivalModeDefOf.EdgeWalkIn;
+            }
+
+            IntVec3 _;
+            bool needsEdge = parms.raidArrivalMode == PawnsArrivalModeDefOf.EdgeWalkIn
+                || parms.raidArrivalMode == PawnsArrivalModeDefOf.EdgeWalkInGroups
+                || parms.raidArrivalMode == PawnsArrivalModeDefOf.EdgeWalkInDistributed
+                || parms.raidArrivalMode == PawnsArrivalModeDefOf.EdgeWalkInDistributedGroups;
+
+            if (needsEdge && !CellFinder.TryFindRandomEdgeCellWith(c => c.Standable(map), map, 0f, out _))
+            {
+                for (int i = 0; i < pawns.Count; i++)
+                    pawns[i]?.Destroy(DestroyMode.Vanish);
+                return false;
             }
 
             parms.raidArrivalMode.Worker.Arrive(pawns, parms);
@@ -3311,6 +3337,19 @@ namespace TheMarkedMen
             if (parms.raidArrivalMode?.Worker == null || !parms.raidArrivalMode.Worker.CanUseWith(parms))
             {
                 parms.raidArrivalMode = PawnsArrivalModeDefOf.EdgeWalkIn;
+            }
+
+            IntVec3 _;
+            bool needsEdge = parms.raidArrivalMode == PawnsArrivalModeDefOf.EdgeWalkIn
+                || parms.raidArrivalMode == PawnsArrivalModeDefOf.EdgeWalkInGroups
+                || parms.raidArrivalMode == PawnsArrivalModeDefOf.EdgeWalkInDistributed
+                || parms.raidArrivalMode == PawnsArrivalModeDefOf.EdgeWalkInDistributedGroups;
+
+            if (needsEdge && !CellFinder.TryFindRandomEdgeCellWith(c => c.Standable(map), map, 0f, out _))
+            {
+                for (int i = 0; i < pawns.Count; i++)
+                    pawns[i]?.Destroy(DestroyMode.Vanish);
+                return false;
             }
 
             parms.raidArrivalMode.Worker.Arrive(pawns, parms);
