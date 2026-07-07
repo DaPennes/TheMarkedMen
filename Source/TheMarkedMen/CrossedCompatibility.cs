@@ -39,6 +39,7 @@ namespace TheMarkedMen
             "ludeon.rimworld.biotech",
             "ludeon.rimworld.anomaly",
             "ludeon.rimworld.odyssey",
+            "erdelf.HumanoidAlienRaces",
             "rimworld.erdelf.alien_race.main"
         };
 
