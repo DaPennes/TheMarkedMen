@@ -210,6 +210,7 @@ namespace TheMarkedMen
         public float prisonerSelfHarmSuicideDays = 15f;
         public float prisonerEscapeAggressionMultiplier = 1f;
         public bool prisonerCosmeticEnabled = true;
+        public bool prisonerRestraintEnabled = true;
         public bool prisonerDebugLogging;
         public float prisonerEscapeChance = 0.04f;
 
@@ -463,6 +464,7 @@ namespace TheMarkedMen
             Scribe_Values.Look(ref prisonerEscapeAggressionMultiplier, "prisonerEscapeAggressionMultiplier", 1f);
             Scribe_Values.Look(ref prisonerCosmeticEnabled, "prisonerCosmeticEnabled", true);
             Scribe_Values.Look(ref prisonerDebugLogging, "prisonerDebugLogging", false);
+            Scribe_Values.Look(ref prisonerRestraintEnabled, "prisonerRestraintEnabled", true);
             Scribe_Values.Look(ref prisonerEscapeChance, "prisonerEscapeChance", 0.04f);
 
             Scribe_Values.Look(ref currentPreset, "currentPreset", OutbreakPresetName);
@@ -786,6 +788,7 @@ namespace TheMarkedMen
 
             DrawSectionHeader(listing, "Marked Prisoners", "Controls how the Marked Virus behaves in captured prisoners. Marked prisoners cannot be recruited, will attack wardens, harm themselves over time, and escape aggressively.");
             DrawCheckbox(listing, "Enable prisoner infection system", ref prisonerInfectionEnabled, "When enabled, Marked prisoners are unrecruitable, attack wardens during interaction, progress through self-harm stages, and escape with aggression.");
+            DrawCheckbox(listing, "Enable bed restraint system", ref prisonerRestraintEnabled, "When enabled, beds with assigned Marked prisoners gain a gizmo to restrain them with heavy chains. Restrained prisoners cannot attack, self-harm, or escape.");
             DrawFloat(listing, "Infection chance per warden interaction", ref prisonerInfectionChance, 0f, 1f, "prisonerInfectionChance", "Chance per warden interaction that a Marked prisoner attacks and tries to infect the warden.");
             DrawCheckbox(listing, "Enable self-harm behavior", ref prisonerSelfHarmEnabled, "When enabled, Marked prisoners progressively harm themselves over time, culminating in suicide.");
             DrawFloat(listing, "Days before self-harm stage progression", ref prisonerSelfHarmStageDays, 1f, 60f, "prisonerSelfHarmStageDays", "How many in-game days between self-harm stages. Each stage inflicts worse damage.");

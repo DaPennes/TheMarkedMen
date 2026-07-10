@@ -52,6 +52,7 @@ namespace TheMarkedMen
         private static ThoughtDef overwhelmingBloodlust;
         private static ThoughtDef predatorPatience;
         private static ThoughtDef witnessedCrossedTransformation;
+        private static HediffDef restrained;
         private static HediffDef dormantMark;
         private static HediffDef crossedRampage;
         private static HediffDef crossedStrength;
@@ -110,6 +111,7 @@ namespace TheMarkedMen
         public static ThoughtDef BloodthirstyCraving => bloodthirstyCraving ?? (bloodthirstyCraving = DefDatabase<ThoughtDef>.GetNamedSilentFail("CA_BloodthirstyCraving"));
         public static ThoughtDef OverwhelmingBloodlust => overwhelmingBloodlust ?? (overwhelmingBloodlust = DefDatabase<ThoughtDef>.GetNamedSilentFail("CA_OverwhelmingBloodlust"));
         public static ThoughtDef PredatorPatience => predatorPatience ?? (predatorPatience = DefDatabase<ThoughtDef>.GetNamedSilentFail("CA_PredatorPatience"));
+        public static HediffDef CA_Restrained => restrained ?? (restrained = DefDatabase<HediffDef>.GetNamedSilentFail("CA_Restrained"));
         public static HediffDef CA_DormantMark => dormantMark ?? (dormantMark = DefDatabase<HediffDef>.GetNamedSilentFail("CA_DormantMark"));
         public static HediffDef CrossedRampage => crossedRampage ?? (crossedRampage = DefDatabase<HediffDef>.GetNamedSilentFail("CA_CrossedRampage"));
         public static HediffDef CrossedStrength => crossedStrength ?? (crossedStrength = DefDatabase<HediffDef>.GetNamedSilentFail("CA_CrossedStrength"));

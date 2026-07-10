@@ -143,7 +143,7 @@ namespace TheMarkedMen
             for (int i = 0; i < cachedMarkedPrisoners.Count; i++)
             {
                 Pawn pawn = cachedMarkedPrisoners[i];
-                if (pawn == null || pawn.Dead || !pawn.Spawned || !pawn.IsPrisonerOfColony || pawn.Downed)
+                if (pawn == null || pawn.Dead || !pawn.Spawned || !pawn.IsPrisonerOfColony || pawn.Downed || IsRestrained(pawn))
                 {
                     continue;
                 }
@@ -166,7 +166,7 @@ namespace TheMarkedMen
             for (int i = 0; i < cachedMarkedPrisoners.Count; i++)
             {
                 Pawn pawn = cachedMarkedPrisoners[i];
-                if (pawn == null || pawn.Dead || !pawn.Spawned || !pawn.IsPrisonerOfColony)
+                if (pawn == null || pawn.Dead || !pawn.Spawned || !pawn.IsPrisonerOfColony || IsRestrained(pawn))
                 {
                     continue;
                 }
@@ -223,7 +223,7 @@ namespace TheMarkedMen
             for (int i = 0; i < cachedMarkedPrisoners.Count; i++)
             {
                 Pawn pawn = cachedMarkedPrisoners[i];
-                if (pawn == null || pawn.Dead || !pawn.Spawned || !pawn.IsPrisonerOfColony)
+                if (pawn == null || pawn.Dead || !pawn.Spawned || !pawn.IsPrisonerOfColony || IsRestrained(pawn))
                 {
                     continue;
                 }
@@ -611,7 +611,7 @@ namespace TheMarkedMen
             for (int i = 0; i < cachedMarkedPrisoners.Count; i++)
             {
                 Pawn pawn = cachedMarkedPrisoners[i];
-                if (pawn == null || pawn.Dead || !pawn.Spawned || !pawn.IsPrisonerOfColony || pawn.Downed)
+                if (pawn == null || pawn.Dead || !pawn.Spawned || !pawn.IsPrisonerOfColony || pawn.Downed || IsRestrained(pawn))
                 {
                     continue;
                 }
@@ -814,6 +814,11 @@ namespace TheMarkedMen
             {
                 lastSuccessfulAttackTick[prisoner.thingIDNumber] = tick;
             }
+        }
+
+        public static bool IsRestrained(Pawn pawn)
+        {
+            return pawn?.health?.hediffSet?.HasHediff(CADefOf.CA_Restrained) ?? false;
         }
 
         public static MarkedPrisonerManager GetForMap(Map map)

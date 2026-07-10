@@ -203,7 +203,7 @@ namespace TheMarkedMen
 
         private static void ModifyEscapeBehavior(Pawn pawn, TheMarkedMenSettings settings)
         {
-            if (pawn?.mindState == null)
+            if (pawn?.mindState == null || MarkedPrisonerManager.IsRestrained(pawn))
             {
                 return;
             }
@@ -263,7 +263,7 @@ namespace TheMarkedMen
                 return;
             }
 
-            if (MarkedMenPrisonerUtility.IsMarkedPrisoner(pawn))
+            if (MarkedMenPrisonerUtility.IsMarkedPrisoner(pawn) && !MarkedPrisonerManager.IsRestrained(pawn))
             {
                 __result = true;
             }

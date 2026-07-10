@@ -65,5 +65,13 @@
   <CA_MarkedPrisoner_CosmeticScream>{PAWN_labelShort} lets out an inhuman, guttural scream that echoes through the cell block.</CA_MarkedPrisoner_CosmeticScream>
   <CA_MarkedPrisoner_CosmeticGrowl>{PAWN_labelShort} paces the cell, growling and muttering in a language no one recognizes.</CA_MarkedPrisoner_CosmeticGrowl>
   <CA_MarkedPrisoner_CosmeticLaugh>{PAWN_labelShort} bursts into manic, hollow laughter that raises the hairs on the back of your neck.</CA_MarkedPrisoner_CosmeticLaugh>
-  <CA_MarkedPrisoner_CosmeticPound>{PAWN_labelShort} pounds against the cell walls with bloody fists, testing for weaknesses.</CA_MarkedPrisoner_CosmeticPound>
+   <CA_MarkedPrisoner_CosmeticPound>{PAWN_labelShort} pounds against the cell walls with bloody fists, testing for weaknesses.</CA_MarkedPrisoner_CosmeticPound>
+
+  <!-- Restraint System -->
+  <CA_RestrainPrisoner>Restrain prisoner</CA_RestrainPrisoner>
+  <CA_RestrainPrisonerDesc>Restrain this Marked prisoner with heavy chains. Restrained prisoners cannot attack, self-harm, or escape, but the virus continues to progress.</CA_RestrainPrisonerDesc>
+  <CA_ReleasePrisoner>Release prisoner</CA_ReleasePrisoner>
+  <CA_ReleasePrisonerDesc>Remove the restraints from this prisoner. They will resume attacking wardens, self-harming, and attempting escape.</CA_ReleasePrisonerDesc>
+  <CA_PrisonerRestrained>{PAWN_labelShort} has been restrained with heavy chains. They struggle against the bindings but cannot break free.</CA_PrisonerRestrained>
+  <CA_PrisonerReleased>{PAWN_labelShort} has been released from restraints.</CA_PrisonerReleased>
 </LanguageData>

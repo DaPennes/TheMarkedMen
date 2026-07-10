@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+  <HediffDef>
+    <defName>CA_Restrained</defName>
+    <label>restrained</label>
+    <description>This pawn has been physically restrained on a bed with heavy chains. Movement and attacks are impossible.\n\nWhen restrained, the Marked Virus progression is unaffected but the prisoner cannot attack wardens, harm themselves, or escape.</description>
+    <hediffClass>HediffWithComps</hediffClass>
+    <isBad>true</isBad>
+    <tendable>false</tendable>
+    <maxSeverity>1</maxSeverity>
+    <initialSeverity>1</initialSeverity>
+    <stages>
+      <li>
+        <label>restrained</label>
+        <painFactor>0.5</painFactor>
+        <hungerRateFactor>1.15</hungerRateFactor>
+        <restFallFactor>1.2</restFallFactor>
+        <capMods>
+          <li>
+            <capacity>Moving</capacity>
+            <postFactor>0</postFactor>
+            <recoverable>true</recoverable>
+          </li>
+          <li>
+            <capacity>Manipulation</capacity>
+            <postFactor>0</postFactor>
+            <recoverable>true</recoverable>
+          </li>
+        </capMods>
+        <statFactors>
+          <WorkSpeedGlobal>0</WorkSpeedGlobal>
+        </statFactors>
+      </li>
+    </stages>
+    <comps>
+      <li Class="TheMarkedMen.HediffCompProperties_Restrained" />
+    </comps>
+  </HediffDef>
+</Defs>
