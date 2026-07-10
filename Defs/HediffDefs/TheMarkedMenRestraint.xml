@@ -14,7 +14,10 @@
         <label>restrained</label>
         <painFactor>0.5</painFactor>
         <hungerRateFactor>1.15</hungerRateFactor>
-        <restFallFactor>0.5</restFallFactor>
+        <restFallFactor>2</restFallFactor>
+        <statFactors>
+          <RestRateMultiplier>0.001</RestRateMultiplier>
+        </statFactors>
       </li>
     </stages>
     <comps>

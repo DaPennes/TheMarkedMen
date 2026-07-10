@@ -18,7 +18,7 @@ namespace TheMarkedMen
 
     public class HediffComp_Restrained : HediffComp
     {
-        private const int JobCheckInterval = 60;
+        private const int JobCheckInterval = 15;
         private int nextJobCheck;
 
         public override void CompPostTick(ref float severityAdjustment)
@@ -51,6 +51,9 @@ namespace TheMarkedMen
             Job curJob = Pawn.jobs?.curJob;
             if (curJob != null && curJob.def == JobDefOf.LayDown && Pawn.CurrentBed() != null)
                 return;
+
+            Pawn.jobs?.StopAll();
+            Pawn.pather?.StopDead();
 
             Job layDown = JobMaker.MakeJob(JobDefOf.LayDown, bed);
             layDown.expiryInterval = -1;
