@@ -46,6 +46,11 @@ namespace TheMarkedMen
                     Pawn.health.RemoveHediff(parent);
                     return;
                 }
+                parent.Severity = 0.01f;
+            }
+            else
+            {
+                parent.Severity = 1f;
             }
 
             Job curJob = Pawn.jobs?.curJob;
