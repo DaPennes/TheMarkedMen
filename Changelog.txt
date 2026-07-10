@@ -1,33 +1,23 @@
-=== The Marked Men - Development Changelog ===
+=== The Marked Men - Changelog ===
 
-v1.1.0 — Prisoner Restraint System
-------------------------------------
+New - Prisoner Restraint System:
+----------------------------------
+- You can now restrain infected prisoners on any bed
+- Click the bed with an assigned infected prisoner and choose "Restrain"
+- The prisoner walks to the bed and gets chained down
+- Once on the bed, they can't move or do anything (like being under anesthesia)
+- They stay there until you click "Release"
+- Restrained prisoners won't attack wardens, hurt themselves, or try to escape
+- The virus still progresses while restrained
+- Can be turned on/off in mod settings under "Marked Prisoners"
 
-Added:
-- New hediff: CA_Restrained — two-stage restraint system
-  - Stage 0 "securing" (severity 0-0.5): 30% move/mani, pawn walks to bed
-  - Stage 1 "restrained" (severity 0.5-1): 0% move/mani, fully immobilized
-  - RestRateMultiplier 0.001 so LayDown job never completes naturally
-- New file: HediffComp_Restrained — continuously issues LayDown job every 15 ticks
-  - Forces pawn back to bed if job completes or gets interrupted
-  - Escalates severity to stage 1 once pawn is on the bed
-- Harmony patch on ThingWithComps.GetGizmos — adds Restrain/Release gizmo to any bed
-  with an assigned marked prisoner
-- New setting: "Enable bed restraint system" in Marked Prisoners section
-- Custom gizmo icon support: Textures/UI/Commands/Restrain.png
-- IsRestrained() helper on MarkedPrisonerManager — checks for CA_Restrained hediff
+Fixes:
+------
+- Restraint button now shows up on all beds properly
+- Prisoner stays on the bed without trying to get up
+- Restrained prisoner can actually reach the bed first (they don't get stuck)
+- Custom button icon support added
 
-Modified:
-- MarkedPrisonerManager — all behaviors (attack, self-harm, escape, cosmetics)
-  skip restrained pawns via IsRestrained() guard clauses
-- TheMarkedMenPrisonerPatches — escape behavior and CanParticipateInPrisonBreak
-  both check IsRestrained()
-- CADefOf — added CA_Restrained def reference
-- Strings.xml — added all restraint UI strings (gizmo labels, messages)
-
-Fixed:
-- Harmony patch target: ThingWithComps.GetGizmos instead of Building_Bed.GetGizmos
-  (inherited method was silently ignored by Harmony)
-- Texture path: flat file instead of nested directory for ContentFinder loading
-- Suppressed fallback error logs with reportFailure=false
-- XML: removed invalid <recoverable> field from PawnCapacityModifier
+Changes:
+--------
+- Changelog file added
