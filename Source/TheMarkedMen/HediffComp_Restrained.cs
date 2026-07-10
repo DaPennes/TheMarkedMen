@@ -49,17 +49,21 @@ namespace TheMarkedMen
         }
     }
 
-    [HarmonyPatch(typeof(Building_Bed), "GetGizmos")]
+    [HarmonyPatch(typeof(ThingWithComps), "GetGizmos")]
     public static class Patch_RestrainBedGizmo
     {
-        public static void Postfix(Building_Bed __instance, ref IEnumerable<Gizmo> __result)
+        public static void Postfix(ThingWithComps __instance, ref IEnumerable<Gizmo> __result)
         {
+            Building_Bed bed = __instance as Building_Bed;
+            if (bed == null)
+                return;
+
             TheMarkedMenSettings settings = TheMarkedMenMod.Settings;
             if (settings == null || !settings.prisonerInfectionEnabled || !settings.prisonerRestraintEnabled)
                 return;
 
             Pawn pawn = null;
-            CompAssignableToPawn assignable = __instance.GetComp<CompAssignableToPawn>();
+            CompAssignableToPawn assignable = bed.GetComp<CompAssignableToPawn>();
             if (assignable != null)
             {
                 foreach (Pawn assigned in assignable.AssignedPawns)
@@ -89,7 +93,7 @@ namespace TheMarkedMen
                 {
                     defaultLabel = "CA_RestrainPrisoner".Translate(),
                     defaultDesc = "CA_RestrainPrisonerDesc".Translate(),
-                    icon = TexCommand.DesirePower,
+                    icon = ContentFinder<Texture2D>.Get("UI/Commands/Restrain") ?? TexCommand.DesirePower,
                     action = delegate
                     {
                         ToggleRestrain(pawn, true);
@@ -103,7 +107,7 @@ namespace TheMarkedMen
                 {
                     defaultLabel = "CA_ReleasePrisoner".Translate(),
                     defaultDesc = "CA_ReleasePrisonerDesc".Translate(),
-                    icon = TexCommand.DesirePower,
+                    icon = ContentFinder<Texture2D>.Get("UI/Commands/Release") ?? TexCommand.DesirePower,
                     action = delegate
                     {
                         ToggleRestrain(pawn, false);
