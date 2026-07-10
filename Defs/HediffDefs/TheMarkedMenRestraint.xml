@@ -14,22 +14,7 @@
         <label>restrained</label>
         <painFactor>0.5</painFactor>
         <hungerRateFactor>1.15</hungerRateFactor>
-        <restFallFactor>1.2</restFallFactor>
-        <capMods>
-          <li>
-            <capacity>Moving</capacity>
-            <postFactor>0</postFactor>
-            <recoverable>true</recoverable>
-          </li>
-          <li>
-            <capacity>Manipulation</capacity>
-            <postFactor>0</postFactor>
-            <recoverable>true</recoverable>
-          </li>
-        </capMods>
-        <statFactors>
-          <WorkSpeedGlobal>0</WorkSpeedGlobal>
-        </statFactors>
+        <restFallFactor>0.5</restFallFactor>
       </li>
     </stages>
     <comps>

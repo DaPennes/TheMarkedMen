@@ -1,7 +1,9 @@
 using System.Collections.Generic;
+using System.Linq;
 using RimWorld;
 using UnityEngine;
 using Verse;
+using Verse.AI;
 using HarmonyLib;
 
 namespace TheMarkedMen
@@ -16,36 +18,62 @@ namespace TheMarkedMen
 
     public class HediffComp_Restrained : HediffComp
     {
-        private const int JobCheckInterval = 30;
+        private const int JobCheckInterval = 60;
         private int nextJobCheck;
 
         public override void CompPostTick(ref float severityAdjustment)
         {
             base.CompPostTick(ref severityAdjustment);
 
-            if (Pawn == null || Pawn.Dead || !Pawn.Spawned)
+            if (Pawn == null || Pawn.Dead || !Pawn.Spawned || Pawn.Downed)
                 return;
 
-            if (Pawn.IsPrisonerOfColony && Pawn.Spawned)
+            if (!Pawn.IsPrisonerOfColony)
+                return;
+
+            int tick = Find.TickManager.TicksGame;
+            if (tick < nextJobCheck)
+                return;
+
+            nextJobCheck = tick + JobCheckInterval;
+
+            Building_Bed bed = Pawn.CurrentBed();
+            if (bed == null || !bed.Spawned)
             {
-                Building_Bed bed = Pawn.CurrentBed();
+                bed = FindAssignedBed(Pawn);
                 if (bed == null || !bed.Spawned)
                 {
                     Pawn.health.RemoveHediff(parent);
                     return;
                 }
-
-                if (Pawn.Downed)
-                    return;
-
-                int tick = Find.TickManager.TicksGame;
-                if (tick >= nextJobCheck)
-                {
-                    nextJobCheck = tick + JobCheckInterval;
-                    Pawn.jobs?.StopAll();
-                    Pawn.pather?.StopDead();
-                }
             }
+
+            Job curJob = Pawn.jobs?.curJob;
+            if (curJob != null && curJob.def == JobDefOf.LayDown && Pawn.CurrentBed() != null)
+                return;
+
+            Job layDown = JobMaker.MakeJob(JobDefOf.LayDown, bed);
+            layDown.expiryInterval = -1;
+            Pawn.jobs?.StartJob(layDown, JobCondition.InterruptForced);
+        }
+
+        private static Building_Bed FindAssignedBed(Pawn pawn)
+        {
+            if (!pawn.Spawned || pawn.Map == null)
+                return null;
+
+            List<Building> allBeds = pawn.Map.listerBuildings.allBuildingsColonist;
+            for (int i = 0; i < allBeds.Count; i++)
+            {
+                Building_Bed bed = allBeds[i] as Building_Bed;
+                if (bed == null)
+                    continue;
+
+                CompAssignableToPawn assignable = bed.GetComp<CompAssignableToPawn>();
+                if (assignable != null && assignable.AssignedPawns.Contains(pawn))
+                    return bed;
+            }
+            return null;
         }
     }
 
@@ -93,10 +121,10 @@ namespace TheMarkedMen
                 {
                     defaultLabel = "CA_RestrainPrisoner".Translate(),
                     defaultDesc = "CA_RestrainPrisonerDesc".Translate(),
-                    icon = ContentFinder<Texture2D>.Get("UI/Commands/Restrain") ?? TexCommand.DesirePower,
+                    icon = ContentFinder<Texture2D>.Get("UI/Commands/Restrain", false) ?? TexCommand.DesirePower,
                     action = delegate
                     {
-                        ToggleRestrain(pawn, true);
+                        ToggleRestrain(pawn, true, bed);
                     },
                     hotKey = KeyBindingDefOf.Misc4
                 });
@@ -107,10 +135,10 @@ namespace TheMarkedMen
                 {
                     defaultLabel = "CA_ReleasePrisoner".Translate(),
                     defaultDesc = "CA_ReleasePrisonerDesc".Translate(),
-                    icon = ContentFinder<Texture2D>.Get("UI/Commands/Release") ?? TexCommand.DesirePower,
+                    icon = ContentFinder<Texture2D>.Get("UI/Commands/Release", false) ?? TexCommand.DesirePower,
                     action = delegate
                     {
-                        ToggleRestrain(pawn, false);
+                        ToggleRestrain(pawn, false, bed);
                     },
                     hotKey = KeyBindingDefOf.Misc4
                 });
@@ -119,7 +147,7 @@ namespace TheMarkedMen
             __result = gizmos;
         }
 
-        private static void ToggleRestrain(Pawn pawn, bool restrain)
+        private static void ToggleRestrain(Pawn pawn, bool restrain, Building_Bed bed)
         {
             if (pawn == null || pawn.Dead)
                 return;
@@ -127,11 +155,14 @@ namespace TheMarkedMen
             if (restrain)
             {
                 pawn.health.AddHediff(CADefOf.CA_Restrained);
+
                 if (pawn.Spawned)
                 {
-                    pawn.jobs.StopAll();
-                    pawn.pather.StopDead();
+                    Job layDown = JobMaker.MakeJob(JobDefOf.LayDown, bed);
+                    layDown.expiryInterval = -1;
+                    pawn.jobs?.StartJob(layDown, JobCondition.InterruptForced);
                 }
+
                 Messages.Message("CA_PrisonerRestrained".Translate(pawn.Named("PAWN")), pawn, MessageTypeDefOf.PositiveEvent);
             }
             else
