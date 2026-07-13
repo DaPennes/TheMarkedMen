@@ -318,14 +318,13 @@ namespace TheMarkedMen
     }
 
     [HarmonyPatch(typeof(PawnGenerator), nameof(PawnGenerator.GeneratePawn), typeof(PawnGenerationRequest))]
-    public static class Patch_CrossedPyromaniacWeapons
+    public static class Patch_CrossedEquipmentOverlay
     {
         [HarmonyPostfix]
         public static void Postfix(Pawn __result)
         {
             if (__result?.kindDef != null && CrossedEquipmentGenerator.IsCrossedKind(__result.kindDef))
             {
-                CrossedEquipmentGenerator.StripEquipment(__result);
                 CrossedEquipmentGenerator.AssignEquipment(__result);
             }
         }
