@@ -9,7 +9,7 @@
         <li>crossed_survivor_journal->Survivor Journal: The worst part was the laughing. They remembered the hallways. They remembered the locks. They remembered us.</li>
         <li>crossed_audio_log->Audio Log C-44: Marked rash is most visible around the eyes and cheeks. Advanced cases show a dark red X pattern across the face, neck, and upper torso.</li>
         <li>crossed_progression->Medical Note: Most confirmed victims resolve quickly. A terminal case usually becomes one of the Marked Men or dies from viral collapse; rare slow infections remain lucid longer.</li>
-        <li>crossed_timeline->Planetary Timeline: Exposure. Rapid onset. Psychosis. Death reanimation. Transformation. Organized raids. Settlement collapse. Alpha migration.</li>
+        <li>crossed_timeline->Planetary Timeline: Exposure. Rapid onset. Psychosis. Transformation. Organized raids. Settlement collapse. Alpha migration.</li>
       </rulesStrings>
     </rulePack>
   </RulePackDef>

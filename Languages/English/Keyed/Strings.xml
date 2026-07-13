@@ -11,6 +11,41 @@
   <CA_AudioLog_01>Audio Log C-44: Rash presentation forms a marked vascular pattern across the face and neck. Advanced cases glow red under certain scanner bands.</CA_AudioLog_01>
   <CA_PlanetaryTimeline>Medical timeline: contagious close-contact exposure, infected blood contamination, fast terminal progression, rare slow infection, uncommon immune survival, viral death risk, and Marked Men transformation.</CA_PlanetaryTimeline>
 
+  <!-- Mod Settings Window -->
+  <MarkedMen_Settings_Title>The Marked Men - Settings</MarkedMen_Settings_Title>
+  <MarkedMen_Settings_Intro>Use presets for a quick difficulty pass, or tune each section directly. Editing any field changes the active preset to Custom.</MarkedMen_Settings_Intro>
+  <MarkedMen_Settings_ActivePreset>Active preset: {0}</MarkedMen_Settings_ActivePreset>
+  <MarkedMen_Settings_PresetHelp>Presets rewrite the schedule, enemy mix, virus behavior, AI pressure, story UI, and performance settings at once.</MarkedMen_Settings_PresetHelp>
+  <MarkedMen_Settings_Preset_Casual>Casual</MarkedMen_Settings_Preset_Casual>
+  <MarkedMen_Settings_Preset_CasualTip>Slower raids, lower exposure risk, smaller hordes, and more immune survivors.</MarkedMen_Settings_Preset_CasualTip>
+  <MarkedMen_Settings_Preset_VanillaLike>Vanilla-like</MarkedMen_Settings_Preset_VanillaLike>
+  <MarkedMen_Settings_Preset_VanillaLikeTip>Keeps the faction dangerous while staying closer to ordinary RimWorld pacing.</MarkedMen_Settings_Preset_VanillaLikeTip>
+  <MarkedMen_Settings_Preset_Default>Default</MarkedMen_Settings_Preset_Default>
+  <MarkedMen_Settings_Preset_DefaultTip>Restores the intended baseline tuning for the mod.</MarkedMen_Settings_Preset_DefaultTip>
+  <MarkedMen_Settings_Preset_Brutal>Brutal</MarkedMen_Settings_Preset_Brutal>
+  <MarkedMen_Settings_Preset_BrutalTip>Faster, harder, less forgiving raids with stronger infection pressure.</MarkedMen_Settings_Preset_BrutalTip>
+  <MarkedMen_Settings_Preset_Outbreak>Outbreak</MarkedMen_Settings_Preset_Outbreak>
+  <MarkedMen_Settings_Preset_OutbreakTip>Large outbreak pressure with faster spread, larger hordes, and faster corpse cycling.</MarkedMen_Settings_Preset_OutbreakTip>
+  <MarkedMen_Settings_Preset_Custom>Custom</MarkedMen_Settings_Preset_Custom>
+  <MarkedMen_Settings_RaidSchedule>Raid Schedule</MarkedMen_Settings_RaidSchedule>
+  <MarkedMen_Settings_RaidScheduleDesc>Controls when Marked Men incidents appear and how hard scheduled attacks scale.</MarkedMen_Settings_RaidScheduleDesc>
+  <MarkedMen_Settings_EnemyMix>Enemy Mix</MarkedMen_Settings_EnemyMix>
+  <MarkedMen_Settings_EnemyMixDesc>Controls which infected pawn types appear. Weight 0 disables that type; weight 1 is normal; higher values make that type more common.</MarkedMen_Settings_EnemyMixDesc>
+  <MarkedMen_Settings_VirusAndCorpses>Virus And Corpses</MarkedMen_Settings_VirusAndCorpses>
+  <MarkedMen_Settings_VirusAndCorpsesDesc>Controls exposure chances, infection timing, terminal outcomes, and infected corpse reanimation.</MarkedMen_Settings_VirusAndCorpsesDesc>
+
+  <MarkedMen_Settings_AIStorytelling>AI & Storytelling</MarkedMen_Settings_AIStorytelling>
+  <MarkedMen_Settings_AIStorytellingDesc>Controls Marked Men pressure logic, strategic AI activation thresholds, storyteller integration, raid countdown warnings, and custom story events.</MarkedMen_Settings_AIStorytellingDesc>
+  <MarkedMen_Settings_PerformanceCap>Performance & Cap</MarkedMen_Settings_PerformanceCap>
+  <MarkedMen_Settings_PerformanceCapDesc>Controls maximum simultaneous infected, cleanup intervals, corpse removal rates, world pawn tracking limits, and performance optimization settings.</MarkedMen_Settings_PerformanceCapDesc>
+  <MarkedMen_Settings_UrbanBiome>Urban Biome</MarkedMen_Settings_UrbanBiome>
+  <MarkedMen_Settings_UrbanBiomeDesc>Controls Marked Men presence in urban maps: ambush frequency, dormant infestation density, epicenter encounters, and survivor spawn chances.</MarkedMen_Settings_UrbanBiomeDesc>
+  <MarkedMen_Settings_UINotifications>UI & Notifications</MarkedMen_Settings_UINotifications>
+  <MarkedMen_Settings_UINotificationsDesc>Controls which messages, alerts, letters, gizmos, and info cards the mod shows in the user interface.</MarkedMen_Settings_UINotificationsDesc>
+  <MarkedMen_Settings_ModInfo>Mod Info</MarkedMen_Settings_ModInfo>
+  <MarkedMen_Settings_Reset>Reset</MarkedMen_Settings_Reset>
+  <MarkedMen_Settings_ResetTip>Reset all settings to their default values.</MarkedMen_Settings_ResetTip>
+
   <!-- Predatory Instincts System -->
   <CA_KillAnticipation_Label>kill anticipation</CA_KillAnticipation_Label>
   <CA_KillAnticipation_Desc>The predator's senses sharpen in the presence of prey. Reflexes quicken and focus intensifies with every hostile nearby.</CA_KillAnticipation_Desc>
