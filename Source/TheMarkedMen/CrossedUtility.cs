@@ -971,6 +971,7 @@ namespace TheMarkedMen
 			pawn.mindState?.mentalStateHandler?.Reset();
 			EnsureFearlessCrossedState(pawn);
 			ApplyClassHediffs(pawn);
+			CrossedEquipmentGenerator.AssignEquipment(pawn);
 			EnsureCrossedBasicClothingOnly(pawn);
 			if (pawn.Drawer?.renderer != null)
 			{
@@ -1028,6 +1029,7 @@ namespace TheMarkedMen
 						pawn.ChangeKind(replacement);
 						RemoveClassHediffs(pawn);
 						ApplyClassHediffs(pawn);
+						CrossedEquipmentGenerator.AssignEquipment(pawn);
 						ApplyInfectedTattoo(pawn);
 					}
 				}
@@ -1139,7 +1141,6 @@ namespace TheMarkedMen
 			if (IsCrossedFactionPawn(pawn))
 			{
 				ApplyRandomBionics(pawn);
-				CrossedEquipmentGenerator.AssignEquipment(pawn);
 			}
 
 			ApplyInfectedTattoo(pawn);

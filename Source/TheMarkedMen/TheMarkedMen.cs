@@ -1548,6 +1548,11 @@ namespace TheMarkedMen
         private int totalCrossedRaidsStarted;
         private int survivedRaidCount;
         private bool activeRaid;
+        private int countdownCacheTick = -1;
+        private int countdownCachedNextTick;
+        private int countdownCachedTicksUntilRaid;
+        private Map countdownCachedTargetMap;
+        private bool countdownCachedValid;
         private int activeRaidStartedTick;
         private int activeRaidWaveCount;
         private int activeRaidPeakInfected;
@@ -1739,7 +1744,6 @@ namespace TheMarkedMen
             }
 
             int ticks = Find.TickManager.TicksGame;
-            TryFireScheduledRaid(ticks);
             MonitorActiveRaid(ticks);
             if (ticks >= nextReanimationProcessTick)
             {
@@ -1760,6 +1764,7 @@ namespace TheMarkedMen
             }
 
             nextMaintenanceTick = ticks + MaintenanceTickInterval;
+            TryFireScheduledRaid(ticks);
             InitializeStarterLineageResistance();
             EnsureInfectedStateOnLoadedPawns();
             TryFireScheduledHorde(ticks);
@@ -1841,26 +1846,49 @@ namespace TheMarkedMen
             }
         }
 
+        public void InvalidateRaidCountdownCache()
+        {
+            countdownCacheTick = -1;
+        }
+
         public bool TryGetRaidCountdownForAlert(out int nextTick, out int ticksUntilRaid, out Map targetMap)
         {
+            int currentTick = Find.TickManager?.TicksGame ?? -1;
+
+            if (currentTick == countdownCacheTick && countdownCacheTick >= 0)
+            {
+                nextTick = countdownCachedNextTick;
+                ticksUntilRaid = countdownCachedTicksUntilRaid;
+                targetMap = countdownCachedTargetMap;
+                return countdownCachedValid;
+            }
+
             nextTick = 0;
             ticksUntilRaid = 0;
             targetMap = null;
+            countdownCachedValid = false;
 
-            if (Find.TickManager == null || activeRaid || CADefOf.CrossedRaid == null || !TheMarkedMenSettings.WarbandsEnabled)
+            if (currentTick < 0 || activeRaid || CADefOf.CrossedRaid == null || !TheMarkedMenSettings.WarbandsEnabled)
             {
+                countdownCacheTick = currentTick;
+                countdownCachedNextTick = 0;
+                countdownCachedTicksUntilRaid = 0;
+                countdownCachedTargetMap = null;
                 return false;
             }
 
             targetMap = FindRaidTargetMap();
             if (targetMap == null)
             {
+                countdownCacheTick = currentTick;
+                countdownCachedNextTick = 0;
+                countdownCachedTicksUntilRaid = 0;
+                countdownCachedTargetMap = null;
                 return false;
             }
 
-            int ticks = Find.TickManager.TicksGame;
             int raidFirstTick = TheMarkedMenSettings.FirstMarkedRaidTick;
-            if (!raidScheduleActivated && ticks < raidFirstTick)
+            if (!raidScheduleActivated && currentTick < raidFirstTick)
             {
                 nextTick = raidFirstTick;
             }
@@ -1869,16 +1897,23 @@ namespace TheMarkedMen
                 nextTick = nextRaidTick;
                 if (nextTick <= 0)
                 {
-                    nextTick = ticks + CalculateAdjustedRaidIntervalTicks(false);
+                    nextTick = currentTick + CalculateAdjustedRaidIntervalTicks(false);
                 }
             }
 
-            if (nextTick < ticks)
+            if (nextTick < currentTick)
             {
-                nextTick = ticks;
+                nextTick = currentTick;
             }
 
-            ticksUntilRaid = Mathf.Max(0, nextTick - ticks);
+            ticksUntilRaid = Mathf.Max(0, nextTick - currentTick);
+            countdownCachedValid = true;
+
+            countdownCacheTick = currentTick;
+            countdownCachedNextTick = nextTick;
+            countdownCachedTicksUntilRaid = ticksUntilRaid;
+            countdownCachedTargetMap = targetMap;
+
             return true;
         }
 
@@ -2066,6 +2101,7 @@ namespace TheMarkedMen
 
             if (!activeRaid || activeRaidMap != map)
             {
+                InvalidateRaidCountdownCache();
                 activeRaid = true;
                 activeRaidMap = map;
                 activeRaidStartedTick = Find.TickManager?.TicksGame ?? 0;
@@ -2210,6 +2246,7 @@ namespace TheMarkedMen
 
         private void ClearActiveRaid()
         {
+            InvalidateRaidCountdownCache();
             activeRaid = false;
             activeRaidMap = null;
             activeRaidStartedTick = 0;
@@ -2538,6 +2575,7 @@ namespace TheMarkedMen
 
         private void ScheduleNextRaid(int fromTick)
         {
+            InvalidateRaidCountdownCache();
             if (!TheMarkedMenSettings.WarbandsEnabled)
             {
                 nextRaidTick = 0;

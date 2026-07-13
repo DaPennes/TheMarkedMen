@@ -24,21 +24,34 @@ namespace TheMarkedMen
 
     public sealed class Alert_MarkedMenRaidCountdown : Alert
     {
-        private const float ImminentDaysThreshold = 0.05f;
+        private const string LabelPrefix = "The Marked: ";
+        private const string ImminentLabel = "The Marked: imminent!";
+        private const string DefaultExplanationText = "The chronometer flickers. The Marked will come when they are ready.";
 
         public Alert_MarkedMenRaidCountdown()
         {
-            defaultLabel = "Remaining:";
-            defaultExplanation = "The chronometer flickers. The Marked will come when they are ready.";
+            defaultLabel = ImminentLabel;
+            defaultExplanation = DefaultExplanationText;
             defaultPriority = AlertPriority.Medium;
+        }
+
+        private static TheMarkedMenGameComponent GetComponent()
+        {
+            return Current.Game?.GetComponent<TheMarkedMenGameComponent>();
+        }
+
+        private static int DaysToTicks(float days)
+        {
+            return Mathf.RoundToInt(days * GenDate.TicksPerDay);
         }
 
         public override AlertPriority Priority
         {
             get
             {
-                TheMarkedMenGameComponent component = Current.Game?.GetComponent<TheMarkedMenGameComponent>();
-                if (component != null && component.TryGetRaidCountdownForAlert(out int _, out int ticksUntilRaid, out Map _) && ticksUntilRaid <= Mathf.RoundToInt(TheMarkedMenSettings.RaidCountdownHighPriorityDays * GenDate.TicksPerDay))
+                TheMarkedMenGameComponent component = GetComponent();
+                if (component != null && component.TryGetRaidCountdownForAlert(out int _, out int ticksUntilRaid, out Map _)
+                    && ticksUntilRaid <= DaysToTicks(TheMarkedMenSettings.RaidCountdownHighPriorityDays))
                 {
                     return AlertPriority.High;
                 }
@@ -49,13 +62,14 @@ namespace TheMarkedMen
 
         public override AlertReport GetReport()
         {
-            TheMarkedMenGameComponent component = Current.Game?.GetComponent<TheMarkedMenGameComponent>();
-            if (!TheMarkedMenSettings.RaidCountdownAlertEnabled || component == null || !component.TryGetRaidCountdownForAlert(out int _, out int ticksUntilRaid, out Map targetMap))
+            TheMarkedMenGameComponent component = GetComponent();
+            if (!TheMarkedMenSettings.RaidCountdownAlertEnabled || component == null
+                || !component.TryGetRaidCountdownForAlert(out int _, out int ticksUntilRaid, out Map targetMap))
             {
                 return AlertReport.Inactive;
             }
 
-            if (ticksUntilRaid > Mathf.RoundToInt(TheMarkedMenSettings.RaidCountdownVisibleDays * GenDate.TicksPerDay))
+            if (ticksUntilRaid > DaysToTicks(TheMarkedMenSettings.RaidCountdownVisibleDays))
             {
                 return AlertReport.Inactive;
             }
@@ -65,49 +79,32 @@ namespace TheMarkedMen
 
         public override string GetLabel()
         {
-            TheMarkedMenGameComponent component = Current.Game?.GetComponent<TheMarkedMenGameComponent>();
+            TheMarkedMenGameComponent component = GetComponent();
             if (component == null || !component.TryGetRaidCountdownForAlert(out int _, out int ticksUntilRaid, out Map _))
             {
                 return defaultLabel;
             }
 
-            return FormatTimeRemaining(ticksUntilRaid);
+            return FormatTimeSpan(ticksUntilRaid);
         }
 
         public override TaggedString GetExplanation()
         {
-            TheMarkedMenGameComponent component = Current.Game?.GetComponent<TheMarkedMenGameComponent>();
-            if (component == null || !component.TryGetRaidCountdownForAlert(out int _, out int ticksUntilRaid, out Map _))
+            TheMarkedMenGameComponent component = GetComponent();
+            if (component == null || !component.TryGetRaidCountdownForAlert(out int _, out int ticksUntilRaid, out Map targetMap))
             {
                 return defaultExplanation;
             }
 
-            return "Something stirs beyond the perimeter. The Marked are gathering. They will come at their appointed time.";
+            string mapName = targetMap?.Parent?.Label ?? "unknown location";
+            return "The Marked are mustering at " + mapName + ". They will attack when the chronometer reaches zero.\n\n"
+                + DescribeTimeRemaining(ticksUntilRaid);
         }
 
-        private static string FormatLabelTimeRemaining(int ticksUntilRaid)
+        private static string FormatTimeSpan(int ticksUntilRaid)
         {
             if (ticksUntilRaid <= 0)
-            {
-                return "imminent";
-            }
-
-            float days = ticksUntilRaid / (float)GenDate.TicksPerDay;
-            if (days < ImminentDaysThreshold)
-            {
-                return "in less than 0.1 days";
-            }
-
-            int wholeDays = Mathf.CeilToInt(days);
-            return "in " + wholeDays + " " + (wholeDays == 1 ? "day" : "days");
-        }
-
-        private static string FormatTimeRemaining(int ticksUntilRaid)
-        {
-            if (ticksUntilRaid <= 0)
-            {
-                return "imminent";
-            }
+                return ImminentLabel;
 
             int totalSeconds = Mathf.CeilToInt(ticksUntilRaid / 60f);
             int days = totalSeconds / 86400;
@@ -115,7 +112,29 @@ namespace TheMarkedMen
             int minutes = (totalSeconds % 3600) / 60;
             int seconds = totalSeconds % 60;
 
-            string result = "";
+            string formatted;
+            if (days > 0)
+                formatted = days + "d " + hours + "h";
+            else if (hours > 0)
+                formatted = hours + "h " + minutes + "m";
+            else
+                formatted = minutes.ToString("D2") + ":" + seconds.ToString("D2");
+
+            return LabelPrefix + formatted;
+        }
+
+        private static string DescribeTimeRemaining(int ticksUntilRaid)
+        {
+            if (ticksUntilRaid <= 0)
+                return "The Marked are here.";
+
+            int totalSeconds = Mathf.CeilToInt(ticksUntilRaid / 60f);
+            int days = totalSeconds / 86400;
+            int hours = (totalSeconds % 86400) / 3600;
+            int minutes = (totalSeconds % 3600) / 60;
+            int seconds = totalSeconds % 60;
+
+            string result = "Time remaining: ";
             if (days > 0) result += days + " day" + (days != 1 ? "s" : "") + ", ";
             if (hours > 0) result += hours + " hour" + (hours != 1 ? "s" : "") + ", ";
             if (minutes > 0) result += minutes + " minute" + (minutes != 1 ? "s" : "") + ", ";

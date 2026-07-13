@@ -49,7 +49,7 @@
       <li>Neolithic</li>
     </apparelTags>
     <!-- No armor whatsoever -->
-    <weaponMoney>30~80</weaponMoney>
+    <weaponMoney>40~80</weaponMoney>
     <weaponTags>
       <li>NeolithicMeleeBasic</li>
       <li>NeolithicMeleeDecent</li>

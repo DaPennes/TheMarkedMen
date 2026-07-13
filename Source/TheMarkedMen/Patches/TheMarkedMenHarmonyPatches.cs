@@ -435,27 +435,25 @@ namespace TheMarkedMen
         }
     }
 
-    [HarmonyPatch(typeof(Pawn_EquipmentTracker), nameof(Pawn_EquipmentTracker.AddEquipment))]
-    public static class Patch_InfectedEquipmentBlock
+    [HarmonyPatch(typeof(Pawn_ApparelTracker), nameof(Pawn_ApparelTracker.Wear))]
+    public static class Patch_InfectedApparelBlock
     {
-        public static bool Prefix(Pawn_EquipmentTracker __instance, ThingWithComps newEq)
+        public static bool Prefix(Pawn_ApparelTracker __instance, Apparel newApparel)
         {
-            if (newEq == null || __instance?.pawn == null)
+            if (newApparel == null || __instance?.pawn == null)
                 return true;
 
-            Pawn pawn = __instance.pawn;
-
-            if (!CrossedUtility.IsInfectedPawn(pawn))
+            if (!CrossedUtility.IsInfectedPawn(__instance.pawn))
                 return true;
 
-            ThingDef def = newEq.def;
+            ThingDef def = newApparel.def;
             if (def == null)
                 return true;
 
-            if (!CrossedEquipmentGenerator.CanUseWeapon(pawn, def))
+            if (!CrossedEquipmentGenerator.CanWearApparel(__instance.pawn, def))
             {
                 if (Prefs.DevMode)
-                    Log.Warning($"[TheMarkedMen] Blocked {def.defName} from equipping on infected pawn {pawn.LabelShort}");
+                    Log.Warning($"[TheMarkedMen] Blocked {def.defName} from equipping on infected pawn {__instance.pawn.LabelShort}");
                 return false;
             }
 

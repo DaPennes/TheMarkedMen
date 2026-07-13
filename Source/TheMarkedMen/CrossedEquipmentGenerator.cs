@@ -22,16 +22,11 @@ namespace TheMarkedMen
 
         private static readonly BodyPartGroupDef LegsGroup;
         private static readonly BodyPartGroupDef TorsoGroup;
-        private static readonly BodyPartGroupDef HandsGroup;
-        private static readonly BodyPartGroupDef FeetGroup;
-        private static readonly BodyPartGroupDef FullHeadGroup;
-        private static readonly BodyPartGroupDef UpperHeadGroup;
         private static readonly ApparelLayerDef OnSkinLayer;
         private static readonly ApparelLayerDef MiddleLayer;
         private static readonly ApparelLayerDef ShellLayer;
         private static readonly ApparelLayerDef BeltLayer;
         private static readonly ApparelLayerDef OverheadLayer;
-        private static readonly ApparelLayerDef EyeCoverLayer;
 
         private static List<ThingDef>[] apparelByTier;
         private static List<ThingDef>[] headgearByTier;
@@ -41,26 +36,11 @@ namespace TheMarkedMen
         {
             LegsGroup = BodyPartGroupDefOf.Legs;
             TorsoGroup = BodyPartGroupDefOf.Torso;
-            HandsGroup = TryGetBodyPartGroup("Hands");
-            FeetGroup = TryGetBodyPartGroup("Feet");
-            FullHeadGroup = BodyPartGroupDefOf.FullHead;
-            UpperHeadGroup = BodyPartGroupDefOf.UpperHead;
             OnSkinLayer = ApparelLayerDefOf.OnSkin;
             MiddleLayer = ApparelLayerDefOf.Middle;
             ShellLayer = ApparelLayerDefOf.Shell;
             BeltLayer = ApparelLayerDefOf.Belt;
             OverheadLayer = ApparelLayerDefOf.Overhead;
-            EyeCoverLayer = TryGetApparelLayer("EyeCover");
-        }
-
-        private static BodyPartGroupDef TryGetBodyPartGroup(string name)
-        {
-            return DefDatabase<BodyPartGroupDef>.GetNamedSilentFail(name);
-        }
-
-        private static ApparelLayerDef TryGetApparelLayer(string name)
-        {
-            return DefDatabase<ApparelLayerDef>.GetNamedSilentFail(name);
         }
 
         private static readonly float[][] QualityWeights =
@@ -200,9 +180,9 @@ namespace TheMarkedMen
 
             StripDisallowedApparel(pawn);
 
-            AdjustQuality(pawn, tier);
-
             EquipWeapon(pawn, tier);
+
+            AdjustQuality(pawn, tier);
         }
 
         private static void EnsureSignatureApparel(Pawn pawn, int tier, PawnKindDef kind)
@@ -262,16 +242,7 @@ namespace TheMarkedMen
                 EnsureShield(pawn, tier, 1.0f);
             }
 
-            if (kind == CADefOf.CrossedSoldier || kind == CADefOf.CrossedAlpha
-                || kind == CADefOf.CrossedWarlord || kind == CADefOf.MarkedMan
-                || kind == CADefOf.CrossedBrute)
-            {
-                EnsureShield(pawn, tier, ShieldChanceForKind(kind));
-            }
-            else
-            {
-                EnsureShield(pawn, tier, ShieldChanceForKind(kind));
-            }
+            EnsureShield(pawn, tier, ShieldChanceForKind(kind));
         }
 
         private static void EnsureTaggedOnSkin(Pawn pawn, int tier, List<string> preferredTags, string label, float minSharp)
@@ -358,7 +329,7 @@ namespace TheMarkedMen
 
         private static ThingDef FindAnyOnLayer(ApparelLayerDef layer, BodyPartGroupDef bodyPart, int minTier)
         {
-            for (int t = TierCount - 1; t >= 0; t--)
+            for (int t = TierCount - 1; t >= Mathf.Max(0, minTier); t--)
             {
                 List<ThingDef> pool = layer == OverheadLayer ? headgearByTier[t] : apparelByTier[t];
                 for (int i = 0; i < pool.Count; i++)
@@ -435,7 +406,8 @@ namespace TheMarkedMen
                 || kind == CADefOf.CrossedBrute || kind == CADefOf.CrossedShooter
                 || kind == CADefOf.CrossedRaider;
 
-            bool isCivilianKind = kind == CADefOf.CrossedCivilian || kind == CADefOf.CrossedPyromaniac;
+            bool isCivilianKind = kind == CADefOf.CrossedCivilian || kind == CADefOf.CrossedPyromaniac
+                || kind == CADefOf.CrossedScout || kind == CADefOf.CrossedHunter;
 
             for (int i = pawn.apparel.WornApparel.Count - 1; i >= 0; i--)
             {
@@ -445,6 +417,13 @@ namespace TheMarkedMen
                 ThingDef def = ap.def;
 
                 if (def.apparel == null) continue;
+
+                if (CrossedUtility.IsInfectedPawn(pawn) && !CanWearApparel(pawn, def))
+                {
+                    pawn.apparel.Remove(ap);
+                    ap.Destroy(DestroyMode.Vanish);
+                    continue;
+                }
 
                 if (IsShield(def))
                     continue;
@@ -511,11 +490,18 @@ namespace TheMarkedMen
                 if (ap == null || ap.Destroyed) continue;
                 ApplyQualityAndHP(ap, tier);
             }
+
+            if (pawn.equipment != null)
+            {
+                ThingWithComps primary = pawn.equipment.Primary;
+                if (primary != null && !primary.Destroyed)
+                    ApplyQualityAndHP(primary, tier);
+            }
         }
 
         private static void EquipWeapon(Pawn pawn, int tier)
         {
-            if (pawn.equipment == null)
+            if (pawn.equipment == null || weaponsByTier == null)
                 return;
 
             if (pawn.kindDef == CADefOf.CrossedPyromaniac)
@@ -524,10 +510,10 @@ namespace TheMarkedMen
             if (pawn.equipment.Primary != null && !pawn.equipment.Primary.Destroyed)
                 return;
 
+            ThingDef weapon = null;
+
             for (int t = Mathf.Min(tier + 1, TierCount - 1); t >= 0; t--)
             {
-                ThingDef weapon = null;
-
                 for (int w = 0; w < weaponsByTier[t].Count; w++)
                 {
                     ThingDef candidate = weaponsByTier[t][w];
@@ -538,53 +524,80 @@ namespace TheMarkedMen
                     }
                 }
 
-                if (weapon == null) continue;
+                if (weapon != null) break;
+            }
 
-                ThingDef stuff = null;
-                if (weapon.MadeFromStuff)
+            if (weapon == null)
+            {
+                for (int t = TierCount - 1; t >= 0; t--)
                 {
-                    string[] mats = StuffMaterials[t];
-                    for (int i = 0; i < mats.Length; i++)
+                    for (int w = 0; w < weaponsByTier[t].Count; w++)
                     {
-                        stuff = DefDatabase<ThingDef>.GetNamedSilentFail(mats[i]);
-                        if (stuff != null) break;
-                    }
-
-                    if (stuff == null)
-                    {
-                        for (int fallbackT = t - 1; fallbackT >= 0; fallbackT--)
+                        ThingDef candidate = weaponsByTier[t][w];
+                        if (candidate.IsRangedWeapon)
                         {
-                            string[] fallbackMats = StuffMaterials[fallbackT];
-                            for (int i = 0; i < fallbackMats.Length; i++)
-                            {
-                                stuff = DefDatabase<ThingDef>.GetNamedSilentFail(fallbackMats[i]);
-                                if (stuff != null) break;
-                            }
+                            List<VerbProperties> verbs = candidate.Verbs;
+                            float range = 0f;
+                            if (verbs != null && verbs.Count > 0)
+                                range = verbs[0].range;
+                            if (range > 75f)
+                                continue;
+                        }
+                        if (candidate.GetStatValueAbstract(StatDefOf.Mass) > 40f)
+                            continue;
+                        weapon = candidate;
+                        break;
+                    }
+                    if (weapon != null) break;
+                }
+            }
+
+            if (weapon == null) return;
+
+            ThingDef stuff = null;
+            if (weapon.MadeFromStuff)
+            {
+                string[] mats = StuffMaterials[tier];
+                for (int i = 0; i < mats.Length; i++)
+                {
+                    stuff = DefDatabase<ThingDef>.GetNamedSilentFail(mats[i]);
+                    if (stuff != null) break;
+                }
+
+                if (stuff == null)
+                {
+                    for (int fallbackT = tier - 1; fallbackT >= 0; fallbackT--)
+                    {
+                        string[] fallbackMats = StuffMaterials[fallbackT];
+                        for (int i = 0; i < fallbackMats.Length; i++)
+                        {
+                            stuff = DefDatabase<ThingDef>.GetNamedSilentFail(fallbackMats[i]);
                             if (stuff != null) break;
                         }
+                        if (stuff != null) break;
                     }
                 }
+            }
 
-                ThingWithComps thing;
-                try
-                {
-                    thing = stuff != null
-                        ? (ThingWithComps)ThingMaker.MakeThing(weapon, stuff)
-                        : (ThingWithComps)ThingMaker.MakeThing(weapon);
-                }
-                catch
-                {
-                    continue;
-                }
-
-                ApplyQualityAndHP(thing, tier);
-                pawn.equipment.AddEquipment(thing);
+            ThingWithComps thing;
+            try
+            {
+                thing = stuff != null
+                    ? (ThingWithComps)ThingMaker.MakeThing(weapon, stuff)
+                    : (ThingWithComps)ThingMaker.MakeThing(weapon);
+            }
+            catch
+            {
                 return;
             }
+
+            pawn.equipment.AddEquipment(thing);
         }
 
         private static void EquipApparel(Pawn pawn, ThingDef def, int tier)
         {
+            if (CrossedUtility.IsInfectedPawn(pawn) && !CanWearApparel(pawn, def))
+                return;
             ThingDef stuff = null;
             if (def.MadeFromStuff)
             {
@@ -711,7 +724,7 @@ namespace TheMarkedMen
 
         internal static bool CanUseWeapon(Pawn pawn, ThingDef def)
         {
-            if (def?.IsWeapon != true || def.weaponTags == null || def.weaponTags.Count == 0)
+            if (def?.IsWeapon != true)
                 return false;
 
             if (def.IsRangedWeapon)
@@ -728,36 +741,38 @@ namespace TheMarkedMen
             if (mass > 40f)
                 return false;
 
-            if (def.building != null)
-                return false;
-
-            if (def.race != null)
-                return false;
-
-            if (def.plant != null)
-                return false;
-
-            if (def.thingClass != null && def.thingClass.IsSubclassOf(typeof(Building)))
-                return false;
-
-            for (int i = 0; i < def.weaponTags.Count; i++)
+            if (def.weaponTags != null)
             {
-                string tag = def.weaponTags[i];
-                if (tag == null) continue;
+                for (int i = 0; i < def.weaponTags.Count; i++)
+                {
+                    string tag = def.weaponTags[i];
+                    if (tag == null) continue;
 
-                if (tag.IndexOf("Mounted", StringComparison.OrdinalIgnoreCase) >= 0
-                    || tag.IndexOf("Siege", StringComparison.OrdinalIgnoreCase) >= 0
-                    || tag.IndexOf("Turret", StringComparison.OrdinalIgnoreCase) >= 0)
-                    return false;
+                    if (tag.IndexOf("Mounted", StringComparison.OrdinalIgnoreCase) >= 0
+                        || tag.IndexOf("Siege", StringComparison.OrdinalIgnoreCase) >= 0
+                        || tag.IndexOf("Turret", StringComparison.OrdinalIgnoreCase) >= 0)
+                        return false;
 
-                if (tag.IndexOf("Exclusive", StringComparison.OrdinalIgnoreCase) >= 0
-                    || tag.IndexOf("Restricted", StringComparison.OrdinalIgnoreCase) >= 0)
-                    return false;
+                    if (tag.IndexOf("Exclusive", StringComparison.OrdinalIgnoreCase) >= 0
+                        || tag.IndexOf("Restricted", StringComparison.OrdinalIgnoreCase) >= 0)
+                        return false;
 
-                if (tag.StartsWith("Race_", StringComparison.OrdinalIgnoreCase)
-                    || tag.StartsWith("Faction_", StringComparison.OrdinalIgnoreCase))
-                    return false;
+                    if (tag.StartsWith("Race_", StringComparison.OrdinalIgnoreCase)
+                        || tag.StartsWith("Faction_", StringComparison.OrdinalIgnoreCase))
+                        return false;
+                }
             }
+
+            return true;
+        }
+
+        internal static bool CanWearApparel(Pawn pawn, ThingDef def)
+        {
+            if (def?.apparel == null)
+                return false;
+
+            if (IsShield(def))
+                return false;
 
             return true;
         }
@@ -776,15 +791,6 @@ namespace TheMarkedMen
             if (kind == CADefOf.CrossedWarlord) return 5;
             if (kind == CADefOf.MarkedMan) return 6;
             return 0;
-        }
-
-        private static int TierVariation(int baseTier)
-        {
-            float roll = Rand.Value;
-            if (roll < 0.15f) return Mathf.Max(0, baseTier - 1);
-            if (roll < 0.70f) return baseTier;
-            if (roll < 0.93f) return Mathf.Min(baseTier + 1, TierCount - 1);
-            return Mathf.Min(baseTier + 2, TierCount - 1);
         }
 
         private static int ClassifyApparel(ThingDef def)
@@ -812,7 +818,7 @@ namespace TheMarkedMen
 
             foreach (ThingDef def in DefDatabase<ThingDef>.AllDefs)
             {
-                if (def?.IsWeapon != true || def.weaponTags == null || def.weaponTags.Count == 0)
+                if (def?.IsWeapon != true)
                     continue;
 
                 int tier = ClassifyWeapon(def);

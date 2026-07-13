@@ -1,23 +1,33 @@
-=== The Marked Men - Changelog ===
+== Changelog ==
 
-New - Prisoner Restraint System:
-----------------------------------
-- You can now restrain infected prisoners on any bed
-- Click the bed with an assigned infected prisoner and choose "Restrain"
-- The prisoner walks to the bed and gets chained down
-- Once on the bed, they can't move or do anything (like being under anesthesia)
-- They stay there until you click "Release"
-- Restrained prisoners won't attack wardens, hurt themselves, or try to escape
-- The virus still progresses while restrained
-- Can be turned on/off in mod settings under "Marked Prisoners"
+Added
+- Equipped weapons now get quality and durability applied, just like clothes
+- Infected pawns can no longer wear shield belts (they are too feral to use them)
+- New safety system: if the game can't find a suitable weapon for a pawn, it will grab any weapon available instead of leaving them unarmed
+- Missing pawn types (Scouts, Hunters) now get their clothes properly checked like other civilians
 
-Fixes:
-------
-- Restraint button now shows up on all beds properly
-- Prisoner stays on the bed without trying to get up
-- Restrained prisoner can actually reach the bed first (they don't get stuck)
-- Custom button icon support added
+Removed
+- Removed the weapon blocking system that was causing infected pawns to spawn without weapons
+- Removed unused old code that was left over from a previous version
 
-Changes:
---------
-- Changelog file added
+Fixed
+- Crossed Civilians no longer get a warning about not being able to afford weapons
+- Pawn clothes search now respects the minimum quality tier instead of always looking for the best
+- Scouts and Hunters will now have their military gear stripped, just like other civilian pawns
+- The weapon fallback option now properly checks that the weapon is usable instead of picking random ones
+- Cleaned up unused variables and methods that were cluttering the code
+
+== 2026-07-14 ==
+
+Changed
+- Raid countdown alert is now cached per game tick (4x faster UI refresh, no more map iteration per frame)
+- Scheduled raid firing moved from every-game-tick to every-maintenance-tick (~41s) to reduce CPU overhead
+- Alert code consolidated: string constants extracted, new helper methods for readability
+
+Fixed
+- Infected pawns no longer have their gear stripped and dropped post-spawn (AssignEquipment was running twice — once during generation and once on SpawnSetup, the second run dropping gear to the ground)
+- Shield belts are now properly blocked on infected pawns during StripDisallowedApparel (the infected check was placed after the shield continue statement, making it unreachable)
+- Raid countdown cache invalidates immediately when raid state changes (start/end/schedule)
+
+Removed
+- Removed Patch_InfectedEquipmentBlock which was blocking AddEquipment for all infected pawns
