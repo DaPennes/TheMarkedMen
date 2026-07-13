@@ -8,7 +8,7 @@ namespace TheMarkedMen
     public sealed class HediffCompProperties_PackCoordination : HediffCompProperties
     {
         public float scanRadius = 20f;
-        public int scanIntervalTicks = 120;
+        public int scanIntervalTicks = 180;
         public string packHediffDefName = "CA_PackCoordination";
 
         public HediffCompProperties_PackCoordination()

@@ -9,7 +9,7 @@ namespace TheMarkedMen
     public class HediffCompProperties_KillAnticipation : HediffCompProperties
     {
         public float scanRadius = 25f;
-        public int scanIntervalTicks = 60;
+        public int scanIntervalTicks = 250;
         public float maxSeverity = 1f;
         public float decayPerInterval = 0.05f;
         public float baseGainPerEnemy = 0.015f;

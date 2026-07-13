@@ -31,3 +31,10 @@ Fixed
 
 Removed
 - Removed Patch_InfectedEquipmentBlock which was blocking AddEquipment for all infected pawns
+
+Performance
+- CrossedTacticalAI.FindBestNonInfectedPawnTarget now caches results for 250 ticks
+  (was scanning AllPawnsSpawned + scoring every pawn every 60 ticks per infected pawn)
+- KillAnticipation scan interval increased 60->250 ticks (4x reduction, ~1s->4s)
+- ScreamingCharge scan interval increased 120->250 ticks
+- PackCoordination scan interval increased 120->180 ticks

@@ -40,7 +40,7 @@ namespace TheMarkedMen
                 return;
             }
 
-            nextScanTick = ticks + 120;
+            nextScanTick = ticks + 250;
 
             bool enemyNearby = HasEnemyInRadius(pawn);
             if (enemyNearby)

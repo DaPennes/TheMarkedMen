@@ -24,6 +24,15 @@ namespace TheMarkedMen
         private const float InfightingChance = 0.12f;
         private const float MaxInfightingTargetDistanceSquared = 2500f;
         private const string WaitDownedJobDefName = "Wait_Downed";
+        private const int BestTargetCacheIntervalTicks = 250;
+
+        private static readonly Dictionary<int, CachedEntry> bestTargetCache = new Dictionary<int, CachedEntry>();
+
+        private struct CachedEntry
+        {
+            public int tick;
+            public Pawn target;
+        }
 
         private static readonly string[] InfrastructureDefNames = { "Battery", "Generator", "Solar", "Geothermal", "Power", "Comms", "Console" };
         private static readonly string[] MedicalDefNames = { "Hospital", "Bed", "Research", "Lab", "Scanner" };
@@ -430,6 +439,17 @@ namespace TheMarkedMen
 
         internal static Pawn FindBestNonInfectedPawnTarget(Pawn pawn)
         {
+            int pawnId = pawn.thingIDNumber;
+            int currentTick = Find.TickManager?.TicksGame ?? 0;
+
+            if (bestTargetCache.TryGetValue(pawnId, out CachedEntry cached)
+                && currentTick - cached.tick < BestTargetCacheIntervalTicks
+                && cached.target != null && cached.target.Spawned && !cached.target.Dead
+                && IsValidNonInfectedPawnTarget(cached.target, pawn))
+            {
+                return cached.target;
+            }
+
             IReadOnlyList<Pawn> candidates = pawn.Map?.mapPawns?.AllPawnsSpawned;
             if (candidates == null || candidates.Count == 0)
             {
@@ -454,6 +474,7 @@ namespace TheMarkedMen
                 }
             }
 
+            bestTargetCache[pawnId] = new CachedEntry { tick = currentTick, target = best };
             return best;
         }
 
