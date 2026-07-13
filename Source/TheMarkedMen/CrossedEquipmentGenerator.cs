@@ -841,7 +841,7 @@ namespace TheMarkedMen
                 || kind == CADefOf.MarkedMan;
         }
 
-        private static bool CanUseWeapon(Pawn pawn, ThingDef def)
+        internal static bool CanUseWeapon(Pawn pawn, ThingDef def)
         {
             if (def?.IsWeapon != true || def.weaponTags == null || def.weaponTags.Count == 0)
                 return false;
@@ -860,12 +860,34 @@ namespace TheMarkedMen
             if (mass > 40f)
                 return false;
 
+            if (def.building != null)
+                return false;
+
+            if (def.race != null)
+                return false;
+
+            if (def.plant != null)
+                return false;
+
+            if (def.thingClass != null && def.thingClass.IsSubclassOf(typeof(Building)))
+                return false;
+
             for (int i = 0; i < def.weaponTags.Count; i++)
             {
                 string tag = def.weaponTags[i];
+                if (tag == null) continue;
+
                 if (tag.IndexOf("Mounted", StringComparison.OrdinalIgnoreCase) >= 0
                     || tag.IndexOf("Siege", StringComparison.OrdinalIgnoreCase) >= 0
                     || tag.IndexOf("Turret", StringComparison.OrdinalIgnoreCase) >= 0)
+                    return false;
+
+                if (tag.IndexOf("Exclusive", StringComparison.OrdinalIgnoreCase) >= 0
+                    || tag.IndexOf("Restricted", StringComparison.OrdinalIgnoreCase) >= 0)
+                    return false;
+
+                if (tag.StartsWith("Race_", StringComparison.OrdinalIgnoreCase)
+                    || tag.StartsWith("Faction_", StringComparison.OrdinalIgnoreCase))
                     return false;
             }
 

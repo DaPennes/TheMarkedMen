@@ -435,4 +435,32 @@ namespace TheMarkedMen
             MarkedMenDebugOverlay.Draw();
         }
     }
+
+    [HarmonyPatch(typeof(Pawn_EquipmentTracker), nameof(Pawn_EquipmentTracker.AddEquipment))]
+    public static class Patch_InfectedEquipmentBlock
+    {
+        public static bool Prefix(Pawn_EquipmentTracker __instance, ThingWithComps newEq)
+        {
+            if (newEq == null || __instance?.pawn == null)
+                return true;
+
+            Pawn pawn = __instance.pawn;
+
+            if (!CrossedUtility.IsInfectedPawn(pawn))
+                return true;
+
+            ThingDef def = newEq.def;
+            if (def == null)
+                return true;
+
+            if (!CrossedEquipmentGenerator.CanUseWeapon(pawn, def))
+            {
+                if (Prefs.DevMode)
+                    Log.Warning($"[TheMarkedMen] Blocked {def.defName} from equipping on infected pawn {pawn.LabelShort}");
+                return false;
+            }
+
+            return true;
+        }
+    }
 }
