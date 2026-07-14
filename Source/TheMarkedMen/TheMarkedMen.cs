@@ -61,11 +61,11 @@ namespace TheMarkedMen
         private const float PresetButtonHeight = 32f;
         private const float PresetButtonGap = 4f;
         private const string CustomPresetName = "Custom";
-        private const string DefaultPresetName = "Default";
-        private const string OutbreakPresetName = "Outbreak simulator";
-        private const string CasualPresetName = "Casual";
-        private const string VanillaLikePresetName = "Vanilla-like";
-        private const string BrutalPresetName = "Brutal";
+        private const string DefaultPresetName = "Normal";
+        private const string OutbreakPresetName = "Very Hard";
+        private const string CasualPresetName = "Very Easy";
+        private const string VanillaLikePresetName = "Easy";
+        private const string BrutalPresetName = "Hard";
         private static readonly Color HelpTextColor = new Color(0.72f, 0.72f, 0.72f);
         private static readonly Color SectionHeaderColor = new Color(0.22f, 0.24f, 0.26f, 1f);
         private static readonly Color SectionHeaderHoverColor = new Color(0.28f, 0.30f, 0.33f, 1f);
@@ -76,6 +76,9 @@ namespace TheMarkedMen
         private const float SectionToggleWidth = 48f;
 
         public bool infectionEnabled = true;
+        public bool colonistsCanBeInfected = true;
+        public bool alliesCanBeInfected = true;
+        public bool enemiesCanBeInfected = true;
         public bool warcasketsBlockExposure = true;
         public bool vacsuitBlockExposure = true;
         public bool gasMasksBlockExposure = true;
@@ -340,6 +343,9 @@ namespace TheMarkedMen
             Scribe_Values.Look(ref settingsVersion, "settingsVersion", 0);
             int loadedSettingsVersion = settingsVersion;
             Scribe_Values.Look(ref infectionEnabled, "infectionEnabled", true);
+            Scribe_Values.Look(ref colonistsCanBeInfected, "colonistsCanBeInfected", true);
+            Scribe_Values.Look(ref alliesCanBeInfected, "alliesCanBeInfected", true);
+            Scribe_Values.Look(ref enemiesCanBeInfected, "enemiesCanBeInfected", true);
             Scribe_Values.Look(ref warcasketsBlockExposure, "warcasketsBlockExposure", true);
             Scribe_Values.Look(ref vacsuitBlockExposure, "vacsuitBlockExposure", true);
             Scribe_Values.Look(ref gasMasksBlockExposure, "gasMasksBlockExposure", true);
@@ -651,168 +657,171 @@ namespace TheMarkedMen
             DrawSettingsIntro(listing);
             DrawPresetControls(listing);
 
-            DrawSectionHeader(listing, "Core Rules", "Global switches for infection and compatibility diagnostics. These do not remove existing hediffs from a save.");
-            DrawCheckbox(listing, "Allow new Marked Virus infections", ref infectionEnabled, "When disabled, this mod stops creating new Marked Virus exposure events. Existing infections continue to run normally.");
-            DrawCheckbox(listing, "Log detected compatibility mods on load", ref verboseCompatibilityLogging, "Writes a short compatibility scan to the RimWorld log after loading. Leave this off unless you are troubleshooting.");
+            DrawSectionHeader(listing, "MarkedMen_Settings_Core".Translate(), "MarkedMen_Settings_CoreDesc".Translate());
+            DrawCheckbox(listing, "MarkedMen_Settings_AllowNewInfections".Translate(), ref infectionEnabled, "MarkedMen_Settings_AllowNewInfectionsDesc".Translate());
+            DrawCheckbox(listing, "MarkedMen_Settings_InfectColonists".Translate(), ref colonistsCanBeInfected, "MarkedMen_Settings_InfectColonistsDesc".Translate());
+            DrawCheckbox(listing, "MarkedMen_Settings_InfectAllies".Translate(), ref alliesCanBeInfected, "MarkedMen_Settings_InfectAlliesDesc".Translate());
+            DrawCheckbox(listing, "MarkedMen_Settings_InfectEnemies".Translate(), ref enemiesCanBeInfected, "MarkedMen_Settings_InfectEnemiesDesc".Translate());
+            DrawCheckbox(listing, "MarkedMen_Settings_LogCompatibilityMods".Translate(), ref verboseCompatibilityLogging, "MarkedMen_Settings_LogCompatibilityModsDesc".Translate());
 
-            DrawSectionHeader(listing, "Raid Schedule", "Controls when Marked Men incidents appear and how hard scheduled attacks scale.");
-            DrawCheckbox(listing, "Enable scheduled warbands", ref scheduledWarbandsEnabled, "Allows the main timed Marked Men raids that escalate over the colony timeline.");
-            DrawCheckbox(listing, "Enable scheduled hordes", ref scheduledHordesEnabled, "Allows larger moving horde events in addition to the main warband schedule.");
-            DrawCheckbox(listing, "Enable scouting probes", ref scoutingProbesEnabled, "Allows small scouting packs that test the colony before larger attacks arrive.");
-            DrawCheckbox(listing, "Randomize raid timing and arrival patterns", ref randomizeMarkedRaids, "Adds uncertainty to raid intervals and arrival modes. Disable this for predictable testing or calmer pacing.");
-            DrawInt(listing, "The appointed time draws near... (days)", ref firstMarkedRaidDay, 1, 600, "firstMarkedRaidDay", "When did the infection begin? The chronometer flickers. The Marked will come when they are ready.");
-            DrawFloat(listing, "Global event frequency multiplier", ref markedRaidFrequencyMultiplier, MinMarkedRaidFrequencyMultiplier, MaxMarkedRaidFrequencyMultiplier, "markedRaidFrequencyMultiplier", "Master multiplier for warbands, hordes, and probes. Set this to 0 to stop all scheduled Marked Men incidents.");
-            DrawFloat(listing, "Warband frequency multiplier", ref warbandFrequencyMultiplier, 0f, MaxMarkedRaidFrequencyMultiplier, "warbandFrequencyMultiplier", "Multiplier for main warband raids after the global multiplier is applied.");
-            DrawFloat(listing, "Horde frequency multiplier", ref hordeFrequencyMultiplier, 0f, MaxMarkedRaidFrequencyMultiplier, "hordeFrequencyMultiplier", "Multiplier for horde events after the global multiplier is applied.");
-            DrawFloat(listing, "Scouting probe frequency multiplier", ref probeFrequencyMultiplier, 0f, MaxMarkedRaidFrequencyMultiplier, "probeFrequencyMultiplier", "Multiplier for small probe incidents after the global multiplier is applied.");
-            DrawHelp(listing, "Effective frequencies: warbands " + MultiplierText(EffectiveWarbandFrequencyMultiplier) + ", hordes " + MultiplierText(EffectiveHordeFrequencyMultiplier) + ", probes " + MultiplierText(EffectiveProbeFrequencyMultiplier) + ".");
-            DrawFloat(listing, "Raid strength multiplier", ref raidPointsMultiplier, 0.05f, 1E+09f, "raidPointsMultiplier", "Scales incident points after the minimum point floor is applied.");
-            DrawFloat(listing, "Minimum raid points", ref minimumRaidPoints, 0f, maximumRaidPoints, "minimumRaidPoints", "Point floor for generated Marked Men attacks. Higher values make even early raids larger.");
-            DrawFloat(listing, "Maximum raid points", ref maximumRaidPoints, minimumRaidPoints, 100000f, "maximumRaidPoints", "Hard point ceiling for generated Marked Men attacks. Prevents extreme late-game raids from exceeding this value.");
-            DrawFloat(listing, "Escalation gained per warband", ref raidEscalationPerRaid, 0f, 2f, "raidEscalationPerRaid", "Extra raid strength added after each scheduled warband starts.");
-            DrawFloat(listing, "Escalation maximum bonus", ref raidEscalationMaxBonus, 0f, 20f, "raidEscalationMaxBonus", "Maximum accumulated escalation bonus from repeated warbands.");
-            DrawCheckbox(listing, "Allow grouped edge arrivals", ref allowGroupedEdgeArrival, "Allows raiders to enter together from one map edge.");
-            DrawCheckbox(listing, "Allow split group edge arrivals", ref allowDistributedGroupArrival, "Allows several groups to enter from different edge positions.");
-            DrawCheckbox(listing, "Allow scattered edge arrivals", ref allowDistributedArrival, "Allows a wider scattered edge arrival pattern.");
-            DrawCheckbox(listing, "Allow single pawn edge arrivals", ref allowSingleEdgeArrival, "Allows single-file edge entry when the incident worker selects it.");
+            DrawSectionHeader(listing, "MarkedMen_Settings_RaidSchedule".Translate(), "MarkedMen_Settings_RaidScheduleDesc".Translate());
+            DrawCheckbox(listing, "MarkedMen_Settings_EnableWarbands".Translate(), ref scheduledWarbandsEnabled, "MarkedMen_Settings_EnableWarbandsDesc".Translate());
+            DrawCheckbox(listing, "MarkedMen_Settings_EnableHordes".Translate(), ref scheduledHordesEnabled, "MarkedMen_Settings_EnableHordesDesc".Translate());
+            DrawCheckbox(listing, "MarkedMen_Settings_EnableProbes".Translate(), ref scoutingProbesEnabled, "MarkedMen_Settings_EnableProbesDesc".Translate());
+            DrawCheckbox(listing, "MarkedMen_Settings_RandomizeRaids".Translate(), ref randomizeMarkedRaids, "MarkedMen_Settings_RandomizeRaidsDesc".Translate());
+            DrawInt(listing, "MarkedMen_Settings_firstMarkedRaidDay".Translate(), ref firstMarkedRaidDay, 1, 600, "firstMarkedRaidDay", "MarkedMen_Settings_firstMarkedRaidDayDesc".Translate());
+            DrawFloat(listing, "MarkedMen_Settings_markedRaidFrequencyMultiplier".Translate(), ref markedRaidFrequencyMultiplier, MinMarkedRaidFrequencyMultiplier, MaxMarkedRaidFrequencyMultiplier, "markedRaidFrequencyMultiplier", "MarkedMen_Settings_markedRaidFrequencyMultiplierDesc".Translate());
+            DrawFloat(listing, "MarkedMen_Settings_warbandFrequencyMultiplier".Translate(), ref warbandFrequencyMultiplier, 0f, MaxMarkedRaidFrequencyMultiplier, "warbandFrequencyMultiplier", "MarkedMen_Settings_warbandFrequencyMultiplierDesc".Translate());
+            DrawFloat(listing, "MarkedMen_Settings_hordeFrequencyMultiplier".Translate(), ref hordeFrequencyMultiplier, 0f, MaxMarkedRaidFrequencyMultiplier, "hordeFrequencyMultiplier", "MarkedMen_Settings_hordeFrequencyMultiplierDesc".Translate());
+            DrawFloat(listing, "MarkedMen_Settings_probeFrequencyMultiplier".Translate(), ref probeFrequencyMultiplier, 0f, MaxMarkedRaidFrequencyMultiplier, "probeFrequencyMultiplier", "MarkedMen_Settings_probeFrequencyMultiplierDesc".Translate());
+            DrawHelp(listing, "MarkedMen_Settings_EffectiveFrequencies".Translate(MultiplierText(EffectiveWarbandFrequencyMultiplier), MultiplierText(EffectiveHordeFrequencyMultiplier), MultiplierText(EffectiveProbeFrequencyMultiplier)));
+            DrawFloat(listing, "MarkedMen_Settings_raidPointsMultiplier".Translate(), ref raidPointsMultiplier, 0.05f, 1E+09f, "raidPointsMultiplier", "MarkedMen_Settings_raidPointsMultiplierDesc".Translate());
+            DrawFloat(listing, "MarkedMen_Settings_minimumRaidPoints".Translate(), ref minimumRaidPoints, 0f, maximumRaidPoints, "minimumRaidPoints", "MarkedMen_Settings_minimumRaidPointsDesc".Translate());
+            DrawFloat(listing, "MarkedMen_Settings_maximumRaidPoints".Translate(), ref maximumRaidPoints, minimumRaidPoints, 100000f, "maximumRaidPoints", "MarkedMen_Settings_maximumRaidPointsDesc".Translate());
+            DrawFloat(listing, "MarkedMen_Settings_raidEscalationPerRaid".Translate(), ref raidEscalationPerRaid, 0f, 2f, "raidEscalationPerRaid", "MarkedMen_Settings_raidEscalationPerRaidDesc".Translate());
+            DrawFloat(listing, "MarkedMen_Settings_raidEscalationMaxBonus".Translate(), ref raidEscalationMaxBonus, 0f, 20f, "raidEscalationMaxBonus", "MarkedMen_Settings_raidEscalationMaxBonusDesc".Translate());
+            DrawCheckbox(listing, "MarkedMen_Settings_GroupedEdgeArrivals".Translate(), ref allowGroupedEdgeArrival, "MarkedMen_Settings_GroupedEdgeArrivalsDesc".Translate());
+            DrawCheckbox(listing, "MarkedMen_Settings_SplitGroupEdgeArrivals".Translate(), ref allowDistributedGroupArrival, "MarkedMen_Settings_SplitGroupEdgeArrivalsDesc".Translate());
+            DrawCheckbox(listing, "MarkedMen_Settings_ScatteredEdgeArrivals".Translate(), ref allowDistributedArrival, "MarkedMen_Settings_ScatteredEdgeArrivalsDesc".Translate());
+            DrawCheckbox(listing, "MarkedMen_Settings_SingleEdgeArrivals".Translate(), ref allowSingleEdgeArrival, "MarkedMen_Settings_SingleEdgeArrivalsDesc".Translate());
 
-            DrawSectionHeader(listing, "Enemy Mix", "Controls which infected pawn types appear. Weight 0 disables that type; weight 1 is normal; higher values make that type more common.");
-            DrawFloat(listing, "Civilian weight", ref civilianWeightMultiplier, 0f, 5f, "civilianWeightMultiplier", "Basic infected with improvised weapons. The most common type.");
-            DrawFloat(listing, "Scout weight", ref scoutWeightMultiplier, 0f, 5f, "scoutWeightMultiplier", "Fast reconnaissance infected with light weapons.");
-            DrawFloat(listing, "Hunter weight", ref hunterWeightMultiplier, 0f, 5f, "hunterWeightMultiplier", "Tracker infected with hunting weapons.");
-            DrawFloat(listing, "Shooter weight", ref shooterWeightMultiplier, 0f, 5f, "shooterWeightMultiplier", "Ranged infected with sidearms and SMGs.");
-            DrawFloat(listing, "Raider weight", ref raiderWeightMultiplier, 0f, 5f, "raiderWeightMultiplier", "Former bandits with assault rifles and machetes.");
-            DrawFloat(listing, "Soldier weight", ref soldierWeightMultiplier, 0f, 5f, "soldierWeightMultiplier", "Former military infected with military-grade gear.");
-            DrawFloat(listing, "Brute weight", ref bruteWeightMultiplier, 0f, 5f, "bruteWeightMultiplier", "Heavy melee infected. Usually appears only when raid points are high enough.");
-            DrawFloat(listing, "Pyromaniac weight", ref pyromaniacWeightMultiplier, 0f, 5f, "pyromaniacWeightMultiplier", "Fire-focused infected that spread chaos.");
-            DrawFloat(listing, "Alpha weight", ref alphaWeightMultiplier, 0f, 5f, "alphaWeightMultiplier", "Elite command infected that strengthens nearby Marked Men.");
-            DrawFloat(listing, "Warlord weight", ref warlordWeightMultiplier, 0f, 5f, "warlordWeightMultiplier", "Regional commander infected. Rare and extremely dangerous.");
-            DrawFloat(listing, "Marked Man weight", ref markedManWeightMultiplier, 0f, 5f, "markedManWeightMultiplier", "Ultimate infected. Endgame encounter, extremely rare.");
-            DrawInt(listing, "Minimum horde size", ref minimumHordeSize, 1, 50, "minimumHordeSize", "Smallest horde size when a horde incident does not request a specific count.");
-            DrawInt(listing, "Maximum horde size", ref maximumHordeSize, 1, 100, "maximumHordeSize", "Largest horde size after threat scaling and variance.");
-            DrawInt(listing, "Minimum scouting probe size", ref minimumProbeSize, 1, 20, "minimumProbeSize", "Smallest scouting pack size when the incident does not request a specific count.");
-            DrawInt(listing, "Maximum scouting probe size", ref maximumProbeSize, 1, 30, "maximumProbeSize", "Largest scouting pack size after threat scaling and variance.");
-            DrawInt(listing, "Maximum alphas per raid", ref maximumAlphasPerRaid, 0, 99, "maximumAlphasPerRaid", "Hard cap for alpha infected in generated raids. Set to 0 to prevent alphas from spawning.");
+            DrawSectionHeader(listing, "MarkedMen_Settings_EnemyMix".Translate(), "MarkedMen_Settings_EnemyMixDesc".Translate());
+            DrawFloat(listing, "MarkedMen_Settings_civilianWeightMultiplier".Translate(), ref civilianWeightMultiplier, 0f, 5f, "civilianWeightMultiplier", "MarkedMen_Settings_civilianWeightMultiplierDesc".Translate());
+            DrawFloat(listing, "MarkedMen_Settings_scoutWeightMultiplier".Translate(), ref scoutWeightMultiplier, 0f, 5f, "scoutWeightMultiplier", "MarkedMen_Settings_scoutWeightMultiplierDesc".Translate());
+            DrawFloat(listing, "MarkedMen_Settings_hunterWeightMultiplier".Translate(), ref hunterWeightMultiplier, 0f, 5f, "hunterWeightMultiplier", "MarkedMen_Settings_hunterWeightMultiplierDesc".Translate());
+            DrawFloat(listing, "MarkedMen_Settings_shooterWeightMultiplier".Translate(), ref shooterWeightMultiplier, 0f, 5f, "shooterWeightMultiplier", "MarkedMen_Settings_shooterWeightMultiplierDesc".Translate());
+            DrawFloat(listing, "MarkedMen_Settings_raiderWeightMultiplier".Translate(), ref raiderWeightMultiplier, 0f, 5f, "raiderWeightMultiplier", "MarkedMen_Settings_raiderWeightMultiplierDesc".Translate());
+            DrawFloat(listing, "MarkedMen_Settings_soldierWeightMultiplier".Translate(), ref soldierWeightMultiplier, 0f, 5f, "soldierWeightMultiplier", "MarkedMen_Settings_soldierWeightMultiplierDesc".Translate());
+            DrawFloat(listing, "MarkedMen_Settings_bruteWeightMultiplier".Translate(), ref bruteWeightMultiplier, 0f, 5f, "bruteWeightMultiplier", "MarkedMen_Settings_bruteWeightMultiplierDesc".Translate());
+            DrawFloat(listing, "MarkedMen_Settings_pyromaniacWeightMultiplier".Translate(), ref pyromaniacWeightMultiplier, 0f, 5f, "pyromaniacWeightMultiplier", "MarkedMen_Settings_pyromaniacWeightMultiplierDesc".Translate());
+            DrawFloat(listing, "MarkedMen_Settings_alphaWeightMultiplier".Translate(), ref alphaWeightMultiplier, 0f, 5f, "alphaWeightMultiplier", "MarkedMen_Settings_alphaWeightMultiplierDesc".Translate());
+            DrawFloat(listing, "MarkedMen_Settings_warlordWeightMultiplier".Translate(), ref warlordWeightMultiplier, 0f, 5f, "warlordWeightMultiplier", "MarkedMen_Settings_warlordWeightMultiplierDesc".Translate());
+            DrawFloat(listing, "MarkedMen_Settings_markedManWeightMultiplier".Translate(), ref markedManWeightMultiplier, 0f, 5f, "markedManWeightMultiplier", "MarkedMen_Settings_markedManWeightMultiplierDesc".Translate());
+            DrawInt(listing, "MarkedMen_Settings_minimumHordeSize".Translate(), ref minimumHordeSize, 1, 50, "minimumHordeSize", "MarkedMen_Settings_minimumHordeSizeDesc".Translate());
+            DrawInt(listing, "MarkedMen_Settings_maximumHordeSize".Translate(), ref maximumHordeSize, 1, 100, "maximumHordeSize", "MarkedMen_Settings_maximumHordeSizeDesc".Translate());
+            DrawInt(listing, "MarkedMen_Settings_minimumProbeSize".Translate(), ref minimumProbeSize, 1, 20, "minimumProbeSize", "MarkedMen_Settings_minimumProbeSizeDesc".Translate());
+            DrawInt(listing, "MarkedMen_Settings_maximumProbeSize".Translate(), ref maximumProbeSize, 1, 30, "maximumProbeSize", "MarkedMen_Settings_maximumProbeSizeDesc".Translate());
+            DrawInt(listing, "MarkedMen_Settings_maximumAlphasPerRaid".Translate(), ref maximumAlphasPerRaid, 0, 99, "maximumAlphasPerRaid", "MarkedMen_Settings_maximumAlphasPerRaidDesc".Translate());
 
-            DrawSectionHeader(listing, "Virus And Corpses", "Controls exposure chances, infection timing, terminal outcomes, and infected corpse transformation.");
-            DrawFloat(listing, "Blood exposure chance", ref bloodExposureChance, 0f, 1f, "bloodExposureChance", "Chance that infected blood exposure creates a Marked Virus exposure event.");
-            DrawFloat(listing, "Contaminated food exposure chance", ref foodExposureChance, 0f, 1f, "foodExposureChance", "Chance that eating contaminated food creates a Marked Virus exposure event.");
-            DrawFloat(listing, "Infected melee contact chance", ref infectedAssaultExposureChance, 0f, 1f, "infectedAssaultExposureChance", "Chance that direct infected assault contact creates a Marked Virus exposure event.");
-            DrawFloat(listing, "Close-contact contagion chance", ref closeContactExposureChance, 0f, 1f, "closeContactExposureChance", "Chance per valid nearby target during a contagion pulse from an infected pawn.");
-            DrawFloat(listing, "Corpse contamination chance", ref corpseContaminationChance, 0f, 1f, "corpseContaminationChance", "Chance that an infected pawn contaminates a nearby corpse during a corpse contamination pulse.");
-            DrawFloat(listing, "Infection progression speed", ref infectionProgressionSpeedMultiplier, 0.05f, 10f, "infectionProgressionSpeedMultiplier", "Higher values make the disease advance faster. Lower values give victims more time.");
-            DrawFloat(listing, "Incubation duration multiplier", ref incubationDurationMultiplier, 0.05f, 10f, "incubationDurationMultiplier", "Multiplies infection stage durations before progression speed is applied.");
-            DrawFloat(listing, "Immune survivor chance", ref immunitySurvivalChance, 0f, 1f, "immunitySurvivalChance", "Chance that a terminal infection ends in lasting immunity instead of transformation or viral death.");
-            DrawFloat(listing, "Terminal transformation weight", ref terminalTransformationWeight, 0f, 10f, "terminalTransformationWeight", "Relative weight for becoming one of the Marked Men when immunity does not save the pawn.");
-            DrawFloat(listing, "Terminal death weight", ref terminalDeathWeight, 0f, 10f, "terminalDeathWeight", "Relative weight for dying from viral collapse when immunity does not save the pawn.");
-            DrawHelp(listing, "Current terminal outcome after the immunity roll: " + PercentText(CurrentTerminalTransformationChance(null)) + " transform, " + PercentText(1f - CurrentTerminalTransformationChance(null)) + " die.");
-            DrawFloat(listing, "Corpse transformation chance", ref reanimationChance, 0f, 1f, "reanimationChance", "Chance that a valid infected corpse transforms after death. No corpse remains.");
-            DrawInt(listing, "Transformation delay (ticks)", ref reanimationDelayTicks, 60, GenDate.TicksPerDay * 30, "reanimationDelayTicks", "Delay before queued infected corpses can transform. 60,000 ticks equals one in-game day.");
-            DrawFloat(listing, "Founder-lineage breakthrough chance", ref starterLineageBreakthroughChance, 0f, 1f, "starterLineageBreakthroughChance", "Chance that special starter-lineage resistance fails after direct exposure.");
+            DrawSectionHeader(listing, "MarkedMen_Settings_VirusAndCorpses".Translate(), "MarkedMen_Settings_VirusAndCorpsesDesc".Translate());
+            DrawFloat(listing, "MarkedMen_Settings_bloodExposureChance".Translate(), ref bloodExposureChance, 0f, 1f, "bloodExposureChance", "MarkedMen_Settings_bloodExposureChanceDesc".Translate());
+            DrawFloat(listing, "MarkedMen_Settings_foodExposureChance".Translate(), ref foodExposureChance, 0f, 1f, "foodExposureChance", "MarkedMen_Settings_foodExposureChanceDesc".Translate());
+            DrawFloat(listing, "MarkedMen_Settings_infectedAssaultExposureChance".Translate(), ref infectedAssaultExposureChance, 0f, 1f, "infectedAssaultExposureChance", "MarkedMen_Settings_infectedAssaultExposureChanceDesc".Translate());
+            DrawFloat(listing, "MarkedMen_Settings_closeContactExposureChance".Translate(), ref closeContactExposureChance, 0f, 1f, "closeContactExposureChance", "MarkedMen_Settings_closeContactExposureChanceDesc".Translate());
+            DrawFloat(listing, "MarkedMen_Settings_corpseContaminationChance".Translate(), ref corpseContaminationChance, 0f, 1f, "corpseContaminationChance", "MarkedMen_Settings_corpseContaminationChanceDesc".Translate());
+            DrawFloat(listing, "MarkedMen_Settings_infectionProgressionSpeedMultiplier".Translate(), ref infectionProgressionSpeedMultiplier, 0.05f, 10f, "infectionProgressionSpeedMultiplier", "MarkedMen_Settings_infectionProgressionSpeedMultiplierDesc".Translate());
+            DrawFloat(listing, "MarkedMen_Settings_incubationDurationMultiplier".Translate(), ref incubationDurationMultiplier, 0.05f, 10f, "incubationDurationMultiplier", "MarkedMen_Settings_incubationDurationMultiplierDesc".Translate());
+            DrawFloat(listing, "MarkedMen_Settings_immunitySurvivalChance".Translate(), ref immunitySurvivalChance, 0f, 1f, "immunitySurvivalChance", "MarkedMen_Settings_immunitySurvivalChanceDesc".Translate());
+            DrawFloat(listing, "MarkedMen_Settings_terminalTransformationWeight".Translate(), ref terminalTransformationWeight, 0f, 10f, "terminalTransformationWeight", "MarkedMen_Settings_terminalTransformationWeightDesc".Translate());
+            DrawFloat(listing, "MarkedMen_Settings_terminalDeathWeight".Translate(), ref terminalDeathWeight, 0f, 10f, "terminalDeathWeight", "MarkedMen_Settings_terminalDeathWeightDesc".Translate());
+            DrawHelp(listing, "MarkedMen_Settings_TerminalOutcome".Translate(PercentText(CurrentTerminalTransformationChance(null)), PercentText(1f - CurrentTerminalTransformationChance(null))));
+            DrawFloat(listing, "MarkedMen_Settings_reanimationChance".Translate(), ref reanimationChance, 0f, 1f, "reanimationChance", "MarkedMen_Settings_reanimationChanceDesc".Translate());
+            DrawInt(listing, "MarkedMen_Settings_reanimationDelayTicks".Translate(), ref reanimationDelayTicks, 60, GenDate.TicksPerDay * 30, "reanimationDelayTicks", "MarkedMen_Settings_reanimationDelayTicksDesc".Translate());
+            DrawFloat(listing, "MarkedMen_Settings_starterLineageBreakthroughChance".Translate(), ref starterLineageBreakthroughChance, 0f, 1f, "starterLineageBreakthroughChance", "MarkedMen_Settings_starterLineageBreakthroughChanceDesc".Translate());
 
-            DrawSectionHeader(listing, "Infection Transmission", "Controls how the Marked Virus spreads through combat. Ranged transmission is disabled by default and can be enabled below. Explosions and turrets never transmit infection.");
-            DrawCheckbox(listing, "Enable melee transmission", ref meleeTransmissionEnabled, "Master toggle for all melee-based infection transmission. When disabled, no melee attack can spread the Marked Virus.");
-            DrawCheckbox(listing, "Bite attacks transmit", ref biteTransmissionEnabled, "When enabled, bite attacks from infected pawns can transmit the virus.");
-            DrawFloat(listing, "Bite infection chance", ref biteInfectionChance, 0f, 1f, "biteInfectionChance", "Chance that a bite attack from an infected pawn transmits the Marked Virus.");
-            DrawCheckbox(listing, "Claw attacks transmit", ref clawTransmissionEnabled, "When enabled, claw attacks from infected pawns can transmit the virus.");
-            DrawFloat(listing, "Claw infection chance", ref clawInfectionChance, 0f, 1f, "clawInfectionChance", "Chance that a claw or stab attack from an infected pawn transmits the Marked Virus.");
-            DrawCheckbox(listing, "Scratch attacks transmit", ref scratchTransmissionEnabled, "When enabled, scratch attacks from infected pawns can transmit the virus.");
-            DrawFloat(listing, "Scratch infection chance", ref scratchInfectionChance, 0f, 1f, "scratchInfectionChance", "Chance that a scratch attack from an infected pawn transmits the Marked Virus.");
-            DrawCheckbox(listing, "Punch/blunt attacks transmit", ref punchTransmissionEnabled, "When enabled, punch and blunt attacks from infected pawns can transmit the virus.");
-            DrawFloat(listing, "Punch infection chance", ref punchInfectionChance, 0f, 1f, "punchInfectionChance", "Chance that a punch or blunt attack from an infected pawn transmits the Marked Virus.");
-            DrawCheckbox(listing, "Melee weapon attacks transmit", ref meleeWeaponTransmissionEnabled, "When enabled, melee weapon attacks from infected pawns can transmit the virus.");
-            DrawFloat(listing, "Melee weapon infection chance", ref meleeWeaponInfectionChance, 0f, 1f, "meleeWeaponInfectionChance", "Chance that a melee weapon attack from an infected pawn transmits the Marked Virus.");
-            DrawCheckbox(listing, "Marked Men guaranteed infection", ref markedMenGuaranteedInfection, "When enabled, fully transformed Marked Men always infect on melee contact.");
-            DrawFloat(listing, "Marked Men infection chance", ref markedMenInfectionChance, 0f, 1f, "markedMenInfectionChance", "Chance that a fully transformed Marked Man transmits the virus on melee contact. Used when guaranteed infection is disabled.");
-            DrawCheckbox(listing, "Enable ranged transmission", ref rangedTransmissionEnabled, "When enabled, ranged attacks from infected pawns can transmit the Marked Virus. Disabled by default.");
-            DrawFloat(listing, "Ranged infection chance", ref rangedInfectionChance, 0f, 1f, "rangedInfectionChance", "Chance that a ranged attack from an infected pawn transmits the Marked Virus.");
+            DrawSectionHeader(listing, "MarkedMen_Settings_InfectionTransmission".Translate(), "MarkedMen_Settings_InfectionTransmissionDesc".Translate());
+            DrawCheckbox(listing, "MarkedMen_Settings_EnableMeleeTransmission".Translate(), ref meleeTransmissionEnabled, "MarkedMen_Settings_EnableMeleeTransmissionDesc".Translate());
+            DrawCheckbox(listing, "MarkedMen_Settings_BiteTransmission".Translate(), ref biteTransmissionEnabled, "MarkedMen_Settings_BiteTransmissionDesc".Translate());
+            DrawFloat(listing, "MarkedMen_Settings_biteInfectionChance".Translate(), ref biteInfectionChance, 0f, 1f, "biteInfectionChance", "MarkedMen_Settings_biteInfectionChanceDesc".Translate());
+            DrawCheckbox(listing, "MarkedMen_Settings_ClawTransmission".Translate(), ref clawTransmissionEnabled, "MarkedMen_Settings_ClawTransmissionDesc".Translate());
+            DrawFloat(listing, "MarkedMen_Settings_clawInfectionChance".Translate(), ref clawInfectionChance, 0f, 1f, "clawInfectionChance", "MarkedMen_Settings_clawInfectionChanceDesc".Translate());
+            DrawCheckbox(listing, "MarkedMen_Settings_ScratchTransmission".Translate(), ref scratchTransmissionEnabled, "MarkedMen_Settings_ScratchTransmissionDesc".Translate());
+            DrawFloat(listing, "MarkedMen_Settings_scratchInfectionChance".Translate(), ref scratchInfectionChance, 0f, 1f, "scratchInfectionChance", "MarkedMen_Settings_scratchInfectionChanceDesc".Translate());
+            DrawCheckbox(listing, "MarkedMen_Settings_PunchTransmission".Translate(), ref punchTransmissionEnabled, "MarkedMen_Settings_PunchTransmissionDesc".Translate());
+            DrawFloat(listing, "MarkedMen_Settings_punchInfectionChance".Translate(), ref punchInfectionChance, 0f, 1f, "punchInfectionChance", "MarkedMen_Settings_punchInfectionChanceDesc".Translate());
+            DrawCheckbox(listing, "MarkedMen_Settings_MeleeWeaponTransmission".Translate(), ref meleeWeaponTransmissionEnabled, "MarkedMen_Settings_MeleeWeaponTransmissionDesc".Translate());
+            DrawFloat(listing, "MarkedMen_Settings_meleeWeaponInfectionChance".Translate(), ref meleeWeaponInfectionChance, 0f, 1f, "meleeWeaponInfectionChance", "MarkedMen_Settings_meleeWeaponInfectionChanceDesc".Translate());
+            DrawCheckbox(listing, "MarkedMen_Settings_MarkedMenGuaranteed".Translate(), ref markedMenGuaranteedInfection, "MarkedMen_Settings_MarkedMenGuaranteedDesc".Translate());
+            DrawFloat(listing, "MarkedMen_Settings_markedMenInfectionChance".Translate(), ref markedMenInfectionChance, 0f, 1f, "markedMenInfectionChance", "MarkedMen_Settings_markedMenInfectionChanceDesc".Translate());
+            DrawCheckbox(listing, "MarkedMen_Settings_EnableRangedTransmission".Translate(), ref rangedTransmissionEnabled, "MarkedMen_Settings_EnableRangedTransmissionDesc".Translate());
+            DrawFloat(listing, "MarkedMen_Settings_rangedInfectionChance".Translate(), ref rangedInfectionChance, 0f, 1f, "rangedInfectionChance", "MarkedMen_Settings_rangedInfectionChanceDesc".Translate());
 
-            DrawSectionHeader(listing, "Sealed Apparel Protection", "Toggling a category off removes full viral immunity for that apparel type, reverting to partial resistance instead.");
-            DrawCheckbox(listing, "Warcaskets block exposure", ref warcasketsBlockExposure, "When enabled, any warcasket torso shell provides full immunity to direct Marked Virus exposure. Disable this if you want warcasket pawns to still face infection risk.");
-            DrawCheckbox(listing, "Vacsuit/EVA suits block exposure", ref vacsuitBlockExposure, "When enabled, wearing both a vacsuit body and helmet provides full immunity via the sealed combo. Disable to make the combo only give partial resistance.");
-            DrawCheckbox(listing, "Gas masks block exposure", ref gasMasksBlockExposure, "When enabled, gas masks, HAZMAT masks, and toxin-immune headgear provide full immunity. Disable for partial resistance only.");
-            DrawCheckbox(listing, "Sealed armor blocks exposure", ref sealedArmorBlockExposure, "When enabled, HAZMAT suits, sealed undersuits, security armor, and orbital armor provide full immunity. Disable for partial resistance only.");
+            DrawSectionHeader(listing, "MarkedMen_Settings_SealedApparel".Translate(), "MarkedMen_Settings_SealedApparelDesc".Translate());
+            DrawCheckbox(listing, "MarkedMen_Settings_WarcasketsBlock".Translate(), ref warcasketsBlockExposure, "MarkedMen_Settings_WarcasketsBlockDesc".Translate());
+            DrawCheckbox(listing, "MarkedMen_Settings_VacsuitBlock".Translate(), ref vacsuitBlockExposure, "MarkedMen_Settings_VacsuitBlockDesc".Translate());
+            DrawCheckbox(listing, "MarkedMen_Settings_GasMasksBlock".Translate(), ref gasMasksBlockExposure, "MarkedMen_Settings_GasMasksBlockDesc".Translate());
+            DrawCheckbox(listing, "MarkedMen_Settings_SealedArmorBlock".Translate(), ref sealedArmorBlockExposure, "MarkedMen_Settings_SealedArmorBlockDesc".Translate());
 
-            DrawSectionHeader(listing, "Infected AI", "Controls how aggressively Marked Men attack, retarget, breach, and terrorize nearby pawns.");
-            DrawCheckbox(listing, "Enable tactical retargeting", ref tacticalRetargetingEnabled, "Lets infected pawns periodically switch to better tactical targets.");
-            DrawCheckbox(listing, "Enable priority targeting", ref priorityTargetingEnabled, "Lets infected pawns prefer power, food, medical, research, and turret targets when appropriate.");
-            DrawCheckbox(listing, "Enable door and wall targeting", ref doorTargetingEnabled, "Allows infected pawns to bash or target barriers when pursuing a colony.");
-            DrawFloat(listing, "Marked infighting chance", ref infightingChance, 0f, 1f, "infightingChance", "Chance during each infighting check that infected pawns may turn on each other.");
-            DrawFloat(listing, "Panic and social terror strength", ref socialTerrorStrength, 0f, 5f, "socialTerrorStrength", "Scales the radius and strength of Marked Men terror effects. Set to 0 to disable these effects.");
+            DrawSectionHeader(listing, "MarkedMen_Settings_InfectedAI".Translate(), "MarkedMen_Settings_InfectedAIDesc".Translate());
+            DrawCheckbox(listing, "MarkedMen_Settings_TacticalRetargeting".Translate(), ref tacticalRetargetingEnabled, "MarkedMen_Settings_TacticalRetargetingDesc".Translate());
+            DrawCheckbox(listing, "MarkedMen_Settings_PriorityTargeting".Translate(), ref priorityTargetingEnabled, "MarkedMen_Settings_PriorityTargetingDesc".Translate());
+            DrawCheckbox(listing, "MarkedMen_Settings_DoorTargeting".Translate(), ref doorTargetingEnabled, "MarkedMen_Settings_DoorTargetingDesc".Translate());
+            DrawFloat(listing, "MarkedMen_Settings_infightingChance".Translate(), ref infightingChance, 0f, 1f, "infightingChance", "MarkedMen_Settings_infightingChanceDesc".Translate());
+            DrawFloat(listing, "MarkedMen_Settings_socialTerrorStrength".Translate(), ref socialTerrorStrength, 0f, 5f, "socialTerrorStrength", "MarkedMen_Settings_socialTerrorStrengthDesc".Translate());
 
-            DrawSectionHeader(listing, "Predatory Instincts", "Controls the bloodlust, kill anticipation, and predator psychology systems for the Marked Ones.");
-            DrawCheckbox(listing, "Enable bloodlust system", ref bloodlustEnabled, "When enabled, infected pawns build bloodlust over time and gain mood and combat effects based on their craving for violence.");
-            DrawFloat(listing, "Bloodlust decay rate", ref bloodlustDecayRate, 0.1f, 5f, "bloodlustDecayRate", "How quickly bloodlust fades when not in combat. Lower values keep pawns bloodthirsty longer.");
-            DrawFloat(listing, "Bloodlust kill gain multiplier", ref bloodlustKillGainMultiplier, 0.1f, 5f, "bloodlustKillGainMultiplier", "How much a kill or down satisfies bloodlust. Higher values mean faster satiation.");
-            DrawFloat(listing, "Bloodlust combat gain multiplier", ref bloodlustCombatGainMultiplier, 0f, 5f, "bloodlustCombatGainMultiplier", "How much active combat feeds bloodlust. Set to 0 to disable combat-based bloodlust gain.");
-            DrawCheckbox(listing, "Enable kill anticipation system", ref anticipationEnabled, "When enabled, infected pawns gain combat bonuses from anticipating enemies nearby. Effects fade quickly when out of combat.");
-            DrawFloat(listing, "Anticipation gain multiplier", ref anticipationGainMultiplier, 0.1f, 5f, "anticipationGainMultiplier", "How quickly kill anticipation builds when enemies are near.");
-            DrawFloat(listing, "Anticipation decay multiplier", ref anticipationDecayMultiplier, 0.1f, 5f, "anticipationDecayMultiplier", "How quickly kill anticipation fades after combat ends. Higher values fade faster.");
+            DrawSectionHeader(listing, "MarkedMen_Settings_PredatoryInstincts".Translate(), "MarkedMen_Settings_PredatoryInstinctsDesc".Translate());
+            DrawCheckbox(listing, "MarkedMen_Settings_BloodlustSystem".Translate(), ref bloodlustEnabled, "MarkedMen_Settings_BloodlustSystemDesc".Translate());
+            DrawFloat(listing, "MarkedMen_Settings_bloodlustDecayRate".Translate(), ref bloodlustDecayRate, 0.1f, 5f, "bloodlustDecayRate", "MarkedMen_Settings_bloodlustDecayRateDesc".Translate());
+            DrawFloat(listing, "MarkedMen_Settings_bloodlustKillGainMultiplier".Translate(), ref bloodlustKillGainMultiplier, 0.1f, 5f, "bloodlustKillGainMultiplier", "MarkedMen_Settings_bloodlustKillGainMultiplierDesc".Translate());
+            DrawFloat(listing, "MarkedMen_Settings_bloodlustCombatGainMultiplier".Translate(), ref bloodlustCombatGainMultiplier, 0f, 5f, "bloodlustCombatGainMultiplier", "MarkedMen_Settings_bloodlustCombatGainMultiplierDesc".Translate());
+            DrawCheckbox(listing, "MarkedMen_Settings_KillAnticipation".Translate(), ref anticipationEnabled, "MarkedMen_Settings_KillAnticipationDesc".Translate());
+            DrawFloat(listing, "MarkedMen_Settings_anticipationGainMultiplier".Translate(), ref anticipationGainMultiplier, 0.1f, 5f, "anticipationGainMultiplier", "MarkedMen_Settings_anticipationGainMultiplierDesc".Translate());
+            DrawFloat(listing, "MarkedMen_Settings_anticipationDecayMultiplier".Translate(), ref anticipationDecayMultiplier, 0.1f, 5f, "anticipationDecayMultiplier", "MarkedMen_Settings_anticipationDecayMultiplierDesc".Translate());
 
-            DrawSectionHeader(listing, "Messages And Dev Tools", "Controls player-facing alerts, incident history, and optional debug actions.");
-            DrawCheckbox(listing, "Show raid countdown alert", ref raidCountdownAlertEnabled, "Shows a gizmo alert when a scheduled Marked Men raid is approaching.");
-            DrawFloat(listing, "Countdown visible days", ref raidCountdownVisibleDays, 0f, 999f, "raidCountdownVisibleDays", "How many in-game days before a scheduled raid the countdown alert becomes visible.");
-            DrawFloat(listing, "High-priority countdown days", ref raidCountdownHighPriorityDays, 0f, 30f, "raidCountdownHighPriorityDays", "How many in-game days before a scheduled raid the alert becomes high priority.");
-            DrawCheckbox(listing, "Use detailed raid letters", ref detailedRaidLetters, "Adds richer raid letter text with pawn counts, points, arrival mode, and tactical warning details.");
-            DrawCheckbox(listing, "Record incident log entries", ref incidentLogEnabled, "Stores Marked Men incident history in the game component for debugging and future review.");
-            DrawCheckbox(listing, "Enable Dev Mode debug actions", ref debugActionsEnabled, "Adds Dev Mode actions for starting or rescheduling Marked Men incidents while testing.");
+            DrawSectionHeader(listing, "MarkedMen_Settings_MessagesAndDevTools".Translate(), "MarkedMen_Settings_MessagesAndDevToolsDesc".Translate());
+            DrawCheckbox(listing, "MarkedMen_Settings_RaidCountdown".Translate(), ref raidCountdownAlertEnabled, "MarkedMen_Settings_RaidCountdownDesc".Translate());
+            DrawFloat(listing, "MarkedMen_Settings_raidCountdownVisibleDays".Translate(), ref raidCountdownVisibleDays, 0f, 999f, "raidCountdownVisibleDays", "MarkedMen_Settings_raidCountdownVisibleDaysDesc".Translate());
+            DrawFloat(listing, "MarkedMen_Settings_raidCountdownHighPriorityDays".Translate(), ref raidCountdownHighPriorityDays, 0f, 30f, "raidCountdownHighPriorityDays", "MarkedMen_Settings_raidCountdownHighPriorityDaysDesc".Translate());
+            DrawCheckbox(listing, "MarkedMen_Settings_DetailedLetters".Translate(), ref detailedRaidLetters, "MarkedMen_Settings_DetailedLettersDesc".Translate());
+            DrawCheckbox(listing, "MarkedMen_Settings_IncidentLog".Translate(), ref incidentLogEnabled, "MarkedMen_Settings_IncidentLogDesc".Translate());
+            DrawCheckbox(listing, "MarkedMen_Settings_DebugActions".Translate(), ref debugActionsEnabled, "MarkedMen_Settings_DebugActionsDesc".Translate());
 
-            DrawSectionHeader(listing, "Performance", "Controls how often background systems run. Higher intervals reduce CPU work but make reactions less immediate.");
-            DrawInt(listing, "Ticks between contagion pulses", ref contagionPulseIntervalTicks, 60, GenDate.TicksPerDay, "contagionPulseIntervalTicks", "How often infected pawns try nearby close-contact exposure checks.");
-            DrawInt(listing, "Max contagion targets per pulse", ref maxContagionTargetsPerPulse, 0, 50, "maxContagionTargetsPerPulse", "Maximum nearby pawns checked by each contagion pulse. Set to 0 to disable pulse-based close-contact spread.");
-            DrawInt(listing, "Ticks between corpse contamination pulses", ref corpseContaminationIntervalTicks, 60, GenDate.TicksPerDay, "corpseContaminationIntervalTicks", "How often infected pawns try to contaminate nearby corpses.");
-            DrawInt(listing, "Max corpses checked per pulse", ref maxCorpsesPerPulse, 0, 50, "maxCorpsesPerPulse", "Maximum nearby corpses checked during each corpse contamination pulse. Set to 0 to disable corpse contamination.");
-            DrawInt(listing, "Ticks between tactical retarget checks", ref tacticalRetargetIntervalTicks, 1, 2500, "tacticalRetargetIntervalTicks", "How often infected pawns can reconsider tactical targets. Higher values improve performance by reducing scans for new targets.");
-            DrawInt(listing, "Ticks between infighting checks", ref infightingCheckIntervalTicks, 60, GenDate.TicksPerDay, "infightingCheckIntervalTicks", "How often infected pawns can roll for infighting behavior.");
-            DrawInt(listing, "Ticks between lord cleanup checks", ref lordCleanupIntervalTicks, 60, GenDate.TicksPerDay, "lordCleanupIntervalTicks", "How often the mod cleans up invalid raid lord state.");
-            DrawInt(listing, "Ticks between infected-state maintenance", ref infectedStateMaintenanceIntervalTicks, 60, GenDate.TicksPerDay, "infectedStateMaintenanceIntervalTicks", "How often infected pawns refresh state such as faction-specific visuals.");
-            DrawInt(listing, "Ticks between transformation processing", ref reanimationProcessIntervalTicks, 60, GenDate.TicksPerDay, "reanimationProcessIntervalTicks", "How often queued corpse transformations are processed.");
-            DrawInt(listing, "Max transformations processed per tick", ref maxPendingReanimationsPerTick, 1, 500, "maxPendingReanimationsPerTick", "Limits burst work when many infected corpses are waiting to transform.");
+            DrawSectionHeader(listing, "MarkedMen_Settings_Performance".Translate(), "MarkedMen_Settings_PerformanceDesc".Translate());
+            DrawInt(listing, "MarkedMen_Settings_contagionPulseIntervalTicks".Translate(), ref contagionPulseIntervalTicks, 60, GenDate.TicksPerDay, "contagionPulseIntervalTicks", "MarkedMen_Settings_contagionPulseIntervalTicksDesc".Translate());
+            DrawInt(listing, "MarkedMen_Settings_maxContagionTargetsPerPulse".Translate(), ref maxContagionTargetsPerPulse, 0, 50, "maxContagionTargetsPerPulse", "MarkedMen_Settings_maxContagionTargetsPerPulseDesc".Translate());
+            DrawInt(listing, "MarkedMen_Settings_corpseContaminationIntervalTicks".Translate(), ref corpseContaminationIntervalTicks, 60, GenDate.TicksPerDay, "corpseContaminationIntervalTicks", "MarkedMen_Settings_corpseContaminationIntervalTicksDesc".Translate());
+            DrawInt(listing, "MarkedMen_Settings_maxCorpsesPerPulse".Translate(), ref maxCorpsesPerPulse, 0, 50, "maxCorpsesPerPulse", "MarkedMen_Settings_maxCorpsesPerPulseDesc".Translate());
+            DrawInt(listing, "MarkedMen_Settings_tacticalRetargetIntervalTicks".Translate(), ref tacticalRetargetIntervalTicks, 1, 2500, "tacticalRetargetIntervalTicks", "MarkedMen_Settings_tacticalRetargetIntervalTicksDesc".Translate());
+            DrawInt(listing, "MarkedMen_Settings_infightingCheckIntervalTicks".Translate(), ref infightingCheckIntervalTicks, 60, GenDate.TicksPerDay, "infightingCheckIntervalTicks", "MarkedMen_Settings_infightingCheckIntervalTicksDesc".Translate());
+            DrawInt(listing, "MarkedMen_Settings_lordCleanupIntervalTicks".Translate(), ref lordCleanupIntervalTicks, 60, GenDate.TicksPerDay, "lordCleanupIntervalTicks", "MarkedMen_Settings_lordCleanupIntervalTicksDesc".Translate());
+            DrawInt(listing, "MarkedMen_Settings_infectedStateMaintenanceIntervalTicks".Translate(), ref infectedStateMaintenanceIntervalTicks, 60, GenDate.TicksPerDay, "infectedStateMaintenanceIntervalTicks", "MarkedMen_Settings_infectedStateMaintenanceIntervalTicksDesc".Translate());
+            DrawInt(listing, "MarkedMen_Settings_reanimationProcessIntervalTicks".Translate(), ref reanimationProcessIntervalTicks, 60, GenDate.TicksPerDay, "reanimationProcessIntervalTicks", "MarkedMen_Settings_reanimationProcessIntervalTicksDesc".Translate());
+            DrawInt(listing, "MarkedMen_Settings_maxPendingReanimationsPerTick".Translate(), ref maxPendingReanimationsPerTick, 1, 500, "maxPendingReanimationsPerTick", "MarkedMen_Settings_maxPendingReanimationsPerTickDesc".Translate());
 
-            DrawSectionHeader(listing, "Ancient Urban Ruins Outbreak", "Controls Marked Virus outbreaks in Ancient Urban Ruins cities. Only applies when the Ancient Urban Ruins mod is active.");
-            DrawCheckbox(listing, "Enable urban outbreaks", ref urbanOutbreaksEnabled, "Toggles whether Ancient Urban Ruins maps become active outbreak zones with infected Marked Men roaming the ruins.");
-            DrawFloat(listing, "Urban infection density", ref urbanInfectionDensity, 0f, 5f, "urbanInfectionDensity", "Controls how many buildings become infected and how many Marked Men spawn per building. Higher values mean denser urban populations.");
-            DrawFloat(listing, "Urban ambush frequency", ref urbanAmbushFrequency, 0f, 5f, "urbanAmbushFrequency", "How often Marked Men ambushes occur inside the ruins. Higher values mean more frequent attacks.");
-            DrawCheckbox(listing, "Enable dormant infestations", ref dormantInfestationsEnabled, "When enabled, some infected buildings start dormant. They burst open with Marked Men when colonists approach.");
-            DrawFloat(listing, "Dormant infestation frequency", ref dormantInfestationFrequency, 0f, 5f, "dormantInfestationFrequency", "How many buildings start with dormant infestations waiting to ambush approaching colonists.");
-            DrawCheckbox(listing, "Enable city epicenters", ref cityEpicentersEnabled, "When enabled, some urban ruin maps become high-density epicenters with stronger, more frequent spawns and a world-object reinforcement comp.");
-            DrawFloat(listing, "Epicenter spawn chance", ref epicenterSpawnChance, 0f, 1f, "epicenterSpawnChance", "Chance that a given urban ruins map becomes an epicenter with doubled initial population and periodic reinforcements.");
-            DrawCheckbox(listing, "Enable urban ambush incidents", ref urbanAmbushesEnabled, "Allows incident-driven ambush events on Ancient Urban Ruins maps in addition to map-component ambushes.");
-            DrawCheckbox(listing, "Enable survivor encounters", ref survivorEncountersEnabled, "When enabled, survivor encounters in the ruins may be genuine survivors, hidden infected, or traps leading to infestations.");
-            DrawFloat(listing, "Survivor encounter chance modifier", ref survivorEncounterChance, 0f, 1f, "survivorEncounterChance", "Multiplier for survivor encounter incident frequency in urban ruins. Higher values mean more survivor events.");
+            DrawSectionHeader(listing, "MarkedMen_Settings_UrbanOutbreak".Translate(), "MarkedMen_Settings_UrbanOutbreakDesc".Translate());
+            DrawCheckbox(listing, "MarkedMen_Settings_UrbanOutbreaks".Translate(), ref urbanOutbreaksEnabled, "MarkedMen_Settings_UrbanOutbreaksDesc".Translate());
+            DrawFloat(listing, "MarkedMen_Settings_urbanInfectionDensity".Translate(), ref urbanInfectionDensity, 0f, 5f, "urbanInfectionDensity", "MarkedMen_Settings_urbanInfectionDensityDesc".Translate());
+            DrawFloat(listing, "MarkedMen_Settings_urbanAmbushFrequency".Translate(), ref urbanAmbushFrequency, 0f, 5f, "urbanAmbushFrequency", "MarkedMen_Settings_urbanAmbushFrequencyDesc".Translate());
+            DrawCheckbox(listing, "MarkedMen_Settings_DormantInfestations".Translate(), ref dormantInfestationsEnabled, "MarkedMen_Settings_DormantInfestationsDesc".Translate());
+            DrawFloat(listing, "MarkedMen_Settings_dormantInfestationFrequency".Translate(), ref dormantInfestationFrequency, 0f, 5f, "dormantInfestationFrequency", "MarkedMen_Settings_dormantInfestationFrequencyDesc".Translate());
+            DrawCheckbox(listing, "MarkedMen_Settings_CityEpicenters".Translate(), ref cityEpicentersEnabled, "MarkedMen_Settings_CityEpicentersDesc".Translate());
+            DrawFloat(listing, "MarkedMen_Settings_epicenterSpawnChance".Translate(), ref epicenterSpawnChance, 0f, 1f, "epicenterSpawnChance", "MarkedMen_Settings_epicenterSpawnChanceDesc".Translate());
+            DrawCheckbox(listing, "MarkedMen_Settings_UrbanAmbushes".Translate(), ref urbanAmbushesEnabled, "MarkedMen_Settings_UrbanAmbushesDesc".Translate());
+            DrawCheckbox(listing, "MarkedMen_Settings_SurvivorEncounters".Translate(), ref survivorEncountersEnabled, "MarkedMen_Settings_SurvivorEncountersDesc".Translate());
+            DrawFloat(listing, "MarkedMen_Settings_survivorEncounterChance".Translate(), ref survivorEncounterChance, 0f, 1f, "survivorEncounterChance", "MarkedMen_Settings_survivorEncounterChanceDesc".Translate());
 
-            DrawSectionHeader(listing, "AUR Spawn Protection", "Controls enemy spawn positions on Ancient Urban Ruins maps. Prevents enemies from appearing too close to colonists by redirecting their spawn positions to map edges or a minimum distance away.");
-            DrawCheckbox(listing, "Enable spawn distance protection", ref aurSpawnPatchEnabled, "When enabled, enemies spawning on Ancient Urban Ruins maps are placed at a safer minimum distance from colonists, animals, and mechs. Only applies when Ancient Urban Ruins is loaded.");
-            DrawFloat(listing, "Minimum spawn distance", ref aurMinimumSpawnDistance, 10f, 100f, "aurMinimumSpawnDistance", "Minimum distance in cells that enemies must be kept from any colonist, animal, or mech. Higher values give more reaction time but may reduce valid spawn positions.");
-            DrawCheckbox(listing, "Prefer map edge spawning", ref aurPreferEdgeSpawn, "When enabled, the patch tries to spawn enemies from map edges first. Falls back to distance-based placement if all edge cells are blocked by ruins or mountains.");
-            DrawCheckbox(listing, "Debug logging for spawn protection", ref aurSpawnPatchDebugLogging, "Writes detailed spawn protection debug messages to the RimWorld log. Useful for troubleshooting spawn placement issues.");
+            DrawSectionHeader(listing, "MarkedMen_Settings_AURSpawnProtection".Translate(), "MarkedMen_Settings_AURSpawnProtectionDesc".Translate());
+            DrawCheckbox(listing, "MarkedMen_Settings_SpawnProtection".Translate(), ref aurSpawnPatchEnabled, "MarkedMen_Settings_SpawnProtectionDesc".Translate());
+            DrawFloat(listing, "MarkedMen_Settings_aurMinimumSpawnDistance".Translate(), ref aurMinimumSpawnDistance, 10f, 100f, "aurMinimumSpawnDistance", "MarkedMen_Settings_aurMinimumSpawnDistanceDesc".Translate());
+            DrawCheckbox(listing, "MarkedMen_Settings_PreferEdgeSpawn".Translate(), ref aurPreferEdgeSpawn, "MarkedMen_Settings_PreferEdgeSpawnDesc".Translate());
+            DrawCheckbox(listing, "MarkedMen_Settings_SpawnDebugLogging".Translate(), ref aurSpawnPatchDebugLogging, "MarkedMen_Settings_SpawnDebugLoggingDesc".Translate());
 
-            DrawSectionHeader(listing, "Lost Survivors", "Controls the Lost Survivor incident. A seemingly normal colonist joins but carries a dormant Marked Virus infection that may activate days or weeks later with unpredictable consequences.");
-            DrawCheckbox(listing, "Enable Lost Survivor incidents", ref lostSurvivorEnabled, "When enabled, the storyteller can send a lost survivor carrying a dormant Marked Virus infection. The survivor appears normal until the dormant mark activates.");
-            DrawFloat(listing, "Lost Survivor frequency", ref lostSurvivorFrequencyMultiplier, 0f, 5f, "lostSurvivorFrequencyMultiplier", "Multiplier for how often Lost Survivor incidents occur. Set to 0 to disable.");
-            DrawFloat(listing, "Min dormant days", ref dormantMarkMinDays, 1f, 60f, "dormantMarkMinDays", "Minimum in-game days before the dormant mark can activate.");
-            DrawFloat(listing, "Max dormant days", ref dormantMarkMaxDays, 1f, 120f, "dormantMarkMaxDays", "Maximum in-game days before the dormant mark will activate.");
-            DrawFloat(listing, "Trigger sensitivity", ref dormantMarkTriggerMultiplier, 0f, 5f, "dormantMarkTriggerMultiplier", "Multiplier for trigger chances (combat damage, near-death, witnessing other transformations, Crossed signal proximity). Higher values make activation more likely.");
-            DrawFloat(listing, "Alpha variant chance", ref dormantMarkAlphaChance, 0f, 1f, "dormantMarkAlphaChance", "Chance that the transformed survivor is an Alpha variant (spawns escorting Crossed on activation). Doubled for prisoner survivors.");
-            DrawFloat(listing, "Group variant chance", ref dormantMarkGroupVariantChance, 0f, 1f, "dormantMarkGroupVariantChance", "Chance that multiple dormant carriers activate simultaneously. Set to 0 to disable group activations.");
+            DrawSectionHeader(listing, "MarkedMen_Settings_LostSurvivors".Translate(), "MarkedMen_Settings_LostSurvivorsDesc".Translate());
+            DrawCheckbox(listing, "MarkedMen_Settings_LostSurvivorIncidents".Translate(), ref lostSurvivorEnabled, "MarkedMen_Settings_LostSurvivorIncidentsDesc".Translate());
+            DrawFloat(listing, "MarkedMen_Settings_lostSurvivorFrequencyMultiplier".Translate(), ref lostSurvivorFrequencyMultiplier, 0f, 5f, "lostSurvivorFrequencyMultiplier", "MarkedMen_Settings_lostSurvivorFrequencyMultiplierDesc".Translate());
+            DrawFloat(listing, "MarkedMen_Settings_dormantMarkMinDays".Translate(), ref dormantMarkMinDays, 1f, 60f, "dormantMarkMinDays", "MarkedMen_Settings_dormantMarkMinDaysDesc".Translate());
+            DrawFloat(listing, "MarkedMen_Settings_dormantMarkMaxDays".Translate(), ref dormantMarkMaxDays, 1f, 120f, "dormantMarkMaxDays", "MarkedMen_Settings_dormantMarkMaxDaysDesc".Translate());
+            DrawFloat(listing, "MarkedMen_Settings_dormantMarkTriggerMultiplier".Translate(), ref dormantMarkTriggerMultiplier, 0f, 5f, "dormantMarkTriggerMultiplier", "MarkedMen_Settings_dormantMarkTriggerMultiplierDesc".Translate());
+            DrawFloat(listing, "MarkedMen_Settings_dormantMarkAlphaChance".Translate(), ref dormantMarkAlphaChance, 0f, 1f, "dormantMarkAlphaChance", "MarkedMen_Settings_dormantMarkAlphaChanceDesc".Translate());
+            DrawFloat(listing, "MarkedMen_Settings_dormantMarkGroupVariantChance".Translate(), ref dormantMarkGroupVariantChance, 0f, 1f, "dormantMarkGroupVariantChance", "MarkedMen_Settings_dormantMarkGroupVariantChanceDesc".Translate());
 
-            DrawSectionHeader(listing, "Marked Prisoners", "Controls how the Marked Virus behaves in captured prisoners. Marked prisoners cannot be recruited, will attack wardens, harm themselves over time, and escape aggressively.");
-            DrawCheckbox(listing, "Enable prisoner infection system", ref prisonerInfectionEnabled, "When enabled, Marked prisoners are unrecruitable, attack wardens during interaction, progress through self-harm stages, and escape with aggression.");
-            DrawCheckbox(listing, "Enable bed restraint system", ref prisonerRestraintEnabled, "When enabled, beds with assigned Marked prisoners gain a gizmo to restrain them with heavy chains. Restrained prisoners cannot attack, self-harm, or escape.");
-            DrawFloat(listing, "Infection chance per warden interaction", ref prisonerInfectionChance, 0f, 1f, "prisonerInfectionChance", "Chance per warden interaction that a Marked prisoner attacks and tries to infect the warden.");
-            DrawCheckbox(listing, "Enable self-harm behavior", ref prisonerSelfHarmEnabled, "When enabled, Marked prisoners progressively harm themselves over time, culminating in suicide.");
-            DrawFloat(listing, "Days before self-harm stage progression", ref prisonerSelfHarmStageDays, 1f, 60f, "prisonerSelfHarmStageDays", "How many in-game days between self-harm stages. Each stage inflicts worse damage.");
-            DrawFloat(listing, "Days before suicide", ref prisonerSelfHarmSuicideDays, 1f, 90f, "prisonerSelfHarmSuicideDays", "How many in-game days before a Marked prisoner attempts suicide with severe self-mutilation.");
-            DrawFloat(listing, "Escape aggression multiplier", ref prisonerEscapeAggressionMultiplier, 0f, 5f, "prisonerEscapeAggressionMultiplier", "How aggressively Marked prisoners attack during prison breaks. Higher values mean they target more distant priority targets.");
-            DrawCheckbox(listing, "Enable cosmetic behaviors", ref prisonerCosmeticEnabled, "When enabled, Marked prisoners pace, growl, scream, and pound walls. Visual only, no mechanical effects.");
-            DrawFloat(listing, "Daily escape chance", ref prisonerEscapeChance, 0f, 1f, "prisonerEscapeChance", "Base chance per day that a Marked prisoner independently attempts to break out. They attack and try to infect anyone nearby during the escape.");
-            DrawCheckbox(listing, "Debug logging for prisoner system", ref prisonerDebugLogging, "Writes prisoner infection system debug messages to the RimWorld log.");
+            DrawSectionHeader(listing, "MarkedMen_Settings_MarkedPrisoners".Translate(), "MarkedMen_Settings_MarkedPrisonersDesc".Translate());
+            DrawCheckbox(listing, "MarkedMen_Settings_PrisonerInfection".Translate(), ref prisonerInfectionEnabled, "MarkedMen_Settings_PrisonerInfectionDesc".Translate());
+            DrawCheckbox(listing, "MarkedMen_Settings_PrisonerRestraint".Translate(), ref prisonerRestraintEnabled, "MarkedMen_Settings_PrisonerRestraintDesc".Translate());
+            DrawFloat(listing, "MarkedMen_Settings_prisonerInfectionChance".Translate(), ref prisonerInfectionChance, 0f, 1f, "prisonerInfectionChance", "MarkedMen_Settings_prisonerInfectionChanceDesc".Translate());
+            DrawCheckbox(listing, "MarkedMen_Settings_PrisonerSelfHarm".Translate(), ref prisonerSelfHarmEnabled, "MarkedMen_Settings_PrisonerSelfHarmDesc".Translate());
+            DrawFloat(listing, "MarkedMen_Settings_prisonerSelfHarmStageDays".Translate(), ref prisonerSelfHarmStageDays, 1f, 60f, "prisonerSelfHarmStageDays", "MarkedMen_Settings_prisonerSelfHarmStageDaysDesc".Translate());
+            DrawFloat(listing, "MarkedMen_Settings_prisonerSelfHarmSuicideDays".Translate(), ref prisonerSelfHarmSuicideDays, 1f, 90f, "prisonerSelfHarmSuicideDays", "MarkedMen_Settings_prisonerSelfHarmSuicideDaysDesc".Translate());
+            DrawFloat(listing, "MarkedMen_Settings_prisonerEscapeAggressionMultiplier".Translate(), ref prisonerEscapeAggressionMultiplier, 0f, 5f, "prisonerEscapeAggressionMultiplier", "MarkedMen_Settings_prisonerEscapeAggressionMultiplierDesc".Translate());
+            DrawCheckbox(listing, "MarkedMen_Settings_PrisonerCosmetic".Translate(), ref prisonerCosmeticEnabled, "MarkedMen_Settings_PrisonerCosmeticDesc".Translate());
+            DrawFloat(listing, "MarkedMen_Settings_prisonerEscapeChance".Translate(), ref prisonerEscapeChance, 0f, 1f, "prisonerEscapeChance", "MarkedMen_Settings_prisonerEscapeChanceDesc".Translate());
+            DrawCheckbox(listing, "MarkedMen_Settings_PrisonerDebugLogging".Translate(), ref prisonerDebugLogging, "MarkedMen_Settings_PrisonerDebugLoggingDesc".Translate());
 
-            DrawSectionHeader(listing, "Optional RimJobWorld Bridge", "Only applies when RimJobWorld is installed. The bridge adds no hard dependency.");
-            DrawHelp(listing, "RimJobWorld detected right now: " + (TheMarkedMenRjwCompatibility.IsRjwLoaded() ? "yes" : "no") + ".");
-            DrawCheckbox(listing, "Auto-enable the RimJobWorld bridge when detected", ref rjwAutoEnableWhenInstalled, "Automatically turns on the bridge after RimJobWorld is found in the active mod list.");
-            DrawCheckbox(listing, "Enable RimJobWorld Marked Virus bridge", ref rjwIntegrationEnabled, "Allows adult RJW close-contact events to transmit Marked Virus and lets valid infected adults use RJW enemy assault jobs.");
-            DrawFloat(listing, "RimJobWorld exposure chance", ref rjwExposureChance, 0f, 1f, "rjwExposureChance", "Chance that a valid RJW close-contact event involving one infected pawn exposes the other pawn.");
+            DrawSectionHeader(listing, "MarkedMen_Settings_RJW_Bridge".Translate(), "MarkedMen_Settings_RJW_BridgeDesc".Translate());
+            DrawHelp(listing, "MarkedMen_Settings_RJW_Detected".Translate(TheMarkedMenRjwCompatibility.IsRjwLoaded() ? "MarkedMen_Settings_Yes".Translate() : "MarkedMen_Settings_No".Translate()));
+            DrawCheckbox(listing, "MarkedMen_Settings_RJW_AutoEnable".Translate(), ref rjwAutoEnableWhenInstalled, "MarkedMen_Settings_RJW_AutoEnableDesc".Translate());
+            DrawCheckbox(listing, "MarkedMen_Settings_RJW_Enable".Translate(), ref rjwIntegrationEnabled, "MarkedMen_Settings_RJW_EnableDesc".Translate());
+            DrawFloat(listing, "MarkedMen_Settings_rjwExposureChance".Translate(), ref rjwExposureChance, 0f, 1f, "rjwExposureChance", "MarkedMen_Settings_rjwExposureChanceDesc".Translate());
         }
 
         public static float ApplyRaidPointSettings(float points)
@@ -921,24 +930,24 @@ namespace TheMarkedMen
         {
             GameFont oldFont = Text.Font;
             Text.Font = GameFont.Medium;
-            listing.Label("The Marked Men Settings");
+            listing.Label("MarkedMen_Settings_Title".Translate());
             Text.Font = oldFont;
-            DrawHelp(listing, "Use presets for a quick difficulty pass, or tune each section directly. Editing any field changes the active preset to Custom.");
+            DrawHelp(listing, "MarkedMen_Settings_Intro".Translate());
         }
 
         private void DrawPresetControls(Listing_Standard listing)
         {
             listing.Gap(6f);
-            listing.Label("Active preset: " + PresetLabel());
-            DrawHelp(listing, "Presets rewrite the schedule, enemy mix, virus behavior, AI pressure, story UI, and performance settings at once.");
+            listing.Label("MarkedMen_Settings_ActivePreset".Translate(TranslatedPresetLabel(PresetLabel())));
+            DrawHelp(listing, "MarkedMen_Settings_PresetHelp".Translate());
 
             Rect row = listing.GetRect(PresetButtonHeight, 1f);
             float buttonWidth = (row.width - (PresetButtonGap * 4f)) / 5f;
-            DrawPresetButton(new Rect(row.x, row.y, buttonWidth, row.height), CasualPresetName, "Slower raids, lower exposure risk, smaller hordes, and more immune survivors.", ApplyCasualPreset);
-            DrawPresetButton(new Rect(row.x + (buttonWidth + PresetButtonGap), row.y, buttonWidth, row.height), VanillaLikePresetName, "Keeps the faction dangerous while staying closer to ordinary RimWorld pacing.", ApplyVanillaLikePreset);
-            DrawPresetButton(new Rect(row.x + ((buttonWidth + PresetButtonGap) * 2f), row.y, buttonWidth, row.height), DefaultPresetName, "Restores the intended baseline tuning for the mod.", () => ApplyDefaultPreset(true));
-            DrawPresetButton(new Rect(row.x + ((buttonWidth + PresetButtonGap) * 3f), row.y, buttonWidth, row.height), BrutalPresetName, "Faster, harder, less forgiving raids with stronger infection pressure.", ApplyBrutalPreset);
-            DrawPresetButton(new Rect(row.x + ((buttonWidth + PresetButtonGap) * 4f), row.y, buttonWidth, row.height), "Outbreak", "Large outbreak pressure with faster spread, larger hordes, and faster corpse cycling.", ApplyOutbreakPreset);
+            DrawPresetButton(new Rect(row.x, row.y, buttonWidth, row.height), "MarkedMen_Settings_Preset_VeryEasy".Translate(), "MarkedMen_Settings_Preset_VeryEasyTip".Translate(), ApplyCasualPreset);
+            DrawPresetButton(new Rect(row.x + (buttonWidth + PresetButtonGap), row.y, buttonWidth, row.height), "MarkedMen_Settings_Preset_Easy".Translate(), "MarkedMen_Settings_Preset_EasyTip".Translate(), ApplyVanillaLikePreset);
+            DrawPresetButton(new Rect(row.x + ((buttonWidth + PresetButtonGap) * 2f), row.y, buttonWidth, row.height), "MarkedMen_Settings_Preset_Normal".Translate(), "MarkedMen_Settings_Preset_NormalTip".Translate(), () => ApplyDefaultPreset(true));
+            DrawPresetButton(new Rect(row.x + ((buttonWidth + PresetButtonGap) * 3f), row.y, buttonWidth, row.height), "MarkedMen_Settings_Preset_Hard".Translate(), "MarkedMen_Settings_Preset_HardTip".Translate(), ApplyBrutalPreset);
+            DrawPresetButton(new Rect(row.x + ((buttonWidth + PresetButtonGap) * 4f), row.y, buttonWidth, row.height), "MarkedMen_Settings_Preset_VeryHard".Translate(), "MarkedMen_Settings_Preset_VeryHardTip".Translate(), ApplyOutbreakPreset);
             listing.Gap(6f);
         }
 
@@ -1107,6 +1116,25 @@ namespace TheMarkedMen
         private string PresetLabel()
         {
             return string.IsNullOrEmpty(currentPreset) ? CustomPresetName : currentPreset;
+        }
+
+        private string TranslatedPresetLabel(string presetName)
+        {
+            switch (presetName)
+            {
+                case "Very Easy":
+                case "Casual": return "MarkedMen_Settings_Preset_VeryEasy".Translate();
+                case "Easy":
+                case "Vanilla-like": return "MarkedMen_Settings_Preset_Easy".Translate();
+                case "Normal":
+                case "Default": return "MarkedMen_Settings_Preset_Normal".Translate();
+                case "Hard":
+                case "Brutal": return "MarkedMen_Settings_Preset_Hard".Translate();
+                case "Very Hard":
+                case "Outbreak simulator":
+                case "Outbreak": return "MarkedMen_Settings_Preset_VeryHard".Translate();
+                default: return "MarkedMen_Settings_Preset_Custom".Translate();
+            }
         }
 
         private void NoteManualChange()

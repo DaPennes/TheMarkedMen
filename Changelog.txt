@@ -1,9 +1,0 @@
-=== Changelog ===
-
---- Added ---
-- New mod option to allow ranged weapons to spread the infection (off by default)
-
---- Fixed ---
-- The restrain/release buttons on prisoner beds no longer show weird text or random icons
-- Translation keys were showing up as text instead of proper labels (like "CA_RestrainPrisoner" instead of "Restrain prisoner")
-- Cleaned up wording: changed "corpse reanimation" to "corpse transformation" everywhere

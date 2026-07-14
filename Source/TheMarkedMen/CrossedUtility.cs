@@ -262,6 +262,26 @@ namespace TheMarkedMen
 			return pawn?.health?.hediffSet != null && immunity != null && pawn.health.hediffSet.HasHediff(immunity);
 		}
 
+		public static bool IsValidInfectionTargetByFaction(Pawn pawn, TheMarkedMenSettings settings)
+		{
+			if (pawn.IsPrisoner)
+			{
+				return true;
+			}
+
+			if (pawn.IsColonist)
+			{
+				return settings.colonistsCanBeInfected;
+			}
+
+			if (pawn.Faction != null && pawn.Faction.HostileTo(Faction.OfPlayer))
+			{
+				return settings.enemiesCanBeInfected;
+			}
+
+			return settings.alliesCanBeInfected;
+		}
+
 		public static bool IsFullyProtectedFromCrossVirusExposure(Pawn pawn)
 		{
 			return HasMarkedVillageFounderImmunity(pawn)
@@ -470,6 +490,11 @@ namespace TheMarkedMen
 
 			HediffDef virus = CADefOf.CrossVirus;
 			if (pawn == null || virus == null || pawn.Dead || pawn.RaceProps == null || !pawn.RaceProps.Humanlike || IsCrossedPawn(pawn))
+			{
+				return false;
+			}
+
+			if (settings != null && !IsValidInfectionTargetByFaction(pawn, settings))
 			{
 				return false;
 			}
