@@ -127,28 +127,26 @@ namespace TheMarkedMen
             {
                 gizmos.Add(new Command_Action
                 {
-                    defaultLabel = "CA_RestrainPrisoner".Translate(),
-                    defaultDesc = "CA_RestrainPrisonerDesc".Translate(),
-                    icon = ContentFinder<Texture2D>.Get("UI/Commands/Restrain", false) ?? TexCommand.DesirePower,
+                    defaultLabel = "Restrain prisoner",
+                    defaultDesc = "Restrain this Marked prisoner with heavy chains. Restrained prisoners cannot attack, self-harm, or escape, but the virus continues to progress.",
+                    icon = ContentFinder<Texture2D>.Get("UI/Commands/Restrain", false),
                     action = delegate
                     {
                         ToggleRestrain(pawn, true, bed);
-                    },
-                    hotKey = KeyBindingDefOf.Misc4
+                    }
                 });
             }
             else
             {
                 gizmos.Add(new Command_Action
                 {
-                    defaultLabel = "CA_ReleasePrisoner".Translate(),
-                    defaultDesc = "CA_ReleasePrisonerDesc".Translate(),
-                    icon = ContentFinder<Texture2D>.Get("UI/Commands/Release", false) ?? TexCommand.DesirePower,
+                    defaultLabel = "Release prisoner",
+                    defaultDesc = "Remove the restraints from this prisoner. They will resume attacking wardens, self-harming, and attempting escape.",
+                    icon = ContentFinder<Texture2D>.Get("UI/Commands/Release", false),
                     action = delegate
                     {
                         ToggleRestrain(pawn, false, bed);
-                    },
-                    hotKey = KeyBindingDefOf.Misc4
+                    }
                 });
             }
 

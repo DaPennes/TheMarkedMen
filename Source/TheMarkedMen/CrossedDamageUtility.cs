@@ -17,7 +17,7 @@ namespace TheMarkedMen
             {
                 if (dinfo.Def.isRanged)
                 {
-                    return false;
+                    return TheMarkedMenMod.Settings?.rangedTransmissionEnabled == true;
                 }
 
                 if (dinfo.Def.isExplosive)
@@ -28,7 +28,7 @@ namespace TheMarkedMen
 
             if (dinfo.Weapon != null && dinfo.Weapon.IsRangedWeapon)
             {
-                return false;
+                return TheMarkedMenMod.Settings?.rangedTransmissionEnabled == true;
             }
 
             return true;
@@ -42,9 +42,21 @@ namespace TheMarkedMen
                 return TheMarkedMenSettings.InfectionTransmissionChance;
             }
 
-            if (!settings.meleeTransmissionEnabled)
+            bool isRanged = (dinfo.Def != null && dinfo.Def.isRanged) || (dinfo.Weapon != null && dinfo.Weapon.IsRangedWeapon);
+
+            if (isRanged)
             {
-                return 0f;
+                if (!settings.rangedTransmissionEnabled)
+                {
+                    return 0f;
+                }
+            }
+            else
+            {
+                if (!settings.meleeTransmissionEnabled)
+                {
+                    return 0f;
+                }
             }
 
             if (dinfo.Instigator is Pawn instigator && CrossedUtility.IsInfectedPawn(instigator))
@@ -58,6 +70,11 @@ namespace TheMarkedMen
                 {
                     return Mathf.Clamp01(settings.markedMenInfectionChance);
                 }
+            }
+
+            if (isRanged)
+            {
+                return Mathf.Clamp01(settings.rangedInfectionChance);
             }
 
             if (dinfo.Weapon == null)

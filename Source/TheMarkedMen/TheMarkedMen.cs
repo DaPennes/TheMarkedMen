@@ -137,6 +137,8 @@ namespace TheMarkedMen
         public float meleeWeaponInfectionChance = InfectionTransmissionChance;
         public float markedMenInfectionChance = 1f;
         public bool markedMenGuaranteedInfection = true;
+        public bool rangedTransmissionEnabled;
+        public float rangedInfectionChance = InfectionTransmissionChance;
 
         public float infectionProgressionSpeedMultiplier = 1f;
         public float incubationDurationMultiplier = 1f;
@@ -298,6 +300,10 @@ namespace TheMarkedMen
 
         public static bool MarkedCanTimeoutOrFlee => false;
 
+        public static bool RangedTransmissionEnabled => TheMarkedMenMod.Settings?.rangedTransmissionEnabled == true;
+
+        public static float RangedInfectionChance => Mathf.Clamp01(TheMarkedMenMod.Settings?.rangedInfectionChance ?? InfectionTransmissionChance);
+
         public static bool WarcasketsBlockExposure => TheMarkedMenMod.Settings?.warcasketsBlockExposure != false;
         public static bool VacsuitBlockExposure => TheMarkedMenMod.Settings?.vacsuitBlockExposure != false;
         public static bool GasMasksBlockExposure => TheMarkedMenMod.Settings?.gasMasksBlockExposure != false;
@@ -394,6 +400,8 @@ namespace TheMarkedMen
             Scribe_Values.Look(ref meleeWeaponInfectionChance, "meleeWeaponInfectionChance", InfectionTransmissionChance);
             Scribe_Values.Look(ref markedMenInfectionChance, "markedMenInfectionChance", 1f);
             Scribe_Values.Look(ref markedMenGuaranteedInfection, "markedMenGuaranteedInfection", true);
+            Scribe_Values.Look(ref rangedTransmissionEnabled, "rangedTransmissionEnabled", false);
+            Scribe_Values.Look(ref rangedInfectionChance, "rangedInfectionChance", InfectionTransmissionChance);
             Scribe_Values.Look(ref infectionProgressionSpeedMultiplier, "infectionProgressionSpeedMultiplier", 1f);
             Scribe_Values.Look(ref incubationDurationMultiplier, "incubationDurationMultiplier", 1f);
             Scribe_Values.Look(ref immunitySurvivalChance, "immunitySurvivalChance", DefaultImmunitySurvivalChance);
@@ -686,7 +694,7 @@ namespace TheMarkedMen
             DrawInt(listing, "Maximum scouting probe size", ref maximumProbeSize, 1, 30, "maximumProbeSize", "Largest scouting pack size after threat scaling and variance.");
             DrawInt(listing, "Maximum alphas per raid", ref maximumAlphasPerRaid, 0, 99, "maximumAlphasPerRaid", "Hard cap for alpha infected in generated raids. Set to 0 to prevent alphas from spawning.");
 
-            DrawSectionHeader(listing, "Virus And Corpses", "Controls exposure chances, infection timing, terminal outcomes, and infected corpse reanimation.");
+            DrawSectionHeader(listing, "Virus And Corpses", "Controls exposure chances, infection timing, terminal outcomes, and infected corpse transformation.");
             DrawFloat(listing, "Blood exposure chance", ref bloodExposureChance, 0f, 1f, "bloodExposureChance", "Chance that infected blood exposure creates a Marked Virus exposure event.");
             DrawFloat(listing, "Contaminated food exposure chance", ref foodExposureChance, 0f, 1f, "foodExposureChance", "Chance that eating contaminated food creates a Marked Virus exposure event.");
             DrawFloat(listing, "Infected melee contact chance", ref infectedAssaultExposureChance, 0f, 1f, "infectedAssaultExposureChance", "Chance that direct infected assault contact creates a Marked Virus exposure event.");
@@ -698,11 +706,11 @@ namespace TheMarkedMen
             DrawFloat(listing, "Terminal transformation weight", ref terminalTransformationWeight, 0f, 10f, "terminalTransformationWeight", "Relative weight for becoming one of the Marked Men when immunity does not save the pawn.");
             DrawFloat(listing, "Terminal death weight", ref terminalDeathWeight, 0f, 10f, "terminalDeathWeight", "Relative weight for dying from viral collapse when immunity does not save the pawn.");
             DrawHelp(listing, "Current terminal outcome after the immunity roll: " + PercentText(CurrentTerminalTransformationChance(null)) + " transform, " + PercentText(1f - CurrentTerminalTransformationChance(null)) + " die.");
-            DrawFloat(listing, "Corpse reanimation chance", ref reanimationChance, 0f, 1f, "reanimationChance", "Chance that a valid infected corpse queues for reanimation after death.");
-            DrawInt(listing, "Corpse reanimation delay ticks", ref reanimationDelayTicks, 60, GenDate.TicksPerDay * 30, "reanimationDelayTicks", "Delay before queued infected corpses can reanimate. 60,000 ticks equals one in-game day.");
+            DrawFloat(listing, "Corpse transformation chance", ref reanimationChance, 0f, 1f, "reanimationChance", "Chance that a valid infected corpse transforms after death. No corpse remains.");
+            DrawInt(listing, "Transformation delay (ticks)", ref reanimationDelayTicks, 60, GenDate.TicksPerDay * 30, "reanimationDelayTicks", "Delay before queued infected corpses can transform. 60,000 ticks equals one in-game day.");
             DrawFloat(listing, "Founder-lineage breakthrough chance", ref starterLineageBreakthroughChance, 0f, 1f, "starterLineageBreakthroughChance", "Chance that special starter-lineage resistance fails after direct exposure.");
 
-            DrawSectionHeader(listing, "Infection Transmission", "Controls how the Marked Virus spreads through melee combat. Ranged attacks, projectiles, explosions, and turrets never transmit infection.");
+            DrawSectionHeader(listing, "Infection Transmission", "Controls how the Marked Virus spreads through combat. Ranged transmission is disabled by default and can be enabled below. Explosions and turrets never transmit infection.");
             DrawCheckbox(listing, "Enable melee transmission", ref meleeTransmissionEnabled, "Master toggle for all melee-based infection transmission. When disabled, no melee attack can spread the Marked Virus.");
             DrawCheckbox(listing, "Bite attacks transmit", ref biteTransmissionEnabled, "When enabled, bite attacks from infected pawns can transmit the virus.");
             DrawFloat(listing, "Bite infection chance", ref biteInfectionChance, 0f, 1f, "biteInfectionChance", "Chance that a bite attack from an infected pawn transmits the Marked Virus.");
@@ -716,6 +724,8 @@ namespace TheMarkedMen
             DrawFloat(listing, "Melee weapon infection chance", ref meleeWeaponInfectionChance, 0f, 1f, "meleeWeaponInfectionChance", "Chance that a melee weapon attack from an infected pawn transmits the Marked Virus.");
             DrawCheckbox(listing, "Marked Men guaranteed infection", ref markedMenGuaranteedInfection, "When enabled, fully transformed Marked Men always infect on melee contact.");
             DrawFloat(listing, "Marked Men infection chance", ref markedMenInfectionChance, 0f, 1f, "markedMenInfectionChance", "Chance that a fully transformed Marked Man transmits the virus on melee contact. Used when guaranteed infection is disabled.");
+            DrawCheckbox(listing, "Enable ranged transmission", ref rangedTransmissionEnabled, "When enabled, ranged attacks from infected pawns can transmit the Marked Virus. Disabled by default.");
+            DrawFloat(listing, "Ranged infection chance", ref rangedInfectionChance, 0f, 1f, "rangedInfectionChance", "Chance that a ranged attack from an infected pawn transmits the Marked Virus.");
 
             DrawSectionHeader(listing, "Sealed Apparel Protection", "Toggling a category off removes full viral immunity for that apparel type, reverting to partial resistance instead.");
             DrawCheckbox(listing, "Warcaskets block exposure", ref warcasketsBlockExposure, "When enabled, any warcasket torso shell provides full immunity to direct Marked Virus exposure. Disable this if you want warcasket pawns to still face infection risk.");
@@ -756,8 +766,8 @@ namespace TheMarkedMen
             DrawInt(listing, "Ticks between infighting checks", ref infightingCheckIntervalTicks, 60, GenDate.TicksPerDay, "infightingCheckIntervalTicks", "How often infected pawns can roll for infighting behavior.");
             DrawInt(listing, "Ticks between lord cleanup checks", ref lordCleanupIntervalTicks, 60, GenDate.TicksPerDay, "lordCleanupIntervalTicks", "How often the mod cleans up invalid raid lord state.");
             DrawInt(listing, "Ticks between infected-state maintenance", ref infectedStateMaintenanceIntervalTicks, 60, GenDate.TicksPerDay, "infectedStateMaintenanceIntervalTicks", "How often infected pawns refresh state such as faction-specific visuals.");
-            DrawInt(listing, "Ticks between reanimation processing", ref reanimationProcessIntervalTicks, 60, GenDate.TicksPerDay, "reanimationProcessIntervalTicks", "How often queued corpse reanimations are processed.");
-            DrawInt(listing, "Max queued reanimations processed per tick", ref maxPendingReanimationsPerTick, 1, 500, "maxPendingReanimationsPerTick", "Limits burst work when many infected corpses are waiting to reanimate.");
+            DrawInt(listing, "Ticks between transformation processing", ref reanimationProcessIntervalTicks, 60, GenDate.TicksPerDay, "reanimationProcessIntervalTicks", "How often queued corpse transformations are processed.");
+            DrawInt(listing, "Max transformations processed per tick", ref maxPendingReanimationsPerTick, 1, 500, "maxPendingReanimationsPerTick", "Limits burst work when many infected corpses are waiting to transform.");
 
             DrawSectionHeader(listing, "Ancient Urban Ruins Outbreak", "Controls Marked Virus outbreaks in Ancient Urban Ruins cities. Only applies when the Ancient Urban Ruins mod is active.");
             DrawCheckbox(listing, "Enable urban outbreaks", ref urbanOutbreaksEnabled, "Toggles whether Ancient Urban Ruins maps become active outbreak zones with infected Marked Men roaming the ruins.");
@@ -1195,6 +1205,7 @@ namespace TheMarkedMen
             punchInfectionChance = Mathf.Clamp01(punchInfectionChance);
             meleeWeaponInfectionChance = Mathf.Clamp01(meleeWeaponInfectionChance);
             markedMenInfectionChance = Mathf.Clamp01(markedMenInfectionChance);
+            rangedInfectionChance = Mathf.Clamp01(rangedInfectionChance);
             infectionProgressionSpeedMultiplier = Mathf.Clamp(infectionProgressionSpeedMultiplier, 0.05f, 10f);
             incubationDurationMultiplier = Mathf.Clamp(incubationDurationMultiplier, 0.05f, 10f);
             immunitySurvivalChance = Mathf.Clamp01(immunitySurvivalChance);
@@ -2496,7 +2507,7 @@ namespace TheMarkedMen
             }
             catch (Exception ex)
             {
-                Log.Warning("[The Marked Men] Failed to reanimate infected corpse: " + ex.Message);
+                Log.Warning("[The Marked Men] Failed to transform infected corpse: " + ex.Message);
                 return false;
             }
         }

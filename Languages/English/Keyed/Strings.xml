@@ -32,7 +32,7 @@
   <MarkedMen_Settings_EnemyMix>Enemy Mix</MarkedMen_Settings_EnemyMix>
   <MarkedMen_Settings_EnemyMixDesc>Controls which infected pawn types appear. Weight 0 disables that type; weight 1 is normal; higher values make that type more common.</MarkedMen_Settings_EnemyMixDesc>
   <MarkedMen_Settings_VirusAndCorpses>Virus And Corpses</MarkedMen_Settings_VirusAndCorpses>
-  <MarkedMen_Settings_VirusAndCorpsesDesc>Controls exposure chances, infection timing, terminal outcomes, and infected corpse reanimation.</MarkedMen_Settings_VirusAndCorpsesDesc>
+  <MarkedMen_Settings_VirusAndCorpsesDesc>Controls exposure chances, infection timing, terminal outcomes, and infected corpse transformation.</MarkedMen_Settings_VirusAndCorpsesDesc>
 
   <MarkedMen_Settings_AIStorytelling>AI & Storytelling</MarkedMen_Settings_AIStorytelling>
   <MarkedMen_Settings_AIStorytellingDesc>Controls Marked Men pressure logic, strategic AI activation thresholds, storyteller integration, raid countdown warnings, and custom story events.</MarkedMen_Settings_AIStorytellingDesc>
