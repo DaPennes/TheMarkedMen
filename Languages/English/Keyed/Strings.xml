@@ -34,13 +34,13 @@
   <MarkedMen_Settings_VirusAndCorpses>Virus And Corpses</MarkedMen_Settings_VirusAndCorpses>
   <MarkedMen_Settings_VirusAndCorpsesDesc>Controls exposure chances, infection timing, terminal outcomes, and infected corpse transformation.</MarkedMen_Settings_VirusAndCorpsesDesc>
 
-  <MarkedMen_Settings_AIStorytelling>AI & Storytelling</MarkedMen_Settings_AIStorytelling>
+  <MarkedMen_Settings_AIStorytelling>AI &amp; Storytelling</MarkedMen_Settings_AIStorytelling>
   <MarkedMen_Settings_AIStorytellingDesc>Controls Marked Men pressure logic, strategic AI activation thresholds, storyteller integration, raid countdown warnings, and custom story events.</MarkedMen_Settings_AIStorytellingDesc>
-  <MarkedMen_Settings_PerformanceCap>Performance & Cap</MarkedMen_Settings_PerformanceCap>
+  <MarkedMen_Settings_PerformanceCap>Performance &amp; Cap</MarkedMen_Settings_PerformanceCap>
   <MarkedMen_Settings_PerformanceCapDesc>Controls maximum simultaneous infected, cleanup intervals, corpse removal rates, world pawn tracking limits, and performance optimization settings.</MarkedMen_Settings_PerformanceCapDesc>
   <MarkedMen_Settings_UrbanBiome>Urban Biome</MarkedMen_Settings_UrbanBiome>
   <MarkedMen_Settings_UrbanBiomeDesc>Controls Marked Men presence in urban maps: ambush frequency, dormant infestation density, epicenter encounters, and survivor spawn chances.</MarkedMen_Settings_UrbanBiomeDesc>
-  <MarkedMen_Settings_UINotifications>UI & Notifications</MarkedMen_Settings_UINotifications>
+  <MarkedMen_Settings_UINotifications>UI &amp; Notifications</MarkedMen_Settings_UINotifications>
   <MarkedMen_Settings_UINotificationsDesc>Controls which messages, alerts, letters, gizmos, and info cards the mod shows in the user interface.</MarkedMen_Settings_UINotificationsDesc>
   <MarkedMen_Settings_ModInfo>Mod Info</MarkedMen_Settings_ModInfo>
   <MarkedMen_Settings_Reset>Reset</MarkedMen_Settings_Reset>
