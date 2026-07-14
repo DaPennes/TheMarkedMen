@@ -1,0 +1,23 @@
+== The Marked Men — Changelog ==
+
+--- Added ---
+- New setting: Ranged infection transmission. Infected pawns can now spread the virus through gunfire and other ranged attacks (disabled by default).
+- New setting: Ranged infection chance. Controls how likely a ranged attack is to transmit the virus.
+- New settings: Infect colonists, Infect allies, Infect enemies. Choose exactly which groups of pawns can catch the Marked Virus.
+- Full translation support for the entire settings window. Every label, tooltip, section header, and help text now works with language packs.
+- Translation support for the Outbreak preset button label.
+
+--- Changed ---
+- Presets renamed to clearer difficulty names: Very Easy, Easy, Normal, Hard, Very Hard.
+- "Corpse reanimation" renamed to "corpse transformation" everywhere in settings and UI text.
+- Restrain and Release prisoner gizmo labels now show in English instead of missing translation keys.
+- Settings window now checks all faction types (colonists, prisoners, allies, enemies) separately before allowing infection.
+- Active preset label now works with translations and handles old save data.
+- Performance: Reduced how often infected pawns scan for targets, coordinate with each other, and check for enemies.
+
+--- Fixed ---
+- Fixed broken translation strings where "&" was not properly escaped, causing some settings section headers to show raw key text instead of readable labels.
+- Fixes code for description text.
+
+--- Removed ---
+- Hardcoded English strings in the settings window (replaced with translation keys throughout).
