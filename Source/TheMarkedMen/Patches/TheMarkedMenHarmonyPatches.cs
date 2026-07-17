@@ -1,11 +1,13 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using HarmonyLib;
 using RimWorld;
 using UnityEngine;
 using Verse;
 using Verse.AI.Group;
+using Verse.Grammar;
 
 namespace TheMarkedMen
 {
@@ -463,6 +465,48 @@ namespace TheMarkedMen
             }
 
             return true;
+        }
+    }
+
+    [HarmonyPatch]
+    public static class Patch_RitualNameGrammarFallback
+    {
+        [HarmonyTargetMethod]
+        public static MethodBase TargetMethod()
+        {
+            return AccessTools.Method(typeof(Precept), "AddIdeoRulesTo");
+        }
+
+        public static void Postfix(Precept __instance, ref GrammarRequest request)
+        {
+            if (__instance.ideo == null || !__instance.ideo.hidden)
+            {
+                return;
+            }
+
+            for (int i = 0; i < request.Rules.Count; i++)
+            {
+                if (request.Rules[i] is Rule_String rs)
+                {
+                    switch (rs.keyword)
+                    {
+                        case "keyDeity":
+                        case "memeAdjective":
+                        case "memeConcept":
+                        case "chosenIdeoName":
+                        case "chosenTheme":
+                        case "chosenAdjective":
+                            return;
+                    }
+                }
+            }
+
+            request.Rules.Add(new Rule_String("keyDeity", "the Entity"));
+            request.Rules.Add(new Rule_String("memeAdjective", "Savage"));
+            request.Rules.Add(new Rule_String("memeConcept", "Survival"));
+            request.Rules.Add(new Rule_String("chosenIdeoName", "The Marked One"));
+            request.Rules.Add(new Rule_String("chosenTheme", "Dominance"));
+            request.Rules.Add(new Rule_String("chosenAdjective", "Marked"));
         }
     }
 }
