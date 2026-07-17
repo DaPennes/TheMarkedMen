@@ -1,0 +1,5 @@
+Changelog.txt
+Source/**/obj/
+Source/**/bin/
+*.user
+*.suo

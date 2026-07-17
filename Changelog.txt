@@ -1,7 +1,0 @@
-== The Marked Men — Changelog ==
-
---- Added ---
-- Shamblers are now completely immune to the Marked Virus. They cannot be infected, transformed, or reanimated.
-
---- Fixed ---
-- Fixed a NullReferenceException when an infected pawn attacked a Shambler.

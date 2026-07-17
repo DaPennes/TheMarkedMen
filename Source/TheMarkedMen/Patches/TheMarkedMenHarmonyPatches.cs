@@ -468,21 +468,23 @@ namespace TheMarkedMen
         }
     }
 
-    [HarmonyPatch]
+    [HarmonyPatch(typeof(Precept), "AddIdeoRulesTo")]
     public static class Patch_RitualNameGrammarFallback
     {
-        [HarmonyTargetMethod]
-        public static MethodBase TargetMethod()
-        {
-            return AccessTools.Method(typeof(Precept), "AddIdeoRulesTo");
-        }
-
         public static void Postfix(Precept __instance, ref GrammarRequest request)
         {
-            if (__instance.ideo == null || !__instance.ideo.hidden)
+            Ideo ideo = __instance?.ideo;
+            if (ideo == null)
             {
                 return;
             }
+
+            bool hasKeyDeity = false;
+            bool hasMemeAdj = false;
+            bool hasMemeConcept = false;
+            bool hasIdeoName = false;
+            bool hasTheme = false;
+            bool hasAdj = false;
 
             for (int i = 0; i < request.Rules.Count; i++)
             {
@@ -490,23 +492,22 @@ namespace TheMarkedMen
                 {
                     switch (rs.keyword)
                     {
-                        case "keyDeity":
-                        case "memeAdjective":
-                        case "memeConcept":
-                        case "chosenIdeoName":
-                        case "chosenTheme":
-                        case "chosenAdjective":
-                            return;
+                        case "keyDeity": hasKeyDeity = true; break;
+                        case "memeAdjective": hasMemeAdj = true; break;
+                        case "memeConcept": hasMemeConcept = true; break;
+                        case "chosenIdeoName": hasIdeoName = true; break;
+                        case "chosenTheme": hasTheme = true; break;
+                        case "chosenAdjective": hasAdj = true; break;
                     }
                 }
             }
 
-            request.Rules.Add(new Rule_String("keyDeity", "the Entity"));
-            request.Rules.Add(new Rule_String("memeAdjective", "Savage"));
-            request.Rules.Add(new Rule_String("memeConcept", "Survival"));
-            request.Rules.Add(new Rule_String("chosenIdeoName", "The Marked One"));
-            request.Rules.Add(new Rule_String("chosenTheme", "Dominance"));
-            request.Rules.Add(new Rule_String("chosenAdjective", "Marked"));
+            if (!hasKeyDeity) request.Rules.Add(new Rule_String("keyDeity", "the Entity"));
+            if (!hasMemeAdj) request.Rules.Add(new Rule_String("memeAdjective", "Savage"));
+            if (!hasMemeConcept) request.Rules.Add(new Rule_String("memeConcept", "Survival"));
+            if (!hasIdeoName) request.Rules.Add(new Rule_String("chosenIdeoName", "The Marked One"));
+            if (!hasTheme) request.Rules.Add(new Rule_String("chosenTheme", "Dominance"));
+            if (!hasAdj) request.Rules.Add(new Rule_String("chosenAdjective", "Marked"));
         }
     }
 }
