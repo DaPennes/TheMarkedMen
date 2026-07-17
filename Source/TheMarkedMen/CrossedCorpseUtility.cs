@@ -210,7 +210,7 @@ namespace TheMarkedMen
                 return false;
             }
 
-            if (innerPawn.RaceProps == null || !innerPawn.RaceProps.Humanlike || CrossedUtility.HasCrossVirusImmunity(innerPawn))
+            if (innerPawn.RaceProps == null || !innerPawn.RaceProps.Humanlike || CrossedUtility.HasCrossVirusImmunity(innerPawn) || CrossedUtility.IsShambler(innerPawn))
             {
                 return false;
             }
@@ -233,7 +233,7 @@ namespace TheMarkedMen
         {
             Pawn innerPawn = corpse?.InnerPawn;
             HediffDef virus = CADefOf.CrossVirus;
-            if (innerPawn?.health == null || virus == null)
+            if (innerPawn?.health == null || virus == null || CrossedUtility.IsShambler(innerPawn))
             {
                 return false;
             }

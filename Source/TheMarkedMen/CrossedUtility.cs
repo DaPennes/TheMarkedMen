@@ -82,6 +82,22 @@ namespace TheMarkedMen
 			return HasMarkedVirusHediff(pawn) && !IsFullyTurnedMarkedPawn(pawn);
 		}
 
+		public static bool IsShambler(Pawn pawn)
+		{
+			if (pawn == null || pawn.health == null || pawn.health.hediffSet == null)
+			{
+				return false;
+			}
+
+			HediffDef shamblerHediff = DefDatabase<HediffDef>.GetNamedSilentFail("Shambler");
+			if (shamblerHediff == null)
+			{
+				return false;
+			}
+
+			return pawn.health.hediffSet.HasHediff(shamblerHediff);
+		}
+
 		public static bool ShouldShowCrossedRash(Pawn pawn)
 		{
 			return HasMarkedVirusHediff(pawn) || IsCrossedFactionPawn(pawn) || HasPersistentCrossedRashTattoo(pawn);
@@ -484,6 +500,11 @@ namespace TheMarkedMen
 		{
 			TheMarkedMenSettings settings = TheMarkedMenMod.Settings;
 			if (settings != null && !settings.infectionEnabled)
+			{
+				return false;
+			}
+
+			if (IsShambler(pawn))
 			{
 				return false;
 			}
@@ -975,7 +996,7 @@ namespace TheMarkedMen
 
 		public static void TransformPawn(Pawn pawn, bool suppressNotification = false, Pawn infector = null)
 		{
-			if (pawn == null || pawn.Dead)
+			if (pawn == null || pawn.Dead || IsShambler(pawn))
 			{
 				return;
 			}
@@ -1114,6 +1135,11 @@ namespace TheMarkedMen
 				return;
 			}
 
+			if (IsShambler(pawn))
+			{
+				return;
+			}
+
 			if (ModsConfig.BiotechActive && pawn.genes != null && IsCrossedFactionPawn(pawn) && CADefOf.MarkedOne != null)
 			{
 				pawn.genes.SetXenotypeDirect(CADefOf.MarkedOne);
@@ -1244,7 +1270,7 @@ namespace TheMarkedMen
 		public static void EnsurePredatorHediffs(Pawn pawn)
 		{
 			TheMarkedMenSettings settings = TheMarkedMenMod.Settings;
-			if (pawn == null || pawn.health == null || !IsInfectedPawn(pawn))
+			if (pawn == null || pawn.health == null || !IsInfectedPawn(pawn) || IsShambler(pawn))
 			{
 				return;
 			}
@@ -1252,7 +1278,9 @@ namespace TheMarkedMen
 			if (settings != null && settings.bloodlustEnabled && CADefOf.MarkedBloodlustNeed != null
 				&& pawn.needs != null && pawn.needs.TryGetNeed<Need_MarkedBloodlust>() == null)
 			{
-				pawn.needs.AllNeeds.Add(new Need_MarkedBloodlust(pawn));
+				Need_MarkedBloodlust need = new Need_MarkedBloodlust(pawn);
+				need.def = CADefOf.MarkedBloodlustNeed;
+				pawn.needs.AllNeeds.Add(need);
 			}
 
 			if (settings != null && settings.anticipationEnabled && CADefOf.KillAnticipation != null
@@ -1471,12 +1499,13 @@ namespace TheMarkedMen
 
 		public static bool CanSafelyProcessInfectedState(Pawn pawn)
 		{
-			return pawn != null
-				&& !pawn.Destroyed
-				&& pawn.def?.race != null
-				&& pawn.def.race.Humanlike
-				&& pawn.health?.hediffSet != null
-				&& !pawn.health.Dead;
+			if (pawn == null || pawn.Destroyed || pawn.def?.race == null || !pawn.def.race.Humanlike
+				|| pawn.health?.hediffSet == null || pawn.health.Dead)
+			{
+				return false;
+			}
+
+			return !IsShambler(pawn);
 		}
 
 		private static float InitialCrossVirusSeverity(HediffDef virus)

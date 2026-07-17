@@ -148,7 +148,7 @@ namespace TheMarkedMen
         {
             if (activated) return;
             Pawn pawn = parent.pawn;
-            if (pawn == null || pawn.Dead) return;
+            if (pawn == null || pawn.Dead || CrossedUtility.IsShambler(pawn)) return;
 
             activated = true;
 

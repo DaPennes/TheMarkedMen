@@ -109,6 +109,11 @@ namespace TheMarkedMen
     {
         public static void Postfix(Pawn __instance, DamageInfo? dinfo)
         {
+            if (CrossedUtility.IsShambler(__instance))
+            {
+                return;
+            }
+
             CrossedUtility.ApplyInfectedTattoo(__instance);
             CrossedUtility.Component?.QueueCrossedReanimation(__instance);
             Pawn killer = dinfo?.Instigator as Pawn;

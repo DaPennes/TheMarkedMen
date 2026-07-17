@@ -24,8 +24,40 @@ namespace TheMarkedMen
 
         public override bool ShowOnNeedList => CrossedUtility.IsInfectedPawn(pawn);
 
+        protected override bool IsFrozen
+        {
+            get
+            {
+                if (pawn == null || pawn.Destroyed || pawn.Dead || pawn.Suspended)
+                {
+                    return true;
+                }
+                if (def != null)
+                {
+                    if (def.freezeWhileSleeping && pawn.needs?.rest != null && !RestUtility.Awake(pawn))
+                    {
+                        return true;
+                    }
+                    if (def.freezeInMentalState && pawn.InMentalState)
+                    {
+                        return true;
+                    }
+                }
+                if (pawn.SpawnedOrAnyParentSpawned)
+                {
+                    return false;
+                }
+                return true;
+            }
+        }
+
         public override void NeedInterval()
         {
+            if (pawn == null || pawn.Destroyed || pawn.Dead || pawn.needs == null || pawn.health == null || pawn.RaceProps == null)
+            {
+                return;
+            }
+
             if (IsFrozen)
             {
                 return;

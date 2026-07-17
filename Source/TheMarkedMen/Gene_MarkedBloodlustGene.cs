@@ -25,6 +25,7 @@ namespace TheMarkedMen
             if (pawn.needs != null && CADefOf.MarkedBloodlustNeed != null && pawn.needs.TryGetNeed<Need_MarkedBloodlust>() == null)
             {
                 Need_MarkedBloodlust need = new Need_MarkedBloodlust(pawn);
+                need.def = CADefOf.MarkedBloodlustNeed;
                 pawn.needs.AllNeeds.Add(need);
                 cachedNeed = need;
             }

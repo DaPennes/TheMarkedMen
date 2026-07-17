@@ -112,6 +112,12 @@ namespace TheMarkedMen
                 return;
             }
 
+            if (CrossedUtility.IsShambler(pawn))
+            {
+                pawn.health.RemoveHediff(parent);
+                return;
+            }
+
             if (infectionTick < 0)
             {
                 infectionTick = Find.TickManager?.TicksGame ?? 0;
