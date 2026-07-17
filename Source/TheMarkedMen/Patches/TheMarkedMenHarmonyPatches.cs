@@ -514,22 +514,33 @@ namespace TheMarkedMen
     [HarmonyPatch(typeof(Precept_Ritual), nameof(Precept_Ritual.TipMainPart))]
     public static class Patch_RitualTipDescription
     {
-        public static void Postfix(Precept_Ritual __instance, ref string __result)
+        public static bool Prefix(Precept_Ritual __instance, ref string __result)
         {
-            if (__result == null)
+            Ideo ideo = __instance?.ideo;
+            if (ideo == null || !ideo.hidden)
             {
-                return;
+                return true;
             }
 
-            if (__result.IndexOf("{ORGANIZER}") >= 0 ||
-                __result.IndexOf("{HONORS}") >= 0)
+            var ritualPattern = AccessTools.Property(typeof(Precept_Ritual), "Ritual")?.GetValue(__instance, null);
+            if (ritualPattern == null) return true;
+            var outcomeEffect = AccessTools.Field(ritualPattern.GetType(), "outcomeEffect")?.GetValue(ritualPattern);
+            if (outcomeEffect == null) return true;
+            var worker = AccessTools.Property(outcomeEffect.GetType(), "Worker")?.GetValue(outcomeEffect, null) as RitualOutcomeEffectWorker;
+            if (worker == null)
             {
-                int idx = __result.LastIndexOf("\n\n");
-                if (idx >= 0)
-                {
-                    __result = __result.Substring(0, idx);
-                }
+                return true;
             }
+
+            var type = worker.GetType();
+            var orgField = type.GetField("organizer", BindingFlags.Public | BindingFlags.Instance);
+            if (orgField != null && orgField.GetValue(worker) == null)
+            {
+                __result = __instance.def.LabelCap + "\n\n" + __instance.def.description;
+                return false;
+            }
+
+            return true;
         }
     }
 }
