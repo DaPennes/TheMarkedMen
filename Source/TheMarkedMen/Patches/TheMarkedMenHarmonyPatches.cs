@@ -510,4 +510,26 @@ namespace TheMarkedMen
             if (!hasAdj) request.Rules.Add(new Rule_String("chosenAdjective", "Marked"));
         }
     }
+
+    [HarmonyPatch(typeof(Precept_Ritual), nameof(Precept_Ritual.TipMainPart))]
+    public static class Patch_RitualTipDescription
+    {
+        public static void Postfix(Precept_Ritual __instance, ref string __result)
+        {
+            if (__result == null)
+            {
+                return;
+            }
+
+            if (__result.IndexOf("{ORGANIZER}") >= 0 ||
+                __result.IndexOf("{HONORS}") >= 0)
+            {
+                int idx = __result.LastIndexOf("\n\n");
+                if (idx >= 0)
+                {
+                    __result = __result.Substring(0, idx);
+                }
+            }
+        }
+    }
 }
