@@ -501,6 +501,8 @@ namespace TheMarkedMen
 
         private static void EquipWeapon(Pawn pawn, int tier)
         {
+            if (Find.FactionManager == null)
+                return;
             if (pawn.equipment == null || weaponsByTier == null)
                 return;
 
@@ -596,6 +598,8 @@ namespace TheMarkedMen
 
         private static void EquipApparel(Pawn pawn, ThingDef def, int tier)
         {
+            if (Find.FactionManager == null)
+                return;
             if (CrossedUtility.IsInfectedPawn(pawn) && !CanWearApparel(pawn, def))
                 return;
             ThingDef stuff = null;

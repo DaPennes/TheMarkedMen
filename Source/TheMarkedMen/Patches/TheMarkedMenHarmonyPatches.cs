@@ -330,7 +330,7 @@ namespace TheMarkedMen
         [HarmonyPostfix]
         public static void Postfix(Pawn __result)
         {
-            if (__result?.kindDef != null && CrossedEquipmentGenerator.IsCrossedKind(__result.kindDef))
+            if (__result?.kindDef != null && Find.FactionManager != null && CrossedEquipmentGenerator.IsCrossedKind(__result.kindDef))
             {
                 CrossedEquipmentGenerator.AssignEquipment(__result);
             }
