@@ -589,7 +589,7 @@ namespace TheMarkedMen
 
                 if (loadedSettingsVersion < 11 && (string.IsNullOrEmpty(currentPreset) || currentPreset == DefaultPresetName))
                 {
-                    ApplyOutbreakDefaults(false);
+                    ApplyBaselinePreset(false);
                 }
 
                 if (loadedSettingsVersion < 13)
@@ -1271,7 +1271,7 @@ namespace TheMarkedMen
 
         private void ApplyDefaultPreset(bool updatePreset)
         {
-            ApplyOutbreakDefaults(updatePreset);
+            ApplyBaselinePreset(updatePreset);
         }
 
         private void ApplyBaselinePreset(bool updatePreset)
@@ -1321,7 +1321,7 @@ namespace TheMarkedMen
             ResetPerformanceDefaults();
             if (updatePreset)
             {
-                currentPreset = "Default";
+                currentPreset = DefaultPresetName;
             }
 
             ClearNumericBuffers();
