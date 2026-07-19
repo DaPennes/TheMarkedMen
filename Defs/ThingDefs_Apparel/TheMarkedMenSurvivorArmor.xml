@@ -51,16 +51,6 @@
         <li>Soldier</li>
       </defaultOutfitTags>
     </apparel>
-    <comps>
-      <li Class="CompProperties_Forbiddable"/>
-      <li>
-        <compClass>CompQuality</compClass>
-      </li>
-      <li Class="CompProperties_Styleable"/>
-      <li>
-        <compClass>CompColorable</compClass>
-      </li>
-    </comps>
     <colorGenerator Class="ColorGenerator_Options">
       <options>
         <li>
