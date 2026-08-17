@@ -387,10 +387,6 @@
   <CA_MercifulKill_Label>merciful execution</CA_MercifulKill_Label>
   <CA_MercifulKill_Desc>I put down a colonist before they could turn. It was the right call, but that does not make it easier.</CA_MercifulKill_Desc>
 
-  <!-- Survivor Armor -->
-  <CA_SurvivorArmor_Label>survivor armor</CA_SurvivorArmor_Label>
-  <CA_SurvivorArmor_Desc>A set of reinforced armor assembled from scavenged materials. Uneven plates, patched fabric, and improvised padding offer decent protection against the Marked, though the fit is far from uniform.</CA_SurvivorArmor_Desc>
-
   <!-- Marked Prisoner System -->
   <CA_MarkedPrisoner_RecruitBlocked>The Marked Virus has completely overwritten {PAWN_labelShort}'s will. They can no longer be recruited, their mind is no longer their own.</CA_MarkedPrisoner_RecruitBlocked>
   <CA_MarkedPrisoner_Attack>{PRISONER_labelShort} lunges at {TARGET_labelShort} with a vicious {TYPE}!</CA_MarkedPrisoner_Attack>
