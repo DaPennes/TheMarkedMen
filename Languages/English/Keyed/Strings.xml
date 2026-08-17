@@ -218,6 +218,12 @@
   <MarkedMen_Settings_infightingChanceDesc>Chance during each infighting check that infected pawns may turn on each other.</MarkedMen_Settings_infightingChanceDesc>
   <MarkedMen_Settings_socialTerrorStrength>Panic and social terror strength</MarkedMen_Settings_socialTerrorStrength>
   <MarkedMen_Settings_socialTerrorStrengthDesc>Scales the radius and strength of Marked Men terror effects. Set to 0 to disable these effects.</MarkedMen_Settings_socialTerrorStrengthDesc>
+  <MarkedMen_Settings_MarkedPanicEnabled>Enable marked panic</MarkedMen_Settings_MarkedPanicEnabled>
+  <MarkedMen_Settings_MarkedPanicEnabledDesc>Allows Marked Men to inflict the marked panic hediff on nearby colonists. Disable to turn the mechanic off entirely.</MarkedMen_Settings_MarkedPanicEnabledDesc>
+  <MarkedMen_Settings_markedPanicRadius>Marked panic radius</MarkedMen_Settings_markedPanicRadius>
+  <MarkedMen_Settings_markedPanicRadiusDesc>Radius in cells of the area panic spread by pack laughter and leader interactions. Still scaled by panic and social terror strength.</MarkedMen_Settings_markedPanicRadiusDesc>
+  <MarkedMen_Settings_markedPanicDurationTicks>Marked panic duration (ticks)</MarkedMen_Settings_markedPanicDurationTicks>
+  <MarkedMen_Settings_markedPanicDurationTicksDesc>How long the marked panic hediff lasts before disappearing. 2500 ticks is roughly one in-game hour; the default of 18000 is about 7 hours.</MarkedMen_Settings_markedPanicDurationTicksDesc>
   <MarkedMen_Settings_PredatoryInstincts>Predatory Instincts</MarkedMen_Settings_PredatoryInstincts>
   <MarkedMen_Settings_PredatoryInstinctsDesc>Controls the bloodlust, kill anticipation, and predator psychology systems for the Marked Ones.</MarkedMen_Settings_PredatoryInstinctsDesc>
   <MarkedMen_Settings_BloodlustSystem>Enable bloodlust system</MarkedMen_Settings_BloodlustSystem>

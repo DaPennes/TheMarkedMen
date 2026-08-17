@@ -137,8 +137,7 @@ namespace TheMarkedMen
                 if (other == pawn || other.Dead || other.needs?.mood == null) continue;
                 if (other.Position.DistanceToSquared(pawn.Position) > Props.socialHediffRadius * Props.socialHediffRadius) continue;
 
-                Hediff hediff = HediffMaker.MakeHediff(CADefOf.Panic, other);
-                other.health.AddHediff(hediff);
+                CrossedUtility.ApplyMarkedPanicToPawn(other);
             }
         }
 

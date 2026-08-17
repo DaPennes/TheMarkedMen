@@ -12,7 +12,6 @@ namespace TheMarkedMen
         private const float SocialPulseBaseChance = 0.42f;
         private const float SocialPulseLeaderChance = 0.78f;
         private const float MaxSocialTargetDistanceSquared = 400f;
-        private const float PackPanicRadius = 12f;
 
         public static void TryHostileSocialPulse(Pawn initiator)
         {
@@ -79,15 +78,11 @@ namespace TheMarkedMen
                 recipient.needs?.mood?.thoughts?.memories?.TryGainMemory(terror, initiator);
             }
 
-            HediffDef panic = CADefOf.Panic;
-            if (panic != null && recipient.health?.hediffSet != null && !recipient.health.hediffSet.HasHediff(panic))
-            {
-                recipient.health.AddHediff(panic);
-            }
+            CrossedUtility.ApplyMarkedPanicToPawn(recipient);
 
             if (interactionDef == CADefOf.CrossedPackLaughter || initiator.kindDef == CADefOf.CrossedPyromaniac || initiator.kindDef == CADefOf.CrossedAlpha || initiator.kindDef == CADefOf.CrossedWarlord)
             {
-                CrossedUtility.ApplyMarkedPanic(recipient.Map, recipient.Position, PackPanicRadius);
+                CrossedUtility.ApplyMarkedPanic(recipient.Map, recipient.Position, TheMarkedMenSettings.MarkedPanicRadius);
             }
         }
 

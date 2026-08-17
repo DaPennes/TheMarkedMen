@@ -1586,8 +1586,13 @@ namespace TheMarkedMen
 
 		public static void ApplyMarkedPanic(Map map, IntVec3 origin, float radius)
 		{
+			if (!TheMarkedMenSettings.MarkedPanicEnabled || map == null)
+			{
+				return;
+			}
+
 			HediffDef panic = CADefOf.Panic;
-			if (map == null || panic == null)
+			if (panic == null)
 			{
 				return;
 			}
@@ -1600,11 +1605,34 @@ namespace TheMarkedMen
 
 			foreach (Pawn pawn in map.mapPawns.FreeColonistsAndPrisonersSpawned)
 			{
-				if (pawn.Position.InHorDistOf(origin, effectiveRadius) && !pawn.health.hediffSet.HasHediff(panic))
+				if (pawn.Position.InHorDistOf(origin, effectiveRadius))
 				{
-					pawn.health.AddHediff(panic);
+					ApplyMarkedPanicToPawn(pawn);
 				}
 			}
+		}
+
+		public static void ApplyMarkedPanicToPawn(Pawn pawn)
+		{
+			if (!TheMarkedMenSettings.MarkedPanicEnabled || pawn?.health?.hediffSet == null)
+			{
+				return;
+			}
+
+			HediffDef panic = CADefOf.Panic;
+			if (panic == null || pawn.health.hediffSet.HasHediff(panic))
+			{
+				return;
+			}
+
+			Hediff hediff = HediffMaker.MakeHediff(panic, pawn);
+			HediffComp_Disappears disappears = hediff.TryGetComp<HediffComp_Disappears>();
+			if (disappears != null)
+			{
+				disappears.ticksToDisappear = TheMarkedMenSettings.MarkedPanicDurationTicks;
+			}
+
+			pawn.health.AddHediff(hediff);
 		}
 
 		private static PawnKindDef PickTransformationKind(Pawn pawn)

@@ -43,7 +43,7 @@ namespace TheMarkedMen
 
     public sealed class TheMarkedMenSettings : ModSettings
     {
-        private const int CurrentSettingsVersion = 13;
+        private const int CurrentSettingsVersion = 14;
         public const float InfectionTransmissionChance = 0.45f;
         public const float DefaultMarkedRaidFrequencyMultiplier = 2f;
         public const float MinMarkedRaidFrequencyMultiplier = 0f;
@@ -159,6 +159,9 @@ namespace TheMarkedMen
         public bool doorTargetingEnabled = true;
         public float infightingChance = 0.12f;
         public float socialTerrorStrength = 1f;
+        public bool markedPanicEnabled = true;
+        public float markedPanicRadius = 12f;
+        public int markedPanicDurationTicks = 18000;
         public bool raidCountdownAlertEnabled = true;
         public float raidCountdownVisibleDays = 999f;
         public float raidCountdownHighPriorityDays = 1f;
@@ -322,6 +325,12 @@ namespace TheMarkedMen
 
         public static float SocialTerrorStrength => Mathf.Clamp(TheMarkedMenMod.Settings?.socialTerrorStrength ?? 1f, 0f, 5f);
 
+        public static bool MarkedPanicEnabled => TheMarkedMenMod.Settings?.markedPanicEnabled != false;
+
+        public static float MarkedPanicRadius => Mathf.Clamp(TheMarkedMenMod.Settings?.markedPanicRadius ?? 12f, 0f, 100f);
+
+        public static int MarkedPanicDurationTicks => Mathf.Clamp(TheMarkedMenMod.Settings?.markedPanicDurationTicks ?? 18000, 60, GenDate.TicksPerDay * 30);
+
         public static bool RaidCountdownAlertEnabled => TheMarkedMenMod.Settings?.raidCountdownAlertEnabled != false;
 
         public static float RaidCountdownVisibleDays => Mathf.Clamp(TheMarkedMenMod.Settings?.raidCountdownVisibleDays ?? 999f, 0f, 999f);
@@ -424,6 +433,9 @@ namespace TheMarkedMen
             Scribe_Values.Look(ref doorTargetingEnabled, "doorTargetingEnabled", true);
             Scribe_Values.Look(ref infightingChance, "infightingChance", 0.12f);
             Scribe_Values.Look(ref socialTerrorStrength, "socialTerrorStrength", 1f);
+            Scribe_Values.Look(ref markedPanicEnabled, "markedPanicEnabled", true);
+            Scribe_Values.Look(ref markedPanicRadius, "markedPanicRadius", 12f);
+            Scribe_Values.Look(ref markedPanicDurationTicks, "markedPanicDurationTicks", 18000);
             Scribe_Values.Look(ref raidCountdownAlertEnabled, "raidCountdownAlertEnabled", true);
             Scribe_Values.Look(ref raidCountdownVisibleDays, "raidCountdownVisibleDays", 999f);
             Scribe_Values.Look(ref raidCountdownHighPriorityDays, "raidCountdownHighPriorityDays", 1f);
@@ -597,6 +609,13 @@ namespace TheMarkedMen
                     maximumRaidPoints = 10000f;
                 }
 
+                if (loadedSettingsVersion < 14)
+                {
+                    markedPanicEnabled = true;
+                    markedPanicRadius = 12f;
+                    markedPanicDurationTicks = 18000;
+                }
+
                 settingsVersion = CurrentSettingsVersion;
             }
 
@@ -748,6 +767,9 @@ namespace TheMarkedMen
             DrawCheckbox(listing, "MarkedMen_Settings_DoorTargeting".Translate(), ref doorTargetingEnabled, "MarkedMen_Settings_DoorTargetingDesc".Translate());
             DrawFloat(listing, "MarkedMen_Settings_infightingChance".Translate(), ref infightingChance, 0f, 1f, "infightingChance", "MarkedMen_Settings_infightingChanceDesc".Translate());
             DrawFloat(listing, "MarkedMen_Settings_socialTerrorStrength".Translate(), ref socialTerrorStrength, 0f, 5f, "socialTerrorStrength", "MarkedMen_Settings_socialTerrorStrengthDesc".Translate());
+            DrawCheckbox(listing, "MarkedMen_Settings_MarkedPanicEnabled".Translate(), ref markedPanicEnabled, "MarkedMen_Settings_MarkedPanicEnabledDesc".Translate());
+            DrawFloat(listing, "MarkedMen_Settings_markedPanicRadius".Translate(), ref markedPanicRadius, 0f, 100f, "markedPanicRadius", "MarkedMen_Settings_markedPanicRadiusDesc".Translate());
+            DrawInt(listing, "MarkedMen_Settings_markedPanicDurationTicks".Translate(), ref markedPanicDurationTicks, 60, GenDate.TicksPerDay * 30, "markedPanicDurationTicks", "MarkedMen_Settings_markedPanicDurationTicksDesc".Translate());
 
             DrawSectionHeader(listing, "MarkedMen_Settings_PredatoryInstincts".Translate(), "MarkedMen_Settings_PredatoryInstinctsDesc".Translate());
             DrawCheckbox(listing, "MarkedMen_Settings_BloodlustSystem".Translate(), ref bloodlustEnabled, "MarkedMen_Settings_BloodlustSystemDesc".Translate());
@@ -1244,6 +1266,8 @@ namespace TheMarkedMen
             starterLineageBreakthroughChance = Mathf.Clamp01(starterLineageBreakthroughChance);
             infightingChance = Mathf.Clamp01(infightingChance);
             socialTerrorStrength = Mathf.Clamp(socialTerrorStrength, 0f, 5f);
+            markedPanicRadius = Mathf.Clamp(markedPanicRadius, 0f, 100f);
+            markedPanicDurationTicks = Mathf.Clamp(markedPanicDurationTicks, 60, GenDate.TicksPerDay * 30);
             raidCountdownVisibleDays = Mathf.Clamp(raidCountdownVisibleDays, 0f, 999f);
             raidCountdownHighPriorityDays = Mathf.Clamp(raidCountdownHighPriorityDays, 0f, 30f);
             contagionPulseIntervalTicks = Mathf.Clamp(contagionPulseIntervalTicks, 60, GenDate.TicksPerDay);
@@ -1317,6 +1341,9 @@ namespace TheMarkedMen
             doorTargetingEnabled = true;
             infightingChance = 0.12f;
             socialTerrorStrength = 1f;
+            markedPanicEnabled = true;
+            markedPanicRadius = 12f;
+            markedPanicDurationTicks = 18000;
             ResetStoryDefaults();
             ResetPerformanceDefaults();
             if (updatePreset)
