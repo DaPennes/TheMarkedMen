@@ -28,6 +28,7 @@ namespace TheMarkedMen
             "zetrith.prepatcher",
             "daniledman.combatupdate",
             "oskarpotocki.vanillafactionsexpanded.core",
+            "oskarpotocki.vfe.medieval2",
             "dankpyon.medieval.overhaul",
             "ferny.worldbuilder",
             "c0ffee.rimworld.animations",
@@ -46,6 +47,7 @@ namespace TheMarkedMen
 
         private static readonly string[] KnownPackagePrefixes =
         {
+            "dankpyon.",
             "vanillaexpanded."
         };
 

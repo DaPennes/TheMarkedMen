@@ -4,11 +4,21 @@ using Verse;
 
 namespace TheMarkedMen
 {
+    public enum MarkedVirusBlockCategory
+    {
+        None,
+        SealedArmor,
+        Warcasket,
+        Vacsuit,
+        GasMask
+    }
+
     public sealed class MarkedVirusProtectionExtension : DefModExtension
     {
         public float resistance;
         public bool sealedAgainstMarkedVirus;
         public bool blocksMarkedVirusExposure;
+        public MarkedVirusBlockCategory blockCategory;
     }
 
     public struct MarkedVirusApparelProtection
