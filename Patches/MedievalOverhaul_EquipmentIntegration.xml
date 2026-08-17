@@ -1,0 +1,342 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Patch>
+  <!-- Medieval Overhaul adds medieval-era equipment with custom DankPyon_* tags.
+       Its melee weapons and heavy armor already carry vanilla MedievalMelee*/MedievalMilitary
+       tags used by the base pawnkinds, so this patch only unlocks the MO-specific tags:
+       ranged weapons, grenades, helmets, and the lighter armor tiers. -->
+  <Operation Class="PatchOperationFindMod">
+    <mods>
+      <li>dankpyon.medieval.overhaul</li>
+    </mods>
+    <match Class="PatchOperationSequence">
+      <operations>
+        <!-- Crossed Civilian: peasant gear -->
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/PawnKindDef[defName="CA_CrossedCivilian"]/apparelTags/li[text()="DankPyon_Peasant"]</xpath>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/PawnKindDef[defName="CA_CrossedCivilian"]/apparelTags</xpath>
+            <value>
+              <li>DankPyon_Peasant</li>
+              <li>DankPyon_PeasantHelmet</li>
+              <li>MedievalBasic</li>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/PawnKindDef[defName="CA_CrossedCivilian"]/weaponTags/li[text()="DankPyon_Bludgeon"]</xpath>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/PawnKindDef[defName="CA_CrossedCivilian"]/weaponTags</xpath>
+            <value>
+              <li>DankPyon_Bludgeon</li>
+              <li>DankPyon_Pitchfork</li>
+              <li>DankPyon_HookedBlade</li>
+              <li>DankPyon_Pickaxe</li>
+              <li>DankPyon_Hatchet</li>
+              <li>DankPyon_WoodcuttersAxe</li>
+            </value>
+          </nomatch>
+        </li>
+
+        <!-- Crossed Scout: light skirmisher gear -->
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/PawnKindDef[defName="CA_CrossedScout"]/apparelTags/li[text()="DankPyon_Peasant"]</xpath>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/PawnKindDef[defName="CA_CrossedScout"]/apparelTags</xpath>
+            <value>
+              <li>DankPyon_Peasant</li>
+              <li>DankPyon_PeasantHelmet</li>
+              <li>DankPyon_BrigandThug</li>
+              <li>MedievalBasic</li>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/PawnKindDef[defName="CA_CrossedScout"]/weaponTags/li[text()="DankPyon_HuntingBow"]</xpath>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/PawnKindDef[defName="CA_CrossedScout"]/weaponTags</xpath>
+            <value>
+              <li>DankPyon_HuntingBow</li>
+              <li>DankPyon_Crossbow</li>
+              <li>DankPyon_Hatchet</li>
+              <li>DankPyon_Bludgeon</li>
+            </value>
+          </nomatch>
+        </li>
+
+        <!-- Crossed Hunter: wilderness/raider gear -->
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/PawnKindDef[defName="CA_CrossedHunter"]/apparelTags/li[text()="DankPyon_BrigandThug"]</xpath>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/PawnKindDef[defName="CA_CrossedHunter"]/apparelTags</xpath>
+            <value>
+              <li>DankPyon_BrigandThug</li>
+              <li>DankPyon_BrigandRaider</li>
+              <li>DankPyon_PeasantHelmet</li>
+              <li>MedievalBasic</li>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/PawnKindDef[defName="CA_CrossedHunter"]/weaponTags/li[text()="DankPyon_HuntingBow"]</xpath>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/PawnKindDef[defName="CA_CrossedHunter"]/weaponTags</xpath>
+            <value>
+              <li>DankPyon_HuntingBow</li>
+              <li>DankPyon_Warbow</li>
+              <li>DankPyon_Crossbow</li>
+              <li>DankPyon_FightingSpear</li>
+              <li>DankPyon_BoarSpear</li>
+              <li>DankPyon_Handaxe</li>
+            </value>
+          </nomatch>
+        </li>
+
+        <!-- Crossed Shooter: MO ranged weapons -->
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/PawnKindDef[defName="CA_CrossedShooter"]/apparelTags/li[text()="DankPyon_Archer"]</xpath>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/PawnKindDef[defName="CA_CrossedShooter"]/apparelTags</xpath>
+            <value>
+              <li>DankPyon_Archer</li>
+              <li>DankPyon_ArbalesterHelmet</li>
+              <li>MedievalMilitaryBasic</li>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/PawnKindDef[defName="CA_CrossedShooter"]/weaponTags/li[text()="DankPyon_Crossbow"]</xpath>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/PawnKindDef[defName="CA_CrossedShooter"]/weaponTags</xpath>
+            <value>
+              <li>DankPyon_Crossbow</li>
+              <li>DankPyon_Arbelest</li>
+              <li>DankPyon_Handgonne</li>
+              <li>DankPyon_Warbow</li>
+              <li>DankPyon_HuntingBow</li>
+            </value>
+          </nomatch>
+        </li>
+
+        <!-- Crossed Raider: brigand gear -->
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/PawnKindDef[defName="CA_CrossedRaider"]/apparelTags/li[text()="DankPyon_BrigandRaider"]</xpath>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/PawnKindDef[defName="CA_CrossedRaider"]/apparelTags</xpath>
+            <value>
+              <li>DankPyon_BrigandRaider</li>
+              <li>DankPyon_BrigandThug</li>
+              <li>DankPyon_BrigandLeader</li>
+              <li>DankPyon_BrigandMarksman</li>
+              <li>DankPyon_FootmanHelmet</li>
+              <li>DankPyon_BillmanHelmet</li>
+              <li>MedievalMilitaryBasic</li>
+              <li>MedievalMilitaryDecent</li>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/PawnKindDef[defName="CA_CrossedRaider"]/weaponTags/li[text()="DankPyon_Crossbow"]</xpath>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/PawnKindDef[defName="CA_CrossedRaider"]/weaponTags</xpath>
+            <value>
+              <li>DankPyon_Crossbow</li>
+              <li>DankPyon_Warbow</li>
+              <li>DankPyon_Handgonne</li>
+              <li>DankPyon_Bludgeon</li>
+              <li>DankPyon_Hatchet</li>
+              <li>DankPyon_Handaxe</li>
+              <li>DankPyon_HookedBlade</li>
+              <li>DankPyon_MorningStar</li>
+              <li>DankPyon_Falchion</li>
+              <li>DankPyon_ArmingSword</li>
+              <li>DankPyon_BoarSpear</li>
+              <li>DankPyon_Grenade_PotFire</li>
+              <li>DankPyon_Grenade_PotFlash</li>
+              <li>DankPyon_Grenade_PotSmoke</li>
+              <li>DankPyon_Grenade_AcidFlask</li>
+            </value>
+          </nomatch>
+        </li>
+
+        <!-- Crossed Soldier: mercenary gear -->
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/PawnKindDef[defName="CA_CrossedSoldier"]/apparelTags/li[text()="DankPyon_Mercenary"]</xpath>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/PawnKindDef[defName="CA_CrossedSoldier"]/apparelTags</xpath>
+            <value>
+              <li>DankPyon_Mercenary</li>
+              <li>DankPyon_MercenaryHelmet</li>
+              <li>DankPyon_MercenaryHeavy</li>
+              <li>DankPyon_MercenaryHeavyHelmet</li>
+              <li>MedievalMilitaryDecent</li>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/PawnKindDef[defName="CA_CrossedSoldier"]/weaponTags/li[text()="DankPyon_ArmingSword"]</xpath>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/PawnKindDef[defName="CA_CrossedSoldier"]/weaponTags</xpath>
+            <value>
+              <li>DankPyon_Crossbow</li>
+              <li>DankPyon_Arbelest</li>
+              <li>DankPyon_Handgonne</li>
+              <li>DankPyon_ArmingSword</li>
+              <li>DankPyon_Falchion</li>
+              <li>DankPyon_MorningStar</li>
+              <li>DankPyon_MilitaryPick</li>
+              <li>DankPyon_Handaxe</li>
+              <li>DankPyon_BoarSpear</li>
+              <li>DankPyon_Billhook</li>
+            </value>
+          </nomatch>
+        </li>
+
+        <!-- Crossed Brute: knight/hedge knight heavy gear -->
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/PawnKindDef[defName="CA_CrossedBrute"]/apparelTags/li[text()="DankPyon_Knight"]</xpath>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/PawnKindDef[defName="CA_CrossedBrute"]/apparelTags</xpath>
+            <value>
+              <li>DankPyon_Footman</li>
+              <li>DankPyon_FootmanHelmet</li>
+              <li>DankPyon_Billman</li>
+              <li>DankPyon_BillmanHelmet</li>
+              <li>DankPyon_Knight</li>
+              <li>DankPyon_KnightHelmet</li>
+              <li>DankPyon_HedgeKnight</li>
+              <li>DankPyon_HedgeKnightHelmet</li>
+              <li>MedievalMilitaryDecent</li>
+              <li>MedievalMilitaryAdvanced</li>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/PawnKindDef[defName="CA_CrossedBrute"]/weaponTags/li[text()="DankPyon_Greatsword"]</xpath>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/PawnKindDef[defName="CA_CrossedBrute"]/weaponTags</xpath>
+            <value>
+              <li>DankPyon_Greatsword</li>
+              <li>DankPyon_Greataxe</li>
+              <li>DankPyon_Halberd</li>
+              <li>DankPyon_Warhammer</li>
+              <li>DankPyon_TwoHandedFlangedMace</li>
+              <li>DankPyon_TwoHandedHammer</li>
+              <li>DankPyon_Polehammer</li>
+              <li>DankPyon_Bardiche</li>
+              <li>DankPyon_Longsword</li>
+              <li>DankPyon_Longaxe</li>
+              <li>DankPyon_FightingAxe</li>
+              <li>DankPyon_FightingSpear</li>
+            </value>
+          </nomatch>
+        </li>
+
+        <!-- Crossed Alpha: elite knight/champion gear -->
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/PawnKindDef[defName="CA_CrossedAlpha"]/apparelTags/li[text()="DankPyon_Knight"]</xpath>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/PawnKindDef[defName="CA_CrossedAlpha"]/apparelTags</xpath>
+            <value>
+              <li>DankPyon_Knight</li>
+              <li>DankPyon_KnightHelmet</li>
+              <li>DankPyon_HedgeKnight</li>
+              <li>DankPyon_HedgeKnightHelmet</li>
+              <li>DankPyon_Champion</li>
+              <li>MedievalMilitaryAdvanced</li>
+              <li>MedievalPrestigeCombatGear</li>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/PawnKindDef[defName="CA_CrossedAlpha"]/weaponTags/li[text()="DankPyon_NamedGreatsword"]</xpath>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/PawnKindDef[defName="CA_CrossedAlpha"]/weaponTags</xpath>
+            <value>
+              <li>DankPyon_NamedGreatsword</li>
+              <li>DankPyon_NamedGreataxe</li>
+              <li>DankPyon_NamedHalberd</li>
+              <li>DankPyon_NamedTwoHandedFlangedMace</li>
+              <li>DankPyon_NamedTwoHandedHammer</li>
+              <li>DankPyon_Greatsword</li>
+              <li>DankPyon_Greataxe</li>
+              <li>DankPyon_Halberd</li>
+              <li>DankPyon_Warhammer</li>
+              <li>DankPyon_Longsword</li>
+            </value>
+          </nomatch>
+        </li>
+
+        <!-- Crossed Warlord: commander/lord gear -->
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/PawnKindDef[defName="CA_CrossedWarlord"]/apparelTags/li[text()="DankPyon_Lord"]</xpath>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/PawnKindDef[defName="CA_CrossedWarlord"]/apparelTags</xpath>
+            <value>
+              <li>DankPyon_Knight</li>
+              <li>DankPyon_KnightHelmet</li>
+              <li>DankPyon_HedgeKnight</li>
+              <li>DankPyon_HedgeKnightHelmet</li>
+              <li>DankPyon_Lord</li>
+              <li>DankPyon_LordHelmet</li>
+              <li>MedievalMilitaryAdvanced</li>
+              <li>MedievalPrestigeCombatGear</li>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/PawnKindDef[defName="CA_CrossedWarlord"]/weaponTags/li[text()="DankPyon_NamedGreatsword"]</xpath>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/PawnKindDef[defName="CA_CrossedWarlord"]/weaponTags</xpath>
+            <value>
+              <li>DankPyon_NamedGreatsword</li>
+              <li>DankPyon_NamedGreataxe</li>
+              <li>DankPyon_NamedHalberd</li>
+              <li>DankPyon_NamedTwoHandedFlangedMace</li>
+              <li>DankPyon_NamedTwoHandedHammer</li>
+              <li>DankPyon_Greatsword</li>
+              <li>DankPyon_Greataxe</li>
+              <li>DankPyon_Halberd</li>
+              <li>DankPyon_Warhammer</li>
+              <li>DankPyon_Longsword</li>
+            </value>
+          </nomatch>
+        </li>
+
+        <!-- Marked Man: apex lord/zweihander gear -->
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/PawnKindDef[defName="CA_MarkedMan"]/apparelTags/li[text()="DankPyon_Lord"]</xpath>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/PawnKindDef[defName="CA_MarkedMan"]/apparelTags</xpath>
+            <value>
+              <li>DankPyon_Lord</li>
+              <li>DankPyon_LordHelmet</li>
+              <li>DankPyon_Champion</li>
+              <li>DankPyon_Zweihander</li>
+              <li>DankPyon_ZweihanderHelm</li>
+              <li>MedievalMilitaryAdvanced</li>
+              <li>MedievalPrestigeCombatGear</li>
+            </value>
+          </nomatch>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/PawnKindDef[defName="CA_MarkedMan"]/weaponTags/li[text()="DankPyon_NamedGreatsword"]</xpath>
+          <nomatch Class="PatchOperationAdd">
+            <xpath>/Defs/PawnKindDef[defName="CA_MarkedMan"]/weaponTags</xpath>
+            <value>
+              <li>DankPyon_NamedGreatsword</li>
+              <li>DankPyon_NamedGreataxe</li>
+              <li>DankPyon_NamedHalberd</li>
+              <li>DankPyon_NamedTwoHandedFlangedMace</li>
+              <li>DankPyon_NamedTwoHandedHammer</li>
+              <li>DankPyon_Greatsword</li>
+              <li>DankPyon_Greataxe</li>
+              <li>DankPyon_Halberd</li>
+              <li>DankPyon_Warhammer</li>
+              <li>DankPyon_NobleSword</li>
+            </value>
+          </nomatch>
+        </li>
+      </operations>
+    </match>
+  </Operation>
+</Patch>

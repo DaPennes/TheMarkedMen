@@ -28,6 +28,7 @@ namespace TheMarkedMen
             "zetrith.prepatcher",
             "daniledman.combatupdate",
             "oskarpotocki.vanillafactionsexpanded.core",
+            "dankpyon.medieval.overhaul",
             "ferny.worldbuilder",
             "c0ffee.rimworld.animations",
             "smashphil.xmlpatchhelper",
