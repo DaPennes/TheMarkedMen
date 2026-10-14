@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using RimWorld;
 using Verse;
+using Verse.AI;
 using UnityEngine;
 
 namespace TheMarkedMen
@@ -53,7 +54,7 @@ namespace TheMarkedMen
                 if (!cell.InBounds(pawn.Map))
                     continue;
 
-                if (!pawn.CanReach(cell, PathEndMode.ClosestTouch, Danger.Deadly))
+                if (!pawn.CanReach(cell, PathEndMode.Touch, Danger.Deadly))
                     continue;
 
                 // Check if cell provides cover (adjacent to buildings/walls)

@@ -1765,7 +1765,7 @@ public static void RemoveMarkedVirusHediffFromFullyTurnedPawn(Pawn pawn)
 		}
 
 		/// <summary>
-		/// Ensure infected pawn has a valid Lord assignment and uses correct ThinkTree.
+		/// Ensure infected pawn has a valid Lord assignment.
 		/// Called on dev-spawn and raid setup to prevent map-exit bug and enable tactical AI.
 		/// </summary>
 		public static void EnsureInfectedHasValidLord(Pawn pawn)
@@ -1773,25 +1773,26 @@ public static void RemoveMarkedVirusHediffFromFullyTurnedPawn(Pawn pawn)
 			if (pawn == null || pawn.Dead)
 				return;
 
-			// Step 1: Ensure faction is set
-		if (pawn.Faction?.def != CADefOf.CrossedFaction)
-		{
-			Faction crossed = Component?.EnsureCrossedFaction();
-			if (crossed != null)
+			// Ensure faction is set to Crossed
+			Faction crossed = Find.FactionManager.FirstFactionOfDef(CADefOf.CrossedFaction);
+			if (crossed == null)
+				crossed = Component?.EnsureCrossedFaction();
+
+			if (pawn.Faction != crossed && crossed != null)
 				pawn.SetFaction(crossed);
-		}
 
-		// Step 2: Check if pawn has a valid Lord already
-		if (pawn.GetLord() != null && pawn.GetLord().Faction == pawn.Faction)
-			return; // Already has valid Lord
+			// Check if pawn has a valid Lord already
+			Lord currentLord = pawn.GetLord();
+			if (currentLord != null && currentLord.faction == crossed)
+				return; // Already has valid Lord
 
-			// Step 3: Try to assign to existing raid Lord on map
+			// Try to assign to existing raid Lord on map
 			Map map = pawn.Map;
-			if (map != null)
+			if (map != null && crossed != null)
 			{
 				foreach (Lord lord in map.lordManager.lords)
 				{
-					if (lord.faction == CADefOf.CrossedFaction &&
+					if (lord.faction == crossed &&
 						(lord.LordJob is LordJob_AssaultColony ||
 						 lord.LordJob is LordJob_Siege))
 					{
@@ -1801,14 +1802,14 @@ public static void RemoveMarkedVirusHediffFromFullyTurnedPawn(Pawn pawn)
 				}
 			}
 
-			// Step 4: Create new Lord if none found
-			if (map != null)
+			// Create new Lord if none found
+			if (map != null && crossed != null)
 			{
 				try
 				{
 					LordMaker.MakeNewLord(
-						pawn.Faction,
-						new LordJob_AssaultColony(map, false, false),
+						crossed,
+						new LordJob_AssaultColony(crossed, false, false, false, false, false, false, true),
 						map,
 						new List<Pawn> { pawn }
 					);
@@ -1821,19 +1822,12 @@ public static void RemoveMarkedVirusHediffFromFullyTurnedPawn(Pawn pawn)
 		}
 
 		/// <summary>
-		/// Setup infected pawn with correct ThinkTree and initial behavior state.
+		/// Setup infected pawn with initial behavior state and prevent map-exit.
 		/// </summary>
 		public static void SetupInfectedPawn(Pawn pawn)
 		{
 			if (pawn == null || pawn.Dead)
 				return;
-
-			// Assign hunter ThinkTree
-			ThinkTreeDef hunterTree = DefDatabase<ThinkTreeDef>.GetNamedSilentFail("CA_HunterThinkTree");
-			if (hunterTree != null && pawn.mindState != null)
-			{
-				pawn.mindState.thinkTree = hunterTree;
-			}
 
 			// Ensure valid Lord
 			EnsureInfectedHasValidLord(pawn);
