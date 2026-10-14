@@ -53,7 +53,7 @@
       <li>Neolithic</li>
     </apparelTags>
     <!-- Mostly melee (clubs, knives, machetes), occasional simple gun -->
-    <weaponMoney>40~160</weaponMoney>
+    <weaponMoney>50~160</weaponMoney>
     <weaponTags>
       <li>NeolithicMeleeBasic</li>
       <li>NeolithicMeleeDecent</li>
