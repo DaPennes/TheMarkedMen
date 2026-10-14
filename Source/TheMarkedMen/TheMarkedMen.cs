@@ -99,6 +99,11 @@ namespace TheMarkedMen
         public float maximumRaidPoints = 10000f;
         public float raidEscalationPerRaid = DefaultRaidEscalationPerRaid;
         public float raidEscalationMaxBonus = DefaultRaidEscalationMaxBonus;
+
+        // Raid wave randomization settings
+        public float raidEscalationRandomness = 0.3f;
+        public float raidDifficultyWaviness = 0.2f;
+        public float raidEscalationSpikeProbability = 0.15f;
         public bool allowGroupedEdgeArrival = true;
         public bool allowDistributedGroupArrival = true;
         public bool allowDistributedArrival = true;
@@ -385,6 +390,9 @@ namespace TheMarkedMen
             Scribe_Values.Look(ref maximumRaidPoints, "maximumRaidPoints", 10000f);
             Scribe_Values.Look(ref raidEscalationPerRaid, "raidEscalationPerRaid", DefaultRaidEscalationPerRaid);
             Scribe_Values.Look(ref raidEscalationMaxBonus, "raidEscalationMaxBonus", DefaultRaidEscalationMaxBonus);
+            Scribe_Values.Look(ref raidEscalationRandomness, "raidEscalationRandomness", 0.3f);
+            Scribe_Values.Look(ref raidDifficultyWaviness, "raidDifficultyWaviness", 0.2f);
+            Scribe_Values.Look(ref raidEscalationSpikeProbability, "raidEscalationSpikeProbability", 0.15f);
             Scribe_Values.Look(ref allowGroupedEdgeArrival, "allowGroupedEdgeArrival", true);
             Scribe_Values.Look(ref allowDistributedGroupArrival, "allowDistributedGroupArrival", true);
             Scribe_Values.Look(ref allowDistributedArrival, "allowDistributedArrival", true);
@@ -718,6 +726,9 @@ namespace TheMarkedMen
             DrawFloat(listing, "MarkedMen_Settings_maximumRaidPoints".Translate(), ref maximumRaidPoints, minimumRaidPoints, 100000f, "maximumRaidPoints", "MarkedMen_Settings_maximumRaidPointsDesc".Translate());
             DrawFloat(listing, "MarkedMen_Settings_raidEscalationPerRaid".Translate(), ref raidEscalationPerRaid, 0f, 2f, "raidEscalationPerRaid", "MarkedMen_Settings_raidEscalationPerRaidDesc".Translate());
             DrawFloat(listing, "MarkedMen_Settings_raidEscalationMaxBonus".Translate(), ref raidEscalationMaxBonus, 0f, 20f, "raidEscalationMaxBonus", "MarkedMen_Settings_raidEscalationMaxBonusDesc".Translate());
+            DrawFloat(listing, "MarkedMen_Settings_raidEscalationRandomness".Translate(), ref raidEscalationRandomness, 0f, 1f, "raidEscalationRandomness", "MarkedMen_Settings_raidEscalationRandomnessDesc".Translate());
+            DrawFloat(listing, "MarkedMen_Settings_raidDifficultyWaviness".Translate(), ref raidDifficultyWaviness, 0f, 1f, "raidDifficultyWaviness", "MarkedMen_Settings_raidDifficultyWavinessDesc".Translate());
+            DrawFloat(listing, "MarkedMen_Settings_raidEscalationSpikeProbability".Translate(), ref raidEscalationSpikeProbability, 0f, 1f, "raidEscalationSpikeProbability", "MarkedMen_Settings_raidEscalationSpikeProbabilityDesc".Translate());
             DrawCheckbox(listing, "MarkedMen_Settings_GroupedEdgeArrivals".Translate(), ref allowGroupedEdgeArrival, "MarkedMen_Settings_GroupedEdgeArrivalsDesc".Translate());
             DrawCheckbox(listing, "MarkedMen_Settings_SplitGroupEdgeArrivals".Translate(), ref allowDistributedGroupArrival, "MarkedMen_Settings_SplitGroupEdgeArrivalsDesc".Translate());
             DrawCheckbox(listing, "MarkedMen_Settings_ScatteredEdgeArrivals".Translate(), ref allowDistributedArrival, "MarkedMen_Settings_ScatteredEdgeArrivalsDesc".Translate());
@@ -1257,6 +1268,9 @@ namespace TheMarkedMen
             maximumRaidPoints = Mathf.Clamp(maximumRaidPoints, minimumRaidPoints, 100000f);
             raidEscalationPerRaid = Mathf.Clamp(raidEscalationPerRaid, 0f, 2f);
             raidEscalationMaxBonus = Mathf.Clamp(raidEscalationMaxBonus, 0f, 20f);
+            raidEscalationRandomness = Mathf.Clamp(raidEscalationRandomness, 0f, 1f);
+            raidDifficultyWaviness = Mathf.Clamp(raidDifficultyWaviness, 0f, 1f);
+            raidEscalationSpikeProbability = Mathf.Clamp01(raidEscalationSpikeProbability);
             civilianWeightMultiplier = Mathf.Clamp(civilianWeightMultiplier, 0f, 5f);
             scoutWeightMultiplier = Mathf.Clamp(scoutWeightMultiplier, 0f, 5f);
             hunterWeightMultiplier = Mathf.Clamp(hunterWeightMultiplier, 0f, 5f);
@@ -1657,6 +1671,8 @@ namespace TheMarkedMen
         private int countdownCacheTick = -1;
         private int countdownCachedNextTick;
         private int countdownCachedTicksUntilRaid;
+        private float lastRaidEscalationMultiplier = 1f;
+        private int lastSpikeRaidNumber = -999;
         private Map countdownCachedTargetMap;
         private bool countdownCachedValid;
         private int activeRaidStartedTick;
@@ -1765,6 +1781,8 @@ namespace TheMarkedMen
             Scribe_Values.Look(ref totalCrossedRaidsStarted, "totalCrossedRaidsStarted", 0);
             Scribe_Values.Look(ref survivedRaidCount, "survivedRaidCount", 0);
             Scribe_Values.Look(ref activeRaid, "activeRaid", false);
+            Scribe_Values.Look(ref lastRaidEscalationMultiplier, "lastRaidEscalationMultiplier", 1f);
+            Scribe_Values.Look(ref lastSpikeRaidNumber, "lastSpikeRaidNumber", -999);
             Scribe_Values.Look(ref activeRaidStartedTick, "activeRaidStartedTick", 0);
             Scribe_Values.Look(ref activeRaidWaveCount, "activeRaidWaveCount", 0);
             Scribe_Values.Look(ref activeRaidPeakInfected, "activeRaidPeakInfected", 0);
@@ -2195,7 +2213,39 @@ namespace TheMarkedMen
 
         private float CurrentRaidEscalationMultiplier()
         {
-            return 1f + Mathf.Min(totalCrossedRaidsStarted * TheMarkedMenSettings.RaidEscalationPerRaid, TheMarkedMenSettings.RaidEscalationMaxBonus);
+            // Base escalation: 1.0 + (raidCount × escalationPerRaid), capped at max bonus
+            float baseMultiplier = 1f + Mathf.Min(totalCrossedRaidsStarted * TheMarkedMenSettings.RaidEscalationPerRaid, TheMarkedMenSettings.RaidEscalationMaxBonus);
+
+            // Apply randomization if enabled
+            float randomness = Mathf.Clamp01(TheMarkedMenMod.Settings?.raidEscalationRandomness ?? 0.3f);
+            if (randomness > 0.001f)
+            {
+                baseMultiplier *= Rand.Range(1f - randomness, 1f + randomness);
+            }
+
+            // Apply waviness (alternating dips)
+            float waviness = Mathf.Clamp01(TheMarkedMenMod.Settings?.raidDifficultyWaviness ?? 0.2f);
+            if (waviness > 0.001f && totalCrossedRaidsStarted % 2 == 1)
+            {
+                baseMultiplier *= (1f - waviness);
+            }
+
+            // Apply spike chance (occasional difficulty spike)
+            float spikeProbability = Mathf.Clamp01(TheMarkedMenMod.Settings?.raidEscalationSpikeProbability ?? 0.15f);
+            if (spikeProbability > 0.001f && totalCrossedRaidsStarted != lastSpikeRaidNumber && Rand.Chance(spikeProbability))
+            {
+                baseMultiplier *= 1.5f;
+                lastSpikeRaidNumber = totalCrossedRaidsStarted;
+            }
+
+            // Ensure progression doesn't regress: never drop below 85% of last raid's multiplier
+            float minimumMultiplier = lastRaidEscalationMultiplier * 0.85f;
+            float finalMultiplier = Mathf.Max(baseMultiplier, minimumMultiplier);
+
+            // Store for next raid's floor comparison
+            lastRaidEscalationMultiplier = finalMultiplier;
+
+            return finalMultiplier;
         }
 
         private void BeginOrExtendActiveRaid(Map map, List<Pawn> spawnedPawns, float points)

@@ -115,6 +115,12 @@
   <MarkedMen_Settings_raidEscalationPerRaidDesc>Extra raid strength added after each scheduled warband starts.</MarkedMen_Settings_raidEscalationPerRaidDesc>
   <MarkedMen_Settings_raidEscalationMaxBonus>Escalation maximum bonus</MarkedMen_Settings_raidEscalationMaxBonus>
   <MarkedMen_Settings_raidEscalationMaxBonusDesc>Maximum accumulated escalation bonus from repeated warbands.</MarkedMen_Settings_raidEscalationMaxBonusDesc>
+  <MarkedMen_Settings_raidEscalationRandomness>Raid escalation randomness</MarkedMen_Settings_raidEscalationRandomness>
+  <MarkedMen_Settings_raidEscalationRandomnessDesc>Range of randomization around expected raid escalation (0 = predictable, 1 = ±100% variance). Breaks predictability while maintaining overall difficulty curve.</MarkedMen_Settings_raidEscalationRandomnessDesc>
+  <MarkedMen_Settings_raidDifficultyWaviness>Raid difficulty waviness</MarkedMen_Settings_raidDifficultyWaviness>
+  <MarkedMen_Settings_raidDifficultyWavinessDesc>Occasional difficulty dips between strong raids (0 = no dips, 1 = 100% reduction on alternating raids). Creates pacing variety.</MarkedMen_Settings_raidDifficultyWavinessDesc>
+  <MarkedMen_Settings_raidEscalationSpikeProbability>Raid escalation spike probability</MarkedMen_Settings_raidEscalationSpikeProbability>
+  <MarkedMen_Settings_raidEscalationSpikeProbabilityDesc>Chance per raid for a sudden 1.5x difficulty spike (0 = never, 1 = always spike). Cannot spike twice in a row.</MarkedMen_Settings_raidEscalationSpikeProbabilityDesc>
   <MarkedMen_Settings_GroupedEdgeArrivals>Allow grouped edge arrivals</MarkedMen_Settings_GroupedEdgeArrivals>
   <MarkedMen_Settings_GroupedEdgeArrivalsDesc>Allows raiders to enter together from one map edge.</MarkedMen_Settings_GroupedEdgeArrivalsDesc>
   <MarkedMen_Settings_SplitGroupEdgeArrivals>Allow split group edge arrivals</MarkedMen_Settings_SplitGroupEdgeArrivals>
