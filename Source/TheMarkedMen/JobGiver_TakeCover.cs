@@ -48,8 +48,8 @@ namespace TheMarkedMen
                 if (CrossedUtility.IsInfectedPawn(shooter))
                     continue;
 
-                // Check if this pawn has a ranged weapon and is targeting us
-                if (shooter.equipment?.Primary == null || !shooter.equipment.Primary.def.ranged)
+                // Check if this pawn has a ranged weapon
+                if (shooter.equipment?.Primary == null)
                     continue;
 
                 float distance = shooter.Position.DistanceTo(pawn.Position);
@@ -57,7 +57,7 @@ namespace TheMarkedMen
                     continue;
 
                 // Check if line of sight
-                if (shooter.CanSee(pawn) && !GenAdjective.PositiveSkillOrTraitForTool(shooter))
+                if (shooter.CanSee(pawn))
                 {
                     return true;
                 }
@@ -87,7 +87,13 @@ namespace TheMarkedMen
                 if (cover == null)
                     continue;
 
-                float score = CoverUtility.CalculateCoverScore(cover, cell, pawn.Map);
+                // Prefer roofed or cover objects
+                float score = 0f;
+                if (pawn.Map.roofGrid.Roofed(cell))
+                    score += 10f;
+                if (cover != null)
+                    score += 5f;
+
                 if (score > bestScore)
                 {
                     bestScore = score;

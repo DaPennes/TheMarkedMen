@@ -1,15 +1,16 @@
 using RimWorld;
 using UnityEngine;
 using Verse;
+using System;
 
 namespace TheMarkedMen.UI
 {
     public class Gizmo_CaravanAmbushTimer : Gizmo
     {
-        private Caravan caravan;
+        private dynamic caravan;
         private int ambushTick;
 
-        public Gizmo_CaravanAmbushTimer(Caravan caravan, int ambushTick)
+        public Gizmo_CaravanAmbushTimer(dynamic caravan, int ambushTick)
         {
             this.caravan = caravan;
             this.ambushTick = ambushTick;
@@ -24,26 +25,25 @@ namespace TheMarkedMen.UI
             if (ticksUntilAmbush < 0)
             {
                 // Ambush already occurred or passed
-                Text.Font = GameFont.Compact;
+                Text.Font = GameFont.Tiny;
                 GUI.Label(rect, "No imminent threat");
                 return new GizmoResult(GizmoState.Clear);
             }
 
             float hours = ticksUntilAmbush / (float)GenDate.TicksPerHour;
-            string label = $"Ambush Warning: {Mathf.CeilToInt(hours)} hours until contact";
+            string label = $"Ambush Warning: {Mathf.CeilToInt(hours)}h";
 
             // Determine color based on urgency
-            GUIStyle style = new GUIStyle(TextLibrary.SmallFont);
             Color color = Color.white;
             if (hours <= 24f) color = Color.red;
             else if (hours <= 168f) color = Color.yellow;
-            else color = Color.white;
 
             Text.Font = GameFont.Small;
-            GUIStyle colored = new GUIStyle(style);
-            colored.normal.textColor = color;
-            GUI.Label(rect, label, colored);
-            return new GizmoResult(GizmoState.Active);
+            GUI.color = color;
+            GUI.Label(rect, label);
+            GUI.color = Color.white;
+
+            return new GizmoResult(GizmoState.Clear);
         }
 
         public override float GetWidth(float maxWidth)

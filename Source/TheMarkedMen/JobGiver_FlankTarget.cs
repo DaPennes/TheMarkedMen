@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using RimWorld;
+using UnityEngine;
 using Verse;
 using Verse.AI;
 
@@ -158,7 +159,7 @@ namespace TheMarkedMen
                     Mathf.Cos(flankAngle * Mathf.Deg2Rad)
                 ) * 5f; // Flank at ~5 cells from target
 
-                IntVec3 flankPos = (targetVec + offset).ToIntVec3;
+                IntVec3 flankPos = (targetVec + offset).ToIntVec3();
 
                 if (pawn.Map.reachability.CanReach(pawn.Position, flankPos, PathEndMode.OnCell, TraverseMode.ByPawn))
                 {

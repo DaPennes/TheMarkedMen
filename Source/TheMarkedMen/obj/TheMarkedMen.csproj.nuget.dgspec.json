@@ -50,6 +50,10 @@
               "target": "Package",
               "version": "[2.3.3, )"
             },
+            "Microsoft.CSharp": {
+              "target": "Package",
+              "version": "[4.7.0, )"
+            },
             "Microsoft.NETFramework.ReferenceAssemblies.net472": {
               "suppressParent": "All",
               "target": "Package",

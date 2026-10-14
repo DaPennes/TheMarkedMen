@@ -126,7 +126,7 @@ namespace TheMarkedMen
                     Mathf.Sin(angle * Mathf.Deg2Rad)
                 ) * MinRetreatDistance;
 
-                IntVec3 candidatePos = (pawn.Position.ToVector3Shifted() + offset).ToIntVec3;
+                IntVec3 candidatePos = (pawn.Position.ToVector3Shifted() + offset).ToIntVec3();
 
                 if (IsValidRetreatPosition(pawn, candidatePos))
                     return candidatePos;
@@ -175,8 +175,8 @@ namespace TheMarkedMen
                 return false;
 
             // Prefer positions with some cover
-            IntVec3 cover = candidate.GetCover(pawn.Map);
-            if (cover != null && cover.InBounds(pawn.Map))
+            Thing cover = candidate.GetCover(pawn.Map);
+            if (cover != null && cover.Position.InBounds(pawn.Map))
                 return true;
 
             // Prefer positions not in open

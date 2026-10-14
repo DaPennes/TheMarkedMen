@@ -568,47 +568,7 @@ namespace TheMarkedMen
         }
     }
 
-    [HarmonyPatch(typeof(Caravan), nameof(Caravan.GetGizmos))]
-    public static class Patch_CaravanGetGizmos
-    {
-        public static void Postfix(Caravan __instance, ref Gizmo[] __result)
-        {
-            if (__instance == null || !TheMarkedMenMod.Settings?.caravanAmbushTimerVisible ?? false)
-            {
-                return;
-            }
-
-            TheMarkedMenGameComponent component = CrossedUtility.Component;
-            if (component == null)
-            {
-                return;
-            }
-
-            int ambushCountdown = component.GetAmbushCountdownForCaravan(__instance);
-            if (ambushCountdown < 0)
-            {
-                return;
-            }
-
-            // Add ambush timer gizmo
-            Gizmo timerGizmo = new Gizmo_CaravanAmbushTimer(__instance, GetAmbushTickForCaravan(__instance));
-            List<Gizmo> gizmos = __result.ToList();
-            gizmos.Add(timerGizmo);
-            __result = gizmos.ToArray();
-        }
-
-        private static int GetAmbushTickForCaravan(Caravan caravan)
-        {
-            TheMarkedMenGameComponent component = CrossedUtility.Component;
-            if (component != null && component.trackedCaravans.TryGetValue(caravan.ID, out var data))
-            {
-                return data.ambushTick;
-            }
-            return Find.TickManager.TicksGame + 100000; // Far future if not tracked
-        }
-    }
-
-    [HarmonyPatch(typeof(IncidentWorker_Ambush), nameof(IncidentWorker_Ambush.TryExecute))]
+[HarmonyPatch(typeof(IncidentWorker_Ambush), nameof(IncidentWorker_Ambush.TryExecute))]
     public static class Patch_IncidentWorkerAmbushTryExecute
     {
         public static bool Prefix(IncidentParms parms)
@@ -619,8 +579,9 @@ namespace TheMarkedMen
 
         public static void Postfix(IncidentParms parms, bool __result)
         {
-            if (__result && parms.target is Caravan caravan)
+            if (__result && parms.target != null && parms.target.GetType().Name == "Caravan")
             {
+                dynamic caravan = parms.target;
                 TheMarkedMenGameComponent component = CrossedUtility.Component;
                 if (component != null)
                 {
