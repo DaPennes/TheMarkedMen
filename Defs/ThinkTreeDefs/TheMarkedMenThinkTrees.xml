@@ -6,9 +6,6 @@
     <label>Crossed Hunter Think Tree</label>
     <thinkRoot Class="Verse.AI.ThinkNode_Priority">
       <subNodes>
-        <!-- Lord/duty thinking first -->
-        <li Class="Verse.AI.ThinkNode_DutyToil" />
-
         <!-- Find nearest non-infected target -->
         <li Class="TheMarkedMen.JobGiver_FindNearestTarget" />
 
