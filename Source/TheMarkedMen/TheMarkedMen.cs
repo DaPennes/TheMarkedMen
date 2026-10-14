@@ -954,46 +954,6 @@ namespace TheMarkedMen
             {
                 return civilianWeightMultiplier;
             }
-            if (kind == CADefOf.CrossedScout)
-            {
-                return scoutWeightMultiplier;
-            }
-            if (kind == CADefOf.CrossedHunter)
-            {
-                return hunterWeightMultiplier;
-            }
-            if (kind == CADefOf.CrossedShooter)
-            {
-                return shooterWeightMultiplier;
-            }
-            if (kind == CADefOf.CrossedRaider)
-            {
-                return raiderWeightMultiplier;
-            }
-            if (kind == CADefOf.CrossedSoldier)
-            {
-                return soldierWeightMultiplier;
-            }
-            if (kind == CADefOf.CrossedBrute)
-            {
-                return bruteWeightMultiplier;
-            }
-            if (kind == CADefOf.CrossedPyromaniac)
-            {
-                return pyromaniacWeightMultiplier;
-            }
-            if (kind == CADefOf.CrossedAlpha)
-            {
-                return alphaWeightMultiplier;
-            }
-            if (kind == CADefOf.CrossedWarlord)
-            {
-                return warlordWeightMultiplier;
-            }
-            if (kind == CADefOf.MarkedMan)
-            {
-                return markedManWeightMultiplier;
-            }
 
             return 1f;
         }
@@ -3460,7 +3420,7 @@ namespace TheMarkedMen
         {
             List<Pawn> pawns = new List<Pawn>(count + 1);
 
-            Pawn leader = PawnGenerator.GeneratePawn(CADefOf.MarkedMan, faction, map.Tile);
+            Pawn leader = PawnGenerator.GeneratePawn(CADefOf.CrossedCivilian, faction, map.Tile);
             if (leader != null)
             {
                 CrossedUtility.ApplyClassHediffs(leader);
@@ -3872,7 +3832,7 @@ namespace TheMarkedMen
                 CrossedUtility.ApplyClassHediffs(pawn);
                 CrossedUtility.ApplyInfectedTattoo(pawn);
 
-                alphaAdded = alphaAdded || kind == CADefOf.CrossedAlpha || kind == CADefOf.CrossedWarlord || kind == CADefOf.MarkedMan;
+                alphaAdded = false; // No alpha/warlord/marked man tracking needed
                 pawns.Add(pawn);
             }
 

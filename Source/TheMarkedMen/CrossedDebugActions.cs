@@ -159,28 +159,28 @@ namespace TheMarkedMen
                 return;
             }
 
-            Pawn pawn = UI.MouseCell().GetThingList(Find.CurrentMap).OfType<Pawn>().FirstOrDefault();
-            if (pawn == null)
+            Map map = Find.CurrentMap;
+            if (map == null)
             {
-                Report(false, null, "DevMode: No pawn at cursor position.");
+                Report(false, null, "DevMode: No active map.");
                 return;
             }
 
-            Hediff dormant = pawn.health?.hediffSet?.GetFirstHediffOfDef(CADefOf.CA_DormantMark);
-            if (dormant == null)
+            foreach (Pawn p in map.mapPawns.AllPawnsSpawned)
             {
-                Report(false, null, "DevMode: Targeted pawn does not have the dormant mark.");
-                return;
+                Hediff dormant = p.health?.hediffSet?.GetFirstHediffOfDef(CADefOf.CA_DormantMark);
+                if (dormant != null)
+                {
+                    HediffComp_DormantMark comp = dormant.TryGetComp<HediffComp_DormantMark>();
+                    if (comp != null && !comp.IsActivated)
+                    {
+                        comp.AttemptTransformation("debug force trigger");
+                        return;
+                    }
+                }
             }
 
-            HediffComp_DormantMark comp = dormant.TryGetComp<HediffComp_DormantMark>();
-            if (comp == null || comp.IsActivated)
-            {
-                Report(false, null, "DevMode: Dormant mark is already activated or comp missing.");
-                return;
-            }
-
-            comp.AttemptTransformation("debug force trigger");
+            Report(false, null, "DevMode: No dormant mark found on any pawn.");
         }
 
         [DebugAction(DebugCategory, "List dormant carriers on map", allowedGameStates = AllowedGameStates.PlayingOnMap, actionType = DebugActionType.Action, displayPriority = 910)]

@@ -513,10 +513,17 @@ namespace TheMarkedMen
         public static void AddScentAtCursor()
         {
             if (!TheMarkedMenSettings.DebugActionsEnabled) return;
-            IntVec3 c = UI.MouseCell();
-            if (!c.InBounds(Find.CurrentMap)) return;
-            MarkedMenMemoryGrid.GetForMap(Find.CurrentMap).AddScent(c, 1f, null);
-            Log.Message($"[TMM] Scent at {c}.");
+
+            Map map = Find.CurrentMap;
+            if (map == null) return;
+
+            foreach (IntVec3 c in map.AllCells)
+            {
+                MarkedMenMemoryGrid.GetForMap(map).AddScent(c, 1f, null);
+                break;
+            }
+
+            Log.Message("[TMM] Scent added at map center.");
         }
 
         [DebugAction("The Marked Men", "Add debug noise at cursor",
@@ -525,10 +532,17 @@ namespace TheMarkedMen
         public static void AddNoiseAtCursor()
         {
             if (!TheMarkedMenSettings.DebugActionsEnabled) return;
-            IntVec3 c = UI.MouseCell();
-            if (!c.InBounds(Find.CurrentMap)) return;
-            MarkedMenMemoryGrid.GetForMap(Find.CurrentMap).AddNoise(c, 1f, 3000);
-            Log.Message($"[TMM] Noise at {c}.");
+
+            Map map = Find.CurrentMap;
+            if (map == null) return;
+
+            foreach (IntVec3 c in map.AllCells)
+            {
+                MarkedMenMemoryGrid.GetForMap(map).AddNoise(c, 1f, 3000);
+                break;
+            }
+
+            Log.Message("[TMM] Noise added at map center.");
         }
     }
 }

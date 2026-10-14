@@ -1042,45 +1042,7 @@ namespace TheMarkedMen
 				return;
 			}
 
-			TheMarkedMenSettings settings = TheMarkedMenMod.Settings;
-			int maxAlphas = Mathf.Clamp(settings?.maximumAlphasPerRaid ?? 99, 0, 99);
-			int alphaCount = 0;
-			for (int i = 0; i < pawns.Count; i++)
-			{
-				Pawn pawn = pawns[i];
-				if (pawn == null || pawn.Dead)
-				{
-					continue;
-				}
-
-				bool replace = false;
-				if (pawn.kindDef == CADefOf.CrossedAlpha)
-				{
-					alphaCount++;
-					replace = alphaCount > maxAlphas || TheMarkedMenSettings.AdjustKindWeight(CADefOf.CrossedAlpha, 1f) <= 0f;
-				}
-				else if (pawn.kindDef == CADefOf.CrossedWarlord)
-				{
-					replace = TheMarkedMenSettings.AdjustKindWeight(CADefOf.CrossedWarlord, 1f) <= 0f;
-				}
-				else if (pawn.kindDef == CADefOf.MarkedMan)
-				{
-					replace = TheMarkedMenSettings.AdjustKindWeight(CADefOf.MarkedMan, 1f) <= 0f;
-				}
-
-				if (replace)
-				{
-					PawnKindDef replacement = PickReplacementMarkedKind();
-					if (replacement != null && replacement != pawn.kindDef)
-					{
-						pawn.ChangeKind(replacement);
-						RemoveClassHediffs(pawn);
-						ApplyClassHediffs(pawn);
-						CrossedEquipmentGenerator.AssignEquipment(pawn);
-						ApplyInfectedTattoo(pawn);
-					}
-				}
-			}
+			// All infected pawns are now CA_CrossedCivilian, no tuning needed
 		}
 
 		private static PawnKindDef PickReplacementMarkedKind()
@@ -1091,9 +1053,7 @@ namespace TheMarkedMen
 
 		private static void RemoveClassHediffs(Pawn pawn)
 		{
-			RemoveHediffIfPresent(pawn, CADefOf.BloodRush);
-			RemoveHediffIfPresent(pawn, CADefOf.CommandAura);
-			RemoveHediffIfPresent(pawn, CADefOf.PsychicAura);
+			// No class-specific hediffs to remove for CA_CrossedCivilian
 		}
 
 		private static void RemoveHediffIfPresent(Pawn pawn, HediffDef def)
@@ -1257,7 +1217,7 @@ namespace TheMarkedMen
 
 		public static bool IsCrossedPyromaniac(Pawn pawn)
 		{
-			return pawn?.kindDef == CADefOf.CrossedPyromaniac;
+			return false; // No more role-specific pawns
 		}
 
 		public static bool IsMolotovWeapon(ThingDef def)

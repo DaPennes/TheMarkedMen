@@ -187,62 +187,9 @@ namespace TheMarkedMen
 
         private static void EnsureSignatureApparel(Pawn pawn, int tier, PawnKindDef kind)
         {
-            if (kind == CADefOf.CrossedSoldier)
-            {
-                EnsureTaggedOnSkin(pawn, tier, IndustrialMilitaryTags, "military shirt", minSharp: 0f);
-                EnsureLayerByTags(pawn, tier, ShellLayer, TorsoGroup, IndustrialMilitaryTags, "flak vest", minSharp: 0.15f);
-                EnsureLayerByTags(pawn, tier, OverheadLayer, null, IndustrialMilitaryTags, "military helmet", minSharp: 0.10f);
-                EnsureLayerByTags(pawn, tier, MiddleLayer, LegsGroup, IndustrialMilitaryTags, "military pants", minSharp: 0f);
-            }
-            else if (kind == CADefOf.CrossedBrute)
-            {
-                EnsureLayerByTags(pawn, tier, ShellLayer, TorsoGroup, IndustrialMilitaryTags, "heavy armor", minSharp: 0.30f);
-                EnsureLayerByTags(pawn, tier, OverheadLayer, null, IndustrialMilitaryTags, "heavy helmet", minSharp: 0.20f);
-            }
-            else if (kind == CADefOf.CrossedShooter)
-            {
-                EnsureLayerByTags(pawn, tier, ShellLayer, TorsoGroup, IndustrialMilitaryTags, "flak vest", minSharp: 0.15f);
-            }
-            else if (kind == CADefOf.CrossedRaider)
-            {
-                if (Rand.Chance(0.50f))
-                    EnsureLayerByTags(pawn, tier, ShellLayer, TorsoGroup, IndustrialMilitaryTags, "armor", minSharp: 0.10f);
-                if (Rand.Chance(0.40f))
-                    EnsureLayerByTags(pawn, tier, OverheadLayer, null, IndustrialMilitaryTags, "helmet", minSharp: 0.05f);
-            }
-            else if (kind == CADefOf.CrossedScout)
-            {
-                if (Rand.Chance(0.60f))
-                    EnsureLayerByTags(pawn, tier, ShellLayer, TorsoGroup, CivilianTags, "jacket or duster", minSharp: 0f);
-            }
-            else if (kind == CADefOf.CrossedHunter)
-            {
-                if (Rand.Chance(0.70f))
-                    EnsureLayerByTags(pawn, tier, ShellLayer, TorsoGroup, CivilianTags, "outdoor wear", minSharp: 0f);
-            }
-            else if (kind == CADefOf.CrossedPyromaniac)
-            {
-                if (Rand.Chance(0.40f))
-                    EnsureLayerByTags(pawn, tier, ShellLayer, TorsoGroup, CivilianTags, "outerwear", minSharp: 0f);
-            }
-            else if (kind == CADefOf.CrossedAlpha)
-            {
-                EnsureLayerByTags(pawn, tier, ShellLayer, TorsoGroup, SpacerTags, "elite armor", minSharp: 0.30f);
-                EnsureLayerByTags(pawn, tier, OverheadLayer, null, SpacerTags, "elite helmet", minSharp: 0.20f);
-            }
-            else if (kind == CADefOf.CrossedWarlord)
-            {
-                EnsureLayerByTags(pawn, tier, ShellLayer, TorsoGroup, IndustrialMilitaryTags, "heavy armor", minSharp: 0.35f);
-                EnsureLayerByTags(pawn, tier, OverheadLayer, null, IndustrialMilitaryTags, "elite helmet", minSharp: 0.25f);
-            }
-            else if (kind == CADefOf.MarkedMan)
-            {
-                EnsureLayerByTags(pawn, tier, ShellLayer, TorsoGroup, SpacerTags, "apex armor", minSharp: 0.40f);
-                EnsureLayerByTags(pawn, tier, OverheadLayer, null, SpacerTags, "apex helmet", minSharp: 0.30f);
-                EnsureShield(pawn, tier, 1.0f);
-            }
-
-            EnsureShield(pawn, tier, ShieldChanceForKind(kind));
+            // All infected pawns get basic civilian clothing
+            EnsureLayerByTags(pawn, tier, ShellLayer, TorsoGroup, CivilianTags, "jacket or duster", minSharp: 0f);
+            EnsureLayerByTags(pawn, tier, OverheadLayer, null, CivilianTags, "helmet", minSharp: 0f);
         }
 
         private static void EnsureTaggedOnSkin(Pawn pawn, int tier, List<string> preferredTags, string label, float minSharp)
@@ -379,19 +326,18 @@ namespace TheMarkedMen
 
         private static void EnsureShield(Pawn pawn, int tier, float chance)
         {
-            if (!Rand.Chance(chance))
-                return;
-
-            if (HasLayer(pawn, BeltLayer))
-                return;
-
-            for (int t = Mathf.Min(tier + 1, TierCount - 1); t >= 0; t--)
+            // All infected pawns get basic shield protection
+            if (Rand.Chance(0.25f)) // 25% chance for basic shield
             {
-                List<ThingDef> pool = shieldsByTier[t];
-                if (pool.Count > 0)
+                // Get a random shield from the lowest tier
+                for (int t = 0; t < TierCount; t++)
                 {
-                    EquipApparel(pawn, pool[Rand.RangeInclusive(0, pool.Count - 1)], tier);
-                    return;
+                    List<ThingDef> pool = shieldsByTier[t];
+                    if (pool.Count > 0)
+                    {
+                        EquipApparel(pawn, pool[Rand.RangeInclusive(0, pool.Count - 1)], tier);
+                        return;
+                    }
                 }
             }
         }
@@ -400,14 +346,7 @@ namespace TheMarkedMen
         {
             if (pawn?.apparel == null) return;
 
-            PawnKindDef kind = pawn.kindDef;
-            bool isArmedKind = kind == CADefOf.CrossedSoldier || kind == CADefOf.CrossedAlpha
-                || kind == CADefOf.CrossedWarlord || kind == CADefOf.MarkedMan
-                || kind == CADefOf.CrossedBrute || kind == CADefOf.CrossedShooter
-                || kind == CADefOf.CrossedRaider;
-
-            bool isCivilianKind = kind == CADefOf.CrossedCivilian || kind == CADefOf.CrossedPyromaniac
-                || kind == CADefOf.CrossedScout || kind == CADefOf.CrossedHunter;
+            bool isInfected = CrossedUtility.IsInfectedPawn(pawn);
 
             for (int i = pawn.apparel.WornApparel.Count - 1; i >= 0; i--)
             {
@@ -418,7 +357,7 @@ namespace TheMarkedMen
 
                 if (def.apparel == null) continue;
 
-                if (CrossedUtility.IsInfectedPawn(pawn) && !CanWearApparel(pawn, def))
+                if (isInfected && !CanWearApparel(pawn, def))
                 {
                     pawn.apparel.Remove(ap);
                     ap.Destroy(DestroyMode.Vanish);
@@ -430,7 +369,8 @@ namespace TheMarkedMen
 
                 if (def.apparel.LastLayer == OverheadLayer)
                 {
-                    if (isCivilianKind && def.GetStatValueAbstract(StatDefOf.ArmorRating_Sharp) >= 0.10f)
+                    // Remove heavy armor from civilian infected
+                    if (def.GetStatValueAbstract(StatDefOf.ArmorRating_Sharp) >= 0.10f)
                     {
                         pawn.apparel.Remove(ap);
                         ap.Destroy(DestroyMode.Vanish);
@@ -438,28 +378,14 @@ namespace TheMarkedMen
                     continue;
                 }
 
-                if (isArmedKind)
+                // Basic armor stripping for all infected
+                float sharp = def.GetStatValueAbstract(StatDefOf.ArmorRating_Sharp);
+                bool hasMilTag = HasAnyMilitaryTag(def);
+
+                if (sharp < 0.05f && !hasMilTag && def.apparel.LastLayer == ShellLayer)
                 {
-                    float sharp = def.GetStatValueAbstract(StatDefOf.ArmorRating_Sharp);
-                    bool hasMilTag = HasAnyMilitaryTag(def);
-
-                    if (sharp < 0.05f && !hasMilTag && def.apparel.LastLayer == ShellLayer)
-                    {
-                        pawn.apparel.Remove(ap);
-                        ap.Destroy(DestroyMode.Vanish);
-                    }
-                }
-
-                if (isCivilianKind)
-                {
-                    float sharp = def.GetStatValueAbstract(StatDefOf.ArmorRating_Sharp);
-                    bool hasMilTag = HasAnyMilitaryTag(def);
-
-                    if (sharp >= 0.20f || hasMilTag)
-                    {
-                        pawn.apparel.Remove(ap);
-                        ap.Destroy(DestroyMode.Vanish);
-                    }
+                    pawn.apparel.Remove(ap);
+                    ap.Destroy(DestroyMode.Vanish);
                 }
             }
         }
@@ -504,9 +430,6 @@ namespace TheMarkedMen
             if (Find.FactionManager == null)
                 return;
             if (pawn.equipment == null || weaponsByTier == null)
-                return;
-
-            if (pawn.kindDef == CADefOf.CrossedPyromaniac)
                 return;
 
             if (pawn.equipment.Primary != null && !pawn.equipment.Primary.Destroyed)
@@ -703,27 +626,12 @@ namespace TheMarkedMen
 
         private static float ShieldChanceForKind(PawnKindDef kind)
         {
-            if (kind == CADefOf.MarkedMan) return 1.0f;
-            if (kind == CADefOf.CrossedWarlord) return 0.40f;
-            if (kind == CADefOf.CrossedAlpha) return 0.25f;
-            if (kind == CADefOf.CrossedSoldier) return 0.10f;
-            if (kind == CADefOf.CrossedBrute) return 0.05f;
-            return 0.02f;
+            return 0.25f; // All infected get same basic shield chance
         }
 
         internal static bool IsCrossedKind(PawnKindDef kind)
         {
-            return kind == CADefOf.CrossedCivilian
-                || kind == CADefOf.CrossedScout
-                || kind == CADefOf.CrossedHunter
-                || kind == CADefOf.CrossedShooter
-                || kind == CADefOf.CrossedRaider
-                || kind == CADefOf.CrossedSoldier
-                || kind == CADefOf.CrossedBrute
-                || kind == CADefOf.CrossedPyromaniac
-                || kind == CADefOf.CrossedAlpha
-                || kind == CADefOf.CrossedWarlord
-                || kind == CADefOf.MarkedMan;
+            return kind == CADefOf.CrossedCivilian;
         }
 
         internal static bool CanUseWeapon(Pawn pawn, ThingDef def)
@@ -783,18 +691,7 @@ namespace TheMarkedMen
 
         private static int GetKindBaseTier(PawnKindDef kind)
         {
-            if (kind == CADefOf.CrossedCivilian) return 0;
-            if (kind == CADefOf.CrossedScout) return 1;
-            if (kind == CADefOf.CrossedHunter) return 2;
-            if (kind == CADefOf.CrossedShooter) return 2;
-            if (kind == CADefOf.CrossedRaider) return 3;
-            if (kind == CADefOf.CrossedPyromaniac) return 2;
-            if (kind == CADefOf.CrossedSoldier) return 4;
-            if (kind == CADefOf.CrossedBrute) return 4;
-            if (kind == CADefOf.CrossedAlpha) return 5;
-            if (kind == CADefOf.CrossedWarlord) return 5;
-            if (kind == CADefOf.MarkedMan) return 6;
-            return 0;
+            return 0; // All infected get tier 0 (civilian equipment)
         }
 
         private static int ClassifyApparel(ThingDef def)
