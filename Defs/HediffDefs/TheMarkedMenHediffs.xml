@@ -15,83 +15,59 @@
     <stages>
       <li>
         <minSeverity>0</minSeverity>
-        <label>rapid incubation</label>
+        <label>early infection</label>
         <becomeVisible>true</becomeVisible>
-        <painFactor>0.5</painFactor>
-        <blocksMentalBreaks>true</blocksMentalBreaks>
+        <painFactor>0.3</painFactor>
         <statFactors>
-          <MoveSpeed>1.02</MoveSpeed>
-          <MeleeCooldownFactor>0.96</MeleeCooldownFactor>
+          <MoveSpeed>1.0</MoveSpeed>
+          <RestRateMultiplier>0.9</RestRateMultiplier>
         </statFactors>
         <statOffsets>
-          <MentalBreakThreshold>-0.50</MentalBreakThreshold>
-          <PainShockThreshold>0.25</PainShockThreshold>
+          <MentalBreakThreshold>-0.30</MentalBreakThreshold>
         </statOffsets>
       </li>
       <li>
-        <minSeverity>0.2</minSeverity>
-        <label>active symptoms</label>
+        <minSeverity>0.35</minSeverity>
+        <label>active infection</label>
         <becomeVisible>true</becomeVisible>
-        <painFactor>0.3</painFactor>
-        <blocksMentalBreaks>true</blocksMentalBreaks>
+        <painFactor>0.15</painFactor>
         <statFactors>
-          <ImmunityGainSpeed>0.8</ImmunityGainSpeed>
-          <RestRateMultiplier>0.85</RestRateMultiplier>
+          <MoveSpeed>1.05</MoveSpeed>
+          <MeleeCooldownFactor>0.88</MeleeCooldownFactor>
+          <ImmunityGainSpeed>0.75</ImmunityGainSpeed>
+          <RestRateMultiplier>0.7</RestRateMultiplier>
         </statFactors>
         <statOffsets>
-          <MentalBreakThreshold>-0.50</MentalBreakThreshold>
+          <MentalBreakThreshold>-0.45</MentalBreakThreshold>
           <PainShockThreshold>0.35</PainShockThreshold>
         </statOffsets>
         <capMods>
           <li>
             <capacity>Consciousness</capacity>
-            <offset>-0.05</offset>
+            <offset>-0.10</offset>
           </li>
         </capMods>
       </li>
       <li>
-        <minSeverity>0.45</minSeverity>
-        <label>neurological fever</label>
-        <painFactor>0.1</painFactor>
-        <blocksMentalBreaks>true</blocksMentalBreaks>
-        <statFactors>
-          <MoveSpeed>1.04</MoveSpeed>
-          <MeleeCooldownFactor>0.9</MeleeCooldownFactor>
-          <SocialImpact>0.35</SocialImpact>
-        </statFactors>
-        <statOffsets>
-          <MentalBreakThreshold>-0.50</MentalBreakThreshold>
-          <PainShockThreshold>0.45</PainShockThreshold>
-        </statOffsets>
-      </li>
-      <li>
-        <minSeverity>0.72</minSeverity>
-        <label>violent psychosis</label>
+        <minSeverity>0.70</minSeverity>
+        <label>terminal infection</label>
         <painFactor>0</painFactor>
         <blocksMentalBreaks>true</blocksMentalBreaks>
         <blocksInspirations>true</blocksInspirations>
+        <pctAllThoughtNullification>0.8</pctAllThoughtNullification>
         <statFactors>
-          <MoveSpeed>1.10</MoveSpeed>
-          <MeleeCooldownFactor>0.76</MeleeCooldownFactor>
-          <IncomingDamageFactor>0.9</IncomingDamageFactor>
-          <PsychicSensitivity>0.55</PsychicSensitivity>
-          <StaggerDurationFactor>0.65</StaggerDurationFactor>
+          <MoveSpeed>1.12</MoveSpeed>
+          <MeleeCooldownFactor>0.65</MeleeCooldownFactor>
+          <IncomingDamageFactor>0.75</IncomingDamageFactor>
         </statFactors>
         <statOffsets>
-          <MentalBreakThreshold>-0.50</MentalBreakThreshold>
-          <PainShockThreshold>0.55</PainShockThreshold>
-          <MeleeHitChance>2</MeleeHitChance>
+          <MentalBreakThreshold>-0.60</MentalBreakThreshold>
+          <PainShockThreshold>0.50</PainShockThreshold>
         </statOffsets>
-        <capMods>
-          <li>
-            <capacity>Talking</capacity>
-            <postFactor>0.45</postFactor>
-          </li>
-        </capMods>
       </li>
       <li>
         <minSeverity>0.95</minSeverity>
-        <label>irreversible mark</label>
+        <label>transformation point</label>
         <painFactor>0</painFactor>
         <blocksMentalBreaks>true</blocksMentalBreaks>
         <blocksInspirations>true</blocksInspirations>

@@ -148,6 +148,16 @@ namespace TheMarkedMen
         public float terminalTransformationWeight = DefaultTerminalTransformationWeight;
         public float terminalDeathWeight = DefaultTerminalDeathWeight;
         public float reanimationChance = 1f;
+
+        // CA_MarkedTurned strength multipliers (applied to base HediffComp_MarkedTurned values)
+        public float markedTurnedMoveSpeedFactor = 1.05f;
+        public float markedTurnedMeleeAccuracyBonus = 0.1f;
+        public float markedTurnedRangedAccuracyBonus = 0.05f;
+        public float markedTurnedHealthRegenPerTick = 0.001f;
+        public float markedTurnedFatiguePassPerTick = -0.001f;
+        public float markedTurnedIncomingDamageFactor = 0.85f;
+        public float markedTurnedMeleeCooldownFactor = 0.9f;
+        public float markedTurnedPainFactor = 0.0f;
         public int reanimationDelayTicks = 900;
         public float starterLineageBreakthroughChance = 0.04f;
 
@@ -422,6 +432,16 @@ namespace TheMarkedMen
             Scribe_Values.Look(ref terminalTransformationWeight, "terminalTransformationWeight", DefaultTerminalTransformationWeight);
             Scribe_Values.Look(ref terminalDeathWeight, "terminalDeathWeight", DefaultTerminalDeathWeight);
             Scribe_Values.Look(ref reanimationChance, "reanimationChance", 1f);
+
+            // CA_MarkedTurned strength multipliers
+            Scribe_Values.Look(ref markedTurnedMoveSpeedFactor, "markedTurnedMoveSpeedFactor", 1.05f);
+            Scribe_Values.Look(ref markedTurnedMeleeAccuracyBonus, "markedTurnedMeleeAccuracyBonus", 0.1f);
+            Scribe_Values.Look(ref markedTurnedRangedAccuracyBonus, "markedTurnedRangedAccuracyBonus", 0.05f);
+            Scribe_Values.Look(ref markedTurnedHealthRegenPerTick, "markedTurnedHealthRegenPerTick", 0.001f);
+            Scribe_Values.Look(ref markedTurnedFatiguePassPerTick, "markedTurnedFatiguePassPerTick", -0.001f);
+            Scribe_Values.Look(ref markedTurnedIncomingDamageFactor, "markedTurnedIncomingDamageFactor", 0.85f);
+            Scribe_Values.Look(ref markedTurnedMeleeCooldownFactor, "markedTurnedMeleeCooldownFactor", 0.9f);
+            Scribe_Values.Look(ref markedTurnedPainFactor, "markedTurnedPainFactor", 0.0f);
             Scribe_Values.Look(ref reanimationDelayTicks, "reanimationDelayTicks", 900);
             Scribe_Values.Look(ref starterLineageBreakthroughChance, "starterLineageBreakthroughChance", 0.04f);
 
@@ -736,6 +756,17 @@ namespace TheMarkedMen
             DrawFloat(listing, "MarkedMen_Settings_reanimationChance".Translate(), ref reanimationChance, 0f, 1f, "reanimationChance", "MarkedMen_Settings_reanimationChanceDesc".Translate());
             DrawInt(listing, "MarkedMen_Settings_reanimationDelayTicks".Translate(), ref reanimationDelayTicks, 60, GenDate.TicksPerDay * 30, "reanimationDelayTicks", "MarkedMen_Settings_reanimationDelayTicksDesc".Translate());
             DrawFloat(listing, "MarkedMen_Settings_starterLineageBreakthroughChance".Translate(), ref starterLineageBreakthroughChance, 0f, 1f, "starterLineageBreakthroughChance", "MarkedMen_Settings_starterLineageBreakthroughChanceDesc".Translate());
+
+            DrawSectionHeader(listing, "MarkedMen_Settings_CA_MarkedTurned_Strength".Translate(), "MarkedMen_Settings_CA_MarkedTurned_StrengthDesc".Translate());
+            DrawHelp(listing, "MarkedMen_Settings_CA_MarkedTurned_StrengthDesc".Translate());
+            DrawFloat(listing, "MarkedMen_Settings_markedTurnedMoveSpeedFactor".Translate(), ref markedTurnedMoveSpeedFactor, 0.5f, 3f, "markedTurnedMoveSpeedFactor", "MarkedMen_Settings_markedTurnedMoveSpeedFactorDesc".Translate());
+            DrawFloat(listing, "MarkedMen_Settings_markedTurnedMeleeAccuracyBonus".Translate(), ref markedTurnedMeleeAccuracyBonus, 0f, 0.5f, "markedTurnedMeleeAccuracyBonus", "MarkedMen_Settings_markedTurnedMeleeAccuracyBonusDesc".Translate());
+            DrawFloat(listing, "MarkedMen_Settings_markedTurnedRangedAccuracyBonus".Translate(), ref markedTurnedRangedAccuracyBonus, 0f, 0.5f, "markedTurnedRangedAccuracyBonus", "MarkedMen_Settings_markedTurnedRangedAccuracyBonusDesc".Translate());
+            DrawFloat(listing, "MarkedMen_Settings_markedTurnedHealthRegenPerTick".Translate(), ref markedTurnedHealthRegenPerTick, -0.01f, 0.01f, "markedTurnedHealthRegenPerTick", "MarkedMen_Settings_markedTurnedHealthRegenPerTickDesc".Translate());
+            DrawFloat(listing, "MarkedMen_Settings_markedTurnedFatiguePassPerTick".Translate(), ref markedTurnedFatiguePassPerTick, -0.01f, 0.01f, "markedTurnedFatiguePassPerTick", "MarkedMen_Settings_markedTurnedFatiguePassPerTickDesc".Translate());
+            DrawFloat(listing, "MarkedMen_Settings_markedTurnedIncomingDamageFactor".Translate(), ref markedTurnedIncomingDamageFactor, 0.5f, 2f, "markedTurnedIncomingDamageFactor", "MarkedMen_Settings_markedTurnedIncomingDamageFactorDesc".Translate());
+            DrawFloat(listing, "MarkedMen_Settings_markedTurnedMeleeCooldownFactor".Translate(), ref markedTurnedMeleeCooldownFactor, 0.5f, 2f, "markedTurnedMeleeCooldownFactor", "MarkedMen_Settings_markedTurnedMeleeCooldownFactorDesc".Translate());
+            DrawFloat(listing, "MarkedMen_Settings_markedTurnedPainFactor".Translate(), ref markedTurnedPainFactor, -1f, 1f, "markedTurnedPainFactor", "MarkedMen_Settings_markedTurnedPainFactorDesc".Translate());
 
             DrawSectionHeader(listing, "MarkedMen_Settings_InfectionTransmission".Translate(), "MarkedMen_Settings_InfectionTransmissionDesc".Translate());
             DrawCheckbox(listing, "MarkedMen_Settings_EnableMeleeTransmission".Translate(), ref meleeTransmissionEnabled, "MarkedMen_Settings_EnableMeleeTransmissionDesc".Translate());
@@ -1290,6 +1321,16 @@ namespace TheMarkedMen
             prisonerSelfHarmSuicideDays = Mathf.Clamp(prisonerSelfHarmSuicideDays, 1f, 90f);
             prisonerEscapeAggressionMultiplier = Mathf.Clamp(prisonerEscapeAggressionMultiplier, 0f, 5f);
             prisonerEscapeChance = Mathf.Clamp01(prisonerEscapeChance);
+
+            // CA_MarkedTurned strength multipliers
+            markedTurnedMoveSpeedFactor = Mathf.Clamp(markedTurnedMoveSpeedFactor, 0.5f, 3f);
+            markedTurnedMeleeAccuracyBonus = Mathf.Clamp(markedTurnedMeleeAccuracyBonus, 0f, 0.5f);
+            markedTurnedRangedAccuracyBonus = Mathf.Clamp(markedTurnedRangedAccuracyBonus, 0f, 0.5f);
+            markedTurnedHealthRegenPerTick = Mathf.Clamp(markedTurnedHealthRegenPerTick, -0.01f, 0.01f);
+            markedTurnedFatiguePassPerTick = Mathf.Clamp(markedTurnedFatiguePassPerTick, -0.01f, 0.01f);
+            markedTurnedIncomingDamageFactor = Mathf.Clamp(markedTurnedIncomingDamageFactor, 0.5f, 2f);
+            markedTurnedMeleeCooldownFactor = Mathf.Clamp(markedTurnedMeleeCooldownFactor, 0.5f, 2f);
+            markedTurnedPainFactor = Mathf.Clamp(markedTurnedPainFactor, -1f, 1f);
         }
 
         private void ApplyDefaultPreset(bool updatePreset)

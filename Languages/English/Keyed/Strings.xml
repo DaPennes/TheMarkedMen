@@ -49,6 +49,24 @@
   <MarkedMen_Settings_EnemyMixDesc>Controls which infected pawn types appear. Weight 0 disables that type; weight 1 is normal; higher values make that type more common.</MarkedMen_Settings_EnemyMixDesc>
   <MarkedMen_Settings_VirusAndCorpses>Virus And Corpses</MarkedMen_Settings_VirusAndCorpses>
   <MarkedMen_Settings_VirusAndCorpsesDesc>Controls exposure chances, infection timing, terminal outcomes, and infected corpse transformation.</MarkedMen_Settings_VirusAndCorpsesDesc>
+  <MarkedMen_Settings_CA_MarkedTurned_Strength>CA_MarkedTurned Strength</MarkedMen_Settings_CA_MarkedTurned_Strength>
+  <MarkedMen_Settings_CA_MarkedTurned_StrengthDesc>Scales the base stat modifiers applied to pawns transformed by CA_MarkedTurned hediff. Higher values make transformed victims stronger.</MarkedMen_Settings_CA_MarkedTurned_StrengthDesc>
+  <MarkedMen_Settings_markedTurnedMoveSpeedFactor>Move speed factor</MarkedMen_Settings_markedTurnedMoveSpeedFactor>
+  <MarkedMen_Settings_markedTurnedMoveSpeedFactorDesc>Multiplier for transformed pawn movement speed (0.5 = 50% slower, 1.5 = 50% faster).</MarkedMen_Settings_markedTurnedMoveSpeedFactorDesc>
+  <MarkedMen_Settings_markedTurnedMeleeAccuracyBonus>Melee accuracy bonus</MarkedMen_Settings_markedTurnedMeleeAccuracyBonus>
+  <MarkedMen_Settings_markedTurnedMeleeAccuracyBonusDesc>Flat bonus to melee hit chance for transformed pawns (0.1 = +10% melee accuracy).</MarkedMen_Settings_markedTurnedMeleeAccuracyBonusDesc>
+  <MarkedMen_Settings_markedTurnedRangedAccuracyBonus>Ranged accuracy bonus</MarkedMen_Settings_markedTurnedRangedAccuracyBonus>
+  <MarkedMen_Settings_markedTurnedRangedAccuracyBonusDesc>Flat bonus to shooting accuracy for transformed pawns (0.05 = +5% shooting accuracy).</MarkedMen_Settings_markedTurnedRangedAccuracyBonusDesc>
+  <MarkedMen_Settings_markedTurnedHealthRegenPerTick>Health regeneration per tick</MarkedMen_Settings_markedTurnedHealthRegenPerTick>
+  <MarkedMen_Settings_markedTurnedHealthRegenPerTickDesc>Amount of health restored per tick interval (0.001 = slow regeneration over time; 0 = no regen).</MarkedMen_Settings_markedTurnedHealthRegenPerTickDesc>
+  <MarkedMen_Settings_markedTurnedFatiguePassPerTick>Fatigue pass per tick</MarkedMen_Settings_markedTurnedFatiguePassPerTick>
+  <MarkedMen_Settings_markedTurnedFatiguePassPerTickDesc>Fatigue recovery rate per tick (-0.001 = fatigue recovers faster; 0 = fatigue unchanged).</MarkedMen_Settings_markedTurnedFatiguePassPerTickDesc>
+  <MarkedMen_Settings_markedTurnedIncomingDamageFactor>Incoming damage factor</MarkedMen_Settings_markedTurnedIncomingDamageFactor>
+  <MarkedMen_Settings_markedTurnedIncomingDamageFactorDesc>Multiplier for damage taken (0.8 = 20% damage reduction, 1.2 = 20% more damage taken).</MarkedMen_Settings_markedTurnedIncomingDamageFactorDesc>
+  <MarkedMen_Settings_markedTurnedMeleeCooldownFactor>Melee cooldown factor</MarkedMen_Settings_markedTurnedMeleeCooldownFactor>
+  <MarkedMen_Settings_markedTurnedMeleeCooldownFactorDesc>Multiplier for melee attack speed (0.9 = faster attacks, 1.1 = slower attacks).</MarkedMen_Settings_markedTurnedMeleeCooldownFactorDesc>
+  <MarkedMen_Settings_markedTurnedPainFactor>Pain factor</MarkedMen_Settings_markedTurnedPainFactor>
+  <MarkedMen_Settings_markedTurnedPainFactorDesc>Multiplier for pain experience (0 = no pain felt, 1 = normal pain, -1 = pain suppressed even if injured).</MarkedMen_Settings_markedTurnedPainFactorDesc>
 
   <MarkedMen_Settings_AIStorytelling>AI &amp; Storytelling</MarkedMen_Settings_AIStorytelling>
   <MarkedMen_Settings_AIStorytellingDesc>Controls Marked Men pressure logic, strategic AI activation thresholds, storyteller integration, raid countdown warnings, and custom story events.</MarkedMen_Settings_AIStorytellingDesc>
