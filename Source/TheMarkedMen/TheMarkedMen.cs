@@ -2028,7 +2028,7 @@ namespace TheMarkedMen
             return -1f;
         }
 
-        public bool NoteCorpseLingering
+        public bool NoteCorpseLingering(Pawn pawn, int currentTick, int observedTicks)
 
             if (ticks >= nextCorpseExposureTick)
             {
