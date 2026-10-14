@@ -1085,32 +1085,8 @@ namespace TheMarkedMen
 
 		private static PawnKindDef PickReplacementMarkedKind()
 		{
-			PawnKindDef selected = null;
-			float totalWeight = 0f;
-			AddReplacementKind(ref selected, ref totalWeight, CADefOf.CrossedCivilian, 14f);
-			AddReplacementKind(ref selected, ref totalWeight, CADefOf.CrossedScout, 10f);
-			AddReplacementKind(ref selected, ref totalWeight, CADefOf.CrossedHunter, 8f);
-			AddReplacementKind(ref selected, ref totalWeight, CADefOf.CrossedShooter, 8f);
-			AddReplacementKind(ref selected, ref totalWeight, CADefOf.CrossedRaider, 6f);
-			AddReplacementKind(ref selected, ref totalWeight, CADefOf.CrossedSoldier, 4f);
-			AddReplacementKind(ref selected, ref totalWeight, CADefOf.CrossedBrute, 2f);
-			AddReplacementKind(ref selected, ref totalWeight, CADefOf.CrossedPyromaniac, 3f);
-			return selected ?? CADefOf.CrossedCivilian ?? CADefOf.CrossedScout ?? CADefOf.CrossedHunter ?? CADefOf.CrossedShooter;
-		}
-
-		private static void AddReplacementKind(ref PawnKindDef selected, ref float totalWeight, PawnKindDef kind, float baseWeight)
-		{
-			float weight = TheMarkedMenSettings.AdjustKindWeight(kind, baseWeight);
-			if (kind == null || weight <= 0f)
-			{
-				return;
-			}
-
-			totalWeight += weight;
-			if (Rand.Value * totalWeight <= weight)
-			{
-				selected = kind;
-			}
+			// Always use CA_CrossedCivilian for replacement infected
+			return CADefOf.CrossedCivilian;
 		}
 
 		private static void RemoveClassHediffs(Pawn pawn)
@@ -1170,31 +1146,12 @@ namespace TheMarkedMen
 				}
 			}
 
-			if (pawn.kindDef == CADefOf.CrossedBrute && CADefOf.BloodRush != null && !pawn.health.hediffSet.HasHediff(CADefOf.BloodRush))
-			{
-				pawn.health.AddHediff(CADefOf.BloodRush);
-			}
-
-			if ((pawn.kindDef == CADefOf.CrossedAlpha || pawn.kindDef == CADefOf.CrossedWarlord)
-				&& CADefOf.CommandAura != null && !pawn.health.hediffSet.HasHediff(CADefOf.CommandAura))
-			{
-				pawn.health.AddHediff(CADefOf.CommandAura);
-			}
-
-			if (pawn.kindDef == CADefOf.MarkedMan && CADefOf.BloodRush != null && !pawn.health.hediffSet.HasHediff(CADefOf.BloodRush))
-			{
-				pawn.health.AddHediff(CADefOf.BloodRush);
-			}
-
+			// Apply base infected strength buff to all crossed faction pawns
 			if (IsCrossedFactionPawn(pawn) && CADefOf.CrossedStrength != null
-				&& pawn.kindDef != CADefOf.CrossedBrute && pawn.kindDef != CADefOf.CrossedAlpha
-				&& pawn.kindDef != CADefOf.CrossedWarlord && pawn.kindDef != CADefOf.MarkedMan
 				&& !pawn.health.hediffSet.HasHediff(CADefOf.CrossedStrength))
 			{
 				pawn.health.AddHediff(CADefOf.CrossedStrength);
 			}
-
-			ApplyEliteTierHediff(pawn);
 
 			if (IsCrossedFactionPawn(pawn))
 			{
@@ -1223,24 +1180,8 @@ namespace TheMarkedMen
 
         public static void ApplyRandomBionics(Pawn pawn)
         {
-            if (pawn == null || pawn.health == null || !IsCrossedFactionPawn(pawn)) return;
-
-            if (pawn.kindDef != CADefOf.MarkedMan) return;
-
-            int maxBionics = 3;
-            float perPartChance = 0.5f;
-
-            int installed = 0;
-            TryInstallBionic(pawn, BionicEyeHediffDef, BodyPartDefOf.Eye, perPartChance, ref installed, maxBionics);
-            TryInstallBionic(pawn, BionicArmHediffDef, BodyPartDefOf.Arm, perPartChance, ref installed, maxBionics);
-            TryInstallBionic(pawn, AdvBionicArmHediffDef, BodyPartDefOf.Arm, perPartChance * 0.2f, ref installed, maxBionics);
-            TryInstallBionic(pawn, BionicLegHediffDef, BodyPartDefOf.Leg, perPartChance, ref installed, maxBionics);
-            TryInstallBionic(pawn, AdvBionicLegHediffDef, BodyPartDefOf.Leg, perPartChance * 0.2f, ref installed, maxBionics);
-            TryInstallBionic(pawn, BionicHeartHediffDef, BodyPartDefOf.Heart, perPartChance * 0.5f, ref installed, maxBionics);
-            TryInstallBionic(pawn, BionicStomachHediffDef, StomachBodyPartDef, perPartChance * 0.5f, ref installed, maxBionics);
-            TryInstallBionic(pawn, BionicLungHediffDef, BodyPartDefOf.Lung, perPartChance * 0.4f, ref installed, maxBionics);
-            TryInstallBionic(pawn, BionicKidneyHediffDef, KidneyBodyPartDef, perPartChance * 0.4f, ref installed, maxBionics);
-            TryInstallBionic(pawn, BionicEarHediffDef, EarBodyPartDef, perPartChance * 0.3f, ref installed, maxBionics);
+            // No bionics for CA_CrossedCivilian infected
+            return;
         }
 
         private static void TryInstallBionic(Pawn pawn, HediffDef hediffDef, BodyPartDef bodyPartDef, float chance, ref int installed, int maxBionics)
@@ -1261,17 +1202,8 @@ namespace TheMarkedMen
 
 		public static void ApplyEliteTierHediff(Pawn pawn)
 		{
-			if (pawn == null || pawn.health == null || !IsCrossedFactionPawn(pawn)) return;
-
-			HediffDef tierDef = null;
-			if (pawn.kindDef == CADefOf.CrossedWarlord) tierDef = CADefOf.WarlordTier;
-			else if (pawn.kindDef == CADefOf.CrossedAlpha) tierDef = CADefOf.AlphaTier;
-			else if (pawn.kindDef == CADefOf.MarkedMan) tierDef = CADefOf.MarkedTier;
-
-			if (tierDef != null && !pawn.health.hediffSet.HasHediff(tierDef))
-			{
-				pawn.health.AddHediff(tierDef);
-			}
+			// No tier-specific hediffs for CA_CrossedCivilian infected
+			return;
 		}
 
 		public static void EnsurePredatorHediffs(Pawn pawn)
@@ -1700,68 +1632,8 @@ public static void RemoveMarkedVirusHediffFromFullyTurnedPawn(Pawn pawn)
 
 		private static PawnKindDef PickTransformationKind(Pawn pawn)
 		{
-			TransformationKinds.Clear();
-			AddKind(CADefOf.CrossedCivilian, 1f);
-			AddKind(CADefOf.CrossedScout, 1f);
-			AddKind(CADefOf.CrossedHunter, 1f);
-			AddKind(CADefOf.CrossedShooter, 1f);
-			AddKind(CADefOf.CrossedRaider, 1f);
-			AddKind(CADefOf.CrossedSoldier, 1f);
-			AddKind(CADefOf.CrossedPyromaniac, 1f);
-			if (Rand.Chance(0.12f))
-			{
-				AddKind(CADefOf.CrossedBrute, 1f);
-			}
-			if (Rand.Chance(0.02f))
-			{
-				AddKind(CADefOf.CrossedAlpha, 1f);
-			}
-			if (Rand.Chance(0.005f))
-			{
-				AddKind(CADefOf.CrossedWarlord, 1f);
-			}
-
-			if (TransformationKinds.Count == 0)
-			{
-				return pawn.kindDef;
-			}
-
-			return PickWeightedKind(TransformationKinds) ?? pawn.kindDef;
-		}
-
-		private static void AddKind(PawnKindDef kind, float baseWeight)
-		{
-			float weight = TheMarkedMenSettings.AdjustKindWeight(kind, baseWeight);
-			if (kind != null && weight > 0f)
-			{
-				TransformationKinds.Add(new KeyValuePair<PawnKindDef, float>(kind, weight));
-			}
-		}
-
-		private static PawnKindDef PickWeightedKind(List<KeyValuePair<PawnKindDef, float>> kinds)
-		{
-			float totalWeight = 0f;
-			for (int i = 0; i < kinds.Count; i++)
-			{
-				totalWeight += Mathf.Max(0f, kinds[i].Value);
-			}
-
-			if (totalWeight <= 0f)
-			{
-				return null;
-			}
-
-			float pick = Rand.Value * totalWeight;
-			for (int i = 0; i < kinds.Count; i++)
-			{
-				pick -= Mathf.Max(0f, kinds[i].Value);
-				if (pick <= 0f)
-				{
-					return kinds[i].Key;
-				}
-			}
-
-			return kinds[kinds.Count - 1].Key;
+			// Always transform colonists to CA_CrossedCivilian infected
+			return CADefOf.CrossedCivilian;
 		}
 
 		/// <summary>
