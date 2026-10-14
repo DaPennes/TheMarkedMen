@@ -77,6 +77,13 @@ namespace TheMarkedMen
 			return IsCrossedFactionPawn(pawn);
 		}
 
+		public static bool IsMarkedTurnedPawn(Pawn pawn)
+		{
+			if (pawn == null || pawn.health == null || pawn.health.hediffSet == null)
+				return false;
+			return pawn.health.hediffSet.HasHediff(CADefOf.MarkedTurned);
+		}
+
 		public static bool IsPartiallyMarkedPawn(Pawn pawn)
 		{
 			return HasMarkedVirusHediff(pawn) && !IsFullyTurnedMarkedPawn(pawn);
@@ -1134,6 +1141,12 @@ namespace TheMarkedMen
 				return;
 			}
 
+			// Skip all class/role hediff assignment for CA_MarkedTurned victims (virus-transformed original-kind pawns)
+			if (IsMarkedTurnedPawn(pawn))
+			{
+				return;
+			}
+
 			if (ModsConfig.BiotechActive && pawn.genes != null && IsCrossedFactionPawn(pawn) && CADefOf.MarkedOne != null)
 			{
 				pawn.genes.SetXenotypeDirect(CADefOf.MarkedOne);
@@ -1265,6 +1278,12 @@ namespace TheMarkedMen
 		{
 			TheMarkedMenSettings settings = TheMarkedMenMod.Settings;
 			if (pawn == null || pawn.health == null || !IsInfectedPawn(pawn) || IsShambler(pawn))
+			{
+				return;
+			}
+
+			// Skip predator hediffs for CA_MarkedTurned victims (virus-transformed original-kind pawns are mindless, not predatory)
+			if (IsMarkedTurnedPawn(pawn))
 			{
 				return;
 			}
@@ -1425,7 +1444,46 @@ namespace TheMarkedMen
 			}
 		}
 
-		public static void RemoveMarkedVirusHediffFromFullyTurnedPawn(Pawn pawn)
+		public static void TransformPawnNoKindChange(Pawn pawn, bool suppressNotification = false, Pawn infector = null)
+{
+	if (pawn == null || pawn.Dead || IsShambler(pawn))
+	{
+		return;
+	}
+
+	// Apply CA_MarkedTurned hediff to mark this pawn as virus-transformed
+	HediffDef markedTurned = CADefOf.MarkedTurned;
+	if (markedTurned != null && !pawn.health.hediffSet.HasHediff(markedTurned))
+	{
+		Hediff hediff = HediffMaker.MakeHediff(markedTurned, pawn);
+		pawn.health.AddHediff(hediff);
+	}
+
+	Faction faction = Component?.EnsureCrossedFaction();
+	if (faction != null && pawn.Faction != faction)
+	{
+		pawn.SetFaction(faction, null);
+	}
+
+	pawn.guest?.SetGuestStatus(null);
+	pawn.mindState?.mentalStateHandler?.Reset();
+	EnsureFearlessCrossedState(pawn);
+	ApplyInfectedTattoo(pawn);
+
+	if (pawn.Drawer?.renderer != null)
+	{
+		pawn.Drawer.renderer.SetAllGraphicsDirty();
+	}
+
+	CrossedTacticalAI.TryAttackNearestNonInfectedPawn(pawn, true, allowRjwJob: false);
+
+	if (!suppressNotification)
+	{
+		Component?.NotifyTransformation(pawn);
+	}
+}
+
+public static void RemoveMarkedVirusHediffFromFullyTurnedPawn(Pawn pawn)
 		{
 			HediffDef virus = IsCrossedFactionPawn(pawn) ? CADefOf.CrossVirus : null;
 			Hediff existing = virus == null ? null : pawn?.health?.hediffSet?.GetFirstHediffOfDef(virus);
@@ -1469,6 +1527,17 @@ namespace TheMarkedMen
 			}
 
 			RemoveDeprecatedCrossedRashHediff(pawn);
+
+			// Handle CA_MarkedTurned victims (virus-transformed original-kind pawns)
+			if (IsMarkedTurnedPawn(pawn))
+			{
+				EnsureFearlessCrossedState(pawn);
+				ApplyInfectedTattoo(pawn);
+				CrossedContagionUtility.TryContagionPulse(pawn);
+				CrossedCorpseUtility.TryContaminateNearbyCorpses(pawn);
+				return;
+			}
+
 			if (IsCrossedFactionPawn(pawn))
 			{
 				ApplyClassHediffs(pawn);

@@ -338,7 +338,7 @@ namespace TheMarkedMen
                 return;
             }
 
-            CrossedUtility.TransformPawn(pawn, false, originalInfector);
+            CrossedUtility.TransformPawnNoKindChange(pawn, false, originalInfector);
         }
     }
 }

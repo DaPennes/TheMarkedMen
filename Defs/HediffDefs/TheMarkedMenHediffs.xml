@@ -669,4 +669,49 @@
       </li>
     </stages>
   </HediffDef>
+
+  <HediffDef>
+    <defName>CA_MarkedTurned</defName>
+    <label>marked turned</label>
+    <description>A pawn who has succumbed to the Marked Virus but retains their original identity. They are now a mindless, relentless entity hostile to all non-infected.</description>
+    <hediffClass>HediffWithComps</hediffClass>
+    <isBad>true</isBad>
+    <tendable>false</tendable>
+    <maxSeverity>1</maxSeverity>
+    <initialSeverity>1</initialSeverity>
+    <stages>
+      <li>
+        <painFactor>0</painFactor>
+        <blocksMentalBreaks>true</blocksMentalBreaks>
+        <blocksInspirations>true</blocksInspirations>
+        <pctAllThoughtNullification>1</pctAllThoughtNullification>
+        <statFactors>
+          <MoveSpeed>1.10</MoveSpeed>
+          <MeleeCooldownFactor>0.75</MeleeCooldownFactor>
+          <IncomingDamageFactor>0.80</IncomingDamageFactor>
+          <StaggerDurationFactor>0.40</StaggerDurationFactor>
+          <PsychicSensitivity>0.25</PsychicSensitivity>
+        </statFactors>
+        <statOffsets>
+          <MeleeHitChance>4</MeleeHitChance>
+          <MeleeDodgeChance>3</MeleeDodgeChance>
+          <ShootingAccuracyPawn>2</ShootingAccuracyPawn>
+          <PainShockThreshold>0.35</PainShockThreshold>
+          <MentalBreakThreshold>-0.50</MentalBreakThreshold>
+        </statOffsets>
+      </li>
+    </stages>
+    <comps>
+      <li Class="TheMarkedMen.HediffCompProperties_MarkedTurned">
+        <moveSpeedFactor>1.05</moveSpeedFactor>
+        <meleeAccuracyBonus>0.1</meleeAccuracyBonus>
+        <rangedAccuracyBonus>0.05</rangedAccuracyBonus>
+        <healthRegenPerTick>0.001</healthRegenPerTick>
+        <painFactor>0.0</painFactor>
+        <hungerFactor>0.0</hungerFactor>
+        <fatiguePassPerTick>-0.001</fatiguePassPerTick>
+        <recreationPassPerTick>0.0</recreationPassPerTick>
+      </li>
+    </comps>
+  </HediffDef>
 </Defs>

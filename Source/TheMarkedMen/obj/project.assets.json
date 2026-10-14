@@ -1,7 +1,7 @@
 {
-  "version": 4,
+  "version": 3,
   "targets": {
-    "net472": {
+    ".NETFramework,Version=v4.7.2": {
       "Lib.Harmony/2.3.3": {
         "type": "package",
         "compile": {
@@ -451,14 +451,13 @@
     }
   },
   "projectFileDependencyGroups": {
-    "net472": [
+    ".NETFramework,Version=v4.7.2": [
       "Lib.Harmony >= 2.3.3",
       "Microsoft.NETFramework.ReferenceAssemblies.net472 >= 1.0.3"
     ]
   },
   "packageFolders": {
-    "C:\\Users\\edria\\.nuget\\packages\\": {},
-    "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {}
+    "C:\\Users\\edria\\.nuget\\packages\\": {}
   },
   "project": {
     "version": "1.0.0",
@@ -469,24 +468,17 @@
       "packagesPath": "C:\\Users\\edria\\.nuget\\packages\\",
       "outputPath": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\RimWorld\\Mods\\The Marked Men\\Source\\TheMarkedMen\\obj\\",
       "projectStyle": "PackageReference",
-      "fallbackFolders": [
-        "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
-      ],
       "configFilePaths": [
-        "C:\\Users\\edria\\AppData\\Roaming\\NuGet\\NuGet.Config",
-        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
-        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        "C:\\Users\\edria\\AppData\\Roaming\\NuGet\\NuGet.Config"
       ],
       "originalTargetFrameworks": [
         "net472"
       ],
       "sources": {
-        "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
         "https://api.nuget.org/v3/index.json": {}
       },
       "frameworks": {
         "net472": {
-          "framework": "net472",
           "targetAlias": "net472",
           "projectReferences": {}
         }
@@ -501,11 +493,10 @@
         "auditLevel": "low",
         "auditMode": "direct"
       },
-      "SdkAnalysisLevel": "10.0.300"
+      "SdkAnalysisLevel": "10.0.200"
     },
     "frameworks": {
       "net472": {
-        "framework": "net472",
         "targetAlias": "net472",
         "dependencies": {
           "Lib.Harmony": {
@@ -520,7 +511,7 @@
             "version": "[1.0.3, )"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.300\\RuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.203\\RuntimeIdentifierGraph.json"
       }
     }
   }

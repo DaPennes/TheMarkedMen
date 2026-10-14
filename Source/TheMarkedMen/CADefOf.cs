@@ -64,6 +64,7 @@ namespace TheMarkedMen
         private static ThoughtDef lovedOneTurned;
         private static ThoughtDef suspiciousOfColonists;
         private static ThoughtDef mercifulKill;
+        private static HediffDef markedTurned;
 
         public static HediffDef CrossVirus => crossVirus ?? (crossVirus = DefDatabase<HediffDef>.GetNamedSilentFail("CA_CrossVirus"));
         public static HediffDef CrossVirusImmunity => crossVirusImmunity ?? (crossVirusImmunity = DefDatabase<HediffDef>.GetNamedSilentFail("CA_CrossVirusImmunity"));
@@ -116,6 +117,7 @@ namespace TheMarkedMen
         public static HediffDef WarlordTier => warlordTier ?? (warlordTier = DefDatabase<HediffDef>.GetNamedSilentFail("CA_WarlordTier"));
         public static HediffDef AlphaTier => alphaTier ?? (alphaTier = DefDatabase<HediffDef>.GetNamedSilentFail("CA_AlphaTier"));
         public static HediffDef MarkedTier => markedTier ?? (markedTier = DefDatabase<HediffDef>.GetNamedSilentFail("CA_MarkedTier"));
+        public static HediffDef MarkedTurned => markedTurned ?? (markedTurned = DefDatabase<HediffDef>.GetNamedSilentFail("CA_MarkedTurned"));
         public static IncidentDef CA_LostSurvivor => lostSurvivor ?? (lostSurvivor = DefDatabase<IncidentDef>.GetNamedSilentFail("CA_LostSurvivor"));
         public static ThoughtDef CA_BetrayedByColonist => betrayedByColonist ?? (betrayedByColonist = DefDatabase<ThoughtDef>.GetNamedSilentFail("CA_BetrayedByColonist"));
         public static ThoughtDef CA_BetrayedByColonistSocial => betrayedByColonistSocial ?? (betrayedByColonistSocial = DefDatabase<ThoughtDef>.GetNamedSilentFail("CA_BetrayedByColonistSocial"));

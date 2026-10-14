@@ -18,6 +18,12 @@ namespace TheMarkedMen
             if (pawn == null || pawn.health == null || pawn.kindDef == null) return;
             if (roleHediffs == null) return;
 
+            // Skip role hediff assignment for CA_MarkedTurned pawns (virus-transformed victims retain original kind)
+            if (CrossedUtility.IsMarkedTurnedPawn(pawn))
+            {
+                return;
+            }
+
             for (int i = 0; i < roleHediffs.Count; i++)
             {
                 RoleHediffEntry entry = roleHediffs[i];

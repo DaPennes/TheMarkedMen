@@ -453,6 +453,10 @@ namespace TheMarkedMen
             if (!CrossedUtility.IsInfectedPawn(__instance.pawn))
                 return true;
 
+            // Allow free apparel wear for CA_MarkedTurned victims (virus-transformed original-kind pawns retain their gear)
+            if (CrossedUtility.IsMarkedTurnedPawn(__instance.pawn))
+                return true;
+
             ThingDef def = newApparel.def;
             if (def == null)
                 return true;
