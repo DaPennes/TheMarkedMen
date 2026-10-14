@@ -188,6 +188,9 @@ namespace TheMarkedMen
         public bool caravanAmbushTimerVisible = true;
         public float caravanAmbushTelegraphDays = 2f;
         public float caravanAmbushPrepTimeInHours = 8f;
+
+        // Raid timer UI settings
+        public bool showRaidTimerUI = true;
         public int contagionPulseIntervalTicks = 500;
         public int maxContagionTargetsPerPulse = 3;
         public int corpseContaminationIntervalTicks = 750;
@@ -842,6 +845,9 @@ namespace TheMarkedMen
             DrawCheckbox(listing, "MarkedMen_Settings_caravanAmbushTimerVisible".Translate(), ref caravanAmbushTimerVisible, "MarkedMen_Settings_caravanAmbushTimerVisibleDesc".Translate());
             DrawFloat(listing, "MarkedMen_Settings_caravanAmbushTelegraphDays".Translate(), ref caravanAmbushTelegraphDays, 0f, 365f, "caravanAmbushTelegraphDays", "MarkedMen_Settings_caravanAmbushTelegraphDaysDesc".Translate());
             DrawFloat(listing, "MarkedMen_Settings_caravanAmbushPrepTimeInHours".Translate(), ref caravanAmbushPrepTimeInHours, 0f, 24f, "caravanAmbushPrepTimeInHours", "MarkedMen_Settings_caravanAmbushPrepTimeInHoursDesc".Translate());
+
+            DrawSectionHeader(listing, "MarkedMen_Settings_RaidTimerUI".Translate(), "MarkedMen_Settings_RaidTimerUIDesc".Translate());
+            DrawCheckbox(listing, "MarkedMen_Settings_showRaidTimerUI".Translate(), ref showRaidTimerUI, "MarkedMen_Settings_showRaidTimerUIDesc".Translate());
 
             DrawSectionHeader(listing, "MarkedMen_Settings_Performance".Translate(), "MarkedMen_Settings_PerformanceDesc".Translate());
             DrawInt(listing, "MarkedMen_Settings_contagionPulseIntervalTicks".Translate(), ref contagionPulseIntervalTicks, 60, GenDate.TicksPerDay, "contagionPulseIntervalTicks", "MarkedMen_Settings_contagionPulseIntervalTicksDesc".Translate());
@@ -2122,6 +2128,22 @@ namespace TheMarkedMen
             IncidentDef raidDef = CADefOf.CrossedRaid;
             float scheduledPoints = CalculateStorytellerRaidPoints(map, raidDef, 0f);
             return CalculateEscalatedRaidPoints(scheduledPoints);
+        }
+
+        public (int nextRaidTick, float raidPoints) GetNextRaidTiming()
+        {
+            int currentTick = Find.TickManager?.TicksGame ?? 0;
+            Map targetMap = FindRaidTargetMap();
+
+            if (targetMap == null || !TheMarkedMenSettings.WarbandsEnabled)
+            {
+                return (currentTick + 100000, 0f); // Far future if no valid map
+            }
+
+            int raidTick = nextRaidTick > currentTick ? nextRaidTick : currentTick + 100000;
+            float raidPoints = EstimateUpcomingRaidPoints(targetMap);
+
+            return (raidTick, raidPoints);
         }
 
         public bool DebugScheduleRaidSoon()
