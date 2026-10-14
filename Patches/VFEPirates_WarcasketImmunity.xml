@@ -2,7 +2,11 @@
 <Patch>
 
   <!-- ============================================================
-       VFEPirates Warcaskets
+       VFE Pirates — Warcaskets
+       Torso: 0.85 sealed, blocks exposure (gated by warcaskets setting)
+       Bodysuit: 0.70 sealed
+       Helmet: 0.25 sealed
+       Shoulders: 0.15
        ============================================================ -->
   <Operation Class="PatchOperationFindMod">
     <mods>
@@ -15,27 +19,17 @@
           <match Class="PatchOperationSequence">
             <operations>
               <li Class="PatchOperationConditional">
-                <xpath>/Defs/*[defName="VFEP_Warcasket_Bodysuit"]/equippedStatOffsets[CA_MarkedVirusResistance | li/stat="CA_MarkedVirusResistance"]</xpath>
-                <nomatch Class="PatchOperationConditional">
-                  <xpath>/Defs/*[defName="VFEP_Warcasket_Bodysuit"]/equippedStatOffsets</xpath>
-                  <match Class="PatchOperationAdd">
-                    <xpath>/Defs/*[defName="VFEP_Warcasket_Bodysuit"]/equippedStatOffsets</xpath>
-                    <value><CA_MarkedVirusResistance>1</CA_MarkedVirusResistance></value>
-                  </match>
-                  <nomatch Class="PatchOperationAdd">
-                    <xpath>/Defs/*[defName="VFEP_Warcasket_Bodysuit"]</xpath>
-                    <value><equippedStatOffsets><CA_MarkedVirusResistance>1</CA_MarkedVirusResistance></equippedStatOffsets></value>
-                  </nomatch>
-                </nomatch>
-              </li>
-              <li Class="PatchOperationConditional">
                 <xpath>/Defs/*[defName="VFEP_Warcasket_Bodysuit"]/modExtensions[li/@Class="TheMarkedMen.MarkedVirusProtectionExtension"]</xpath>
                 <nomatch Class="PatchOperationConditional">
                   <xpath>/Defs/*[defName="VFEP_Warcasket_Bodysuit"]/modExtensions</xpath>
                   <match Class="PatchOperationAdd">
                     <xpath>/Defs/*[defName="VFEP_Warcasket_Bodysuit"]/modExtensions</xpath>
-                    <value><li Class="TheMarkedMen.MarkedVirusProtectionExtension"><blocksMarkedVirusExposure>true</blocksMarkedVirusExposure></li></value>
+                    <value><li Class="TheMarkedMen.MarkedVirusProtectionExtension"><resistance>0.70</resistance><sealedAgainstMarkedVirus>true</sealedAgainstMarkedVirus></li></value>
                   </match>
+                  <nomatch Class="PatchOperationAdd">
+                    <xpath>/Defs/*[defName="VFEP_Warcasket_Bodysuit"]</xpath>
+                    <value><modExtensions><li Class="TheMarkedMen.MarkedVirusProtectionExtension"><resistance>0.70</resistance><sealedAgainstMarkedVirus>true</sealedAgainstMarkedVirus></li></modExtensions></value>
+                  </nomatch>
                 </nomatch>
               </li>
             </operations>
@@ -46,27 +40,269 @@
           <match Class="PatchOperationSequence">
             <operations>
               <li Class="PatchOperationConditional">
-                <xpath>/Defs/*[defName="VFEP_Warcasket_Warcasket"]/equippedStatOffsets[CA_MarkedVirusResistance | li/stat="CA_MarkedVirusResistance"]</xpath>
-                <nomatch Class="PatchOperationConditional">
-                  <xpath>/Defs/*[defName="VFEP_Warcasket_Warcasket"]/equippedStatOffsets</xpath>
-                  <match Class="PatchOperationAdd">
-                    <xpath>/Defs/*[defName="VFEP_Warcasket_Warcasket"]/equippedStatOffsets</xpath>
-                    <value><CA_MarkedVirusResistance>1</CA_MarkedVirusResistance></value>
-                  </match>
-                  <nomatch Class="PatchOperationAdd">
-                    <xpath>/Defs/*[defName="VFEP_Warcasket_Warcasket"]</xpath>
-                    <value><equippedStatOffsets><CA_MarkedVirusResistance>1</CA_MarkedVirusResistance></equippedStatOffsets></value>
-                  </nomatch>
-                </nomatch>
-              </li>
-              <li Class="PatchOperationConditional">
                 <xpath>/Defs/*[defName="VFEP_Warcasket_Warcasket"]/modExtensions[li/@Class="TheMarkedMen.MarkedVirusProtectionExtension"]</xpath>
                 <nomatch Class="PatchOperationConditional">
                   <xpath>/Defs/*[defName="VFEP_Warcasket_Warcasket"]/modExtensions</xpath>
                   <match Class="PatchOperationAdd">
                     <xpath>/Defs/*[defName="VFEP_Warcasket_Warcasket"]/modExtensions</xpath>
-                    <value><li Class="TheMarkedMen.MarkedVirusProtectionExtension"><blocksMarkedVirusExposure>true</blocksMarkedVirusExposure></li></value>
+                    <value><li Class="TheMarkedMen.MarkedVirusProtectionExtension"><resistance>0.85</resistance><sealedAgainstMarkedVirus>true</sealedAgainstMarkedVirus><blocksMarkedVirusExposure>true</blocksMarkedVirusExposure><blockCategory>Warcasket</blockCategory></li></value>
                   </match>
+                  <nomatch Class="PatchOperationAdd">
+                    <xpath>/Defs/*[defName="VFEP_Warcasket_Warcasket"]</xpath>
+                    <value><modExtensions><li Class="TheMarkedMen.MarkedVirusProtectionExtension"><resistance>0.85</resistance><sealedAgainstMarkedVirus>true</sealedAgainstMarkedVirus><blocksMarkedVirusExposure>true</blocksMarkedVirusExposure><blockCategory>Warcasket</blockCategory></li></modExtensions></value>
+                  </nomatch>
+                </nomatch>
+              </li>
+            </operations>
+          </match>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/*[defName="VFEP_Warcasket_Marine"]</xpath>
+          <match Class="PatchOperationSequence">
+            <operations>
+              <li Class="PatchOperationConditional">
+                <xpath>/Defs/*[defName="VFEP_Warcasket_Marine"]/modExtensions[li/@Class="TheMarkedMen.MarkedVirusProtectionExtension"]</xpath>
+                <nomatch Class="PatchOperationConditional">
+                  <xpath>/Defs/*[defName="VFEP_Warcasket_Marine"]/modExtensions</xpath>
+                  <match Class="PatchOperationAdd">
+                    <xpath>/Defs/*[defName="VFEP_Warcasket_Marine"]/modExtensions</xpath>
+                    <value><li Class="TheMarkedMen.MarkedVirusProtectionExtension"><resistance>0.85</resistance><sealedAgainstMarkedVirus>true</sealedAgainstMarkedVirus><blocksMarkedVirusExposure>true</blocksMarkedVirusExposure><blockCategory>Warcasket</blockCategory></li></value>
+                  </match>
+                  <nomatch Class="PatchOperationAdd">
+                    <xpath>/Defs/*[defName="VFEP_Warcasket_Marine"]</xpath>
+                    <value><modExtensions><li Class="TheMarkedMen.MarkedVirusProtectionExtension"><resistance>0.85</resistance><sealedAgainstMarkedVirus>true</sealedAgainstMarkedVirus><blocksMarkedVirusExposure>true</blocksMarkedVirusExposure><blockCategory>Warcasket</blockCategory></li></modExtensions></value>
+                  </nomatch>
+                </nomatch>
+              </li>
+            </operations>
+          </match>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/*[defName="VFEP_Warcasket_Recon"]</xpath>
+          <match Class="PatchOperationSequence">
+            <operations>
+              <li Class="PatchOperationConditional">
+                <xpath>/Defs/*[defName="VFEP_Warcasket_Recon"]/modExtensions[li/@Class="TheMarkedMen.MarkedVirusProtectionExtension"]</xpath>
+                <nomatch Class="PatchOperationConditional">
+                  <xpath>/Defs/*[defName="VFEP_Warcasket_Recon"]/modExtensions</xpath>
+                  <match Class="PatchOperationAdd">
+                    <xpath>/Defs/*[defName="VFEP_Warcasket_Recon"]/modExtensions</xpath>
+                    <value><li Class="TheMarkedMen.MarkedVirusProtectionExtension"><resistance>0.85</resistance><sealedAgainstMarkedVirus>true</sealedAgainstMarkedVirus><blocksMarkedVirusExposure>true</blocksMarkedVirusExposure><blockCategory>Warcasket</blockCategory></li></value>
+                  </match>
+                  <nomatch Class="PatchOperationAdd">
+                    <xpath>/Defs/*[defName="VFEP_Warcasket_Recon"]</xpath>
+                    <value><modExtensions><li Class="TheMarkedMen.MarkedVirusProtectionExtension"><resistance>0.85</resistance><sealedAgainstMarkedVirus>true</sealedAgainstMarkedVirus><blocksMarkedVirusExposure>true</blocksMarkedVirusExposure><blockCategory>Warcasket</blockCategory></li></modExtensions></value>
+                  </nomatch>
+                </nomatch>
+              </li>
+            </operations>
+          </match>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/*[defName="VFEP_Warcasket_Cataphract"]</xpath>
+          <match Class="PatchOperationSequence">
+            <operations>
+              <li Class="PatchOperationConditional">
+                <xpath>/Defs/*[defName="VFEP_Warcasket_Cataphract"]/modExtensions[li/@Class="TheMarkedMen.MarkedVirusProtectionExtension"]</xpath>
+                <nomatch Class="PatchOperationConditional">
+                  <xpath>/Defs/*[defName="VFEP_Warcasket_Cataphract"]/modExtensions</xpath>
+                  <match Class="PatchOperationAdd">
+                    <xpath>/Defs/*[defName="VFEP_Warcasket_Cataphract"]/modExtensions</xpath>
+                    <value><li Class="TheMarkedMen.MarkedVirusProtectionExtension"><resistance>0.85</resistance><sealedAgainstMarkedVirus>true</sealedAgainstMarkedVirus><blocksMarkedVirusExposure>true</blocksMarkedVirusExposure><blockCategory>Warcasket</blockCategory></li></value>
+                  </match>
+                  <nomatch Class="PatchOperationAdd">
+                    <xpath>/Defs/*[defName="VFEP_Warcasket_Cataphract"]</xpath>
+                    <value><modExtensions><li Class="TheMarkedMen.MarkedVirusProtectionExtension"><resistance>0.85</resistance><sealedAgainstMarkedVirus>true</sealedAgainstMarkedVirus><blocksMarkedVirusExposure>true</blocksMarkedVirusExposure><blockCategory>Warcasket</blockCategory></li></modExtensions></value>
+                  </nomatch>
+                </nomatch>
+              </li>
+            </operations>
+          </match>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/*[defName="VFEP_Warcasket_Aerial"]</xpath>
+          <match Class="PatchOperationSequence">
+            <operations>
+              <li Class="PatchOperationConditional">
+                <xpath>/Defs/*[defName="VFEP_Warcasket_Aerial"]/modExtensions[li/@Class="TheMarkedMen.MarkedVirusProtectionExtension"]</xpath>
+                <nomatch Class="PatchOperationConditional">
+                  <xpath>/Defs/*[defName="VFEP_Warcasket_Aerial"]/modExtensions</xpath>
+                  <match Class="PatchOperationAdd">
+                    <xpath>/Defs/*[defName="VFEP_Warcasket_Aerial"]/modExtensions</xpath>
+                    <value><li Class="TheMarkedMen.MarkedVirusProtectionExtension"><resistance>0.85</resistance><sealedAgainstMarkedVirus>true</sealedAgainstMarkedVirus><blocksMarkedVirusExposure>true</blocksMarkedVirusExposure><blockCategory>Warcasket</blockCategory></li></value>
+                  </match>
+                  <nomatch Class="PatchOperationAdd">
+                    <xpath>/Defs/*[defName="VFEP_Warcasket_Aerial"]</xpath>
+                    <value><modExtensions><li Class="TheMarkedMen.MarkedVirusProtectionExtension"><resistance>0.85</resistance><sealedAgainstMarkedVirus>true</sealedAgainstMarkedVirus><blocksMarkedVirusExposure>true</blocksMarkedVirusExposure><blockCategory>Warcasket</blockCategory></li></modExtensions></value>
+                  </nomatch>
+                </nomatch>
+              </li>
+            </operations>
+          </match>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/*[defName="VFEP_Warcasket_Barrage"]</xpath>
+          <match Class="PatchOperationSequence">
+            <operations>
+              <li Class="PatchOperationConditional">
+                <xpath>/Defs/*[defName="VFEP_Warcasket_Barrage"]/modExtensions[li/@Class="TheMarkedMen.MarkedVirusProtectionExtension"]</xpath>
+                <nomatch Class="PatchOperationConditional">
+                  <xpath>/Defs/*[defName="VFEP_Warcasket_Barrage"]/modExtensions</xpath>
+                  <match Class="PatchOperationAdd">
+                    <xpath>/Defs/*[defName="VFEP_Warcasket_Barrage"]/modExtensions</xpath>
+                    <value><li Class="TheMarkedMen.MarkedVirusProtectionExtension"><resistance>0.85</resistance><sealedAgainstMarkedVirus>true</sealedAgainstMarkedVirus><blocksMarkedVirusExposure>true</blocksMarkedVirusExposure><blockCategory>Warcasket</blockCategory></li></value>
+                  </match>
+                  <nomatch Class="PatchOperationAdd">
+                    <xpath>/Defs/*[defName="VFEP_Warcasket_Barrage"]</xpath>
+                    <value><modExtensions><li Class="TheMarkedMen.MarkedVirusProtectionExtension"><resistance>0.85</resistance><sealedAgainstMarkedVirus>true</sealedAgainstMarkedVirus><blocksMarkedVirusExposure>true</blocksMarkedVirusExposure><blockCategory>Warcasket</blockCategory></li></modExtensions></value>
+                  </nomatch>
+                </nomatch>
+              </li>
+            </operations>
+          </match>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/*[defName="VFEP_Warcasket_Hazard"]</xpath>
+          <match Class="PatchOperationSequence">
+            <operations>
+              <li Class="PatchOperationConditional">
+                <xpath>/Defs/*[defName="VFEP_Warcasket_Hazard"]/modExtensions[li/@Class="TheMarkedMen.MarkedVirusProtectionExtension"]</xpath>
+                <nomatch Class="PatchOperationConditional">
+                  <xpath>/Defs/*[defName="VFEP_Warcasket_Hazard"]/modExtensions</xpath>
+                  <match Class="PatchOperationAdd">
+                    <xpath>/Defs/*[defName="VFEP_Warcasket_Hazard"]/modExtensions</xpath>
+                    <value><li Class="TheMarkedMen.MarkedVirusProtectionExtension"><resistance>0.85</resistance><sealedAgainstMarkedVirus>true</sealedAgainstMarkedVirus><blocksMarkedVirusExposure>true</blocksMarkedVirusExposure><blockCategory>Warcasket</blockCategory></li></value>
+                  </match>
+                  <nomatch Class="PatchOperationAdd">
+                    <xpath>/Defs/*[defName="VFEP_Warcasket_Hazard"]</xpath>
+                    <value><modExtensions><li Class="TheMarkedMen.MarkedVirusProtectionExtension"><resistance>0.85</resistance><sealedAgainstMarkedVirus>true</sealedAgainstMarkedVirus><blocksMarkedVirusExposure>true</blocksMarkedVirusExposure><blockCategory>Warcasket</blockCategory></li></modExtensions></value>
+                  </nomatch>
+                </nomatch>
+              </li>
+            </operations>
+          </match>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/*[defName="VFEP_Warcasket_Shock"]</xpath>
+          <match Class="PatchOperationSequence">
+            <operations>
+              <li Class="PatchOperationConditional">
+                <xpath>/Defs/*[defName="VFEP_Warcasket_Shock"]/modExtensions[li/@Class="TheMarkedMen.MarkedVirusProtectionExtension"]</xpath>
+                <nomatch Class="PatchOperationConditional">
+                  <xpath>/Defs/*[defName="VFEP_Warcasket_Shock"]/modExtensions</xpath>
+                  <match Class="PatchOperationAdd">
+                    <xpath>/Defs/*[defName="VFEP_Warcasket_Shock"]/modExtensions</xpath>
+                    <value><li Class="TheMarkedMen.MarkedVirusProtectionExtension"><resistance>0.85</resistance><sealedAgainstMarkedVirus>true</sealedAgainstMarkedVirus><blocksMarkedVirusExposure>true</blocksMarkedVirusExposure><blockCategory>Warcasket</blockCategory></li></value>
+                  </match>
+                  <nomatch Class="PatchOperationAdd">
+                    <xpath>/Defs/*[defName="VFEP_Warcasket_Shock"]</xpath>
+                    <value><modExtensions><li Class="TheMarkedMen.MarkedVirusProtectionExtension"><resistance>0.85</resistance><sealedAgainstMarkedVirus>true</sealedAgainstMarkedVirus><blocksMarkedVirusExposure>true</blocksMarkedVirusExposure><blockCategory>Warcasket</blockCategory></li></modExtensions></value>
+                  </nomatch>
+                </nomatch>
+              </li>
+            </operations>
+          </match>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/*[defName="VFEP_Warcasket_Siegebreaker"]</xpath>
+          <match Class="PatchOperationSequence">
+            <operations>
+              <li Class="PatchOperationConditional">
+                <xpath>/Defs/*[defName="VFEP_Warcasket_Siegebreaker"]/modExtensions[li/@Class="TheMarkedMen.MarkedVirusProtectionExtension"]</xpath>
+                <nomatch Class="PatchOperationConditional">
+                  <xpath>/Defs/*[defName="VFEP_Warcasket_Siegebreaker"]/modExtensions</xpath>
+                  <match Class="PatchOperationAdd">
+                    <xpath>/Defs/*[defName="VFEP_Warcasket_Siegebreaker"]/modExtensions</xpath>
+                    <value><li Class="TheMarkedMen.MarkedVirusProtectionExtension"><resistance>0.85</resistance><sealedAgainstMarkedVirus>true</sealedAgainstMarkedVirus><blocksMarkedVirusExposure>true</blocksMarkedVirusExposure><blockCategory>Warcasket</blockCategory></li></value>
+                  </match>
+                  <nomatch Class="PatchOperationAdd">
+                    <xpath>/Defs/*[defName="VFEP_Warcasket_Siegebreaker"]</xpath>
+                    <value><modExtensions><li Class="TheMarkedMen.MarkedVirusProtectionExtension"><resistance>0.85</resistance><sealedAgainstMarkedVirus>true</sealedAgainstMarkedVirus><blocksMarkedVirusExposure>true</blocksMarkedVirusExposure><blockCategory>Warcasket</blockCategory></li></modExtensions></value>
+                  </nomatch>
+                </nomatch>
+              </li>
+            </operations>
+          </match>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/*[defName="VFEP_Warcasket_Guardian"]</xpath>
+          <match Class="PatchOperationSequence">
+            <operations>
+              <li Class="PatchOperationConditional">
+                <xpath>/Defs/*[defName="VFEP_Warcasket_Guardian"]/modExtensions[li/@Class="TheMarkedMen.MarkedVirusProtectionExtension"]</xpath>
+                <nomatch Class="PatchOperationConditional">
+                  <xpath>/Defs/*[defName="VFEP_Warcasket_Guardian"]/modExtensions</xpath>
+                  <match Class="PatchOperationAdd">
+                    <xpath>/Defs/*[defName="VFEP_Warcasket_Guardian"]/modExtensions</xpath>
+                    <value><li Class="TheMarkedMen.MarkedVirusProtectionExtension"><resistance>0.85</resistance><sealedAgainstMarkedVirus>true</sealedAgainstMarkedVirus><blocksMarkedVirusExposure>true</blocksMarkedVirusExposure><blockCategory>Warcasket</blockCategory></li></value>
+                  </match>
+                  <nomatch Class="PatchOperationAdd">
+                    <xpath>/Defs/*[defName="VFEP_Warcasket_Guardian"]</xpath>
+                    <value><modExtensions><li Class="TheMarkedMen.MarkedVirusProtectionExtension"><resistance>0.85</resistance><sealedAgainstMarkedVirus>true</sealedAgainstMarkedVirus><blocksMarkedVirusExposure>true</blocksMarkedVirusExposure><blockCategory>Warcasket</blockCategory></li></modExtensions></value>
+                  </nomatch>
+                </nomatch>
+              </li>
+            </operations>
+          </match>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/*[defName="VFEP_Warcasket_Controller"]</xpath>
+          <match Class="PatchOperationSequence">
+            <operations>
+              <li Class="PatchOperationConditional">
+                <xpath>/Defs/*[defName="VFEP_Warcasket_Controller"]/modExtensions[li/@Class="TheMarkedMen.MarkedVirusProtectionExtension"]</xpath>
+                <nomatch Class="PatchOperationConditional">
+                  <xpath>/Defs/*[defName="VFEP_Warcasket_Controller"]/modExtensions</xpath>
+                  <match Class="PatchOperationAdd">
+                    <xpath>/Defs/*[defName="VFEP_Warcasket_Controller"]/modExtensions</xpath>
+                    <value><li Class="TheMarkedMen.MarkedVirusProtectionExtension"><resistance>0.85</resistance><sealedAgainstMarkedVirus>true</sealedAgainstMarkedVirus><blocksMarkedVirusExposure>true</blocksMarkedVirusExposure><blockCategory>Warcasket</blockCategory></li></value>
+                  </match>
+                  <nomatch Class="PatchOperationAdd">
+                    <xpath>/Defs/*[defName="VFEP_Warcasket_Controller"]</xpath>
+                    <value><modExtensions><li Class="TheMarkedMen.MarkedVirusProtectionExtension"><resistance>0.85</resistance><sealedAgainstMarkedVirus>true</sealedAgainstMarkedVirus><blocksMarkedVirusExposure>true</blocksMarkedVirusExposure><blockCategory>Warcasket</blockCategory></li></modExtensions></value>
+                  </nomatch>
+                </nomatch>
+              </li>
+            </operations>
+          </match>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/*[defName="VFEP_Warcasket_Sarcophagus"]</xpath>
+          <match Class="PatchOperationSequence">
+            <operations>
+              <li Class="PatchOperationConditional">
+                <xpath>/Defs/*[defName="VFEP_Warcasket_Sarcophagus"]/modExtensions[li/@Class="TheMarkedMen.MarkedVirusProtectionExtension"]</xpath>
+                <nomatch Class="PatchOperationConditional">
+                  <xpath>/Defs/*[defName="VFEP_Warcasket_Sarcophagus"]/modExtensions</xpath>
+                  <match Class="PatchOperationAdd">
+                    <xpath>/Defs/*[defName="VFEP_Warcasket_Sarcophagus"]/modExtensions</xpath>
+                    <value><li Class="TheMarkedMen.MarkedVirusProtectionExtension"><resistance>0.85</resistance><sealedAgainstMarkedVirus>true</sealedAgainstMarkedVirus><blocksMarkedVirusExposure>true</blocksMarkedVirusExposure><blockCategory>Warcasket</blockCategory></li></value>
+                  </match>
+                  <nomatch Class="PatchOperationAdd">
+                    <xpath>/Defs/*[defName="VFEP_Warcasket_Sarcophagus"]</xpath>
+                    <value><modExtensions><li Class="TheMarkedMen.MarkedVirusProtectionExtension"><resistance>0.85</resistance><sealedAgainstMarkedVirus>true</sealedAgainstMarkedVirus><blocksMarkedVirusExposure>true</blocksMarkedVirusExposure><blockCategory>Warcasket</blockCategory></li></modExtensions></value>
+                  </nomatch>
+                </nomatch>
+              </li>
+            </operations>
+          </match>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/*[defName="VFEP_Warcasket_Brute"]</xpath>
+          <match Class="PatchOperationSequence">
+            <operations>
+              <li Class="PatchOperationConditional">
+                <xpath>/Defs/*[defName="VFEP_Warcasket_Brute"]/modExtensions[li/@Class="TheMarkedMen.MarkedVirusProtectionExtension"]</xpath>
+                <nomatch Class="PatchOperationConditional">
+                  <xpath>/Defs/*[defName="VFEP_Warcasket_Brute"]/modExtensions</xpath>
+                  <match Class="PatchOperationAdd">
+                    <xpath>/Defs/*[defName="VFEP_Warcasket_Brute"]/modExtensions</xpath>
+                    <value><li Class="TheMarkedMen.MarkedVirusProtectionExtension"><resistance>0.85</resistance><sealedAgainstMarkedVirus>true</sealedAgainstMarkedVirus><blocksMarkedVirusExposure>true</blocksMarkedVirusExposure><blockCategory>Warcasket</blockCategory></li></value>
+                  </match>
+                  <nomatch Class="PatchOperationAdd">
+                    <xpath>/Defs/*[defName="VFEP_Warcasket_Brute"]</xpath>
+                    <value><modExtensions><li Class="TheMarkedMen.MarkedVirusProtectionExtension"><resistance>0.85</resistance><sealedAgainstMarkedVirus>true</sealedAgainstMarkedVirus><blocksMarkedVirusExposure>true</blocksMarkedVirusExposure><blockCategory>Warcasket</blockCategory></li></modExtensions></value>
+                  </nomatch>
                 </nomatch>
               </li>
             </operations>
@@ -77,58 +313,206 @@
           <match Class="PatchOperationSequence">
             <operations>
               <li Class="PatchOperationConditional">
-                <xpath>/Defs/*[defName="VFEP_WarcasketHelmet_Warcasket"]/equippedStatOffsets[CA_MarkedVirusResistance | li/stat="CA_MarkedVirusResistance"]</xpath>
-                <nomatch Class="PatchOperationConditional">
-                  <xpath>/Defs/*[defName="VFEP_WarcasketHelmet_Warcasket"]/equippedStatOffsets</xpath>
-                  <match Class="PatchOperationAdd">
-                    <xpath>/Defs/*[defName="VFEP_WarcasketHelmet_Warcasket"]/equippedStatOffsets</xpath>
-                    <value><CA_MarkedVirusResistance>1</CA_MarkedVirusResistance></value>
-                  </match>
-                  <nomatch Class="PatchOperationAdd">
-                    <xpath>/Defs/*[defName="VFEP_WarcasketHelmet_Warcasket"]</xpath>
-                    <value><equippedStatOffsets><CA_MarkedVirusResistance>1</CA_MarkedVirusResistance></equippedStatOffsets></value>
-                  </nomatch>
-                </nomatch>
-              </li>
-              <li Class="PatchOperationConditional">
                 <xpath>/Defs/*[defName="VFEP_WarcasketHelmet_Warcasket"]/modExtensions[li/@Class="TheMarkedMen.MarkedVirusProtectionExtension"]</xpath>
                 <nomatch Class="PatchOperationConditional">
                   <xpath>/Defs/*[defName="VFEP_WarcasketHelmet_Warcasket"]/modExtensions</xpath>
                   <match Class="PatchOperationAdd">
                     <xpath>/Defs/*[defName="VFEP_WarcasketHelmet_Warcasket"]/modExtensions</xpath>
-                    <value><li Class="TheMarkedMen.MarkedVirusProtectionExtension"><blocksMarkedVirusExposure>true</blocksMarkedVirusExposure></li></value>
+                    <value><li Class="TheMarkedMen.MarkedVirusProtectionExtension"><resistance>0.25</resistance><sealedAgainstMarkedVirus>true</sealedAgainstMarkedVirus></li></value>
                   </match>
+                  <nomatch Class="PatchOperationAdd">
+                    <xpath>/Defs/*[defName="VFEP_WarcasketHelmet_Warcasket"]</xpath>
+                    <value><modExtensions><li Class="TheMarkedMen.MarkedVirusProtectionExtension"><resistance>0.25</resistance><sealedAgainstMarkedVirus>true</sealedAgainstMarkedVirus></li></modExtensions></value>
+                  </nomatch>
                 </nomatch>
               </li>
             </operations>
           </match>
         </li>
         <li Class="PatchOperationConditional">
-          <xpath>/Defs/*[defName="VFEP_WarcasketShoulders_Warcasket"]</xpath>
+          <xpath>/Defs/*[defName="VFEP_WarcasketHelmet_Marine"]</xpath>
           <match Class="PatchOperationSequence">
             <operations>
               <li Class="PatchOperationConditional">
-                <xpath>/Defs/*[defName="VFEP_WarcasketShoulders_Warcasket"]/equippedStatOffsets[CA_MarkedVirusResistance | li/stat="CA_MarkedVirusResistance"]</xpath>
+                <xpath>/Defs/*[defName="VFEP_WarcasketHelmet_Marine"]/modExtensions[li/@Class="TheMarkedMen.MarkedVirusProtectionExtension"]</xpath>
                 <nomatch Class="PatchOperationConditional">
-                  <xpath>/Defs/*[defName="VFEP_WarcasketShoulders_Warcasket"]/equippedStatOffsets</xpath>
+                  <xpath>/Defs/*[defName="VFEP_WarcasketHelmet_Marine"]/modExtensions</xpath>
                   <match Class="PatchOperationAdd">
-                    <xpath>/Defs/*[defName="VFEP_WarcasketShoulders_Warcasket"]/equippedStatOffsets</xpath>
-                    <value><CA_MarkedVirusResistance>1</CA_MarkedVirusResistance></value>
+                    <xpath>/Defs/*[defName="VFEP_WarcasketHelmet_Marine"]/modExtensions</xpath>
+                    <value><li Class="TheMarkedMen.MarkedVirusProtectionExtension"><resistance>0.25</resistance><sealedAgainstMarkedVirus>true</sealedAgainstMarkedVirus></li></value>
                   </match>
                   <nomatch Class="PatchOperationAdd">
-                    <xpath>/Defs/*[defName="VFEP_WarcasketShoulders_Warcasket"]</xpath>
-                    <value><equippedStatOffsets><CA_MarkedVirusResistance>1</CA_MarkedVirusResistance></equippedStatOffsets></value>
+                    <xpath>/Defs/*[defName="VFEP_WarcasketHelmet_Marine"]</xpath>
+                    <value><modExtensions><li Class="TheMarkedMen.MarkedVirusProtectionExtension"><resistance>0.25</resistance><sealedAgainstMarkedVirus>true</sealedAgainstMarkedVirus></li></modExtensions></value>
                   </nomatch>
                 </nomatch>
               </li>
+            </operations>
+          </match>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/*[defName="VFEP_WarcasketHelmet_Recon"]</xpath>
+          <match Class="PatchOperationSequence">
+            <operations>
               <li Class="PatchOperationConditional">
-                <xpath>/Defs/*[defName="VFEP_WarcasketShoulders_Warcasket"]/modExtensions[li/@Class="TheMarkedMen.MarkedVirusProtectionExtension"]</xpath>
+                <xpath>/Defs/*[defName="VFEP_WarcasketHelmet_Recon"]/modExtensions[li/@Class="TheMarkedMen.MarkedVirusProtectionExtension"]</xpath>
                 <nomatch Class="PatchOperationConditional">
-                  <xpath>/Defs/*[defName="VFEP_WarcasketShoulders_Warcasket"]/modExtensions</xpath>
+                  <xpath>/Defs/*[defName="VFEP_WarcasketHelmet_Recon"]/modExtensions</xpath>
                   <match Class="PatchOperationAdd">
-                    <xpath>/Defs/*[defName="VFEP_WarcasketShoulders_Warcasket"]/modExtensions</xpath>
-                    <value><li Class="TheMarkedMen.MarkedVirusProtectionExtension"><blocksMarkedVirusExposure>true</blocksMarkedVirusExposure></li></value>
+                    <xpath>/Defs/*[defName="VFEP_WarcasketHelmet_Recon"]/modExtensions</xpath>
+                    <value><li Class="TheMarkedMen.MarkedVirusProtectionExtension"><resistance>0.25</resistance><sealedAgainstMarkedVirus>true</sealedAgainstMarkedVirus></li></value>
                   </match>
+                  <nomatch Class="PatchOperationAdd">
+                    <xpath>/Defs/*[defName="VFEP_WarcasketHelmet_Recon"]</xpath>
+                    <value><modExtensions><li Class="TheMarkedMen.MarkedVirusProtectionExtension"><resistance>0.25</resistance><sealedAgainstMarkedVirus>true</sealedAgainstMarkedVirus></li></modExtensions></value>
+                  </nomatch>
+                </nomatch>
+              </li>
+            </operations>
+          </match>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/*[defName="VFEP_WarcasketHelmet_Cataphract"]</xpath>
+          <match Class="PatchOperationSequence">
+            <operations>
+              <li Class="PatchOperationConditional">
+                <xpath>/Defs/*[defName="VFEP_WarcasketHelmet_Cataphract"]/modExtensions[li/@Class="TheMarkedMen.MarkedVirusProtectionExtension"]</xpath>
+                <nomatch Class="PatchOperationConditional">
+                  <xpath>/Defs/*[defName="VFEP_WarcasketHelmet_Cataphract"]/modExtensions</xpath>
+                  <match Class="PatchOperationAdd">
+                    <xpath>/Defs/*[defName="VFEP_WarcasketHelmet_Cataphract"]/modExtensions</xpath>
+                    <value><li Class="TheMarkedMen.MarkedVirusProtectionExtension"><resistance>0.25</resistance><sealedAgainstMarkedVirus>true</sealedAgainstMarkedVirus></li></value>
+                  </match>
+                  <nomatch Class="PatchOperationAdd">
+                    <xpath>/Defs/*[defName="VFEP_WarcasketHelmet_Cataphract"]</xpath>
+                    <value><modExtensions><li Class="TheMarkedMen.MarkedVirusProtectionExtension"><resistance>0.25</resistance><sealedAgainstMarkedVirus>true</sealedAgainstMarkedVirus></li></modExtensions></value>
+                  </nomatch>
+                </nomatch>
+              </li>
+            </operations>
+          </match>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/*[defName="VFEP_WarcasketHelmet_Aerial"]</xpath>
+          <match Class="PatchOperationSequence">
+            <operations>
+              <li Class="PatchOperationConditional">
+                <xpath>/Defs/*[defName="VFEP_WarcasketHelmet_Aerial"]/modExtensions[li/@Class="TheMarkedMen.MarkedVirusProtectionExtension"]</xpath>
+                <nomatch Class="PatchOperationConditional">
+                  <xpath>/Defs/*[defName="VFEP_WarcasketHelmet_Aerial"]/modExtensions</xpath>
+                  <match Class="PatchOperationAdd">
+                    <xpath>/Defs/*[defName="VFEP_WarcasketHelmet_Aerial"]/modExtensions</xpath>
+                    <value><li Class="TheMarkedMen.MarkedVirusProtectionExtension"><resistance>0.25</resistance><sealedAgainstMarkedVirus>true</sealedAgainstMarkedVirus></li></value>
+                  </match>
+                  <nomatch Class="PatchOperationAdd">
+                    <xpath>/Defs/*[defName="VFEP_WarcasketHelmet_Aerial"]</xpath>
+                    <value><modExtensions><li Class="TheMarkedMen.MarkedVirusProtectionExtension"><resistance>0.25</resistance><sealedAgainstMarkedVirus>true</sealedAgainstMarkedVirus></li></modExtensions></value>
+                  </nomatch>
+                </nomatch>
+              </li>
+            </operations>
+          </match>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/*[defName="VFEP_WarcasketHelmet_Barrage"]</xpath>
+          <match Class="PatchOperationSequence">
+            <operations>
+              <li Class="PatchOperationConditional">
+                <xpath>/Defs/*[defName="VFEP_WarcasketHelmet_Barrage"]/modExtensions[li/@Class="TheMarkedMen.MarkedVirusProtectionExtension"]</xpath>
+                <nomatch Class="PatchOperationConditional">
+                  <xpath>/Defs/*[defName="VFEP_WarcasketHelmet_Barrage"]/modExtensions</xpath>
+                  <match Class="PatchOperationAdd">
+                    <xpath>/Defs/*[defName="VFEP_WarcasketHelmet_Barrage"]/modExtensions</xpath>
+                    <value><li Class="TheMarkedMen.MarkedVirusProtectionExtension"><resistance>0.25</resistance><sealedAgainstMarkedVirus>true</sealedAgainstMarkedVirus></li></value>
+                  </match>
+                  <nomatch Class="PatchOperationAdd">
+                    <xpath>/Defs/*[defName="VFEP_WarcasketHelmet_Barrage"]</xpath>
+                    <value><modExtensions><li Class="TheMarkedMen.MarkedVirusProtectionExtension"><resistance>0.25</resistance><sealedAgainstMarkedVirus>true</sealedAgainstMarkedVirus></li></modExtensions></value>
+                  </nomatch>
+                </nomatch>
+              </li>
+            </operations>
+          </match>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/*[defName="VFEP_WarcasketHelmet_Hazard"]</xpath>
+          <match Class="PatchOperationSequence">
+            <operations>
+              <li Class="PatchOperationConditional">
+                <xpath>/Defs/*[defName="VFEP_WarcasketHelmet_Hazard"]/modExtensions[li/@Class="TheMarkedMen.MarkedVirusProtectionExtension"]</xpath>
+                <nomatch Class="PatchOperationConditional">
+                  <xpath>/Defs/*[defName="VFEP_WarcasketHelmet_Hazard"]/modExtensions</xpath>
+                  <match Class="PatchOperationAdd">
+                    <xpath>/Defs/*[defName="VFEP_WarcasketHelmet_Hazard"]/modExtensions</xpath>
+                    <value><li Class="TheMarkedMen.MarkedVirusProtectionExtension"><resistance>0.25</resistance><sealedAgainstMarkedVirus>true</sealedAgainstMarkedVirus></li></value>
+                  </match>
+                  <nomatch Class="PatchOperationAdd">
+                    <xpath>/Defs/*[defName="VFEP_WarcasketHelmet_Hazard"]</xpath>
+                    <value><modExtensions><li Class="TheMarkedMen.MarkedVirusProtectionExtension"><resistance>0.25</resistance><sealedAgainstMarkedVirus>true</sealedAgainstMarkedVirus></li></modExtensions></value>
+                  </nomatch>
+                </nomatch>
+              </li>
+            </operations>
+          </match>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/*[defName="VFEP_WarcasketHelmet_Shock"]</xpath>
+          <match Class="PatchOperationSequence">
+            <operations>
+              <li Class="PatchOperationConditional">
+                <xpath>/Defs/*[defName="VFEP_WarcasketHelmet_Shock"]/modExtensions[li/@Class="TheMarkedMen.MarkedVirusProtectionExtension"]</xpath>
+                <nomatch Class="PatchOperationConditional">
+                  <xpath>/Defs/*[defName="VFEP_WarcasketHelmet_Shock"]/modExtensions</xpath>
+                  <match Class="PatchOperationAdd">
+                    <xpath>/Defs/*[defName="VFEP_WarcasketHelmet_Shock"]/modExtensions</xpath>
+                    <value><li Class="TheMarkedMen.MarkedVirusProtectionExtension"><resistance>0.25</resistance><sealedAgainstMarkedVirus>true</sealedAgainstMarkedVirus></li></value>
+                  </match>
+                  <nomatch Class="PatchOperationAdd">
+                    <xpath>/Defs/*[defName="VFEP_WarcasketHelmet_Shock"]</xpath>
+                    <value><modExtensions><li Class="TheMarkedMen.MarkedVirusProtectionExtension"><resistance>0.25</resistance><sealedAgainstMarkedVirus>true</sealedAgainstMarkedVirus></li></modExtensions></value>
+                  </nomatch>
+                </nomatch>
+              </li>
+            </operations>
+          </match>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/*[defName="VFEP_WarcasketHelmet_Siegebreaker"]</xpath>
+          <match Class="PatchOperationSequence">
+            <operations>
+              <li Class="PatchOperationConditional">
+                <xpath>/Defs/*[defName="VFEP_WarcasketHelmet_Siegebreaker"]/modExtensions[li/@Class="TheMarkedMen.MarkedVirusProtectionExtension"]</xpath>
+                <nomatch Class="PatchOperationConditional">
+                  <xpath>/Defs/*[defName="VFEP_WarcasketHelmet_Siegebreaker"]/modExtensions</xpath>
+                  <match Class="PatchOperationAdd">
+                    <xpath>/Defs/*[defName="VFEP_WarcasketHelmet_Siegebreaker"]/modExtensions</xpath>
+                    <value><li Class="TheMarkedMen.MarkedVirusProtectionExtension"><resistance>0.25</resistance><sealedAgainstMarkedVirus>true</sealedAgainstMarkedVirus></li></value>
+                  </match>
+                  <nomatch Class="PatchOperationAdd">
+                    <xpath>/Defs/*[defName="VFEP_WarcasketHelmet_Siegebreaker"]</xpath>
+                    <value><modExtensions><li Class="TheMarkedMen.MarkedVirusProtectionExtension"><resistance>0.25</resistance><sealedAgainstMarkedVirus>true</sealedAgainstMarkedVirus></li></modExtensions></value>
+                  </nomatch>
+                </nomatch>
+              </li>
+            </operations>
+          </match>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/*[defName="VFEP_WarcasketHelmet_Guardian"]</xpath>
+          <match Class="PatchOperationSequence">
+            <operations>
+              <li Class="PatchOperationConditional">
+                <xpath>/Defs/*[defName="VFEP_WarcasketHelmet_Guardian"]/modExtensions[li/@Class="TheMarkedMen.MarkedVirusProtectionExtension"]</xpath>
+                <nomatch Class="PatchOperationConditional">
+                  <xpath>/Defs/*[defName="VFEP_WarcasketHelmet_Guardian"]/modExtensions</xpath>
+                  <match Class="PatchOperationAdd">
+                    <xpath>/Defs/*[defName="VFEP_WarcasketHelmet_Guardian"]/modExtensions</xpath>
+                    <value><li Class="TheMarkedMen.MarkedVirusProtectionExtension"><resistance>0.25</resistance><sealedAgainstMarkedVirus>true</sealedAgainstMarkedVirus></li></value>
+                  </match>
+                  <nomatch Class="PatchOperationAdd">
+                    <xpath>/Defs/*[defName="VFEP_WarcasketHelmet_Guardian"]</xpath>
+                    <value><modExtensions><li Class="TheMarkedMen.MarkedVirusProtectionExtension"><resistance>0.25</resistance><sealedAgainstMarkedVirus>true</sealedAgainstMarkedVirus></li></modExtensions></value>
+                  </nomatch>
                 </nomatch>
               </li>
             </operations>
@@ -139,27 +523,332 @@
           <match Class="PatchOperationSequence">
             <operations>
               <li Class="PatchOperationConditional">
-                <xpath>/Defs/*[defName="VFEP_WarcasketHelmet_Controller"]/equippedStatOffsets[CA_MarkedVirusResistance | li/stat="CA_MarkedVirusResistance"]</xpath>
-                <nomatch Class="PatchOperationConditional">
-                  <xpath>/Defs/*[defName="VFEP_WarcasketHelmet_Controller"]/equippedStatOffsets</xpath>
-                  <match Class="PatchOperationAdd">
-                    <xpath>/Defs/*[defName="VFEP_WarcasketHelmet_Controller"]/equippedStatOffsets</xpath>
-                    <value><CA_MarkedVirusResistance>1</CA_MarkedVirusResistance></value>
-                  </match>
-                  <nomatch Class="PatchOperationAdd">
-                    <xpath>/Defs/*[defName="VFEP_WarcasketHelmet_Controller"]</xpath>
-                    <value><equippedStatOffsets><CA_MarkedVirusResistance>1</CA_MarkedVirusResistance></equippedStatOffsets></value>
-                  </nomatch>
-                </nomatch>
-              </li>
-              <li Class="PatchOperationConditional">
                 <xpath>/Defs/*[defName="VFEP_WarcasketHelmet_Controller"]/modExtensions[li/@Class="TheMarkedMen.MarkedVirusProtectionExtension"]</xpath>
                 <nomatch Class="PatchOperationConditional">
                   <xpath>/Defs/*[defName="VFEP_WarcasketHelmet_Controller"]/modExtensions</xpath>
                   <match Class="PatchOperationAdd">
                     <xpath>/Defs/*[defName="VFEP_WarcasketHelmet_Controller"]/modExtensions</xpath>
-                    <value><li Class="TheMarkedMen.MarkedVirusProtectionExtension"><blocksMarkedVirusExposure>true</blocksMarkedVirusExposure></li></value>
+                    <value><li Class="TheMarkedMen.MarkedVirusProtectionExtension"><resistance>0.25</resistance><sealedAgainstMarkedVirus>true</sealedAgainstMarkedVirus></li></value>
                   </match>
+                  <nomatch Class="PatchOperationAdd">
+                    <xpath>/Defs/*[defName="VFEP_WarcasketHelmet_Controller"]</xpath>
+                    <value><modExtensions><li Class="TheMarkedMen.MarkedVirusProtectionExtension"><resistance>0.25</resistance><sealedAgainstMarkedVirus>true</sealedAgainstMarkedVirus></li></modExtensions></value>
+                  </nomatch>
+                </nomatch>
+              </li>
+            </operations>
+          </match>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/*[defName="VFEP_WarcasketHelmet_Sarcophagus"]</xpath>
+          <match Class="PatchOperationSequence">
+            <operations>
+              <li Class="PatchOperationConditional">
+                <xpath>/Defs/*[defName="VFEP_WarcasketHelmet_Sarcophagus"]/modExtensions[li/@Class="TheMarkedMen.MarkedVirusProtectionExtension"]</xpath>
+                <nomatch Class="PatchOperationConditional">
+                  <xpath>/Defs/*[defName="VFEP_WarcasketHelmet_Sarcophagus"]/modExtensions</xpath>
+                  <match Class="PatchOperationAdd">
+                    <xpath>/Defs/*[defName="VFEP_WarcasketHelmet_Sarcophagus"]/modExtensions</xpath>
+                    <value><li Class="TheMarkedMen.MarkedVirusProtectionExtension"><resistance>0.25</resistance><sealedAgainstMarkedVirus>true</sealedAgainstMarkedVirus></li></value>
+                  </match>
+                  <nomatch Class="PatchOperationAdd">
+                    <xpath>/Defs/*[defName="VFEP_WarcasketHelmet_Sarcophagus"]</xpath>
+                    <value><modExtensions><li Class="TheMarkedMen.MarkedVirusProtectionExtension"><resistance>0.25</resistance><sealedAgainstMarkedVirus>true</sealedAgainstMarkedVirus></li></modExtensions></value>
+                  </nomatch>
+                </nomatch>
+              </li>
+            </operations>
+          </match>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/*[defName="VFEP_WarcasketHelmet_Brute"]</xpath>
+          <match Class="PatchOperationSequence">
+            <operations>
+              <li Class="PatchOperationConditional">
+                <xpath>/Defs/*[defName="VFEP_WarcasketHelmet_Brute"]/modExtensions[li/@Class="TheMarkedMen.MarkedVirusProtectionExtension"]</xpath>
+                <nomatch Class="PatchOperationConditional">
+                  <xpath>/Defs/*[defName="VFEP_WarcasketHelmet_Brute"]/modExtensions</xpath>
+                  <match Class="PatchOperationAdd">
+                    <xpath>/Defs/*[defName="VFEP_WarcasketHelmet_Brute"]/modExtensions</xpath>
+                    <value><li Class="TheMarkedMen.MarkedVirusProtectionExtension"><resistance>0.25</resistance><sealedAgainstMarkedVirus>true</sealedAgainstMarkedVirus></li></value>
+                  </match>
+                  <nomatch Class="PatchOperationAdd">
+                    <xpath>/Defs/*[defName="VFEP_WarcasketHelmet_Brute"]</xpath>
+                    <value><modExtensions><li Class="TheMarkedMen.MarkedVirusProtectionExtension"><resistance>0.25</resistance><sealedAgainstMarkedVirus>true</sealedAgainstMarkedVirus></li></modExtensions></value>
+                  </nomatch>
+                </nomatch>
+              </li>
+            </operations>
+          </match>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/*[defName="VFEP_WarcasketShoulders_Warcasket"]</xpath>
+          <match Class="PatchOperationSequence">
+            <operations>
+              <li Class="PatchOperationConditional">
+                <xpath>/Defs/*[defName="VFEP_WarcasketShoulders_Warcasket"]/modExtensions[li/@Class="TheMarkedMen.MarkedVirusProtectionExtension"]</xpath>
+                <nomatch Class="PatchOperationConditional">
+                  <xpath>/Defs/*[defName="VFEP_WarcasketShoulders_Warcasket"]/modExtensions</xpath>
+                  <match Class="PatchOperationAdd">
+                    <xpath>/Defs/*[defName="VFEP_WarcasketShoulders_Warcasket"]/modExtensions</xpath>
+                    <value><li Class="TheMarkedMen.MarkedVirusProtectionExtension"><resistance>0.15</resistance></li></value>
+                  </match>
+                  <nomatch Class="PatchOperationAdd">
+                    <xpath>/Defs/*[defName="VFEP_WarcasketShoulders_Warcasket"]</xpath>
+                    <value><modExtensions><li Class="TheMarkedMen.MarkedVirusProtectionExtension"><resistance>0.15</resistance></li></modExtensions></value>
+                  </nomatch>
+                </nomatch>
+              </li>
+            </operations>
+          </match>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/*[defName="VFEP_WarcasketShoulders_Marine"]</xpath>
+          <match Class="PatchOperationSequence">
+            <operations>
+              <li Class="PatchOperationConditional">
+                <xpath>/Defs/*[defName="VFEP_WarcasketShoulders_Marine"]/modExtensions[li/@Class="TheMarkedMen.MarkedVirusProtectionExtension"]</xpath>
+                <nomatch Class="PatchOperationConditional">
+                  <xpath>/Defs/*[defName="VFEP_WarcasketShoulders_Marine"]/modExtensions</xpath>
+                  <match Class="PatchOperationAdd">
+                    <xpath>/Defs/*[defName="VFEP_WarcasketShoulders_Marine"]/modExtensions</xpath>
+                    <value><li Class="TheMarkedMen.MarkedVirusProtectionExtension"><resistance>0.15</resistance></li></value>
+                  </match>
+                  <nomatch Class="PatchOperationAdd">
+                    <xpath>/Defs/*[defName="VFEP_WarcasketShoulders_Marine"]</xpath>
+                    <value><modExtensions><li Class="TheMarkedMen.MarkedVirusProtectionExtension"><resistance>0.15</resistance></li></modExtensions></value>
+                  </nomatch>
+                </nomatch>
+              </li>
+            </operations>
+          </match>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/*[defName="VFEP_WarcasketShoulders_Recon"]</xpath>
+          <match Class="PatchOperationSequence">
+            <operations>
+              <li Class="PatchOperationConditional">
+                <xpath>/Defs/*[defName="VFEP_WarcasketShoulders_Recon"]/modExtensions[li/@Class="TheMarkedMen.MarkedVirusProtectionExtension"]</xpath>
+                <nomatch Class="PatchOperationConditional">
+                  <xpath>/Defs/*[defName="VFEP_WarcasketShoulders_Recon"]/modExtensions</xpath>
+                  <match Class="PatchOperationAdd">
+                    <xpath>/Defs/*[defName="VFEP_WarcasketShoulders_Recon"]/modExtensions</xpath>
+                    <value><li Class="TheMarkedMen.MarkedVirusProtectionExtension"><resistance>0.15</resistance></li></value>
+                  </match>
+                  <nomatch Class="PatchOperationAdd">
+                    <xpath>/Defs/*[defName="VFEP_WarcasketShoulders_Recon"]</xpath>
+                    <value><modExtensions><li Class="TheMarkedMen.MarkedVirusProtectionExtension"><resistance>0.15</resistance></li></modExtensions></value>
+                  </nomatch>
+                </nomatch>
+              </li>
+            </operations>
+          </match>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/*[defName="VFEP_WarcasketShoulders_Cataphract"]</xpath>
+          <match Class="PatchOperationSequence">
+            <operations>
+              <li Class="PatchOperationConditional">
+                <xpath>/Defs/*[defName="VFEP_WarcasketShoulders_Cataphract"]/modExtensions[li/@Class="TheMarkedMen.MarkedVirusProtectionExtension"]</xpath>
+                <nomatch Class="PatchOperationConditional">
+                  <xpath>/Defs/*[defName="VFEP_WarcasketShoulders_Cataphract"]/modExtensions</xpath>
+                  <match Class="PatchOperationAdd">
+                    <xpath>/Defs/*[defName="VFEP_WarcasketShoulders_Cataphract"]/modExtensions</xpath>
+                    <value><li Class="TheMarkedMen.MarkedVirusProtectionExtension"><resistance>0.15</resistance></li></value>
+                  </match>
+                  <nomatch Class="PatchOperationAdd">
+                    <xpath>/Defs/*[defName="VFEP_WarcasketShoulders_Cataphract"]</xpath>
+                    <value><modExtensions><li Class="TheMarkedMen.MarkedVirusProtectionExtension"><resistance>0.15</resistance></li></modExtensions></value>
+                  </nomatch>
+                </nomatch>
+              </li>
+            </operations>
+          </match>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/*[defName="VFEP_WarcasketShoulders_Aerial"]</xpath>
+          <match Class="PatchOperationSequence">
+            <operations>
+              <li Class="PatchOperationConditional">
+                <xpath>/Defs/*[defName="VFEP_WarcasketShoulders_Aerial"]/modExtensions[li/@Class="TheMarkedMen.MarkedVirusProtectionExtension"]</xpath>
+                <nomatch Class="PatchOperationConditional">
+                  <xpath>/Defs/*[defName="VFEP_WarcasketShoulders_Aerial"]/modExtensions</xpath>
+                  <match Class="PatchOperationAdd">
+                    <xpath>/Defs/*[defName="VFEP_WarcasketShoulders_Aerial"]/modExtensions</xpath>
+                    <value><li Class="TheMarkedMen.MarkedVirusProtectionExtension"><resistance>0.15</resistance></li></value>
+                  </match>
+                  <nomatch Class="PatchOperationAdd">
+                    <xpath>/Defs/*[defName="VFEP_WarcasketShoulders_Aerial"]</xpath>
+                    <value><modExtensions><li Class="TheMarkedMen.MarkedVirusProtectionExtension"><resistance>0.15</resistance></li></modExtensions></value>
+                  </nomatch>
+                </nomatch>
+              </li>
+            </operations>
+          </match>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/*[defName="VFEP_WarcasketShoulders_Barrage"]</xpath>
+          <match Class="PatchOperationSequence">
+            <operations>
+              <li Class="PatchOperationConditional">
+                <xpath>/Defs/*[defName="VFEP_WarcasketShoulders_Barrage"]/modExtensions[li/@Class="TheMarkedMen.MarkedVirusProtectionExtension"]</xpath>
+                <nomatch Class="PatchOperationConditional">
+                  <xpath>/Defs/*[defName="VFEP_WarcasketShoulders_Barrage"]/modExtensions</xpath>
+                  <match Class="PatchOperationAdd">
+                    <xpath>/Defs/*[defName="VFEP_WarcasketShoulders_Barrage"]/modExtensions</xpath>
+                    <value><li Class="TheMarkedMen.MarkedVirusProtectionExtension"><resistance>0.15</resistance></li></value>
+                  </match>
+                  <nomatch Class="PatchOperationAdd">
+                    <xpath>/Defs/*[defName="VFEP_WarcasketShoulders_Barrage"]</xpath>
+                    <value><modExtensions><li Class="TheMarkedMen.MarkedVirusProtectionExtension"><resistance>0.15</resistance></li></modExtensions></value>
+                  </nomatch>
+                </nomatch>
+              </li>
+            </operations>
+          </match>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/*[defName="VFEP_WarcasketShoulders_Hazard"]</xpath>
+          <match Class="PatchOperationSequence">
+            <operations>
+              <li Class="PatchOperationConditional">
+                <xpath>/Defs/*[defName="VFEP_WarcasketShoulders_Hazard"]/modExtensions[li/@Class="TheMarkedMen.MarkedVirusProtectionExtension"]</xpath>
+                <nomatch Class="PatchOperationConditional">
+                  <xpath>/Defs/*[defName="VFEP_WarcasketShoulders_Hazard"]/modExtensions</xpath>
+                  <match Class="PatchOperationAdd">
+                    <xpath>/Defs/*[defName="VFEP_WarcasketShoulders_Hazard"]/modExtensions</xpath>
+                    <value><li Class="TheMarkedMen.MarkedVirusProtectionExtension"><resistance>0.15</resistance></li></value>
+                  </match>
+                  <nomatch Class="PatchOperationAdd">
+                    <xpath>/Defs/*[defName="VFEP_WarcasketShoulders_Hazard"]</xpath>
+                    <value><modExtensions><li Class="TheMarkedMen.MarkedVirusProtectionExtension"><resistance>0.15</resistance></li></modExtensions></value>
+                  </nomatch>
+                </nomatch>
+              </li>
+            </operations>
+          </match>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/*[defName="VFEP_WarcasketShoulders_Shock"]</xpath>
+          <match Class="PatchOperationSequence">
+            <operations>
+              <li Class="PatchOperationConditional">
+                <xpath>/Defs/*[defName="VFEP_WarcasketShoulders_Shock"]/modExtensions[li/@Class="TheMarkedMen.MarkedVirusProtectionExtension"]</xpath>
+                <nomatch Class="PatchOperationConditional">
+                  <xpath>/Defs/*[defName="VFEP_WarcasketShoulders_Shock"]/modExtensions</xpath>
+                  <match Class="PatchOperationAdd">
+                    <xpath>/Defs/*[defName="VFEP_WarcasketShoulders_Shock"]/modExtensions</xpath>
+                    <value><li Class="TheMarkedMen.MarkedVirusProtectionExtension"><resistance>0.15</resistance></li></value>
+                  </match>
+                  <nomatch Class="PatchOperationAdd">
+                    <xpath>/Defs/*[defName="VFEP_WarcasketShoulders_Shock"]</xpath>
+                    <value><modExtensions><li Class="TheMarkedMen.MarkedVirusProtectionExtension"><resistance>0.15</resistance></li></modExtensions></value>
+                  </nomatch>
+                </nomatch>
+              </li>
+            </operations>
+          </match>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/*[defName="VFEP_WarcasketShoulders_Siegebreaker"]</xpath>
+          <match Class="PatchOperationSequence">
+            <operations>
+              <li Class="PatchOperationConditional">
+                <xpath>/Defs/*[defName="VFEP_WarcasketShoulders_Siegebreaker"]/modExtensions[li/@Class="TheMarkedMen.MarkedVirusProtectionExtension"]</xpath>
+                <nomatch Class="PatchOperationConditional">
+                  <xpath>/Defs/*[defName="VFEP_WarcasketShoulders_Siegebreaker"]/modExtensions</xpath>
+                  <match Class="PatchOperationAdd">
+                    <xpath>/Defs/*[defName="VFEP_WarcasketShoulders_Siegebreaker"]/modExtensions</xpath>
+                    <value><li Class="TheMarkedMen.MarkedVirusProtectionExtension"><resistance>0.15</resistance></li></value>
+                  </match>
+                  <nomatch Class="PatchOperationAdd">
+                    <xpath>/Defs/*[defName="VFEP_WarcasketShoulders_Siegebreaker"]</xpath>
+                    <value><modExtensions><li Class="TheMarkedMen.MarkedVirusProtectionExtension"><resistance>0.15</resistance></li></modExtensions></value>
+                  </nomatch>
+                </nomatch>
+              </li>
+            </operations>
+          </match>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/*[defName="VFEP_WarcasketShoulders_Guardian"]</xpath>
+          <match Class="PatchOperationSequence">
+            <operations>
+              <li Class="PatchOperationConditional">
+                <xpath>/Defs/*[defName="VFEP_WarcasketShoulders_Guardian"]/modExtensions[li/@Class="TheMarkedMen.MarkedVirusProtectionExtension"]</xpath>
+                <nomatch Class="PatchOperationConditional">
+                  <xpath>/Defs/*[defName="VFEP_WarcasketShoulders_Guardian"]/modExtensions</xpath>
+                  <match Class="PatchOperationAdd">
+                    <xpath>/Defs/*[defName="VFEP_WarcasketShoulders_Guardian"]/modExtensions</xpath>
+                    <value><li Class="TheMarkedMen.MarkedVirusProtectionExtension"><resistance>0.15</resistance></li></value>
+                  </match>
+                  <nomatch Class="PatchOperationAdd">
+                    <xpath>/Defs/*[defName="VFEP_WarcasketShoulders_Guardian"]</xpath>
+                    <value><modExtensions><li Class="TheMarkedMen.MarkedVirusProtectionExtension"><resistance>0.15</resistance></li></modExtensions></value>
+                  </nomatch>
+                </nomatch>
+              </li>
+            </operations>
+          </match>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/*[defName="VFEP_WarcasketShoulders_Controller"]</xpath>
+          <match Class="PatchOperationSequence">
+            <operations>
+              <li Class="PatchOperationConditional">
+                <xpath>/Defs/*[defName="VFEP_WarcasketShoulders_Controller"]/modExtensions[li/@Class="TheMarkedMen.MarkedVirusProtectionExtension"]</xpath>
+                <nomatch Class="PatchOperationConditional">
+                  <xpath>/Defs/*[defName="VFEP_WarcasketShoulders_Controller"]/modExtensions</xpath>
+                  <match Class="PatchOperationAdd">
+                    <xpath>/Defs/*[defName="VFEP_WarcasketShoulders_Controller"]/modExtensions</xpath>
+                    <value><li Class="TheMarkedMen.MarkedVirusProtectionExtension"><resistance>0.15</resistance></li></value>
+                  </match>
+                  <nomatch Class="PatchOperationAdd">
+                    <xpath>/Defs/*[defName="VFEP_WarcasketShoulders_Controller"]</xpath>
+                    <value><modExtensions><li Class="TheMarkedMen.MarkedVirusProtectionExtension"><resistance>0.15</resistance></li></modExtensions></value>
+                  </nomatch>
+                </nomatch>
+              </li>
+            </operations>
+          </match>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/*[defName="VFEP_WarcasketShoulders_Sarcophagus"]</xpath>
+          <match Class="PatchOperationSequence">
+            <operations>
+              <li Class="PatchOperationConditional">
+                <xpath>/Defs/*[defName="VFEP_WarcasketShoulders_Sarcophagus"]/modExtensions[li/@Class="TheMarkedMen.MarkedVirusProtectionExtension"]</xpath>
+                <nomatch Class="PatchOperationConditional">
+                  <xpath>/Defs/*[defName="VFEP_WarcasketShoulders_Sarcophagus"]/modExtensions</xpath>
+                  <match Class="PatchOperationAdd">
+                    <xpath>/Defs/*[defName="VFEP_WarcasketShoulders_Sarcophagus"]/modExtensions</xpath>
+                    <value><li Class="TheMarkedMen.MarkedVirusProtectionExtension"><resistance>0.15</resistance></li></value>
+                  </match>
+                  <nomatch Class="PatchOperationAdd">
+                    <xpath>/Defs/*[defName="VFEP_WarcasketShoulders_Sarcophagus"]</xpath>
+                    <value><modExtensions><li Class="TheMarkedMen.MarkedVirusProtectionExtension"><resistance>0.15</resistance></li></modExtensions></value>
+                  </nomatch>
+                </nomatch>
+              </li>
+            </operations>
+          </match>
+        </li>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/*[defName="VFEP_WarcasketShoulders_Brute"]</xpath>
+          <match Class="PatchOperationSequence">
+            <operations>
+              <li Class="PatchOperationConditional">
+                <xpath>/Defs/*[defName="VFEP_WarcasketShoulders_Brute"]/modExtensions[li/@Class="TheMarkedMen.MarkedVirusProtectionExtension"]</xpath>
+                <nomatch Class="PatchOperationConditional">
+                  <xpath>/Defs/*[defName="VFEP_WarcasketShoulders_Brute"]/modExtensions</xpath>
+                  <match Class="PatchOperationAdd">
+                    <xpath>/Defs/*[defName="VFEP_WarcasketShoulders_Brute"]/modExtensions</xpath>
+                    <value><li Class="TheMarkedMen.MarkedVirusProtectionExtension"><resistance>0.15</resistance></li></value>
+                  </match>
+                  <nomatch Class="PatchOperationAdd">
+                    <xpath>/Defs/*[defName="VFEP_WarcasketShoulders_Brute"]</xpath>
+                    <value><modExtensions><li Class="TheMarkedMen.MarkedVirusProtectionExtension"><resistance>0.15</resistance></li></modExtensions></value>
+                  </nomatch>
                 </nomatch>
               </li>
             </operations>
@@ -171,10 +860,12 @@
 
   <!-- ============================================================
        Odyssey DLC — Vacsuit & Helmet
+       Body/Children: 0.30 sealed, Helmet: 0.25 sealed.
+       Full-suit exposure block is handled by the Vacsuit setting.
        ============================================================ -->
   <Operation Class="PatchOperationFindMod">
     <mods>
-      <li>Odyssey</li>
+      <li>Ludeon.RimWorld.Odyssey</li>
     </mods>
     <match Class="PatchOperationSequence">
       <operations>
@@ -183,30 +874,16 @@
           <match Class="PatchOperationSequence">
             <operations>
               <li Class="PatchOperationConditional">
-                <xpath>/Defs/*[defName="Apparel_Vacsuit"]/equippedStatOffsets[CA_MarkedVirusResistance | li/stat="CA_MarkedVirusResistance"]</xpath>
-                <nomatch Class="PatchOperationConditional">
-                  <xpath>/Defs/*[defName="Apparel_Vacsuit"]/equippedStatOffsets</xpath>
-                  <match Class="PatchOperationAdd">
-                    <xpath>/Defs/*[defName="Apparel_Vacsuit"]/equippedStatOffsets</xpath>
-                    <value><CA_MarkedVirusResistance>1</CA_MarkedVirusResistance></value>
-                  </match>
-                  <nomatch Class="PatchOperationAdd">
-                    <xpath>/Defs/*[defName="Apparel_Vacsuit"]</xpath>
-                    <value><equippedStatOffsets><CA_MarkedVirusResistance>1</CA_MarkedVirusResistance></equippedStatOffsets></value>
-                  </nomatch>
-                </nomatch>
-              </li>
-              <li Class="PatchOperationConditional">
                 <xpath>/Defs/*[defName="Apparel_Vacsuit"]/modExtensions[li/@Class="TheMarkedMen.MarkedVirusProtectionExtension"]</xpath>
                 <nomatch Class="PatchOperationConditional">
                   <xpath>/Defs/*[defName="Apparel_Vacsuit"]/modExtensions</xpath>
                   <match Class="PatchOperationAdd">
                     <xpath>/Defs/*[defName="Apparel_Vacsuit"]/modExtensions</xpath>
-                    <value><li Class="TheMarkedMen.MarkedVirusProtectionExtension"><blocksMarkedVirusExposure>true</blocksMarkedVirusExposure></li></value>
+                    <value><li Class="TheMarkedMen.MarkedVirusProtectionExtension"><resistance>0.30</resistance><sealedAgainstMarkedVirus>true</sealedAgainstMarkedVirus><blockCategory>Vacsuit</blockCategory></li></value>
                   </match>
                   <nomatch Class="PatchOperationAdd">
                     <xpath>/Defs/*[defName="Apparel_Vacsuit"]</xpath>
-                    <value><modExtensions><li Class="TheMarkedMen.MarkedVirusProtectionExtension"><blocksMarkedVirusExposure>true</blocksMarkedVirusExposure></li></modExtensions></value>
+                    <value><modExtensions><li Class="TheMarkedMen.MarkedVirusProtectionExtension"><resistance>0.30</resistance><sealedAgainstMarkedVirus>true</sealedAgainstMarkedVirus><blockCategory>Vacsuit</blockCategory></li></modExtensions></value>
                   </nomatch>
                 </nomatch>
               </li>
@@ -218,30 +895,16 @@
           <match Class="PatchOperationSequence">
             <operations>
               <li Class="PatchOperationConditional">
-                <xpath>/Defs/*[defName="Apparel_VacsuitHelmet"]/equippedStatOffsets[CA_MarkedVirusResistance | li/stat="CA_MarkedVirusResistance"]</xpath>
-                <nomatch Class="PatchOperationConditional">
-                  <xpath>/Defs/*[defName="Apparel_VacsuitHelmet"]/equippedStatOffsets</xpath>
-                  <match Class="PatchOperationAdd">
-                    <xpath>/Defs/*[defName="Apparel_VacsuitHelmet"]/equippedStatOffsets</xpath>
-                    <value><CA_MarkedVirusResistance>1</CA_MarkedVirusResistance></value>
-                  </match>
-                  <nomatch Class="PatchOperationAdd">
-                    <xpath>/Defs/*[defName="Apparel_VacsuitHelmet"]</xpath>
-                    <value><equippedStatOffsets><CA_MarkedVirusResistance>1</CA_MarkedVirusResistance></equippedStatOffsets></value>
-                  </nomatch>
-                </nomatch>
-              </li>
-              <li Class="PatchOperationConditional">
                 <xpath>/Defs/*[defName="Apparel_VacsuitHelmet"]/modExtensions[li/@Class="TheMarkedMen.MarkedVirusProtectionExtension"]</xpath>
                 <nomatch Class="PatchOperationConditional">
                   <xpath>/Defs/*[defName="Apparel_VacsuitHelmet"]/modExtensions</xpath>
                   <match Class="PatchOperationAdd">
                     <xpath>/Defs/*[defName="Apparel_VacsuitHelmet"]/modExtensions</xpath>
-                    <value><li Class="TheMarkedMen.MarkedVirusProtectionExtension"><blocksMarkedVirusExposure>true</blocksMarkedVirusExposure></li></value>
+                    <value><li Class="TheMarkedMen.MarkedVirusProtectionExtension"><resistance>0.25</resistance><sealedAgainstMarkedVirus>true</sealedAgainstMarkedVirus><blockCategory>Vacsuit</blockCategory></li></value>
                   </match>
                   <nomatch Class="PatchOperationAdd">
                     <xpath>/Defs/*[defName="Apparel_VacsuitHelmet"]</xpath>
-                    <value><modExtensions><li Class="TheMarkedMen.MarkedVirusProtectionExtension"><blocksMarkedVirusExposure>true</blocksMarkedVirusExposure></li></modExtensions></value>
+                    <value><modExtensions><li Class="TheMarkedMen.MarkedVirusProtectionExtension"><resistance>0.25</resistance><sealedAgainstMarkedVirus>true</sealedAgainstMarkedVirus><blockCategory>Vacsuit</blockCategory></li></modExtensions></value>
                   </nomatch>
                 </nomatch>
               </li>
@@ -253,30 +916,16 @@
           <match Class="PatchOperationSequence">
             <operations>
               <li Class="PatchOperationConditional">
-                <xpath>/Defs/*[defName="Apparel_VacsuitChildren"]/equippedStatOffsets[CA_MarkedVirusResistance | li/stat="CA_MarkedVirusResistance"]</xpath>
-                <nomatch Class="PatchOperationConditional">
-                  <xpath>/Defs/*[defName="Apparel_VacsuitChildren"]/equippedStatOffsets</xpath>
-                  <match Class="PatchOperationAdd">
-                    <xpath>/Defs/*[defName="Apparel_VacsuitChildren"]/equippedStatOffsets</xpath>
-                    <value><CA_MarkedVirusResistance>1</CA_MarkedVirusResistance></value>
-                  </match>
-                  <nomatch Class="PatchOperationAdd">
-                    <xpath>/Defs/*[defName="Apparel_VacsuitChildren"]</xpath>
-                    <value><equippedStatOffsets><CA_MarkedVirusResistance>1</CA_MarkedVirusResistance></equippedStatOffsets></value>
-                  </nomatch>
-                </nomatch>
-              </li>
-              <li Class="PatchOperationConditional">
                 <xpath>/Defs/*[defName="Apparel_VacsuitChildren"]/modExtensions[li/@Class="TheMarkedMen.MarkedVirusProtectionExtension"]</xpath>
                 <nomatch Class="PatchOperationConditional">
                   <xpath>/Defs/*[defName="Apparel_VacsuitChildren"]/modExtensions</xpath>
                   <match Class="PatchOperationAdd">
                     <xpath>/Defs/*[defName="Apparel_VacsuitChildren"]/modExtensions</xpath>
-                    <value><li Class="TheMarkedMen.MarkedVirusProtectionExtension"><blocksMarkedVirusExposure>true</blocksMarkedVirusExposure></li></value>
+                    <value><li Class="TheMarkedMen.MarkedVirusProtectionExtension"><resistance>0.30</resistance><sealedAgainstMarkedVirus>true</sealedAgainstMarkedVirus><blockCategory>Vacsuit</blockCategory></li></value>
                   </match>
                   <nomatch Class="PatchOperationAdd">
                     <xpath>/Defs/*[defName="Apparel_VacsuitChildren"]</xpath>
-                    <value><modExtensions><li Class="TheMarkedMen.MarkedVirusProtectionExtension"><blocksMarkedVirusExposure>true</blocksMarkedVirusExposure></li></modExtensions></value>
+                    <value><modExtensions><li Class="TheMarkedMen.MarkedVirusProtectionExtension"><resistance>0.30</resistance><sealedAgainstMarkedVirus>true</sealedAgainstMarkedVirus><blockCategory>Vacsuit</blockCategory></li></modExtensions></value>
                   </nomatch>
                 </nomatch>
               </li>
@@ -288,7 +937,7 @@
   </Operation>
 
   <!-- ============================================================
-       Biotech DLC — Gas Mask
+       Biotech DLC — Gas Mask (0.25 sealed, blocks gated by gas masks setting)
        ============================================================ -->
   <Operation Class="PatchOperationFindMod">
     <mods>
@@ -301,30 +950,16 @@
           <match Class="PatchOperationSequence">
             <operations>
               <li Class="PatchOperationConditional">
-                <xpath>/Defs/*[defName="Apparel_GasMask"]/equippedStatOffsets[CA_MarkedVirusResistance | li/stat="CA_MarkedVirusResistance"]</xpath>
-                <nomatch Class="PatchOperationConditional">
-                  <xpath>/Defs/*[defName="Apparel_GasMask"]/equippedStatOffsets</xpath>
-                  <match Class="PatchOperationAdd">
-                    <xpath>/Defs/*[defName="Apparel_GasMask"]/equippedStatOffsets</xpath>
-                    <value><CA_MarkedVirusResistance>1</CA_MarkedVirusResistance></value>
-                  </match>
-                  <nomatch Class="PatchOperationAdd">
-                    <xpath>/Defs/*[defName="Apparel_GasMask"]</xpath>
-                    <value><equippedStatOffsets><CA_MarkedVirusResistance>1</CA_MarkedVirusResistance></equippedStatOffsets></value>
-                  </nomatch>
-                </nomatch>
-              </li>
-              <li Class="PatchOperationConditional">
                 <xpath>/Defs/*[defName="Apparel_GasMask"]/modExtensions[li/@Class="TheMarkedMen.MarkedVirusProtectionExtension"]</xpath>
                 <nomatch Class="PatchOperationConditional">
                   <xpath>/Defs/*[defName="Apparel_GasMask"]/modExtensions</xpath>
                   <match Class="PatchOperationAdd">
                     <xpath>/Defs/*[defName="Apparel_GasMask"]/modExtensions</xpath>
-                    <value><li Class="TheMarkedMen.MarkedVirusProtectionExtension"><blocksMarkedVirusExposure>true</blocksMarkedVirusExposure></li></value>
+                    <value><li Class="TheMarkedMen.MarkedVirusProtectionExtension"><resistance>0.25</resistance><sealedAgainstMarkedVirus>true</sealedAgainstMarkedVirus><blocksMarkedVirusExposure>true</blocksMarkedVirusExposure><blockCategory>GasMask</blockCategory></li></value>
                   </match>
                   <nomatch Class="PatchOperationAdd">
                     <xpath>/Defs/*[defName="Apparel_GasMask"]</xpath>
-                    <value><modExtensions><li Class="TheMarkedMen.MarkedVirusProtectionExtension"><blocksMarkedVirusExposure>true</blocksMarkedVirusExposure></li></modExtensions></value>
+                    <value><modExtensions><li Class="TheMarkedMen.MarkedVirusProtectionExtension"><resistance>0.25</resistance><sealedAgainstMarkedVirus>true</sealedAgainstMarkedVirus><blocksMarkedVirusExposure>true</blocksMarkedVirusExposure><blockCategory>GasMask</blockCategory></li></modExtensions></value>
                   </nomatch>
                 </nomatch>
               </li>
@@ -336,7 +971,7 @@
   </Operation>
 
   <!-- ============================================================
-       Vanilla Apparel Expanded — Gas Mask
+       Vanilla Apparel Expanded — Gas Mask (0.25 sealed, blocks gated by gas masks setting)
        ============================================================ -->
   <Operation Class="PatchOperationFindMod">
     <mods>
@@ -349,30 +984,16 @@
           <match Class="PatchOperationSequence">
             <operations>
               <li Class="PatchOperationConditional">
-                <xpath>/Defs/*[defName="VAE_Headgear_GasMask"]/equippedStatOffsets[CA_MarkedVirusResistance | li/stat="CA_MarkedVirusResistance"]</xpath>
-                <nomatch Class="PatchOperationConditional">
-                  <xpath>/Defs/*[defName="VAE_Headgear_GasMask"]/equippedStatOffsets</xpath>
-                  <match Class="PatchOperationAdd">
-                    <xpath>/Defs/*[defName="VAE_Headgear_GasMask"]/equippedStatOffsets</xpath>
-                    <value><CA_MarkedVirusResistance>1</CA_MarkedVirusResistance></value>
-                  </match>
-                  <nomatch Class="PatchOperationAdd">
-                    <xpath>/Defs/*[defName="VAE_Headgear_GasMask"]</xpath>
-                    <value><equippedStatOffsets><CA_MarkedVirusResistance>1</CA_MarkedVirusResistance></equippedStatOffsets></value>
-                  </nomatch>
-                </nomatch>
-              </li>
-              <li Class="PatchOperationConditional">
                 <xpath>/Defs/*[defName="VAE_Headgear_GasMask"]/modExtensions[li/@Class="TheMarkedMen.MarkedVirusProtectionExtension"]</xpath>
                 <nomatch Class="PatchOperationConditional">
                   <xpath>/Defs/*[defName="VAE_Headgear_GasMask"]/modExtensions</xpath>
                   <match Class="PatchOperationAdd">
                     <xpath>/Defs/*[defName="VAE_Headgear_GasMask"]/modExtensions</xpath>
-                    <value><li Class="TheMarkedMen.MarkedVirusProtectionExtension"><blocksMarkedVirusExposure>true</blocksMarkedVirusExposure></li></value>
+                    <value><li Class="TheMarkedMen.MarkedVirusProtectionExtension"><resistance>0.25</resistance><sealedAgainstMarkedVirus>true</sealedAgainstMarkedVirus><blocksMarkedVirusExposure>true</blocksMarkedVirusExposure><blockCategory>GasMask</blockCategory></li></value>
                   </match>
                   <nomatch Class="PatchOperationAdd">
                     <xpath>/Defs/*[defName="VAE_Headgear_GasMask"]</xpath>
-                    <value><modExtensions><li Class="TheMarkedMen.MarkedVirusProtectionExtension"><blocksMarkedVirusExposure>true</blocksMarkedVirusExposure></li></modExtensions></value>
+                    <value><modExtensions><li Class="TheMarkedMen.MarkedVirusProtectionExtension"><resistance>0.25</resistance><sealedAgainstMarkedVirus>true</sealedAgainstMarkedVirus><blocksMarkedVirusExposure>true</blocksMarkedVirusExposure><blockCategory>GasMask</blockCategory></li></modExtensions></value>
                   </nomatch>
                 </nomatch>
               </li>
@@ -397,30 +1018,16 @@
           <match Class="PatchOperationSequence">
             <operations>
               <li Class="PatchOperationConditional">
-                <xpath>/Defs/*[defName="VGE_Apparel_Vacsuit_Prestige"]/equippedStatOffsets[CA_MarkedVirusResistance | li/stat="CA_MarkedVirusResistance"]</xpath>
-                <nomatch Class="PatchOperationConditional">
-                  <xpath>/Defs/*[defName="VGE_Apparel_Vacsuit_Prestige"]/equippedStatOffsets</xpath>
-                  <match Class="PatchOperationAdd">
-                    <xpath>/Defs/*[defName="VGE_Apparel_Vacsuit_Prestige"]/equippedStatOffsets</xpath>
-                    <value><CA_MarkedVirusResistance>1</CA_MarkedVirusResistance></value>
-                  </match>
-                  <nomatch Class="PatchOperationAdd">
-                    <xpath>/Defs/*[defName="VGE_Apparel_Vacsuit_Prestige"]</xpath>
-                    <value><equippedStatOffsets><CA_MarkedVirusResistance>1</CA_MarkedVirusResistance></equippedStatOffsets></value>
-                  </nomatch>
-                </nomatch>
-              </li>
-              <li Class="PatchOperationConditional">
                 <xpath>/Defs/*[defName="VGE_Apparel_Vacsuit_Prestige"]/modExtensions[li/@Class="TheMarkedMen.MarkedVirusProtectionExtension"]</xpath>
                 <nomatch Class="PatchOperationConditional">
                   <xpath>/Defs/*[defName="VGE_Apparel_Vacsuit_Prestige"]/modExtensions</xpath>
                   <match Class="PatchOperationAdd">
                     <xpath>/Defs/*[defName="VGE_Apparel_Vacsuit_Prestige"]/modExtensions</xpath>
-                    <value><li Class="TheMarkedMen.MarkedVirusProtectionExtension"><blocksMarkedVirusExposure>true</blocksMarkedVirusExposure></li></value>
+                    <value><li Class="TheMarkedMen.MarkedVirusProtectionExtension"><resistance>0.30</resistance><sealedAgainstMarkedVirus>true</sealedAgainstMarkedVirus><blockCategory>Vacsuit</blockCategory></li></value>
                   </match>
                   <nomatch Class="PatchOperationAdd">
                     <xpath>/Defs/*[defName="VGE_Apparel_Vacsuit_Prestige"]</xpath>
-                    <value><modExtensions><li Class="TheMarkedMen.MarkedVirusProtectionExtension"><blocksMarkedVirusExposure>true</blocksMarkedVirusExposure></li></modExtensions></value>
+                    <value><modExtensions><li Class="TheMarkedMen.MarkedVirusProtectionExtension"><resistance>0.30</resistance><sealedAgainstMarkedVirus>true</sealedAgainstMarkedVirus><blockCategory>Vacsuit</blockCategory></li></modExtensions></value>
                   </nomatch>
                 </nomatch>
               </li>
@@ -432,30 +1039,51 @@
           <match Class="PatchOperationSequence">
             <operations>
               <li Class="PatchOperationConditional">
-                <xpath>/Defs/*[defName="VGE_Apparel_VacsuitHelmet_Prestige"]/equippedStatOffsets[CA_MarkedVirusResistance | li/stat="CA_MarkedVirusResistance"]</xpath>
-                <nomatch Class="PatchOperationConditional">
-                  <xpath>/Defs/*[defName="VGE_Apparel_VacsuitHelmet_Prestige"]/equippedStatOffsets</xpath>
-                  <match Class="PatchOperationAdd">
-                    <xpath>/Defs/*[defName="VGE_Apparel_VacsuitHelmet_Prestige"]/equippedStatOffsets</xpath>
-                    <value><CA_MarkedVirusResistance>1</CA_MarkedVirusResistance></value>
-                  </match>
-                  <nomatch Class="PatchOperationAdd">
-                    <xpath>/Defs/*[defName="VGE_Apparel_VacsuitHelmet_Prestige"]</xpath>
-                    <value><equippedStatOffsets><CA_MarkedVirusResistance>1</CA_MarkedVirusResistance></equippedStatOffsets></value>
-                  </nomatch>
-                </nomatch>
-              </li>
-              <li Class="PatchOperationConditional">
                 <xpath>/Defs/*[defName="VGE_Apparel_VacsuitHelmet_Prestige"]/modExtensions[li/@Class="TheMarkedMen.MarkedVirusProtectionExtension"]</xpath>
                 <nomatch Class="PatchOperationConditional">
                   <xpath>/Defs/*[defName="VGE_Apparel_VacsuitHelmet_Prestige"]/modExtensions</xpath>
                   <match Class="PatchOperationAdd">
                     <xpath>/Defs/*[defName="VGE_Apparel_VacsuitHelmet_Prestige"]/modExtensions</xpath>
-                    <value><li Class="TheMarkedMen.MarkedVirusProtectionExtension"><blocksMarkedVirusExposure>true</blocksMarkedVirusExposure></li></value>
+                    <value><li Class="TheMarkedMen.MarkedVirusProtectionExtension"><resistance>0.25</resistance><sealedAgainstMarkedVirus>true</sealedAgainstMarkedVirus><blockCategory>Vacsuit</blockCategory></li></value>
                   </match>
                   <nomatch Class="PatchOperationAdd">
                     <xpath>/Defs/*[defName="VGE_Apparel_VacsuitHelmet_Prestige"]</xpath>
-                    <value><modExtensions><li Class="TheMarkedMen.MarkedVirusProtectionExtension"><blocksMarkedVirusExposure>true</blocksMarkedVirusExposure></li></modExtensions></value>
+                    <value><modExtensions><li Class="TheMarkedMen.MarkedVirusProtectionExtension"><resistance>0.25</resistance><sealedAgainstMarkedVirus>true</sealedAgainstMarkedVirus><blockCategory>Vacsuit</blockCategory></li></modExtensions></value>
+                  </nomatch>
+                </nomatch>
+              </li>
+            </operations>
+          </match>
+        </li>
+      </operations>
+    </match>
+  </Operation>
+
+  <!-- ============================================================
+       Vanilla Apparel Expanded — Remastered (VARME) — HAZMAT suit
+       0.90 sealed, blocks exposure gated by sealed armor setting
+       ============================================================ -->
+  <Operation Class="PatchOperationFindMod">
+    <mods>
+      <li>VanillaExpanded.VARME</li>
+    </mods>
+    <match Class="PatchOperationSequence">
+      <operations>
+        <li Class="PatchOperationConditional">
+          <xpath>/Defs/*[defName="VAE_Apparel_HAZMATSuit"]</xpath>
+          <match Class="PatchOperationSequence">
+            <operations>
+              <li Class="PatchOperationConditional">
+                <xpath>/Defs/*[defName="VAE_Apparel_HAZMATSuit"]/modExtensions[li/@Class="TheMarkedMen.MarkedVirusProtectionExtension"]</xpath>
+                <nomatch Class="PatchOperationConditional">
+                  <xpath>/Defs/*[defName="VAE_Apparel_HAZMATSuit"]/modExtensions</xpath>
+                  <match Class="PatchOperationAdd">
+                    <xpath>/Defs/*[defName="VAE_Apparel_HAZMATSuit"]/modExtensions</xpath>
+                    <value><li Class="TheMarkedMen.MarkedVirusProtectionExtension"><resistance>0.90</resistance><sealedAgainstMarkedVirus>true</sealedAgainstMarkedVirus><blocksMarkedVirusExposure>true</blocksMarkedVirusExposure><blockCategory>SealedArmor</blockCategory></li></value>
+                  </match>
+                  <nomatch Class="PatchOperationAdd">
+                    <xpath>/Defs/*[defName="VAE_Apparel_HAZMATSuit"]</xpath>
+                    <value><modExtensions><li Class="TheMarkedMen.MarkedVirusProtectionExtension"><resistance>0.90</resistance><sealedAgainstMarkedVirus>true</sealedAgainstMarkedVirus><blocksMarkedVirusExposure>true</blocksMarkedVirusExposure><blockCategory>SealedArmor</blockCategory></li></modExtensions></value>
                   </nomatch>
                 </nomatch>
               </li>

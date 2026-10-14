@@ -654,59 +654,93 @@ namespace TheMarkedMen
 			return GetMarkedVirusProtectionForApparelDef(apparelDef);
 		}
 
-		public static void ApplyMarkedVirusResistanceEquippedStatOffsets()
+		private const string MarkedVirusSealedTag = "MarkedVirusSealed";
+		private const string MarkedVirusWarcasketBodyTag = "MarkedVirusWarcasketBody";
+		private const string MarkedVirusWarcasketBodysuitTag = "MarkedVirusWarcasketBodysuit";
+		private const string MarkedVirusWarcasketHelmetTag = "MarkedVirusWarcasketHelmet";
+		private const string MarkedVirusWarcasketShouldersTag = "MarkedVirusWarcasketShoulders";
+		private const string MarkedVirusWarcasketPartTag = "MarkedVirusWarcasketPart";
+		private const string MarkedVirusVacsuitBodyTag = "MarkedVirusVacsuitBody";
+		private const string MarkedVirusVacsuitHelmetTag = "MarkedVirusVacsuitHelmet";
+		private const string MarkedVirusGasMaskTag = "MarkedVirusGasMask";
+
+		private sealed class TaggedProtection
 		{
-			StatDef markedVirusResistance = CADefOf.MarkedVirusResistance;
-			if (markedVirusResistance == null)
+			public float resistance;
+			public bool sealedAgainstMarkedVirus;
+			public bool blocksMarkedVirusExposure;
+			public MarkedVirusBlockCategory blockCategory;
+		}
+
+		private static readonly Dictionary<string, TaggedProtection> MarkedVirusTaggedProtections = new Dictionary<string, TaggedProtection>
+		{
+			{ MarkedVirusSealedTag, new TaggedProtection { resistance = 0.90f, sealedAgainstMarkedVirus = true, blocksMarkedVirusExposure = true, blockCategory = MarkedVirusBlockCategory.SealedArmor } },
+			{ MarkedVirusWarcasketBodyTag, new TaggedProtection { resistance = 0.85f, sealedAgainstMarkedVirus = true, blocksMarkedVirusExposure = true, blockCategory = MarkedVirusBlockCategory.Warcasket } },
+			{ MarkedVirusWarcasketBodysuitTag, new TaggedProtection { resistance = 0.70f, sealedAgainstMarkedVirus = true } },
+			{ MarkedVirusWarcasketHelmetTag, new TaggedProtection { resistance = 0.25f, sealedAgainstMarkedVirus = true } },
+			{ MarkedVirusWarcasketShouldersTag, new TaggedProtection { resistance = 0.15f } },
+			{ MarkedVirusWarcasketPartTag, new TaggedProtection { resistance = 0.10f } },
+			{ MarkedVirusVacsuitBodyTag, new TaggedProtection { resistance = 0.30f, sealedAgainstMarkedVirus = true } },
+			{ MarkedVirusVacsuitHelmetTag, new TaggedProtection { resistance = 0.25f, sealedAgainstMarkedVirus = true } },
+			{ MarkedVirusGasMaskTag, new TaggedProtection { resistance = 0.25f, sealedAgainstMarkedVirus = true, blocksMarkedVirusExposure = true, blockCategory = MarkedVirusBlockCategory.GasMask } }
+		};
+
+		private static bool IsBlockCategoryEnabled(MarkedVirusBlockCategory category)
+		{
+			switch (category)
 			{
-				return;
+				case MarkedVirusBlockCategory.SealedArmor:
+					return TheMarkedMenSettings.SealedArmorBlockExposure;
+				case MarkedVirusBlockCategory.Warcasket:
+					return TheMarkedMenSettings.WarcasketsBlockExposure;
+				case MarkedVirusBlockCategory.Vacsuit:
+					return TheMarkedMenSettings.VacsuitBlockExposure;
+				case MarkedVirusBlockCategory.GasMask:
+					return TheMarkedMenSettings.GasMasksBlockExposure;
+				default:
+					return true;
+			}
+		}
+
+		private static MarkedVirusApparelProtection? GetMarkedVirusTaggedProtection(ThingDef apparelDef)
+		{
+			List<string> tags = apparelDef?.apparel?.tags;
+			if (tags == null)
+			{
+				return null;
 			}
 
-			List<ThingDef> allThingDefs = DefDatabase<ThingDef>.AllDefsListForReading;
-			for (int i = 0; i < allThingDefs.Count; i++)
+			for (int i = 0; i < tags.Count; i++)
 			{
-				ThingDef apparelDef = allThingDefs[i];
-				if (apparelDef?.apparel == null)
+				TaggedProtection tagged;
+				if (!MarkedVirusTaggedProtections.TryGetValue(tags[i], out tagged))
 				{
 					continue;
 				}
 
-				MarkedVirusApparelProtection protection = GetMarkedVirusProtectionForApparelDef(apparelDef);
-				float resistance = Mathf.Clamp01(protection.resistance);
-				if (resistance <= 0f)
-				{
-					continue;
-				}
+				return new MarkedVirusApparelProtection(tagged.resistance, tagged.sealedAgainstMarkedVirus, tagged.blocksMarkedVirusExposure && IsBlockCategoryEnabled(tagged.blockCategory));
+			}
 
-				if (apparelDef.equippedStatOffsets == null)
-				{
-					apparelDef.equippedStatOffsets = new List<StatModifier>();
-				}
+			return null;
+		}
 
-				bool updatedExistingOffset = false;
-				for (int offsetIndex = 0; offsetIndex < apparelDef.equippedStatOffsets.Count; offsetIndex++)
-				{
-					StatModifier offset = apparelDef.equippedStatOffsets[offsetIndex];
-					if (offset.stat != markedVirusResistance)
-					{
-						continue;
-					}
+		private static bool ApparelHasTag(ThingDef apparelDef, string tag)
+		{
+			List<string> tags = apparelDef?.apparel?.tags;
+			if (tags == null)
+			{
+				return false;
+			}
 
-					offset.value = resistance;
-					apparelDef.equippedStatOffsets[offsetIndex] = offset;
-					updatedExistingOffset = true;
-					break;
-				}
-
-				if (!updatedExistingOffset)
+			for (int i = 0; i < tags.Count; i++)
+			{
+				if (string.Equals(tags[i], tag, StringComparison.Ordinal))
 				{
-					apparelDef.equippedStatOffsets.Add(new StatModifier
-					{
-						stat = markedVirusResistance,
-						value = resistance
-					});
+					return true;
 				}
 			}
+
+			return false;
 		}
 
 		private static MarkedVirusApparelProtection GetMarkedVirusProtectionForApparelDef(ThingDef apparelDef)
@@ -719,7 +753,14 @@ namespace TheMarkedMen
 			MarkedVirusProtectionExtension extension = apparelDef.GetModExtension<MarkedVirusProtectionExtension>();
 			if (extension != null)
 			{
-				return ClampMarkedVirusProtection(new MarkedVirusApparelProtection(extension.resistance, extension.sealedAgainstMarkedVirus, extension.blocksMarkedVirusExposure));
+				bool blocks = extension.blocksMarkedVirusExposure && IsBlockCategoryEnabled(extension.blockCategory);
+				return ClampMarkedVirusProtection(new MarkedVirusApparelProtection(extension.resistance, extension.sealedAgainstMarkedVirus, blocks));
+			}
+
+			MarkedVirusApparelProtection? taggedProtection = GetMarkedVirusTaggedProtection(apparelDef);
+			if (taggedProtection.HasValue)
+			{
+				return ClampMarkedVirusProtection(taggedProtection.Value);
 			}
 
 			return ClampMarkedVirusProtection(InferMarkedVirusApparelProtection(apparelDef));
@@ -743,12 +784,13 @@ namespace TheMarkedMen
 				return false;
 			}
 
-			string defName = apparelDef.defName ?? string.Empty;
-			string label = apparelDef.label ?? string.Empty;
-			return ContainsOrdinalIgnoreCase(defName, "Vacsuit")
-				|| ContainsOrdinalIgnoreCase(label, "vacsuit")
-				|| ContainsOrdinalIgnoreCase(defName, "EVAsuit")
-				|| ContainsOrdinalIgnoreCase(label, "EVA suit");
+			if (ApparelHasTag(apparelDef, MarkedVirusVacsuitBodyTag))
+			{
+				return true;
+			}
+
+			MarkedVirusProtectionExtension extension = apparelDef.GetModExtension<MarkedVirusProtectionExtension>();
+			return extension != null && extension.blockCategory == MarkedVirusBlockCategory.Vacsuit;
 		}
 
 		private static bool IsMarkedVirusVacsuitHelmet(ThingDef apparelDef)
@@ -758,10 +800,13 @@ namespace TheMarkedMen
 				return false;
 			}
 
-			string defName = apparelDef.defName ?? string.Empty;
-			string label = apparelDef.label ?? string.Empty;
-			return ContainsOrdinalIgnoreCase(defName, "VacsuitHelmet")
-				|| ContainsOrdinalIgnoreCase(label, "vacsuit helmet");
+			if (ApparelHasTag(apparelDef, MarkedVirusVacsuitHelmetTag))
+			{
+				return true;
+			}
+
+			MarkedVirusProtectionExtension extension = apparelDef.GetModExtension<MarkedVirusProtectionExtension>();
+			return extension != null && extension.blockCategory == MarkedVirusBlockCategory.Vacsuit;
 		}
 
 		private static MarkedVirusApparelProtection InferMarkedVirusApparelProtection(ThingDef apparelDef)
@@ -774,51 +819,6 @@ namespace TheMarkedMen
 			float toxicEnvironmentResistance = EquippedStatOffset(apparelDef, "ToxicEnvironmentResistance");
 			float vacuumResistance = EquippedStatOffset(apparelDef, "VacuumResistance");
 
-			// HAZMAT suit (XML: 0.90 sealed)
-			if (string.Equals(defName, "VAE_Apparel_HAZMATSuit", StringComparison.OrdinalIgnoreCase))
-			{
-				return new MarkedVirusApparelProtection(0.90f, true, TheMarkedMenSettings.SealedArmorBlockExposure);
-			}
-
-			// Warcasket torso (XML: 0.85 sealed)
-			if (ContainsOrdinalIgnoreCase(defName, "Warcasket") && torso
-				&& !ContainsOrdinalIgnoreCase(defName, "Shoulders")
-				&& !ContainsOrdinalIgnoreCase(defName, "Bodysuit"))
-			{
-				return new MarkedVirusApparelProtection(0.85f, true, TheMarkedMenSettings.WarcasketsBlockExposure);
-			}
-
-			// Warcasket bodysuit (XML: 0.70 sealed)
-			if (ContainsOrdinalIgnoreCase(defName, "Warcasket")
-				&& ContainsOrdinalIgnoreCase(defName, "Bodysuit") && torso)
-			{
-				return new MarkedVirusApparelProtection(0.70f, true);
-			}
-
-			// WarcasketHelmet (XML: 0.25 sealed)
-			if (ContainsOrdinalIgnoreCase(defName, "WarcasketHelmet"))
-			{
-				return new MarkedVirusApparelProtection(0.25f, true);
-			}
-
-			// WarcasketShoulders (XML: 0.15 not sealed)
-			if (ContainsOrdinalIgnoreCase(defName, "WarcasketShoulders"))
-			{
-				return new MarkedVirusApparelProtection(0.15f, false);
-			}
-
-			// Other warcasket parts (XML: 0.10 not sealed)
-			if (ContainsOrdinalIgnoreCase(defName, "Warcasket"))
-			{
-				return new MarkedVirusApparelProtection(0.10f, false);
-			}
-
-			// Vacsuit/EVA suits (XML: 0.30 sealed)
-			if (IsMarkedVirusVacsuitBody(apparelDef))
-			{
-				return new MarkedVirusApparelProtection(0.30f, true);
-			}
-
 			// Sealed undersuits, orbital armor (XML: 0.25 sealed)
 			if (torso && (ContainsOrdinalIgnoreCase(defName, "Sealed") || ContainsOrdinalIgnoreCase(label, "sealed")
 				|| ContainsOrdinalIgnoreCase(defName, "AstroSuit") || ContainsOrdinalIgnoreCase(label, "astrosuit")
@@ -826,12 +826,6 @@ namespace TheMarkedMen
 				|| ContainsOrdinalIgnoreCase(defName, "OrbitalArmor") || ContainsOrdinalIgnoreCase(label, "orbital armor")))
 			{
 				return new MarkedVirusApparelProtection(0.25f, true, TheMarkedMenSettings.SealedArmorBlockExposure);
-			}
-
-			// Vacsuit helmet (XML: 0.25 sealed)
-			if (IsMarkedVirusVacsuitHelmet(apparelDef))
-			{
-				return new MarkedVirusApparelProtection(0.25f, true);
 			}
 
 			// Gas masks, HAZMAT masks (XML: 0.25 sealed)
