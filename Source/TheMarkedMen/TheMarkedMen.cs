@@ -3297,25 +3297,11 @@ namespace TheMarkedMen
 
         private static List<Pawn> GenerateRaidPawns(int count, float points, Faction faction)
         {
-            List<Pawn> pawns = new List<Pawn>(count + 1);
-
-            Pawn leader = PawnGenerator.GeneratePawn(CADefOf.MarkedMan, faction);
-            if (leader != null)
-            {
-                CrossedUtility.ApplyClassHediffs(leader);
-                CrossedUtility.ApplyInfectedTattoo(leader);
-                pawns.Add(leader);
-            }
+            List<Pawn> pawns = new List<Pawn>(count);
 
             for (int i = 0; i < count; i++)
             {
-                PawnKindDef kind = PickRaidKind(points, count, false);
-                if (kind == null)
-                {
-                    break;
-                }
-
-                Pawn pawn = PawnGenerator.GeneratePawn(kind, faction);
+                Pawn pawn = PawnGenerator.GeneratePawn(CADefOf.CrossedCivilian, faction);
                 if (pawn == null)
                 {
                     continue;
@@ -3332,23 +3318,8 @@ namespace TheMarkedMen
 
         private static PawnKindDef PickRaidKind(float points, int count, bool allowAlpha)
         {
-            float normalizedThreat = Mathf.InverseLerp(5000f, 50000f, points);
-            PawnKindDef selected = null;
-            float totalWeight = 0f;
-
-            AddWeightedKind(ref selected, ref totalWeight, CADefOf.CrossedCivilian, 14f);
-            AddWeightedKind(ref selected, ref totalWeight, CADefOf.CrossedScout, Mathf.Lerp(3f, 8f, normalizedThreat));
-            AddWeightedKind(ref selected, ref totalWeight, CADefOf.CrossedHunter, Mathf.Lerp(3f, 8f, normalizedThreat));
-            AddWeightedKind(ref selected, ref totalWeight, CADefOf.CrossedShooter, Mathf.Lerp(4f, 10f, normalizedThreat));
-            AddWeightedKind(ref selected, ref totalWeight, CADefOf.CrossedRaider, Mathf.Lerp(2f, 6f, normalizedThreat));
-            AddWeightedKind(ref selected, ref totalWeight, CADefOf.CrossedSoldier, Mathf.Lerp(1f, 5f, normalizedThreat));
-            AddWeightedKind(ref selected, ref totalWeight, CADefOf.CrossedBrute, Mathf.Lerp(0.5f, 3f, normalizedThreat));
-            AddWeightedKind(ref selected, ref totalWeight, CADefOf.CrossedPyromaniac, Mathf.Lerp(1f, 3f, normalizedThreat));
-            AddWeightedKind(ref selected, ref totalWeight, CADefOf.CrossedAlpha, allowAlpha && count >= 8 && points >= 1000f ? 0.5f : 0f);
-            AddWeightedKind(ref selected, ref totalWeight, CADefOf.CrossedWarlord, allowAlpha && count >= 12 && points >= 1800f ? 0.15f : 0f);
-            AddWeightedKind(ref selected, ref totalWeight, CADefOf.MarkedMan, allowAlpha && count >= 15 && points >= 3000f ? 0.05f : 0f);
-
-            return selected ?? CADefOf.CrossedCivilian ?? CADefOf.CrossedScout ?? CADefOf.CrossedHunter;
+            // Always return CA_CrossedCivilian for consistency
+            return CADefOf.CrossedCivilian;
         }
 
         private void SendRaidLetter(List<Pawn> pawns, IncidentParms parms)
@@ -3362,21 +3333,6 @@ namespace TheMarkedMen
             string text = CrossedRaidAlertUtility.BuildRaidLetterText(def.letterText, pawns, parms, false);
             LetterDef letterDef = def.letterDef ?? LetterDefOf.ThreatBig;
             Find.LetterStack.ReceiveLetter(label, text, letterDef, pawns[0]);
-        }
-
-        private static void AddWeightedKind(ref PawnKindDef selected, ref float totalWeight, PawnKindDef kind, float weight)
-        {
-            weight = TheMarkedMenSettings.AdjustKindWeight(kind, weight);
-            if (kind == null || weight <= 0f)
-            {
-                return;
-            }
-
-            totalWeight += weight;
-            if (Rand.Value * totalWeight <= weight)
-            {
-                selected = kind;
-            }
         }
 
     }
@@ -3537,38 +3493,8 @@ namespace TheMarkedMen
 
         private static PawnKindDef PickHordeKind(float points, int count, bool allowAlpha)
         {
-            float normalizedThreat = Mathf.InverseLerp(5000f, 50000f, points);
-            PawnKindDef selected = null;
-            float totalWeight = 0f;
-
-            AddWeightedKind(ref selected, ref totalWeight, CADefOf.CrossedCivilian, 14f);
-            AddWeightedKind(ref selected, ref totalWeight, CADefOf.CrossedScout, Mathf.Lerp(2f, 6f, normalizedThreat));
-            AddWeightedKind(ref selected, ref totalWeight, CADefOf.CrossedHunter, Mathf.Lerp(2.5f, 8.5f, normalizedThreat));
-            AddWeightedKind(ref selected, ref totalWeight, CADefOf.CrossedShooter, Mathf.Lerp(2f, 6f, normalizedThreat));
-            AddWeightedKind(ref selected, ref totalWeight, CADefOf.CrossedRaider, Mathf.Lerp(1f, 4f, normalizedThreat));
-            AddWeightedKind(ref selected, ref totalWeight, CADefOf.CrossedSoldier, Mathf.Lerp(0.5f, 3f, normalizedThreat));
-            AddWeightedKind(ref selected, ref totalWeight, CADefOf.CrossedBrute, Mathf.Lerp(1f, 4.5f, normalizedThreat));
-            AddWeightedKind(ref selected, ref totalWeight, CADefOf.CrossedPyromaniac, 3.5f);
-            AddWeightedKind(ref selected, ref totalWeight, CADefOf.CrossedAlpha, allowAlpha && count >= 10 ? 0.55f : 0f);
-            AddWeightedKind(ref selected, ref totalWeight, CADefOf.CrossedWarlord, allowAlpha && count >= 15 ? 0.15f : 0f);
-            AddWeightedKind(ref selected, ref totalWeight, CADefOf.MarkedMan, allowAlpha && count >= 20 ? 0.05f : 0f);
-
-            return selected ?? CADefOf.CrossedCivilian ?? CADefOf.CrossedScout ?? CADefOf.CrossedHunter;
-        }
-
-        private static void AddWeightedKind(ref PawnKindDef selected, ref float totalWeight, PawnKindDef kind, float weight)
-        {
-            weight = TheMarkedMenSettings.AdjustKindWeight(kind, weight);
-            if (kind == null || weight <= 0f)
-            {
-                return;
-            }
-
-            totalWeight += weight;
-            if (Rand.Value * totalWeight <= weight)
-            {
-                selected = kind;
-            }
+            // Always return CA_CrossedCivilian for consistency
+            return CADefOf.CrossedCivilian;
         }
 
         private void SendHordeLetter(List<Pawn> pawns, IncidentParms parms)
@@ -3721,34 +3647,8 @@ namespace TheMarkedMen
 
         private static PawnKindDef PickProbeKind(float points)
         {
-            float normalizedThreat = Mathf.InverseLerp(5000f, 50000f, points);
-            PawnKindDef selected = null;
-            float totalWeight = 0f;
-
-            AddWeightedKind(ref selected, ref totalWeight, CADefOf.CrossedScout, Mathf.Lerp(4f, 6f, normalizedThreat));
-            AddWeightedKind(ref selected, ref totalWeight, CADefOf.CrossedHunter, Mathf.Lerp(3f, 5f, normalizedThreat));
-            AddWeightedKind(ref selected, ref totalWeight, CADefOf.CrossedShooter, Mathf.Lerp(2f, 4f, normalizedThreat));
-            AddWeightedKind(ref selected, ref totalWeight, CADefOf.CrossedCivilian, 3f);
-            AddWeightedKind(ref selected, ref totalWeight, CADefOf.CrossedPyromaniac, points >= 220f ? Mathf.Lerp(0.5f, 1.75f, normalizedThreat) : 0f);
-            AddWeightedKind(ref selected, ref totalWeight, CADefOf.CrossedRaider, points >= 350f ? 0.5f : 0f);
-            AddWeightedKind(ref selected, ref totalWeight, CADefOf.CrossedBrute, points >= 500f ? 0.35f : 0f);
-
-            return selected ?? CADefOf.CrossedScout ?? CADefOf.CrossedHunter ?? CADefOf.CrossedCivilian;
-        }
-
-        private static void AddWeightedKind(ref PawnKindDef selected, ref float totalWeight, PawnKindDef kind, float weight)
-        {
-            weight = TheMarkedMenSettings.AdjustKindWeight(kind, weight);
-            if (kind == null || weight <= 0f)
-            {
-                return;
-            }
-
-            totalWeight += weight;
-            if (Rand.Value * totalWeight <= weight)
-            {
-                selected = kind;
-            }
+            // Always return CA_CrossedCivilian for consistency
+            return CADefOf.CrossedCivilian;
         }
 
         private void SendProbeLetter(List<Pawn> pawns, IncidentParms parms)
@@ -3981,35 +3881,8 @@ namespace TheMarkedMen
 
         private PawnKindDef PickAmbushKind(float points, int count, bool allowAlpha)
         {
-            float normalizedThreat = Mathf.InverseLerp(5000f, 50000f, points);
-            float storytellerFactor = IsMarkedManStoryteller ? 1.5f : 1f;
-
-            PawnKindDef selected = null;
-            float totalWeight = 0f;
-
-            AddWeightedKind(ref selected, ref totalWeight, CADefOf.CrossedCivilian, 8f);
-            AddWeightedKind(ref selected, ref totalWeight, CADefOf.CrossedHunter, Mathf.Lerp(3f, 10f, normalizedThreat) * storytellerFactor);
-            AddWeightedKind(ref selected, ref totalWeight, CADefOf.CrossedScout, Mathf.Lerp(2f, 6f, normalizedThreat));
-            AddWeightedKind(ref selected, ref totalWeight, CADefOf.CrossedPyromaniac, Mathf.Lerp(1f, 4f, normalizedThreat) * storytellerFactor);
-            AddWeightedKind(ref selected, ref totalWeight, CADefOf.CrossedBrute, Mathf.Lerp(0.5f, 3f, normalizedThreat) * storytellerFactor);
-            AddWeightedKind(ref selected, ref totalWeight, CADefOf.CrossedAlpha, allowAlpha && count >= 8 ? 0.4f : 0f);
-
-            return selected ?? CADefOf.CrossedCivilian ?? CADefOf.CrossedHunter ?? CADefOf.CrossedScout;
-        }
-
-        private static void AddWeightedKind(ref PawnKindDef selected, ref float totalWeight, PawnKindDef kind, float weight)
-        {
-            weight = TheMarkedMenSettings.AdjustKindWeight(kind, weight);
-            if (kind == null || weight <= 0f)
-            {
-                return;
-            }
-
-            totalWeight += weight;
-            if (Rand.Value * totalWeight <= weight)
-            {
-                selected = kind;
-            }
+            // Always return CA_CrossedCivilian for consistency
+            return CADefOf.CrossedCivilian;
         }
     }
 }
