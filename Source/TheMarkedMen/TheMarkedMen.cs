@@ -3281,6 +3281,13 @@ namespace TheMarkedMen
             }
 
             CrossedUtility.ApplyGeneratedRaidKindTuning(pawns);
+
+            // Ensure all pawns have valid Lords and won't exit map
+            for (int i = 0; i < pawns.Count; i++)
+            {
+                CrossedUtility.EnsureInfectedHasValidLord(pawns[i]);
+            }
+
             LordJob lordJob = new LordJob_AssaultColony(crossed, false, false, false, false, false, parms.points >= 700f, true);
             LordMaker.MakeNewLord(crossed, lordJob, map, pawns);
             SendRaidLetter(pawns, parms);
@@ -3861,6 +3868,12 @@ namespace TheMarkedMen
         protected override void PostProcessGeneratedPawnsAfterSpawning(List<Pawn> generatedPawns)
         {
             CrossedUtility.ApplyGeneratedRaidKindTuning(generatedPawns);
+
+            // Ensure all pawns have valid Lords and won't exit map
+            for (int i = 0; i < generatedPawns.Count; i++)
+            {
+                CrossedUtility.EnsureInfectedHasValidLord(generatedPawns[i]);
+            }
         }
 
         protected override LordJob CreateLordJob(List<Pawn> generatedPawns, IncidentParms parms)
