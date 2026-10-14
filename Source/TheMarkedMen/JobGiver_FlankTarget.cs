@@ -1,161 +1,172 @@
+using System;
 using System.Collections.Generic;
-using System.Linq;
 using RimWorld;
-using UnityEngine;
 using Verse;
 using Verse.AI;
 
 namespace TheMarkedMen
 {
     /// <summary>
-    /// JobGiver for infected packs to coordinate attacks on single targets.
-    /// Multiple infected attacking same target from different angles gain melee accuracy bonus.
+    /// JobGiver for infected to coordinate pack attacks and flank targets.
+    /// Moves to flanking positions when allies are engaging the same target.
     /// </summary>
     public class JobGiver_FlankTarget : ThinkNode_JobGiver
     {
-        private const int PackCoordinationCheckIntervalTicks = 250;
-        private const float PackDetectionRadius = 20f;
-        private const int MinPackSizeForBonus = 2;
+        private const int FlankCheckIntervalTicks = 200;
+        private const float FlankSearchRadius = 15f;
+        private const float MinFlankAngle = 60f;
 
         protected override Job TryGiveJob(Pawn pawn)
         {
             if (pawn == null || pawn.Map == null)
                 return null;
 
-            if (!pawn.IsHashIntervalTick(PackCoordinationCheckIntervalTicks))
+            // Only check periodically
+            if (!pawn.IsHashIntervalTick(FlankCheckIntervalTicks))
                 return null;
 
-            // Check if in a pack situation (2+ infected nearby)
-            List<Pawn> nearbyInfected = FindNearbyInfected(pawn, PackDetectionRadius);
-            if (nearbyInfected.Count < MinPackSizeForBonus)
+            // Find current target
+            Pawn currentTarget = GetCurrentTarget(pawn);
+            if (currentTarget == null)
                 return null;
 
-            // If pack members are attacking same target, continue current job
-            Pawn currentTarget = pawn.CurJob?.targetA.Pawn;
-            if (currentTarget != null && !currentTarget.Dead && IsPackTargeting(pawn, currentTarget, nearbyInfected))
-                return null; // Keep current job
+            // Find nearby allied infected
+            List<Pawn> allies = GetNearbyAlliedInfected(pawn, currentTarget);
+            if (allies.Count < 2) // Need at least 2 allies for flanking to be useful
+                return null;
 
-            // Try to find a target that other pack members are attacking
-            Pawn packTarget = FindPackTarget(pawn, nearbyInfected);
-            if (packTarget != null)
+            // Find flanking position
+            IntVec3 flankPos = FindFlankPosition(pawn, currentTarget, allies);
+            if (!flankPos.IsValid)
+                return null;
+
+            // Move to flank position
+            return new Job(JobDefOf.Goto, flankPos) { checkOverrideOnExpire = true };
+        }
+
+        private Pawn GetCurrentTarget(Pawn pawn)
+        {
+            // Check current job target
+            if (pawn.jobs?.curJob != null && pawn.jobs.curJob.def == JobDefOf.AttackMelee)
             {
-                return new Job(JobDefOf.AttackMelee, packTarget) { checkOverrideOnExpire = true };
+                return pawn.jobs.curJob.targetA.Thing as Pawn;
+            }
+
+            // Find nearest valid target
+            foreach (Pawn candidate in pawn.Map.mapPawns.AllPawnsSpawned)
+            {
+                if (candidate == null || candidate.Dead || candidate == pawn)
+                    continue;
+
+                if (CrossedUtility.IsInfectedPawn(candidate))
+                    continue;
+
+                if (pawn.CanReach(candidate, PathEndMode.Touch, Danger.Deadly))
+                {
+                    return candidate;
+                }
             }
 
             return null;
         }
 
-        private List<Pawn> FindNearbyInfected(Pawn pawn, float radius)
+        private List<Pawn> GetNearbyAlliedInfected(Pawn pawn, Pawn target)
         {
-            List<Pawn> nearby = new List<Pawn>();
-
-            if (pawn.Map == null)
-                return nearby;
+            List<Pawn> allies = new List<Pawn>();
 
             foreach (Pawn candidate in pawn.Map.mapPawns.AllPawnsSpawned)
             {
-                if (candidate == null || candidate.Dead || candidate == pawn)
+                if (candidate == pawn || candidate.Dead)
                     continue;
 
                 if (!CrossedUtility.IsInfectedPawn(candidate))
                     continue;
 
-                if (pawn.Position.DistanceTo(candidate.Position) > radius)
+                float distance = pawn.Position.DistanceTo(candidate.Position);
+                if (distance > FlankSearchRadius)
                     continue;
 
-                nearby.Add(candidate);
-            }
-
-            return nearby;
-        }
-
-        private bool IsPackTargeting(Pawn pawn, Pawn target, List<Pawn> packMembers)
-        {
-            // Count how many pack members are attacking this target
-            int attackCount = 0;
-            foreach (Pawn member in packMembers)
-            {
-                if (member.CurJob != null && member.CurJob.targetA.Pawn == target)
-                    attackCount++;
-            }
-
-            return attackCount >= MinPackSizeForBonus;
-        }
-
-        private Pawn FindPackTarget(Pawn pawn, List<Pawn> packMembers)
-        {
-            // Find the target most pack members are currently attacking
-            Dictionary<Pawn, int> targetVotes = new Dictionary<Pawn, int>();
-
-            foreach (Pawn member in packMembers)
-            {
-                Pawn memberTarget = member.CurJob?.targetA.Pawn;
-                if (memberTarget != null && !memberTarget.Dead && !CrossedUtility.IsInfectedPawn(memberTarget))
+                // Check if this ally is targeting the same enemy
+                if (IsTargetingSameEnemy(candidate, target))
                 {
-                    if (!targetVotes.ContainsKey(memberTarget))
-                        targetVotes[memberTarget] = 0;
-                    targetVotes[memberTarget]++;
+                    allies.Add(candidate);
                 }
             }
 
-            // Return target with most votes (if 2+ members voting for same target)
-            var topTarget = targetVotes
-                .Where(kvp => kvp.Value >= MinPackSizeForBonus)
-                .OrderByDescending(kvp => kvp.Value)
-                .FirstOrDefault();
-
-            return topTarget.Key;
+            return allies;
         }
 
-        /// <summary>
-        /// Calculate flank bonus for a pawn attacking a target from a pack.
-        /// Bonus scales with number of pack members attacking from different angles.
-        /// </summary>
-        public static float GetFlankBonusForTarget(Pawn pawn, Pawn target)
+        private bool IsTargetingSameEnemy(Pawn ally, Pawn enemy)
         {
-            if (pawn == null || target == null || pawn.Map == null)
-                return 0f;
-
-            // Count nearby infected also attacking this target
-            List<Pawn> packMembers = new List<Pawn>();
-            foreach (Pawn candidate in pawn.Map.mapPawns.AllPawnsSpawned)
+            if (ally.jobs?.curJob != null && ally.jobs.curJob.def == JobDefOf.AttackMelee)
             {
-                if (candidate == null || candidate.Dead || candidate == pawn)
-                    continue;
+                return ally.jobs.curJob.targetA.Thing as Pawn == enemy;
+            }
+            return false;
+        }
 
-                if (!CrossedUtility.IsInfectedPawn(candidate))
-                    continue;
-
-                if (pawn.Position.DistanceTo(candidate.Position) > PackDetectionRadius)
-                    continue;
-
-                Pawn candidateTarget = candidate.CurJob?.targetA.Pawn;
-                if (candidateTarget == target)
-                    packMembers.Add(candidate);
+        private IntVec3 FindFlankPosition(Pawn pawn, Pawn target, List<Pawn> allies)
+        {
+            // Calculate angles from target to all allies
+            List<float> occupiedAngles = new List<float>();
+            foreach (Pawn ally in allies)
+            {
+                float angle = (ally.Position - target.Position).AngleFlat;
+                occupiedAngles.Add(angle);
             }
 
-            // Calculate flank angle bonus
-            float angleBonus = 0f;
-            for (int i = 0; i < packMembers.Count; i++)
+            // Add our own current angle
+            float ourAngle = (pawn.Position - target.Position).AngleFlat;
+            occupiedAngles.Add(ourAngle);
+
+            // Sort and find the largest gap
+            occupiedAngles.Sort();
+            float bestGapStart = 0f;
+            float bestGapSize = 0f;
+
+            for (int i = 0; i < occupiedAngles.Count; i++)
             {
-                for (int j = i + 1; j < packMembers.Count; j++)
+                float currentAngle = occupiedAngles[i];
+                float nextAngle = occupiedAngles[(i + 1) % occupiedAngles.Count];
+                if (i == occupiedAngles.Count - 1)
                 {
-                    Pawn member1 = packMembers[i];
-                    Pawn member2 = packMembers[j];
+                    nextAngle += 360f;
+                }
 
-                    // Calculate angle between members relative to target
-                    Vector3 vec1 = (member1.Position - target.Position).ToVector3();
-                    Vector3 vec2 = (member2.Position - target.Position).ToVector3();
-
-                    float angle = Vector3.Angle(vec1, vec2);
-
-                    // Bonus for attacking from different angles (90+ degrees = +5% per flanker)
-                    if (angle > 90f)
-                        angleBonus += 5f;
+                float gapSize = nextAngle - currentAngle;
+                if (gapSize > bestGapSize)
+                {
+                    bestGapSize = gapSize;
+                    bestGapStart = currentAngle;
                 }
             }
 
-            return Mathf.Min(angleBonus, 15f); // Cap at +15% melee accuracy
+            // If we have a good gap, position ourselves in the middle of it
+            if (bestGapSize > MinFlankAngle)
+            {
+                float flankAngle = bestGapStart + (bestGapSize / 2f);
+                if (flankAngle >= 360f)
+                {
+                    flankAngle -= 360f;
+                }
+
+                // Calculate position at flank angle from target
+                Vector3 targetVec = target.Position.ToVector3Shifted();
+                Vector3 offset = new Vector3(
+                    Mathf.Sin(flankAngle * Mathf.Deg2Rad),
+                    0,
+                    Mathf.Cos(flankAngle * Mathf.Deg2Rad)
+                ) * 5f; // Flank at ~5 cells from target
+
+                IntVec3 flankPos = (targetVec + offset).ToIntVec3;
+
+                if (pawn.Map.reachability.CanReach(pawn.Position, flankPos, PathEndMode.OnCell, TraverseMode.ByPawn))
+                {
+                    return flankPos;
+                }
+            }
+
+            return IntVec3.Invalid;
         }
     }
 }

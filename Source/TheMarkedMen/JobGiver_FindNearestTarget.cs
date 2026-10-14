@@ -30,7 +30,7 @@ namespace TheMarkedMen
                 // If target still alive and in LOS, continue pursuit
                 if (memory.target != null && !memory.target.Dead && GenSight.LineOfSight(pawn.Position, memory.target.Position, pawn.Map))
                 {
-                    // Still valid—attack
+                    // Still valid - attack
                     return new Job(JobDefOf.AttackMelee, memory.target) { checkOverrideOnExpire = true };
                 }
 
@@ -40,11 +40,11 @@ namespace TheMarkedMen
                     return new Job(JobDefOf.Goto, memory.lastSeenPos) { checkOverrideOnExpire = true };
                 }
 
-                // Memory stale—clear it
+                // Memory stale - clear it
                 targetMemory.Remove(pawnId);
             }
 
-            // Cache expired or no memory—search for new target
+            // Cache expired or no memory - search for new target
             if (!pawn.IsHashIntervalTick(TargetCacheIntervalTicks))
                 return null;
 
@@ -91,7 +91,7 @@ namespace TheMarkedMen
 
                 // Closer targets score higher
                 float distance = pawn.Position.DistanceTo(candidate.Position);
-                score -= distance * 0.1f;
+                score += Mathf.Max(0f, 30f - distance);
 
                 if (score > bestScore)
                 {
@@ -103,16 +103,18 @@ namespace TheMarkedMen
             return bestTarget;
         }
 
-        public static void ClearMemory(Pawn pawn)
+        public static void NotifyTargetLost(Pawn pawn, Pawn lostTarget)
         {
-            if (pawn != null)
-                targetMemory.Remove(pawn.thingIDNumber);
+            if (targetMemory.TryGetValue(pawn.thingIDNumber, out var memory) && memory.target == lostTarget)
+            {
+                // Keep the last known position for hunting
+                targetMemory[pawn.thingIDNumber] = (null, lostTarget.Position, Find.TickManager.TicksGame);
+            }
         }
 
-        public static void ClearAllMemory()
+        public static void ClearMemory(Pawn pawn)
         {
-            targetMemory.Clear();
+            targetMemory.Remove(pawn.thingIDNumber);
         }
     }
 }
-

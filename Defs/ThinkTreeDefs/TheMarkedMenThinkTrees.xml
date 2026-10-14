@@ -22,10 +22,11 @@
           <!-- Take cover if under fire -->
           <li Class="TheMarkedMen.JobGiver_TakeCover" />
 
+          <!-- Retreat if outgunned -->
+          <li Class="TheMarkedMen.JobGiver_RetreatIfOutgunned" />
+
           <!-- Default: wait/idle -->
-          <li Class="Verse.AI.ThinkNode_ConstantThinkTreeDef">
-            <think Class="TheMarkedMen.ThinkTree_CrossedHunter" />
-          </li>
+          <li Class="Verse.AI.ThinkNode_Wait" />
         </subNodes>
       </li>
     </thinkNodes>

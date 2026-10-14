@@ -274,6 +274,10 @@
   <MarkedMen_Settings_raidCountdownHighPriorityDaysDesc>How many in-game days before a scheduled raid the alert becomes high priority.</MarkedMen_Settings_raidCountdownHighPriorityDaysDesc>
   <MarkedMen_Settings_caravanAmbushTimerVisible>Caravan ambush timer visible</MarkedMen_Settings_caravanAmbushTimerVisible>
   <MarkedMen_Settings_caravanAmbushTimerVisibleDesc>Show ambush warning timer when traveling with caravans.</MarkedMen_Settings_caravanAmbushTimerVisibleDesc>
+  <MarkedMen_Settings_caravanAmbushTelegraphDays>Ambush telegraph days</MarkedMen_Settings_caravanAmbushTelegraphDays>
+  <MarkedMen_Settings_caravanAmbushTelegraphDaysDesc>How many in-game days before an ambush occurs that players see the warning timer.</MarkedMen_Settings_caravanAmbushTelegraphDaysDesc>
+  <MarkedMen_Settings_caravanAmbushPrepTimeInHours>Ambush preparation time (hours)</MarkedMen_Settings_caravanAmbushPrepTimeInHours>
+  <MarkedMen_Settings_caravanAmbushPrepTimeInHoursDesc>Time window between ambush warning and actual engagement, allowing players to prepare or retreat.</MarkedMen_Settings_caravanAmbushPrepTimeInHoursDesc>
   <MarkedMen_Settings_DetailedLetters>Use detailed raid letters</MarkedMen_Settings_DetailedLetters>
   <MarkedMen_Settings_DetailedLettersDesc>Adds richer raid letter text with pawn counts, points, arrival mode, and tactical warning details.</MarkedMen_Settings_DetailedLettersDesc>
   <MarkedMen_Settings_IncidentLog>Record incident log entries</MarkedMen_Settings_IncidentLog>

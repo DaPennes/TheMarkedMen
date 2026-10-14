@@ -40,6 +40,7 @@ namespace TheMarkedMen
         private static IncidentDef crossedHorde;
         private static IncidentDef crossedProbe;
         private static IncidentDef crossedCaravanAmbush;
+        private static ThinkTreeDef hunterThinkTree;
         private static IncidentDef urbanAmbush;
         private static IncidentDef urbanSurvivor;
         private static XenotypeDef markedOne;
@@ -124,6 +125,7 @@ namespace TheMarkedMen
         public static ThoughtDef CA_LovedOneTurned => lovedOneTurned ?? (lovedOneTurned = DefDatabase<ThoughtDef>.GetNamedSilentFail("CA_LovedOneTurned"));
         public static ThoughtDef CA_SuspiciousOfColonists => suspiciousOfColonists ?? (suspiciousOfColonists = DefDatabase<ThoughtDef>.GetNamedSilentFail("CA_SuspiciousOfColonists"));
         public static ThoughtDef CA_MercifulKill => mercifulKill ?? (mercifulKill = DefDatabase<ThoughtDef>.GetNamedSilentFail("CA_MercifulKill"));
+        public static ThinkTreeDef HunterThinkTree => hunterThinkTree ?? (hunterThinkTree = DefDatabase<ThinkTreeDef>.GetNamedSilentFail("CA_HunterThinkTree"));
 
         public static bool IsCrossedFaceTattoo(TattooDef tattoo)
         {

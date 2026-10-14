@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using RimWorld;
 using Verse;
@@ -6,45 +7,95 @@ using Verse.AI;
 namespace TheMarkedMen
 {
     /// <summary>
-    /// JobGiver for infected to take cover when under fire.
-    /// Seeks nearby cover that blocks LOS to threats.
+    /// JobGiver for infected to seek cover when under fire.
+    /// Moves to nearby cover cells when threatened by ranged attacks.
     /// </summary>
     public class JobGiver_TakeCover : ThinkNode_JobGiver
     {
-        private const int CoverSearchIntervalTicks = 150;
-        private const float CoverSearchRadius = 30f;
+        private const int CoverCheckIntervalTicks = 120;
+        private const float CoverSearchRadius = 25f;
+        private const float ThreatDetectionRange = 35f;
 
         protected override Job TryGiveJob(Pawn pawn)
         {
             if (pawn == null || pawn.Map == null)
                 return null;
 
-            // Only seek cover if actually injured or under fire
-            if (!IsUnderThreat(pawn))
+            // Only check periodically
+            if (!pawn.IsHashIntervalTick(CoverCheckIntervalTicks))
                 return null;
 
-            if (!pawn.IsHashIntervalTick(CoverSearchIntervalTicks))
+            // Check if under fire from ranged attackers
+            if (!IsUnderRangedAttack(pawn))
                 return null;
 
-            IntVec3 coverPos = CoverUtility.FindNearestCover(pawn, CoverSearchRadius);
-            if (coverPos.IsValid)
-            {
-                return new Job(JobDefOf.Goto, coverPos) { checkOverrideOnExpire = true };
-            }
+            // Find nearest cover position
+            IntVec3 coverPos = FindCoverPosition(pawn);
+            if (!coverPos.IsValid)
+                return null;
 
-            return null;
+            return new Job(JobDefOf.Goto, coverPos) { checkOverrideOnExpire = true };
         }
 
-        private bool IsUnderThreat(Pawn pawn)
+        private bool IsUnderRangedAttack(Pawn pawn)
         {
-            if (pawn.health == null || pawn.health.hediffSet == null)
-                return false;
+            foreach (Pawn shooter in pawn.Map.mapPawns.AllPawnsSpawned)
+            {
+                if (shooter == pawn || shooter.Dead || !shooter.Spawned)
+                    continue;
 
-            // Check for recent damage (injury hediffs present)
-            List<Hediff_Injury> injuries = new List<Hediff_Injury>();
-            pawn.health.hediffSet.GetHediffs(ref injuries, null);
-            return injuries.Count > 0;
+                // Skip infected
+                if (CrossedUtility.IsInfectedPawn(shooter))
+                    continue;
+
+                // Check if this pawn has a ranged weapon and is targeting us
+                if (shooter.equipment?.Primary == null || !shooter.equipment.Primary.def.ranged)
+                    continue;
+
+                float distance = shooter.Position.DistanceTo(pawn.Position);
+                if (distance > ThreatDetectionRange)
+                    continue;
+
+                // Check if line of sight
+                if (shooter.CanSee(pawn) && !GenAdjective.PositiveSkillOrTraitForTool(shooter))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private IntVec3 FindCoverPosition(Pawn pawn)
+        {
+            // Use RimWorld's cover utility
+            IntVec3 bestCover = IntVec3.Invalid;
+            float bestScore = -1f;
+
+            // Search nearby cells for cover
+            for (int i = 0; i < 20; i++)
+            {
+                IntVec3 cell = pawn.Position + GenRadial.RadialPattern[i];
+                if (!cell.InBounds(pawn.Map))
+                    continue;
+
+                if (!pawn.Map.reachability.CanReach(pawn.Position, cell, PathEndMode.OnCell, TraverseMode.ByPawn))
+                    continue;
+
+                // Check if this cell has cover
+                Thing cover = cell.GetCover(pawn.Map);
+                if (cover == null)
+                    continue;
+
+                float score = CoverUtility.CalculateCoverScore(cover, cell, pawn.Map);
+                if (score > bestScore)
+                {
+                    bestScore = score;
+                    bestCover = cell;
+                }
+            }
+
+            return bestCover;
         }
     }
 }
-

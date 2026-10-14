@@ -1706,6 +1706,8 @@ namespace TheMarkedMen
         private List<Pawn> corpseLingeringPawns = new List<Pawn>();
         private List<int> corpseLingeringTicks = new List<int>();
         private List<int> corpseLingeringLastSeenTicks = new List<int>();
+        private readonly Dictionary<int, (Caravan caravan, int ambushTick)> trackedCaravans = new Dictionary<int, (Caravan, int)>();
+        private int nextCaravanAmbushUpdateTick;
 
         public TheMarkedMenGameComponent(Game game)
         {
@@ -1845,6 +1847,71 @@ namespace TheMarkedMen
             EnsureCorpseLingeringTrackerLists();
         }
 
+        public override void ExposeData()
+        {
+            base.ExposeData();
+            Scribe_Values.Look(ref nextMaintenanceTick, "nextMaintenanceTick", 0);
+            Scribe_Values.Look(ref nextReanimationProcessTick, "nextReanimationProcessTick", 0);
+            Scribe_Values.Look(ref nextRaidMonitorTick, "nextRaidMonitorTick", 0);
+            Scribe_Values.Look(ref nextCorpseExposureTick, "nextCorpseExposureTick", 0);
+            Scribe_Values.Look(ref nextRaidTick, "nextRaidTick", 0);
+            Scribe_Values.Look(ref nextHordeTick, "nextHordeTick", 0);
+            Scribe_Values.Look(ref raidScheduleActivated, "raidScheduleActivated", false);
+            Scribe_Values.Look(ref raidScheduleVersion, "raidScheduleVersion", 0);
+            Scribe_Values.Look(ref starterLineageInitialized, "starterLineageInitialized", false);
+            Scribe_Values.Look(ref totalCrossedRaidsStarted, "totalCrossedRaidsStarted", 0);
+            Scribe_Values.Look(ref survivedRaidCount, "survivedRaidCount", 0);
+            Scribe_Values.Look(ref activeRaid, "activeRaid", false);
+            Scribe_Values.Look(ref lastRaidEscalationMultiplier, "lastRaidEscalationMultiplier", 1f);
+            Scribe_Values.Look(ref lastSpikeRaidNumber, "lastSpikeRaidNumber", -999);
+            Scribe_Values.Look(ref activeRaidStartedTick, "activeRaidStartedTick", 0);
+            Scribe_Values.Look(ref activeRaidWaveCount, "activeRaidWaveCount", 0);
+            Scribe_Values.Look(ref activeRaidPeakInfected, "activeRaidPeakInfected", 0);
+            Scribe_Values.Look(ref activeRaidPoints, "activeRaidPoints", 0f);
+            Scribe_Values.Look(ref crossedWorldSettlementInitialized, "crossedWorldSettlementInitialized", false);
+            Scribe_References.Look(ref activeRaidMap, "activeRaidMap");
+            Scribe_Collections.Look(ref recentIncidents, "recentIncidents", LookMode.Value);
+            Scribe_Collections.Look(ref pendingReanimationPawns, "pendingReanimationPawns", LookMode.Reference);
+            Scribe_Collections.Look(ref pendingReanimationTicks, "pendingReanimationTicks", LookMode.Value);
+            Scribe_Collections.Look(ref activeRaidPawns, "activeRaidPawns", LookMode.Reference);
+            Scribe_Collections.Look(ref activeRaidColonistsAtStart, "activeRaidColonistsAtStart", LookMode.Reference);
+            Scribe_Collections.Look(ref corpseLingeringPawns, "corpseLingeringPawns", LookMode.Reference);
+            Scribe_Collections.Look(ref corpseLingeringTicks, "corpseLingeringTicks", LookMode.Value);
+            Scribe_Collections.Look(ref corpseLingeringLastSeenTicks, "corpseLingeringLastSeenTicks", LookMode.Value);
+            Scribe_Values.Look(ref caravanAmbushTimerVisible, "caravanAmbushTimerVisible", true);
+            Scribe_Values.Look(ref caravanAmbushTelegraphDays, "caravanAmbushTelegraphDays", 2f);
+            Scribe_Values.Look(ref caravanAmbushPrepTimeInHours, "caravanAmbushPrepTimeInHours", 8f);
+            if (recentIncidents == null)
+            {
+                recentIncidents = new List<string>();
+            }
+            if (pendingReanimationPawns == null)
+            {
+                pendingReanimationPawns = new List<Pawn>();
+            }
+            if (pendingReanimationTicks == null)
+            {
+                pendingReanimationTicks = new List<int>();
+            }
+            while (pendingReanimationTicks.Count < pendingReanimationPawns.Count)
+            {
+                pendingReanimationTicks.Add(0);
+            }
+            while (pendingReanimationTicks.Count > pendingReanimationPawns.Count)
+            {
+                pendingReanimationTicks.RemoveAt(pendingReanimationTicks.Count - 1);
+            }
+            if (activeRaidPawns == null)
+            {
+                activeRaidPawns = new List<Pawn>();
+            }
+            if (activeRaidColonistsAtStart == null)
+            {
+                activeRaidColonistsAtStart = new List<Pawn>();
+            }
+            EnsureCorpseLingeringTrackerLists();
+        }
+
         private void EnsureCorpseLingeringTrackerLists()
         {
             if (corpseLingeringPawns == null)
@@ -1892,6 +1959,77 @@ namespace TheMarkedMen
                 ProcessPendingReanimations();
             }
 
+            // Update caravan ambush timers
+            if (ticks >= nextCaravanAmbushUpdateTick)
+            {
+                nextCaravanAmbushUpdateTick = ticks + 2500;
+                UpdateCaravanAmbushTimers(ticks);
+            }
+        }
+
+        private void UpdateCaravanAmbushTimers(int currentTick)
+        {
+            if (!TheMarkedMenMod.Settings?.caravanAmbushTimerVisible ?? false)
+            {
+                return;
+            }
+
+            var toRemove = new List<int>();
+            foreach (var kvp in trackedCaravans)
+            {
+                int caravanId = kvp.Key;
+                Caravan caravan = kvp.Value.caravan;
+                int ambushTick = kvp.Value.ambushTick;
+
+                if (caravan == null || caravan.Destroyed || !caravan.Spawned)
+                {
+                    toRemove.Add(caravanId);
+                    continue;
+                }
+
+                if (currentTick >= ambushTick)
+                {
+                    toRemove.Add(caravanId);
+                }
+            }
+
+            foreach (int id in toRemove)
+            {
+                trackedCaravans.Remove(id);
+            }
+        }
+
+        public void RegisterCaravanForAmbushTracking(Caravan caravan, int ambushTick)
+        {
+            if (caravan == null || !TheMarkedMenMod.Settings?.caravanAmbushTimerVisible ?? false)
+            {
+                return;
+            }
+
+            trackedCaravans[caravan.ID] = (caravan, ambushTick);
+        }
+
+        public float GetAmbushCountdownForCaravan(Caravan caravan)
+        {
+            if (caravan == null || !TheMarkedMenMod.Settings?.caravanAmbushTimerVisible ?? false)
+            {
+                return -1f;
+            }
+
+            if (trackedCaravans.TryGetValue(caravan.ID, out var data))
+            {
+                int currentTick = Find.TickManager?.TicksGame ?? 0;
+                int ticksUntilAmbush = data.ambushTick - currentTick;
+                if (ticksUntilAmbush > 0)
+                {
+                    return ticksUntilAmbush / (float)GenDate.TicksPerHour;
+                }
+            }
+            return -1f;
+        }
+
+        public bool NoteCorpseLingering
+
             if (ticks >= nextCorpseExposureTick)
             {
                 nextCorpseExposureTick = ticks + TheMarkedMenSettings.CorpseContaminationIntervalTicks;
@@ -1910,6 +2048,74 @@ namespace TheMarkedMen
             EnsureInfectedStateOnLoadedPawns();
             TryFireScheduledHorde(ticks);
             MapClassificationService.PruneDestroyedMaps();
+
+            // Update caravan ambush timers
+            if (ticks >= nextCaravanAmbushUpdateTick)
+            {
+                nextCaravanAmbushUpdateTick = ticks + 2500;
+                UpdateCaravanAmbushTimers(ticks);
+            }
+        }
+
+        private void UpdateCaravanAmbushTimers(int currentTick)
+        {
+            if (!TheMarkedMenMod.Settings?.caravanAmbushTimerVisible ?? false)
+            {
+                return;
+            }
+
+            var toRemove = new List<int>();
+            foreach (var kvp in trackedCaravans)
+            {
+                int caravanId = kvp.Key;
+                Caravan caravan = kvp.Value.caravan;
+                int ambushTick = kvp.Value.ambushTick;
+
+                if (caravan == null || caravan.Destroyed || !caravan.Spawned)
+                {
+                    toRemove.Add(caravanId);
+                    continue;
+                }
+
+                if (currentTick >= ambushTick)
+                {
+                    toRemove.Add(caravanId);
+                }
+            }
+
+            foreach (int id in toRemove)
+            {
+                trackedCaravans.Remove(id);
+            }
+        }
+
+        public void RegisterCaravanForAmbushTracking(Caravan caravan, int ambushTick)
+        {
+            if (caravan == null || !TheMarkedMenMod.Settings?.caravanAmbushTimerVisible ?? false)
+            {
+                return;
+            }
+
+            trackedCaravans[caravan.ID] = (caravan, ambushTick);
+        }
+
+        public float GetAmbushCountdownForCaravan(Caravan caravan)
+        {
+            if (caravan == null || !TheMarkedMenMod.Settings?.caravanAmbushTimerVisible ?? false)
+            {
+                return -1f;
+            }
+
+            if (trackedCaravans.TryGetValue(caravan.ID, out var data))
+            {
+                int currentTick = Find.TickManager?.TicksGame ?? 0;
+                int ticksUntilAmbush = data.ambushTick - currentTick;
+                if (ticksUntilAmbush > 0)
+                {
+                    return ticksUntilAmbush / (float)GenDate.TicksPerHour;
+                }
+            }
+            return -1f;
         }
 
         public bool NoteCorpseLingering(Pawn pawn, int currentTick, int observedTicks)
@@ -3757,6 +3963,23 @@ namespace TheMarkedMen
             }
 
             return true;
+        }
+
+        public override bool TryExecute(IncidentParms parms)
+        {
+            bool result = base.TryExecute(parms);
+            if (result && parms.target is Caravan caravan)
+            {
+                TheMarkedMenGameComponent component = CrossedUtility.Component;
+                if (component != null)
+                {
+                    int currentTick = Find.TickManager?.TicksGame ?? 0;
+                    float telegraphDays = TheMarkedMenMod.Settings?.caravanAmbushTelegraphDays ?? 2f;
+                    int ambushTick = currentTick + Mathf.RoundToInt(telegraphDays * GenDate.TicksPerDay);
+                    component.RegisterCaravanForAmbushTracking(caravan, ambushTick);
+                }
+            }
+            return result;
         }
 
         protected override List<Pawn> GeneratePawns(IncidentParms parms)
