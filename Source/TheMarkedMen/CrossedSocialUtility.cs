@@ -26,7 +26,7 @@ namespace TheMarkedMen
                 return;
             }
 
-            float chance = Mathf.Clamp01((initiator.kindDef == CADefOf.CrossedAlpha || initiator.kindDef == CADefOf.CrossedWarlord || initiator.kindDef == CADefOf.CrossedPyromaniac ? SocialPulseLeaderChance : SocialPulseBaseChance) * socialStrength);
+            float chance = Mathf.Clamp01(SocialPulseBaseChance * socialStrength);
             if (!Rand.Chance(chance))
             {
                 return;
@@ -80,7 +80,7 @@ namespace TheMarkedMen
 
             CrossedUtility.ApplyMarkedPanicToPawn(recipient);
 
-            if (interactionDef == CADefOf.CrossedPackLaughter || initiator.kindDef == CADefOf.CrossedPyromaniac || initiator.kindDef == CADefOf.CrossedAlpha || initiator.kindDef == CADefOf.CrossedWarlord)
+            if (interactionDef == CADefOf.CrossedPackLaughter)
             {
                 CrossedUtility.ApplyMarkedPanic(recipient.Map, recipient.Position, TheMarkedMenSettings.MarkedPanicRadius);
             }
@@ -164,7 +164,7 @@ namespace TheMarkedMen
                 return CADefOf.CrossedInfectionGloat;
             }
 
-            if ((initiator.kindDef == CADefOf.CrossedPyromaniac || initiator.kindDef == CADefOf.CrossedAlpha || initiator.kindDef == CADefOf.CrossedWarlord) && CADefOf.CrossedPackLaughter != null && Rand.Chance(0.72f))
+            if ((initiator.kindDef == CADefOf.CrossedCivilian) && CADefOf.CrossedPackLaughter != null && Rand.Chance(0.5f))
             {
                 return CADefOf.CrossedPackLaughter;
             }
@@ -208,9 +208,9 @@ namespace TheMarkedMen
                 return 0f;
             }
 
-            if (interaction == CADefOf.CrossedPackLaughter && (initiator.kindDef == CADefOf.CrossedPyromaniac || initiator.kindDef == CADefOf.CrossedAlpha || initiator.kindDef == CADefOf.CrossedWarlord))
+            if (interaction == CADefOf.CrossedPackLaughter && (initiator.kindDef == CADefOf.CrossedCivilian))
             {
-                return 1.6f;
+                return 1.2f;
             }
 
             if (interaction == CADefOf.CrossedInfectionGloat && recipient.Downed)

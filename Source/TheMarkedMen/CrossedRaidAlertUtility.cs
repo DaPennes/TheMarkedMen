@@ -12,11 +12,6 @@ namespace TheMarkedMen
         public static string BuildRaidLetterLabel(string fallbackLabel, List<Pawn> pawns, float points)
         {
             string threatTier = DescribeThreatTier(points);
-            bool hasMarkedMan = pawns != null && HasKind(pawns, CADefOf.MarkedMan);
-            if (hasMarkedMan)
-            {
-                return "The Marked Man has arrived — " + threatTier;
-            }
             return "The Marked have arrived — " + threatTier;
         }
 
@@ -170,19 +165,20 @@ namespace TheMarkedMen
                 return null;
             }
 
-            List<string> parts = new List<string>();
-            AddKindCount(parts, pawns, CADefOf.MarkedMan, "Marked Man");
-            AddKindCount(parts, pawns, CADefOf.CrossedWarlord, "Warlord");
-            AddKindCount(parts, pawns, CADefOf.CrossedAlpha, "Alpha");
-            AddKindCount(parts, pawns, CADefOf.CrossedBrute, "Brute");
-            AddKindCount(parts, pawns, CADefOf.CrossedSoldier, "Soldier");
-            AddKindCount(parts, pawns, CADefOf.CrossedRaider, "Raider");
-            AddKindCount(parts, pawns, CADefOf.CrossedHunter, "Hunter");
-            AddKindCount(parts, pawns, CADefOf.CrossedShooter, "Shooter");
-            AddKindCount(parts, pawns, CADefOf.CrossedPyromaniac, "Pyromaniac");
-            AddKindCount(parts, pawns, CADefOf.CrossedScout, "Scout");
-            AddKindCount(parts, pawns, CADefOf.CrossedCivilian, "Civilian");
-            return parts.Count == 0 ? "unclassified infected" : string.Join(", ", parts.ToArray());
+            int count = 0;
+            for (int i = 0; i < pawns.Count; i++)
+            {
+                if (pawns[i] != null && pawns[i].kindDef == CADefOf.CrossedCivilian)
+                {
+                    count++;
+                }
+            }
+
+            if (count == 0)
+            {
+                return "unclassified infected";
+            }
+            return count + " infected" + (count == 1 ? "" : "s");
         }
 
         private static void AddKindCount(List<string> parts, List<Pawn> pawns, PawnKindDef kind, string label)
@@ -214,44 +210,20 @@ namespace TheMarkedMen
                 return null;
             }
 
-            bool hasMarkedMan = HasKind(pawns, CADefOf.MarkedMan);
-            bool hasWarlord = HasKind(pawns, CADefOf.CrossedWarlord);
-            bool hasAlpha = HasKind(pawns, CADefOf.CrossedAlpha);
-            bool hasBrute = HasKind(pawns, CADefOf.CrossedBrute);
-            bool hasSoldier = HasKind(pawns, CADefOf.CrossedSoldier);
-            bool hasPyromaniac = HasKind(pawns, CADefOf.CrossedPyromaniac);
-            List<string> priorities = new List<string>();
-            if (hasMarkedMan)
+            int count = 0;
+            for (int i = 0; i < pawns.Count; i++)
             {
-                priorities.Add("Marked Men leading the assault");
+                if (pawns[i] != null && pawns[i].kindDef == CADefOf.CrossedCivilian)
+                {
+                    count++;
+                }
             }
 
-            if (hasWarlord)
+            if (count == 0)
             {
-                priorities.Add("Warlords commanding infected forces");
+                return "closest armed infected and exposed flankers";
             }
-
-            if (hasAlpha)
-            {
-                priorities.Add("Alphas coordinating nearby infected");
-            }
-
-            if (hasSoldier)
-            {
-                priorities.Add("Soldiers maintaining tactical formation");
-            }
-
-            if (hasBrute)
-            {
-                priorities.Add("Brutes breaching doors and lines");
-            }
-
-            if (hasPyromaniac)
-            {
-                priorities.Add("Pyromaniacs spreading fire and chaos");
-            }
-
-            return priorities.Count == 0 ? "closest armed infected and exposed flankers" : string.Join("; ", priorities.ToArray());
+            return "infected forces approaching";
         }
 
         private static bool HasKind(List<Pawn> pawns, PawnKindDef kind)
