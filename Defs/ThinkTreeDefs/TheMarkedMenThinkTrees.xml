@@ -20,9 +20,6 @@
 
         <!-- Retreat if outgunned -->
         <li Class="TheMarkedMen.JobGiver_RetreatIfOutgunned" />
-
-        <!-- Default: wait/idle -->
-        <li Class="Verse.AI.ThinkNode_Wait" />
       </subNodes>
     </thinkRoot>
   </ThinkTreeDef>
