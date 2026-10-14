@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Defs>
+
+  <ThinkTreeDef>
+    <defName>CA_HunterThinkTree</defName>
+    <label>Crossed Hunter Think Tree</label>
+    <thinkNodes>
+      <li Class="Verse.AI.ThinkNode_Priority">
+        <subNodes>
+          <!-- Lord/duty thinking first -->
+          <li Class="Verse.AI.ThinkNode_DutyToil" />
+
+          <!-- Find nearest non-infected target -->
+          <li Class="TheMarkedMen.JobGiver_FindNearestTarget" />
+
+          <!-- Hunt wounded/downed targets preferentially -->
+          <li Class="TheMarkedMen.JobGiver_HuntWounded" />
+
+          <!-- Coordinate pack attacks -->
+          <li Class="TheMarkedMen.JobGiver_FlankTarget" />
+
+          <!-- Take cover if under fire -->
+          <li Class="TheMarkedMen.JobGiver_TakeCover" />
+
+          <!-- Default: wait/idle -->
+          <li Class="Verse.AI.ThinkNode_ConstantThinkTreeDef">
+            <think Class="TheMarkedMen.ThinkTree_CrossedHunter" />
+          </li>
+        </subNodes>
+      </li>
+    </thinkNodes>
+  </ThinkTreeDef>
+
+</Defs>

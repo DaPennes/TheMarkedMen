@@ -1763,5 +1763,89 @@ public static void RemoveMarkedVirusHediffFromFullyTurnedPawn(Pawn pawn)
 
 			return kinds[kinds.Count - 1].Key;
 		}
+
+		/// <summary>
+		/// Ensure infected pawn has a valid Lord assignment and uses correct ThinkTree.
+		/// Called on dev-spawn and raid setup to prevent map-exit bug and enable tactical AI.
+		/// </summary>
+		public static void EnsureInfectedHasValidLord(Pawn pawn)
+		{
+			if (pawn == null || pawn.Dead)
+				return;
+
+			// Step 1: Ensure faction is set
+		if (pawn.Faction?.def != CADefOf.CrossedFaction)
+		{
+			Faction crossed = Component?.EnsureCrossedFaction();
+			if (crossed != null)
+				pawn.SetFaction(crossed);
+		}
+
+		// Step 2: Check if pawn has a valid Lord already
+		if (pawn.GetLord() != null && pawn.GetLord().Faction == pawn.Faction)
+			return; // Already has valid Lord
+
+			// Step 3: Try to assign to existing raid Lord on map
+			Map map = pawn.Map;
+			if (map != null)
+			{
+				foreach (Lord lord in map.lordManager.lords)
+				{
+					if (lord.faction == CADefOf.CrossedFaction &&
+						(lord.LordJob is LordJob_AssaultColony ||
+						 lord.LordJob is LordJob_Siege))
+					{
+						lord.AddPawn(pawn);
+						return;
+					}
+				}
+			}
+
+			// Step 4: Create new Lord if none found
+			if (map != null)
+			{
+				try
+				{
+					LordMaker.MakeNewLord(
+						pawn.Faction,
+						new LordJob_AssaultColony(map, false, false),
+						map,
+						new List<Pawn> { pawn }
+					);
+				}
+				catch (Exception ex)
+				{
+					Log.Warning($"[The Marked Men] Failed to assign Lord to infected pawn {pawn.LabelShort}: {ex.Message}");
+				}
+			}
+		}
+
+		/// <summary>
+		/// Setup infected pawn with correct ThinkTree and initial behavior state.
+		/// </summary>
+		public static void SetupInfectedPawn(Pawn pawn)
+		{
+			if (pawn == null || pawn.Dead)
+				return;
+
+			// Assign hunter ThinkTree
+			ThinkTreeDef hunterTree = DefDatabase<ThinkTreeDef>.GetNamedSilentFail("CA_HunterThinkTree");
+			if (hunterTree != null && pawn.mindState != null)
+			{
+				pawn.mindState.thinkTree = hunterTree;
+			}
+
+			// Ensure valid Lord
+			EnsureInfectedHasValidLord(pawn);
+
+			// Prevent vanilla map-exit behavior
+			if (pawn.mindState != null)
+			{
+				pawn.mindState.exitMapAfterTick = -1;
+			}
+
+			// Issue initial tactical job
+			CrossedTacticalAI.TryIssueTacticalJob(pawn);
+		}
 	}
 }

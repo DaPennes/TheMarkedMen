@@ -547,4 +547,24 @@ namespace TheMarkedMen
             return true;
         }
     }
+
+    [HarmonyPatch(typeof(Pawn), nameof(Pawn.TickRare))]
+    public static class Patch_PreventInfectedMapExit
+    {
+        public static void Postfix(Pawn __instance)
+        {
+            if (__instance == null || !CrossedUtility.IsInfectedPawn(__instance))
+                return;
+
+            // Prevent vanilla map-exit behavior for infected
+            if (__instance.mindState != null && __instance.mindState.exitMapAfterTick > 0)
+            {
+                __instance.mindState.exitMapAfterTick = -1; // Cancel exit
+
+                // Reassign to stay on map and engage targets
+                CrossedUtility.EnsureInfectedHasValidLord(__instance);
+                CrossedTacticalAI.TryIssueTacticalJob(__instance);
+            }
+        }
+    }
 }
