@@ -25,6 +25,7 @@ namespace TheMarkedMen
             CrossedOptionalHarmonyPatches.Apply(harmony);
             TheMarkedMenAncientUrbanRuinsIntegration.Apply(harmony);
             TheMarkedMenAncientUrbanRuinsSpawnPatch.Apply(harmony);
+            TheMarkedMenVehicleFrameworkCompatibility.ApplyPatches(harmony);
             LongEventHandler.ExecuteWhenFinished(() => Settings?.AutoEnableRjwIntegrationIfInstalled());
             LongEventHandler.ExecuteWhenFinished(CrossedCompatibility.LogDetectedMods);
         }
