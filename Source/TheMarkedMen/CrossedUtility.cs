@@ -1387,6 +1387,12 @@ public static void RemoveMarkedVirusHediffFromFullyTurnedPawn(Pawn pawn)
 
 		public static void ApplyInfectedTattoo(Pawn pawn)
 		{
+			// Tattoos require Ideology DLC
+			if (!ModLister.IdeologyInstalled)
+			{
+				return;
+			}
+
 			TattooDef tattoo = GetCurrentCrossedFaceTattoo(pawn);
 			if (pawn?.style == null || tattoo == null || !ShouldShowCrossedRash(pawn))
 			{
