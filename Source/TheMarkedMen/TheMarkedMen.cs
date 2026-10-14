@@ -182,6 +182,11 @@ namespace TheMarkedMen
         public bool detailedRaidLetters;
         public bool incidentLogEnabled = true;
         public bool debugActionsEnabled = true;
+
+        // Caravan ambush timer settings
+        public bool caravanAmbushTimerVisible = true;
+        public float caravanAmbushTelegraphDays = 2f;
+        public float caravanAmbushPrepTimeInHours = 8f;
         public int contagionPulseIntervalTicks = 500;
         public int maxContagionTargetsPerPulse = 3;
         public int corpseContaminationIntervalTicks = 750;
@@ -436,6 +441,9 @@ namespace TheMarkedMen
             Scribe_Values.Look(ref rangedInfectionChance, "rangedInfectionChance", InfectionTransmissionChance);
             Scribe_Values.Look(ref infectionProgressionSpeedMultiplier, "infectionProgressionSpeedMultiplier", 1f);
             Scribe_Values.Look(ref incubationDurationMultiplier, "incubationDurationMultiplier", 1f);
+            Scribe_Values.Look(ref caravanAmbushTimerVisible, "caravanAmbushTimerVisible", true);
+            Scribe_Values.Look(ref caravanAmbushTelegraphDays, "caravanAmbushTelegraphDays", 2f);
+            Scribe_Values.Look(ref caravanAmbushPrepTimeInHours, "caravanAmbushPrepTimeInHours", 8f);
             Scribe_Values.Look(ref immunitySurvivalChance, "immunitySurvivalChance", DefaultImmunitySurvivalChance);
             Scribe_Values.Look(ref terminalTransformationWeight, "terminalTransformationWeight", DefaultTerminalTransformationWeight);
             Scribe_Values.Look(ref terminalDeathWeight, "terminalDeathWeight", DefaultTerminalDeathWeight);
@@ -828,6 +836,11 @@ namespace TheMarkedMen
             DrawCheckbox(listing, "MarkedMen_Settings_DetailedLetters".Translate(), ref detailedRaidLetters, "MarkedMen_Settings_DetailedLettersDesc".Translate());
             DrawCheckbox(listing, "MarkedMen_Settings_IncidentLog".Translate(), ref incidentLogEnabled, "MarkedMen_Settings_IncidentLogDesc".Translate());
             DrawCheckbox(listing, "MarkedMen_Settings_DebugActions".Translate(), ref debugActionsEnabled, "MarkedMen_Settings_DebugActionsDesc".Translate());
+
+            DrawSectionHeader(listing, "MarkedMen_Settings_CaravanAmbushTimer".Translate(), "MarkedMen_Settings_CaravanAmbushTimerDesc".Translate());
+            DrawCheckbox(listing, "MarkedMen_Settings_caravanAmbushTimerVisible".Translate(), ref caravanAmbushTimerVisible, "MarkedMen_Settings_caravanAmbushTimerVisibleDesc".Translate());
+            DrawFloat(listing, "MarkedMen_Settings_caravanAmbushTelegraphDays".Translate(), ref caravanAmbushTelegraphDays, 0f, 365f, "caravanAmbushTelegraphDays", "MarkedMen_Settings_caravanAmbushTelegraphDaysDesc".Translate());
+            DrawFloat(listing, "MarkedMen_Settings_caravanAmbushPrepTimeInHours".Translate(), ref caravanAmbushPrepTimeInHours, 0f, 24f, "caravanAmbushPrepTimeInHours", "MarkedMen_Settings_caravanAmbushPrepTimeInHoursDesc".Translate());
 
             DrawSectionHeader(listing, "MarkedMen_Settings_Performance".Translate(), "MarkedMen_Settings_PerformanceDesc".Translate());
             DrawInt(listing, "MarkedMen_Settings_contagionPulseIntervalTicks".Translate(), ref contagionPulseIntervalTicks, 60, GenDate.TicksPerDay, "contagionPulseIntervalTicks", "MarkedMen_Settings_contagionPulseIntervalTicksDesc".Translate());
@@ -1271,6 +1284,10 @@ namespace TheMarkedMen
             raidEscalationRandomness = Mathf.Clamp(raidEscalationRandomness, 0f, 1f);
             raidDifficultyWaviness = Mathf.Clamp(raidDifficultyWaviness, 0f, 1f);
             raidEscalationSpikeProbability = Mathf.Clamp01(raidEscalationSpikeProbability);
+
+            // Caravan ambush timer settings
+            caravanAmbushTelegraphDays = Mathf.Clamp(caravanAmbushTelegraphDays, 0f, 365f);
+            caravanAmbushPrepTimeInHours = Mathf.Clamp(caravanAmbushPrepTimeInHours, 0f, 24f);
             civilianWeightMultiplier = Mathf.Clamp(civilianWeightMultiplier, 0f, 5f);
             scoutWeightMultiplier = Mathf.Clamp(scoutWeightMultiplier, 0f, 5f);
             hunterWeightMultiplier = Mathf.Clamp(hunterWeightMultiplier, 0f, 5f);
