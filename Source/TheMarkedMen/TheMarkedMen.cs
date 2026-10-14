@@ -1675,6 +1675,7 @@ namespace TheMarkedMen
         private List<int> corpseLingeringLastSeenTicks = new List<int>();
         private readonly Dictionary<int, (Caravan caravan, int ambushTick)> trackedCaravans = new Dictionary<int, (Caravan, int)>();
         private int nextCaravanAmbushUpdateTick;
+        private int lastRaidWarningTick = -999999;
 
         public TheMarkedMenGameComponent(Game game)
         {
@@ -1855,6 +1856,7 @@ namespace TheMarkedMen
 
             int ticks = Find.TickManager.TicksGame;
             MonitorActiveRaid(ticks);
+            CheckAndSendRaidWarningLetter(ticks);
 
             if (ticks >= nextReanimationProcessTick)
             {
@@ -1867,6 +1869,40 @@ namespace TheMarkedMen
             {
                 nextCaravanAmbushUpdateTick = ticks + 2500;
                 UpdateCaravanAmbushTimers(ticks);
+            }
+        }
+
+        private void CheckAndSendRaidWarningLetter(int currentTick)
+        {
+            if (!TheMarkedMenSettings.WarbandsEnabled || CADefOf.CrossedRaid == null)
+            {
+                return;
+            }
+
+            // Get next raid timing
+            if (!TryGetRaidCountdownForAlert(out int nextTick, out int ticksUntilRaid, out Map targetMap))
+            {
+                return;
+            }
+
+            // Send warning when raid is 1-2 days away and we haven't sent one yet for this raid
+            int warningWindowTicks = GenDate.TicksPerDay;
+            if (ticksUntilRaid > 0 && ticksUntilRaid <= warningWindowTicks && currentTick - lastRaidWarningTick > GenDate.TicksPerDay * 0.5f)
+            {
+                lastRaidWarningTick = currentTick;
+
+                // Build warning letter
+                float estimatedPoints = EstimateUpcomingRaidPoints(targetMap);
+                string threatLevel = CrossedRaidAlertUtility.DescribeThreatTier(estimatedPoints);
+                float daysUntilRaid = ticksUntilRaid / (float)GenDate.TicksPerDay;
+
+                string letterLabel = "The Marked: Incoming Threat";
+                string letterText = $"Intelligence report: The chronometer ticks down. The Marked are mobilizing for an attack on {targetMap.Parent.Label}.\n\n"
+                    + $"Estimated threat level: {threatLevel}\n"
+                    + $"Time until arrival: approximately {daysUntilRaid:F1} day" + (daysUntilRaid < 1.5f ? "" : "s") + "\n\n"
+                    + "Prepare your defenses. The Marked will come when they are ready.";
+
+                Find.LetterStack.ReceiveLetter(letterLabel, letterText, LetterDefOf.ThreatBig, new GlobalTargetInfo(targetMap.Center, targetMap, false));
             }
         }
 
