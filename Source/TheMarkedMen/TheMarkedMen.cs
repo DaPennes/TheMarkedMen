@@ -1847,71 +1847,6 @@ namespace TheMarkedMen
             EnsureCorpseLingeringTrackerLists();
         }
 
-        public override void ExposeData()
-        {
-            base.ExposeData();
-            Scribe_Values.Look(ref nextMaintenanceTick, "nextMaintenanceTick", 0);
-            Scribe_Values.Look(ref nextReanimationProcessTick, "nextReanimationProcessTick", 0);
-            Scribe_Values.Look(ref nextRaidMonitorTick, "nextRaidMonitorTick", 0);
-            Scribe_Values.Look(ref nextCorpseExposureTick, "nextCorpseExposureTick", 0);
-            Scribe_Values.Look(ref nextRaidTick, "nextRaidTick", 0);
-            Scribe_Values.Look(ref nextHordeTick, "nextHordeTick", 0);
-            Scribe_Values.Look(ref raidScheduleActivated, "raidScheduleActivated", false);
-            Scribe_Values.Look(ref raidScheduleVersion, "raidScheduleVersion", 0);
-            Scribe_Values.Look(ref starterLineageInitialized, "starterLineageInitialized", false);
-            Scribe_Values.Look(ref totalCrossedRaidsStarted, "totalCrossedRaidsStarted", 0);
-            Scribe_Values.Look(ref survivedRaidCount, "survivedRaidCount", 0);
-            Scribe_Values.Look(ref activeRaid, "activeRaid", false);
-            Scribe_Values.Look(ref lastRaidEscalationMultiplier, "lastRaidEscalationMultiplier", 1f);
-            Scribe_Values.Look(ref lastSpikeRaidNumber, "lastSpikeRaidNumber", -999);
-            Scribe_Values.Look(ref activeRaidStartedTick, "activeRaidStartedTick", 0);
-            Scribe_Values.Look(ref activeRaidWaveCount, "activeRaidWaveCount", 0);
-            Scribe_Values.Look(ref activeRaidPeakInfected, "activeRaidPeakInfected", 0);
-            Scribe_Values.Look(ref activeRaidPoints, "activeRaidPoints", 0f);
-            Scribe_Values.Look(ref crossedWorldSettlementInitialized, "crossedWorldSettlementInitialized", false);
-            Scribe_References.Look(ref activeRaidMap, "activeRaidMap");
-            Scribe_Collections.Look(ref recentIncidents, "recentIncidents", LookMode.Value);
-            Scribe_Collections.Look(ref pendingReanimationPawns, "pendingReanimationPawns", LookMode.Reference);
-            Scribe_Collections.Look(ref pendingReanimationTicks, "pendingReanimationTicks", LookMode.Value);
-            Scribe_Collections.Look(ref activeRaidPawns, "activeRaidPawns", LookMode.Reference);
-            Scribe_Collections.Look(ref activeRaidColonistsAtStart, "activeRaidColonistsAtStart", LookMode.Reference);
-            Scribe_Collections.Look(ref corpseLingeringPawns, "corpseLingeringPawns", LookMode.Reference);
-            Scribe_Collections.Look(ref corpseLingeringTicks, "corpseLingeringTicks", LookMode.Value);
-            Scribe_Collections.Look(ref corpseLingeringLastSeenTicks, "corpseLingeringLastSeenTicks", LookMode.Value);
-            Scribe_Values.Look(ref caravanAmbushTimerVisible, "caravanAmbushTimerVisible", true);
-            Scribe_Values.Look(ref caravanAmbushTelegraphDays, "caravanAmbushTelegraphDays", 2f);
-            Scribe_Values.Look(ref caravanAmbushPrepTimeInHours, "caravanAmbushPrepTimeInHours", 8f);
-            if (recentIncidents == null)
-            {
-                recentIncidents = new List<string>();
-            }
-            if (pendingReanimationPawns == null)
-            {
-                pendingReanimationPawns = new List<Pawn>();
-            }
-            if (pendingReanimationTicks == null)
-            {
-                pendingReanimationTicks = new List<int>();
-            }
-            while (pendingReanimationTicks.Count < pendingReanimationPawns.Count)
-            {
-                pendingReanimationTicks.Add(0);
-            }
-            while (pendingReanimationTicks.Count > pendingReanimationPawns.Count)
-            {
-                pendingReanimationTicks.RemoveAt(pendingReanimationTicks.Count - 1);
-            }
-            if (activeRaidPawns == null)
-            {
-                activeRaidPawns = new List<Pawn>();
-            }
-            if (activeRaidColonistsAtStart == null)
-            {
-                activeRaidColonistsAtStart = new List<Pawn>();
-            }
-            EnsureCorpseLingeringTrackerLists();
-        }
-
         private void EnsureCorpseLingeringTrackerLists()
         {
             if (corpseLingeringPawns == null)
@@ -1953,6 +1888,7 @@ namespace TheMarkedMen
 
             int ticks = Find.TickManager.TicksGame;
             MonitorActiveRaid(ticks);
+
             if (ticks >= nextReanimationProcessTick)
             {
                 nextReanimationProcessTick = ticks + TheMarkedMenSettings.ReanimationProcessIntervalTicks;
@@ -2029,31 +1965,38 @@ namespace TheMarkedMen
         }
 
         public bool NoteCorpseLingering(Pawn pawn, int currentTick, int observedTicks)
-
-            if (ticks >= nextCorpseExposureTick)
+        {
+            if (pawn == null || pawn.Destroyed || pawn.Dead || CrossedUtility.IsInfectedPawn(pawn) || CrossedUtility.IsFullyProtectedFromCrossVirusExposure(pawn))
             {
-                nextCorpseExposureTick = ticks + TheMarkedMenSettings.CorpseContaminationIntervalTicks;
-                CrossedCorpseUtility.TryExposeNearbyPawnsToInfectedCorpses();
-                PruneCorpseLingeringTrackers(ticks);
+                return false;
             }
 
-            if (ticks < nextMaintenanceTick)
+            EnsureCorpseLingeringTrackerLists();
+
+            if (currentTick >= nextCorpseExposureTick)
+            {
+                nextCorpseExposureTick = currentTick + TheMarkedMenSettings.CorpseContaminationIntervalTicks;
+                CrossedCorpseUtility.TryExposeNearbyPawnsToInfectedCorpses();
+                PruneCorpseLingeringTrackers(currentTick);
+            }
+
+            if (currentTick < nextMaintenanceTick)
             {
                 return;
             }
 
-            nextMaintenanceTick = ticks + MaintenanceTickInterval;
-            TryFireScheduledRaid(ticks);
+            nextMaintenanceTick = currentTick + MaintenanceTickInterval;
+            TryFireScheduledRaid(currentTick);
             InitializeStarterLineageResistance();
             EnsureInfectedStateOnLoadedPawns();
-            TryFireScheduledHorde(ticks);
+            TryFireScheduledHorde(currentTick);
             MapClassificationService.PruneDestroyedMaps();
 
             // Update caravan ambush timers
-            if (ticks >= nextCaravanAmbushUpdateTick)
+            if (currentTick >= nextCaravanAmbushUpdateTick)
             {
-                nextCaravanAmbushUpdateTick = ticks + 2500;
-                UpdateCaravanAmbushTimers(ticks);
+                nextCaravanAmbushUpdateTick = currentTick + 2500;
+                UpdateCaravanAmbushTimers(currentTick);
             }
         }
 
