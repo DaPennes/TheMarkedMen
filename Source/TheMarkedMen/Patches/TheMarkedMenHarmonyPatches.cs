@@ -568,9 +568,14 @@ namespace TheMarkedMen
         }
     }
 
-[HarmonyPatch(typeof(IncidentWorker_Ambush), nameof(IncidentWorker_Ambush.TryExecute))]
+[HarmonyPatch(typeof(IncidentWorker_Ambush))]
     public static class Patch_IncidentWorkerAmbushTryExecute
     {
+        public static MethodBase TargetMethod()
+        {
+            return AccessTools.Method(typeof(IncidentWorker_Ambush), "TryExecuteWorker");
+        }
+
         public static bool Prefix(IncidentParms parms)
         {
             // Allow the original execution to proceed, then patch will register the ambush

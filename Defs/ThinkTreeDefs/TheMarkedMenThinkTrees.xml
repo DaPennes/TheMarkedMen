@@ -4,32 +4,30 @@
   <ThinkTreeDef>
     <defName>CA_HunterThinkTree</defName>
     <label>Crossed Hunter Think Tree</label>
-    <thinkNodes>
-      <li Class="Verse.AI.ThinkNode_Priority">
-        <subNodes>
-          <!-- Lord/duty thinking first -->
-          <li Class="Verse.AI.ThinkNode_DutyToil" />
+    <thinkRoot Class="Verse.AI.ThinkNode_Priority">
+      <subNodes>
+        <!-- Lord/duty thinking first -->
+        <li Class="Verse.AI.ThinkNode_DutyToil" />
 
-          <!-- Find nearest non-infected target -->
-          <li Class="TheMarkedMen.JobGiver_FindNearestTarget" />
+        <!-- Find nearest non-infected target -->
+        <li Class="TheMarkedMen.JobGiver_FindNearestTarget" />
 
-          <!-- Hunt wounded/downed targets preferentially -->
-          <li Class="TheMarkedMen.JobGiver_HuntWounded" />
+        <!-- Hunt wounded/downed targets preferentially -->
+        <li Class="TheMarkedMen.JobGiver_HuntWounded" />
 
-          <!-- Coordinate pack attacks -->
-          <li Class="TheMarkedMen.JobGiver_FlankTarget" />
+        <!-- Coordinate pack attacks -->
+        <li Class="TheMarkedMen.JobGiver_FlankTarget" />
 
-          <!-- Take cover if under fire -->
-          <li Class="TheMarkedMen.JobGiver_TakeCover" />
+        <!-- Take cover if under fire -->
+        <li Class="TheMarkedMen.JobGiver_TakeCover" />
 
-          <!-- Retreat if outgunned -->
-          <li Class="TheMarkedMen.JobGiver_RetreatIfOutgunned" />
+        <!-- Retreat if outgunned -->
+        <li Class="TheMarkedMen.JobGiver_RetreatIfOutgunned" />
 
-          <!-- Default: wait/idle -->
-          <li Class="Verse.AI.ThinkNode_Wait" />
-        </subNodes>
-      </li>
-    </thinkNodes>
+        <!-- Default: wait/idle -->
+        <li Class="Verse.AI.ThinkNode_Wait" />
+      </subNodes>
+    </thinkRoot>
   </ThinkTreeDef>
 
 </Defs>
