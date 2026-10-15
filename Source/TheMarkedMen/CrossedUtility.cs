@@ -579,14 +579,16 @@ namespace TheMarkedMen
 
 			Hediff existing = pawn.health.hediffSet.GetFirstHediffOfDef(virus);
 			bool newlyInfected = existing == null;
+			float initialSeverity = 0.15f;
 			if (newlyInfected)
 			{
 				existing = pawn.health.AddHediff(virus);
-				existing.Severity = Mathf.Max(existing.Severity, InitialCrossVirusSeverity(virus));
+				existing.SetVisible(); // Force visibility so stages show on clean pawns
+				existing.Severity = Mathf.Max(existing.Severity, initialSeverity);
 			}
 			else
 			{
-				existing.Severity = Mathf.Max(existing.Severity, InitialCrossVirusSeverity(virus));
+				existing.Severity = Mathf.Max(existing.Severity, initialSeverity);
 			}
 
 			HediffComp_CrossVirus comp = existing.TryGetComp<HediffComp_CrossVirus>();
@@ -659,6 +661,61 @@ namespace TheMarkedMen
 		public static MarkedVirusApparelProtection GetMarkedVirusApparelProtection(ThingDef apparelDef)
 		{
 			return GetMarkedVirusProtectionForApparelDef(apparelDef);
+		}
+
+		public static void ApplyMarkedVirusResistanceEquippedStatOffsets()
+		{
+			StatDef markedVirusResistance = CADefOf.MarkedVirusResistance;
+			if (markedVirusResistance == null)
+			{
+				return;
+			}
+
+			List<ThingDef> allThingDefs = DefDatabase<ThingDef>.AllDefsListForReading;
+			for (int i = 0; i < allThingDefs.Count; i++)
+			{
+				ThingDef apparelDef = allThingDefs[i];
+				if (apparelDef?.apparel == null)
+				{
+					continue;
+				}
+
+				MarkedVirusApparelProtection protection = GetMarkedVirusProtectionForApparelDef(apparelDef);
+				float resistance = Mathf.Clamp01(protection.resistance);
+				if (resistance <= 0f)
+				{
+					continue;
+				}
+
+				if (apparelDef.equippedStatOffsets == null)
+				{
+					apparelDef.equippedStatOffsets = new List<StatModifier>();
+				}
+
+				bool updatedExistingOffset = false;
+				for (int offsetIndex = 0; offsetIndex < apparelDef.equippedStatOffsets.Count; offsetIndex++)
+				{
+					StatModifier offset = apparelDef.equippedStatOffsets[offsetIndex];
+					if (offset.stat != markedVirusResistance)
+					{
+						continue;
+					}
+
+					offset.value = resistance;
+					apparelDef.equippedStatOffsets[offsetIndex] = offset;
+					updatedExistingOffset = true;
+					break;
+				}
+
+				if (!updatedExistingOffset)
+				{
+					apparelDef.equippedStatOffsets.Add(new StatModifier
+					{
+						stat = markedVirusResistance,
+						value = resistance
+					});
+				}
+			}
 		}
 
 		private const string MarkedVirusSealedTag = "MarkedVirusSealed";
@@ -1451,7 +1508,7 @@ public static void RemoveMarkedVirusHediffFromFullyTurnedPawn(Pawn pawn)
 				return;
 			}
 
-			hediff.Severity = Mathf.Max(hediff.Severity, InitialCrossVirusSeverity(virus));
+			hediff.Severity = Mathf.Max(hediff.Severity, 0.15f);
 			EnsureFearlessCrossedState(pawn);
 			ApplyInfectedTattoo(pawn);
 			CrossedContagionUtility.TryContagionPulse(pawn);
@@ -1469,10 +1526,7 @@ public static void RemoveMarkedVirusHediffFromFullyTurnedPawn(Pawn pawn)
 			return !IsShambler(pawn);
 		}
 
-		private static float InitialCrossVirusSeverity(HediffDef virus)
-		{
-			return Mathf.Clamp(virus?.initialSeverity ?? 0.08f, 0.001f, 1f);
-		}
+		
 
 		public static void RemoveDeprecatedCrossedRashHediff(Pawn pawn)
 		{

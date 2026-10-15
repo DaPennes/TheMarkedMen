@@ -84,9 +84,9 @@ namespace TheMarkedMen
                 CrossedUtility.EnsureCrossedPyromaniacMolotov(pawn);
             }
 
-            if (!pyromaniac && TheMarkedMenRjwCompatibility.TryStartBestInfectedIntercourseJob(pawn, true))
+            if (!pyromaniac)
             {
-                return true;
+                // Rjw compatibility patched out
             }
 
             JobDef currentJobDef = pawn.CurJob?.def;
@@ -165,9 +165,9 @@ namespace TheMarkedMen
                 CrossedUtility.EnsureCrossedPyromaniacMolotov(pawn);
             }
 
-            if (!pyromaniac && allowRjwJob && TheMarkedMenRjwCompatibility.TryStartBestInfectedIntercourseJob(pawn, forceCurrentJob))
+            if (!pyromaniac && allowRjwJob)
             {
-                return true;
+                // Rjw compatibility patched out
             }
 
             Pawn target = FindBestNonInfectedPawnTarget(pawn);
@@ -260,7 +260,7 @@ namespace TheMarkedMen
             Job job = JobMaker.MakeJob(JobDefOf.AttackMelee, target);
             job.expiryInterval = TacticalJobExpiryTicks;
             job.checkOverrideOnExpire = true;
-            job.killIncappedTarget = !(target is Pawn attackPawnTarget && TheMarkedMenRjwCompatibility.ShouldKeepIncapacitatedTargetForIntercourse(pawn, attackPawnTarget));
+            job.killIncappedTarget = true; // Rjw compatibility patched out
             job.canBashDoors = TheMarkedMenSettings.DoorTargetingEnabled;
             job.canBashFences = true;
             job.attackDoorIfTargetLost = TheMarkedMenSettings.DoorTargetingEnabled;
@@ -276,7 +276,7 @@ namespace TheMarkedMen
                 attackJob.verbToUse = verb;
                 attackJob.expiryInterval = TacticalJobExpiryTicks;
                 attackJob.checkOverrideOnExpire = true;
-                attackJob.killIncappedTarget = !(target is Pawn attackPawnTarget && TheMarkedMenRjwCompatibility.ShouldKeepIncapacitatedTargetForIntercourse(pawn, attackPawnTarget));
+                attackJob.killIncappedTarget = true; // Rjw compatibility patched out
                 attackJob.canBashDoors = TheMarkedMenSettings.DoorTargetingEnabled;
                 attackJob.canBashFences = true;
                 attackJob.attackDoorIfTargetLost = TheMarkedMenSettings.DoorTargetingEnabled;
@@ -342,7 +342,7 @@ namespace TheMarkedMen
 
                     job.expiryInterval = TacticalJobExpiryTicks;
                     job.checkOverrideOnExpire = true;
-                    job.killIncappedTarget = !(target is Pawn attackPawnTarget && TheMarkedMenRjwCompatibility.ShouldKeepIncapacitatedTargetForIntercourse(pawn, attackPawnTarget));
+                    job.killIncappedTarget = true; // Rjw compatibility patched out
                     job.canBashDoors = TheMarkedMenSettings.DoorTargetingEnabled;
                     job.canBashFences = true;
                     job.attackDoorIfTargetLost = TheMarkedMenSettings.DoorTargetingEnabled;
@@ -715,8 +715,7 @@ namespace TheMarkedMen
                 && !pawn.Downed
                 && pawn.Map != null
                 && CrossedUtility.IsInfectedPawn(pawn)
-                && TheMarkedMenSettings.TacticalRetargetingEnabled
-                && !TheMarkedMenRjwCompatibility.ShouldPreserveCurrentRjwJob(pawn);
+                && TheMarkedMenSettings.TacticalRetargetingEnabled;
         }
 
         private static bool IsAttackJob(JobDef jobDef)

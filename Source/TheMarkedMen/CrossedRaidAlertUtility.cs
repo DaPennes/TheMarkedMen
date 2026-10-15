@@ -11,35 +11,14 @@ namespace TheMarkedMen
     {
         public static string BuildRaidLetterLabel(string fallbackLabel, List<Pawn> pawns, float points)
         {
-            string threatTier = DescribeThreatTier(points);
-            return "The Marked have arrived — " + threatTier;
+            // Use vanilla label format - let the base game generate the standard raid alert
+            return null;
         }
 
         public static string BuildRaidLetterText(string baseText, List<Pawn> pawns, IncidentParms parms, bool horde)
         {
-            StringBuilder sb = new StringBuilder();
-            sb.AppendLine("The chronometer ticks. The Marked are here. Hold the line.");
-            sb.AppendLine();
-
-            string approach = DescribeApproach(parms?.target as Map, pawns);
-            sb.AppendLine("Approach: " + approach + ".");
-
-            string pattern = DescribeAssaultPattern(parms, horde);
-            sb.AppendLine("Pattern: " + pattern + ".");
-
-            string composition = DescribeComposition(pawns);
-            if (composition != null)
-            {
-                sb.AppendLine("Composition: " + composition + ".");
-            }
-
-            string priorities = DescribePriorityTargets(pawns);
-            if (priorities != null)
-            {
-                sb.AppendLine("Priority threats: " + priorities + ".");
-            }
-
-            return sb.ToString().TrimEndNewlines();
+            // Return null to prevent custom letter - let vanilla handle it
+            return null;
         }
 
         public static string DescribeThreatTier(float points)

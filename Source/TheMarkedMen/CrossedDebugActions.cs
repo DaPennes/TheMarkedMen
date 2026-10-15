@@ -68,8 +68,7 @@ namespace TheMarkedMen
                 return;
             }
 
-            bool success = TheMarkedMenAncientUrbanRuinsIntegration.DebugInitializeCurrentMap();
-            Report(success, "DevMode: Urban outbreak initialized on this map. Check the ruins for Marked Men.", "DevMode: This is not an Ancient Urban Ruins map or AUR is not loaded.");
+            Report(false, "DevMode: Ancient Urban Ruins integration not loaded.", "DevMode: This feature requires the Ancient Urban Ruins mod.");
         }
 
         [DebugAction(DebugCategory, "Fire urban ambush incident", allowedGameStates = AllowedGameStates.PlayingOnMap, actionType = DebugActionType.Action, displayPriority = 950)]
@@ -81,14 +80,7 @@ namespace TheMarkedMen
                 return;
             }
 
-            if (!TheMarkedMenAncientUrbanRuinsIntegration.IsAncientUrbanRuinsMap(Find.CurrentMap))
-            {
-                Report(false, null, "DevMode: This is not an Ancient Urban Ruins map.");
-                return;
-            }
-
-            bool success = TheMarkedMenAncientUrbanRuinsIntegration.DebugFireIncident("CA_UrbanAmbush");
-            Report(success, "DevMode: Urban ambush incident fired.", "DevMode: Could not fire urban ambush. Ensure the crossed faction exists.");
+            Report(false, "DevMode: Ancient Urban Ruins integration not loaded.", "DevMode: This feature requires the Ancient Urban Ruins mod.");
         }
 
         [DebugAction(DebugCategory, "Fire survivor encounter incident", allowedGameStates = AllowedGameStates.PlayingOnMap, actionType = DebugActionType.Action, displayPriority = 940)]
@@ -100,14 +92,7 @@ namespace TheMarkedMen
                 return;
             }
 
-            if (!TheMarkedMenAncientUrbanRuinsIntegration.IsAncientUrbanRuinsMap(Find.CurrentMap))
-            {
-                Report(false, null, "DevMode: This is not an Ancient Urban Ruins map.");
-                return;
-            }
-
-            bool success = TheMarkedMenAncientUrbanRuinsIntegration.DebugFireIncident("CA_UrbanSurvivor");
-            Report(success, "DevMode: Survivor encounter incident fired.", "DevMode: Could not fire survivor encounter. Ensure the crossed faction exists.");
+            Report(false, "DevMode: Ancient Urban Ruins integration not loaded.", "DevMode: This feature requires the Ancient Urban Ruins mod.");
         }
 
         [DebugAction(DebugCategory, "Spawn lost survivor with dormant mark", allowedGameStates = AllowedGameStates.PlayingOnMap, actionType = DebugActionType.Action, displayPriority = 930)]

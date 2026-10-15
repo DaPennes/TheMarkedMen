@@ -43,10 +43,35 @@
   <MarkedMen_Settings_InfectAlliesDesc>When enabled, allied, neutral, and guest pawns can be infected by the Marked Virus. Disable to protect non-hostile non-colonists.</MarkedMen_Settings_InfectAlliesDesc>
   <MarkedMen_Settings_InfectEnemies>Infect enemies</MarkedMen_Settings_InfectEnemies>
   <MarkedMen_Settings_InfectEnemiesDesc>When enabled, hostile pawns like raiders can be infected by the Marked Virus. Disable to prevent the virus from spreading to enemy factions.</MarkedMen_Settings_InfectEnemiesDesc>
+  <MarkedMen_Settings_VariantsOnlyInRaids>Variants only in raids</MarkedMen_Settings_VariantsOnlyInRaids>
+  <MarkedMen_Settings_VariantsOnlyInRaidsDesc>When enabled, specialized infected variants (Scout, Hunter, Shooter, Raider, Soldier, Brute, Pyromaniac, Alpha, Warlord, Marked Man) only appear during raids and incidents, not in faction settlements or world spawns.</MarkedMen_Settings_VariantsOnlyInRaidsDesc>
+
   <MarkedMen_Settings_RaidSchedule>Raid Schedule</MarkedMen_Settings_RaidSchedule>
   <MarkedMen_Settings_RaidScheduleDesc>Controls when Marked Men incidents appear and how hard scheduled attacks scale.</MarkedMen_Settings_RaidScheduleDesc>
   <MarkedMen_Settings_EnemyMix>Enemy Mix</MarkedMen_Settings_EnemyMix>
   <MarkedMen_Settings_EnemyMixDesc>Controls which infected pawn types appear. Weight 0 disables that type; weight 1 is normal; higher values make that type more common.</MarkedMen_Settings_EnemyMixDesc>
+  <MarkedMen_Settings_civilianWeightMultiplier>Civilian weight</MarkedMen_Settings_civilianWeightMultiplier>
+  <MarkedMen_Settings_civilianWeightMultiplierDesc>Basic infected with improvised weapons. The most common type.</MarkedMen_Settings_civilianWeightMultiplierDesc>
+  <MarkedMen_Settings_scoutWeightMultiplier>Scout weight</MarkedMen_Settings_scoutWeightMultiplier>
+  <MarkedMen_Settings_scoutWeightMultiplierDesc>Fast reconnaissance infected with light weapons.</MarkedMen_Settings_scoutWeightMultiplierDesc>
+  <MarkedMen_Settings_hunterWeightMultiplier>Hunter weight</MarkedMen_Settings_hunterWeightMultiplier>
+  <MarkedMen_Settings_hunterWeightMultiplierDesc>Tracker infected with hunting weapons.</MarkedMen_Settings_hunterWeightMultiplierDesc>
+  <MarkedMen_Settings_shooterWeightMultiplier>Shooter weight</MarkedMen_Settings_shooterWeightMultiplier>
+  <MarkedMen_Settings_shooterWeightMultiplierDesc>Ranged infected with sidearms and SMGs.</MarkedMen_Settings_shooterWeightMultiplierDesc>
+  <MarkedMen_Settings_raiderWeightMultiplier>Raider weight</MarkedMen_Settings_raiderWeightMultiplier>
+  <MarkedMen_Settings_raiderWeightMultiplierDesc>Experienced violent infected with mixed gear.</MarkedMen_Settings_raiderWeightMultiplierDesc>
+  <MarkedMen_Settings_soldierWeightMultiplier>Soldier weight</MarkedMen_Settings_soldierWeightMultiplier>
+  <MarkedMen_Settings_soldierWeightMultiplierDesc>Former military infected with military-grade gear.</MarkedMen_Settings_soldierWeightMultiplierDesc>
+  <MarkedMen_Settings_bruteWeightMultiplier>Brute weight</MarkedMen_Settings_bruteWeightMultiplier>
+  <MarkedMen_Settings_bruteWeightMultiplierDesc>Heavy melee infected. Usually appears only when raid points are high enough.</MarkedMen_Settings_bruteWeightMultiplierDesc>
+  <MarkedMen_Settings_pyromaniacWeightMultiplier>Pyromaniac weight</MarkedMen_Settings_pyromaniacWeightMultiplier>
+  <MarkedMen_Settings_pyromaniacWeightMultiplierDesc>Fire-focused infected that spread chaos.</MarkedMen_Settings_pyromaniacWeightMultiplierDesc>
+  <MarkedMen_Settings_alphaWeightMultiplier>Alpha weight</MarkedMen_Settings_alphaWeightMultiplier>
+  <MarkedMen_Settings_alphaWeightMultiplierDesc>Elite command infected that strengthens nearby Marked Men.</MarkedMen_Settings_alphaWeightMultiplierDesc>
+  <MarkedMen_Settings_warlordWeightMultiplier>Warlord weight</MarkedMen_Settings_warlordWeightMultiplier>
+  <MarkedMen_Settings_warlordWeightMultiplierDesc>Regional commander infected. Rare and extremely dangerous.</MarkedMen_Settings_warlordWeightMultiplierDesc>
+  <MarkedMen_Settings_markedManWeightMultiplier>Marked Man weight</MarkedMen_Settings_markedManWeightMultiplier>
+  <MarkedMen_Settings_markedManWeightMultiplierDesc>Ultimate infected. Endgame encounter, extremely rare.</MarkedMen_Settings_markedManWeightMultiplierDesc>
   <MarkedMen_Settings_VirusAndCorpses>Virus And Corpses</MarkedMen_Settings_VirusAndCorpses>
   <MarkedMen_Settings_VirusAndCorpsesDesc>Controls exposure chances, infection timing, terminal outcomes, and infected corpse transformation.</MarkedMen_Settings_VirusAndCorpsesDesc>
   <MarkedMen_Settings_CA_MarkedTurned_Strength>CA_MarkedTurned Strength</MarkedMen_Settings_CA_MarkedTurned_Strength>

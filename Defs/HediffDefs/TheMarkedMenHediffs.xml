@@ -5,7 +5,7 @@
     <label>Marked Virus</label>
     <description>A contagious neurological blood-borne disease spread by close contact with infected bodily fluids, contaminated blood, infected corpses, and tainted food. Marked Virus resistance from masks, sealed suits, and armor can reduce exposure risk and delay breakthrough infections. Fully sealed warcasket bodies, HAZMAT suits, and complete vacsuit sets block direct exposure, but they do not change toxic environment resistance. The virus usually overwhelms a victim quickly. A very small number of survivors develop lasting immune resistance; most terminal cases either transform into Marked Men or die from viral collapse.</description>
     <hediffClass>HediffWithComps</hediffClass>
-    <initialSeverity>0.08</initialSeverity>
+    <initialSeverity>0.15</initialSeverity>
     <maxSeverity>1</maxSeverity>
     <lethalSeverity>1.5</lethalSeverity>
     <tendable>true</tendable>
@@ -119,6 +119,244 @@
     <stages>
       <li>
         <label>deprecated</label>
+      </li>
+    </stages>
+  </HediffDef>
+
+  <!-- Scout adrenaline -->
+  <HediffDef>
+    <defName>CA_ScoutAdrenaline</defName>
+    <label>scout adrenaline</label>
+    <description>The Marked Virus sharpens the scout's reflexes, pushing them into a permanent heightened state for rapid hit-and-run attacks.</description>
+    <hediffClass>HediffWithComps</hediffClass>
+    <isBad>false</isBad>
+    <stages>
+      <li>
+        <statFactors>
+          <MoveSpeed>1.12</MoveSpeed>
+        </statFactors>
+        <statOffsets>
+          <AimingDelayFactor>-0.15</AimingDelayFactor>
+        </statOffsets>
+      </li>
+    </stages>
+  </HediffDef>
+
+  <!-- Hunter focus -->
+  <HediffDef>
+    <defName>CA_HunterFocus</defName>
+    <label>hunter focus</label>
+    <description>The virus enhances the hunter's tracking instincts, granting preternatural accuracy and stealth in pursuit of prey.</description>
+    <hediffClass>HediffWithComps</hediffClass>
+    <isBad>false</isBad>
+    <stages>
+      <li>
+        <statFactors>
+          <AimingDelayFactor>0.80</AimingDelayFactor>
+        </statFactors>
+        <statOffsets>
+          <ShootingAccuracyPawn>3</ShootingAccuracyPawn>
+          <HuntingStealth>0.25</HuntingStealth>
+        </statOffsets>
+      </li>
+    </stages>
+  </HediffDef>
+
+  <!-- Shooter rush -->
+  <HediffDef>
+    <defName>CA_ShooterRush</defName>
+    <label>shooter rush</label>
+    <description>The infected shooter moves with an aggressive, relentless pace, closing distance and unloading with unnatural speed.</description>
+    <hediffClass>HediffWithComps</hediffClass>
+    <isBad>false</isBad>
+    <stages>
+      <li>
+        <statFactors>
+          <MoveSpeed>1.08</MoveSpeed>
+          <StaggerDurationFactor>0.65</StaggerDurationFactor>
+        </statFactors>
+        <statOffsets>
+          <AimingDelayFactor>-0.15</AimingDelayFactor>
+        </statOffsets>
+      </li>
+    </stages>
+  </HediffDef>
+
+  <!-- Raider fury -->
+  <HediffDef>
+    <defName>CA_RaiderFury</defName>
+    <label>raider fury</label>
+    <description>Rage and viral aggression merge into a relentless assault drive — the raider feels no fear and hits harder with every breach.</description>
+    <hediffClass>HediffWithComps</hediffClass>
+    <isBad>false</isBad>
+    <stages>
+      <li>
+        <statFactors>
+          <MoveSpeed>1.06</MoveSpeed>
+          <MeleeCooldownFactor>0.78</MeleeCooldownFactor>
+          <IncomingDamageFactor>0.85</IncomingDamageFactor>
+        </statFactors>
+        <statOffsets>
+          <MeleeHitChance>3</MeleeHitChance>
+          <PainShockThreshold>0.15</PainShockThreshold>
+        </statOffsets>
+      </li>
+    </stages>
+  </HediffDef>
+
+  <!-- Soldier discipline -->
+  <HediffDef>
+    <defName>CA_SoldierDiscipline</defName>
+    <label>soldier discipline</label>
+    <description>Former military training is amplified by the virus — the crossed soldier fights with tactical precision and unbreakable nerve.</description>
+    <hediffClass>HediffWithComps</hediffClass>
+    <isBad>false</isBad>
+    <stages>
+      <li>
+        <statFactors>
+          <StaggerDurationFactor>0.70</StaggerDurationFactor>
+        </statFactors>
+        <statOffsets>
+          <ShootingAccuracyPawn>2</ShootingAccuracyPawn>
+          <MeleeDodgeChance>2</MeleeDodgeChance>
+          <PainShockThreshold>0.15</PainShockThreshold>
+          <AimingDelayFactor>-0.10</AimingDelayFactor>
+        </statOffsets>
+      </li>
+    </stages>
+  </HediffDef>
+
+  <!-- Fire hunger -->
+  <HediffDef>
+    <defName>CA_FireHunger</defName>
+    <label>fire hunger</label>
+    <description>The virus twists the pyromaniac's obsession into a weapon — they accelerate through flames and feel only warmth where others feel agony.</description>
+    <hediffClass>HediffWithComps</hediffClass>
+    <isBad>false</isBad>
+    <stages>
+      <li>
+        <statFactors>
+          <MoveSpeed>1.08</MoveSpeed>
+        </statFactors>
+        <statOffsets>
+          <MeleeHitChance>3</MeleeHitChance>
+          <PainShockThreshold>0.20</PainShockThreshold>
+          <ArmorRating_Heat>0.40</ArmorRating_Heat>
+        </statOffsets>
+      </li>
+    </stages>
+  </HediffDef>
+
+  <!-- Warlord presence -->
+  <HediffDef>
+    <defName>CA_WarlordPresence</defName>
+    <label>warlord presence</label>
+    <description>A regional commander whose infection has amplified their tactical instincts — the warlord leads from the front with devastating effect.</description>
+    <hediffClass>HediffWithComps</hediffClass>
+    <isBad>false</isBad>
+    <stages>
+      <li>
+        <statFactors>
+          <MoveSpeed>1.08</MoveSpeed>
+          <IncomingDamageFactor>0.80</IncomingDamageFactor>
+        </statFactors>
+        <statOffsets>
+          <ShootingAccuracyPawn>3</ShootingAccuracyPawn>
+          <MeleeHitChance>3</MeleeHitChance>
+          <MeleeDodgeChance>2</MeleeDodgeChance>
+          <PainShockThreshold>0.25</PainShockThreshold>
+          <AimingDelayFactor>-0.25</AimingDelayFactor>
+        </statOffsets>
+      </li>
+    </stages>
+  </HediffDef>
+
+  <!-- Warlord tier -->
+  <HediffDef>
+    <defName>CA_WarlordTier</defName>
+    <label>warlord tier</label>
+    <description>This Warlord has undergone severe neural and muscular reinforcement. Its tactical instincts are amplified and its body is conditioned for sustained assault.</description>
+    <hediffClass>HediffWithComps</hediffClass>
+    <isBad>false</isBad>
+    <tendable>false</tendable>
+    <maxSeverity>1</maxSeverity>
+    <initialSeverity>1</initialSeverity>
+    <stages>
+      <li>
+        <painFactor>0</painFactor>
+        <blocksMentalBreaks>true</blocksMentalBreaks>
+        <statFactors>
+          <MoveSpeed>1.10</MoveSpeed>
+          <MeleeCooldownFactor>0.75</MeleeCooldownFactor>
+          <IncomingDamageFactor>0.78</IncomingDamageFactor>
+          <StaggerDurationFactor>0.35</StaggerDurationFactor>
+        </statFactors>
+        <statOffsets>
+          <ShootingAccuracyPawn>3</ShootingAccuracyPawn>
+          <MeleeHitChance>3</MeleeHitChance>
+          <MeleeDodgeChance>2</MeleeDodgeChance>
+          <PainShockThreshold>0.35</PainShockThreshold>
+        </statOffsets>
+      </li>
+    </stages>
+  </HediffDef>
+
+  <!-- Alpha tier -->
+  <HediffDef>
+    <defName>CA_AlphaTier</defName>
+    <label>alpha tier</label>
+    <description>This Alpha's infection has hybridized with its nervous system, granting preternatural reflexes and dense muscle fiber reinforcement. Armor-piercing strikes and near-complete pain suppression.</description>
+    <hediffClass>HediffWithComps</hediffClass>
+    <isBad>false</isBad>
+    <tendable>false</tendable>
+    <maxSeverity>1</maxSeverity>
+    <initialSeverity>1</initialSeverity>
+    <stages>
+      <li>
+        <statFactors>
+          <MoveSpeed>1.12</MoveSpeed>
+          <MeleeCooldownFactor>0.60</MeleeCooldownFactor>
+          <IncomingDamageFactor>0.58</IncomingDamageFactor>
+          <StaggerDurationFactor>0.22</StaggerDurationFactor>
+          <ArmorRating_Sharp>0.30</ArmorRating_Sharp>
+          <ArmorRating_Blunt>0.30</ArmorRating_Blunt>
+        </statFactors>
+        <statOffsets>
+          <ShootingAccuracyPawn>4</ShootingAccuracyPawn>
+          <MeleeHitChance>5</MeleeHitChance>
+          <MeleeDodgeChance>4</MeleeDodgeChance>
+          <PainShockThreshold>0.50</PainShockThreshold>
+        </statOffsets>
+      </li>
+    </stages>
+  </HediffDef>
+
+  <!-- Marked tier -->
+  <HediffDef>
+    <defName>CA_MarkedTier</defName>
+    <label>marked tier</label>
+    <description>The Marked Virus has achieved complete saturation. The host is no longer organic — it is a living weapon of apex lethality. Cellular regeneration and subdermal armor make it nearly impossible to put down.</description>
+    <hediffClass>HediffWithComps</hediffClass>
+    <isBad>false</isBad>
+    <tendable>false</tendable>
+    <maxSeverity>1</maxSeverity>
+    <initialSeverity>1</initialSeverity>
+    <stages>
+      <li>
+        <statFactors>
+          <MoveSpeed>1.15</MoveSpeed>
+          <MeleeCooldownFactor>0.45</MeleeCooldownFactor>
+          <IncomingDamageFactor>0.40</IncomingDamageFactor>
+          <StaggerDurationFactor>0.18</StaggerDurationFactor>
+          <ArmorRating_Sharp>0.40</ArmorRating_Sharp>
+          <ArmorRating_Blunt>0.40</ArmorRating_Blunt>
+        </statFactors>
+        <statOffsets>
+          <ShootingAccuracyPawn>6</ShootingAccuracyPawn>
+          <MeleeHitChance>8</MeleeHitChance>
+          <MeleeDodgeChance>6</MeleeDodgeChance>
+          <PainShockThreshold>0.65</PainShockThreshold>
+        </statOffsets>
       </li>
     </stages>
   </HediffDef>

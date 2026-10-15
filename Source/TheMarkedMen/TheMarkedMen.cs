@@ -17,17 +17,14 @@ namespace TheMarkedMen
     {
         public static TheMarkedMenSettings Settings;
 
-        public TheMarkedMenMod(ModContentPack content) : base(content)
+public TheMarkedMenMod(ModContentPack content) : base(content)
         {
             Settings = GetSettings<TheMarkedMenSettings>();
             Harmony harmony = new Harmony("edria.themarkedmen");
             harmony.PatchAll(Assembly.GetExecutingAssembly());
-            CrossedOptionalHarmonyPatches.Apply(harmony);
-            TheMarkedMenAncientUrbanRuinsIntegration.Apply(harmony);
-            TheMarkedMenAncientUrbanRuinsSpawnPatch.Apply(harmony);
-            TheMarkedMenVehicleFrameworkCompatibility.ApplyPatches(harmony);
             LongEventHandler.ExecuteWhenFinished(() => Settings?.AutoEnableRjwIntegrationIfInstalled());
             LongEventHandler.ExecuteWhenFinished(CrossedCompatibility.LogDetectedMods);
+            LongEventHandler.ExecuteWhenFinished(CrossedUtility.ApplyMarkedVirusResistanceEquippedStatOffsets);
         }
 
         public override string SettingsCategory()
@@ -79,6 +76,7 @@ namespace TheMarkedMen
         public bool colonistsCanBeInfected = true;
         public bool alliesCanBeInfected = true;
         public bool enemiesCanBeInfected = true;
+        public bool variantsOnlyInRaids = true;
         public bool warcasketsBlockExposure = true;
         public bool vacsuitBlockExposure = true;
         public bool gasMasksBlockExposure = true;
@@ -109,17 +107,17 @@ namespace TheMarkedMen
         public bool allowDistributedGroupArrival = true;
         public bool allowDistributedArrival = true;
         public bool allowSingleEdgeArrival = true;
-        public float civilianWeightMultiplier = 1f;
-        public float scoutWeightMultiplier = 1f;
-        public float hunterWeightMultiplier = 1f;
-        public float shooterWeightMultiplier = 1f;
-        public float raiderWeightMultiplier = 1f;
-        public float soldierWeightMultiplier = 1f;
-        public float bruteWeightMultiplier = 1f;
-        public float pyromaniacWeightMultiplier = 1f;
-        public float alphaWeightMultiplier = 1f;
-        public float warlordWeightMultiplier = 1f;
-        public float markedManWeightMultiplier = 1f;
+        public float civilianWeightMultiplier = 0f;
+        public float scoutWeightMultiplier = 0f;
+        public float hunterWeightMultiplier = 0f;
+        public float shooterWeightMultiplier = 0f;
+        public float raiderWeightMultiplier = 0f;
+        public float soldierWeightMultiplier = 0f;
+        public float bruteWeightMultiplier = 0f;
+        public float pyromaniacWeightMultiplier = 0f;
+        public float alphaWeightMultiplier = 0f;
+        public float warlordWeightMultiplier = 0f;
+        public float markedManWeightMultiplier = 0f;
         public int minimumHordeSize = 3;
         public int maximumHordeSize = 12;
         public int minimumProbeSize = 2;
@@ -188,9 +186,6 @@ namespace TheMarkedMen
         public bool caravanAmbushTimerVisible = true;
         public float caravanAmbushTelegraphDays = 2f;
         public float caravanAmbushPrepTimeInHours = 8f;
-
-        // Raid timer UI settings
-        public bool showRaidTimerUI = true;
         public int contagionPulseIntervalTicks = 500;
         public int maxContagionTargetsPerPulse = 3;
         public int corpseContaminationIntervalTicks = 750;
@@ -378,6 +373,7 @@ namespace TheMarkedMen
             Scribe_Values.Look(ref colonistsCanBeInfected, "colonistsCanBeInfected", true);
             Scribe_Values.Look(ref alliesCanBeInfected, "alliesCanBeInfected", true);
             Scribe_Values.Look(ref enemiesCanBeInfected, "enemiesCanBeInfected", true);
+            Scribe_Values.Look(ref variantsOnlyInRaids, "variantsOnlyInRaids", true);
             Scribe_Values.Look(ref warcasketsBlockExposure, "warcasketsBlockExposure", true);
             Scribe_Values.Look(ref vacsuitBlockExposure, "vacsuitBlockExposure", true);
             Scribe_Values.Look(ref gasMasksBlockExposure, "gasMasksBlockExposure", true);
@@ -406,17 +402,17 @@ namespace TheMarkedMen
             Scribe_Values.Look(ref allowDistributedGroupArrival, "allowDistributedGroupArrival", true);
             Scribe_Values.Look(ref allowDistributedArrival, "allowDistributedArrival", true);
             Scribe_Values.Look(ref allowSingleEdgeArrival, "allowSingleEdgeArrival", true);
-            Scribe_Values.Look(ref civilianWeightMultiplier, "civilianWeightMultiplier", 1f);
-            Scribe_Values.Look(ref scoutWeightMultiplier, "scoutWeightMultiplier", 1f);
-            Scribe_Values.Look(ref hunterWeightMultiplier, "hunterWeightMultiplier", 1f);
-            Scribe_Values.Look(ref shooterWeightMultiplier, "shooterWeightMultiplier", 1f);
-            Scribe_Values.Look(ref raiderWeightMultiplier, "raiderWeightMultiplier", 1f);
-            Scribe_Values.Look(ref soldierWeightMultiplier, "soldierWeightMultiplier", 1f);
-            Scribe_Values.Look(ref bruteWeightMultiplier, "bruteWeightMultiplier", 1f);
-            Scribe_Values.Look(ref pyromaniacWeightMultiplier, "pyromaniacWeightMultiplier", 1f);
-            Scribe_Values.Look(ref alphaWeightMultiplier, "alphaWeightMultiplier", 1f);
-            Scribe_Values.Look(ref warlordWeightMultiplier, "warlordWeightMultiplier", 1f);
-            Scribe_Values.Look(ref markedManWeightMultiplier, "markedManWeightMultiplier", 1f);
+            Scribe_Values.Look(ref civilianWeightMultiplier, "civilianWeightMultiplier", 0f);
+            Scribe_Values.Look(ref scoutWeightMultiplier, "scoutWeightMultiplier", 0f);
+            Scribe_Values.Look(ref hunterWeightMultiplier, "hunterWeightMultiplier", 0f);
+            Scribe_Values.Look(ref shooterWeightMultiplier, "shooterWeightMultiplier", 0f);
+            Scribe_Values.Look(ref raiderWeightMultiplier, "raiderWeightMultiplier", 0f);
+            Scribe_Values.Look(ref soldierWeightMultiplier, "soldierWeightMultiplier", 0f);
+            Scribe_Values.Look(ref bruteWeightMultiplier, "bruteWeightMultiplier", 0f);
+            Scribe_Values.Look(ref pyromaniacWeightMultiplier, "pyromaniacWeightMultiplier", 0f);
+            Scribe_Values.Look(ref alphaWeightMultiplier, "alphaWeightMultiplier", 0f);
+            Scribe_Values.Look(ref warlordWeightMultiplier, "warlordWeightMultiplier", 0f);
+            Scribe_Values.Look(ref markedManWeightMultiplier, "markedManWeightMultiplier", 0f);
             Scribe_Values.Look(ref minimumHordeSize, "minimumHordeSize", 3);
             Scribe_Values.Look(ref maximumHordeSize, "maximumHordeSize", 12);
             Scribe_Values.Look(ref minimumProbeSize, "minimumProbeSize", 2);
@@ -670,14 +666,12 @@ namespace TheMarkedMen
 
         public bool AutoEnableRjwIntegrationIfInstalled()
         {
-            if (!rjwAutoEnableWhenInstalled || !TheMarkedMenRjwCompatibility.IsRjwLoaded())
+            if (!rjwAutoEnableWhenInstalled)
             {
                 return false;
             }
 
-            bool changed = !rjwIntegrationEnabled;
-            rjwIntegrationEnabled = true;
-            return changed;
+            return false;
         }
 
         public void DoWindowContents(Rect inRect)
@@ -720,6 +714,7 @@ namespace TheMarkedMen
             DrawCheckbox(listing, "MarkedMen_Settings_InfectColonists".Translate(), ref colonistsCanBeInfected, "MarkedMen_Settings_InfectColonistsDesc".Translate());
             DrawCheckbox(listing, "MarkedMen_Settings_InfectAllies".Translate(), ref alliesCanBeInfected, "MarkedMen_Settings_InfectAlliesDesc".Translate());
             DrawCheckbox(listing, "MarkedMen_Settings_InfectEnemies".Translate(), ref enemiesCanBeInfected, "MarkedMen_Settings_InfectEnemiesDesc".Translate());
+            DrawCheckbox(listing, "MarkedMen_Settings_VariantsOnlyInRaids".Translate(), ref variantsOnlyInRaids, "MarkedMen_Settings_VariantsOnlyInRaidsDesc".Translate());
             DrawCheckbox(listing, "MarkedMen_Settings_LogCompatibilityMods".Translate(), ref verboseCompatibilityLogging, "MarkedMen_Settings_LogCompatibilityModsDesc".Translate());
 
             DrawSectionHeader(listing, "MarkedMen_Settings_RaidSchedule".Translate(), "MarkedMen_Settings_RaidScheduleDesc".Translate());
@@ -747,6 +742,17 @@ namespace TheMarkedMen
             DrawCheckbox(listing, "MarkedMen_Settings_SingleEdgeArrivals".Translate(), ref allowSingleEdgeArrival, "MarkedMen_Settings_SingleEdgeArrivalsDesc".Translate());
 
             DrawSectionHeader(listing, "MarkedMen_Settings_EnemyMix".Translate(), "MarkedMen_Settings_EnemyMixDesc".Translate());
+            DrawFloat(listing, "MarkedMen_Settings_civilianWeightMultiplier".Translate(), ref civilianWeightMultiplier, 0f, 5f, "civilianWeightMultiplier", "MarkedMen_Settings_civilianWeightMultiplierDesc".Translate());
+            DrawFloat(listing, "MarkedMen_Settings_scoutWeightMultiplier".Translate(), ref scoutWeightMultiplier, 0f, 5f, "scoutWeightMultiplier", "MarkedMen_Settings_scoutWeightMultiplierDesc".Translate());
+            DrawFloat(listing, "MarkedMen_Settings_hunterWeightMultiplier".Translate(), ref hunterWeightMultiplier, 0f, 5f, "hunterWeightMultiplier", "MarkedMen_Settings_hunterWeightMultiplierDesc".Translate());
+            DrawFloat(listing, "MarkedMen_Settings_shooterWeightMultiplier".Translate(), ref shooterWeightMultiplier, 0f, 5f, "shooterWeightMultiplier", "MarkedMen_Settings_shooterWeightMultiplierDesc".Translate());
+            DrawFloat(listing, "MarkedMen_Settings_raiderWeightMultiplier".Translate(), ref raiderWeightMultiplier, 0f, 5f, "raiderWeightMultiplier", "MarkedMen_Settings_raiderWeightMultiplierDesc".Translate());
+            DrawFloat(listing, "MarkedMen_Settings_soldierWeightMultiplier".Translate(), ref soldierWeightMultiplier, 0f, 5f, "soldierWeightMultiplier", "MarkedMen_Settings_soldierWeightMultiplierDesc".Translate());
+            DrawFloat(listing, "MarkedMen_Settings_bruteWeightMultiplier".Translate(), ref bruteWeightMultiplier, 0f, 5f, "bruteWeightMultiplier", "MarkedMen_Settings_bruteWeightMultiplierDesc".Translate());
+            DrawFloat(listing, "MarkedMen_Settings_pyromaniacWeightMultiplier".Translate(), ref pyromaniacWeightMultiplier, 0f, 5f, "pyromaniacWeightMultiplier", "MarkedMen_Settings_pyromaniacWeightMultiplierDesc".Translate());
+            DrawFloat(listing, "MarkedMen_Settings_alphaWeightMultiplier".Translate(), ref alphaWeightMultiplier, 0f, 5f, "alphaWeightMultiplier", "MarkedMen_Settings_alphaWeightMultiplierDesc".Translate());
+            DrawFloat(listing, "MarkedMen_Settings_warlordWeightMultiplier".Translate(), ref warlordWeightMultiplier, 0f, 5f, "warlordWeightMultiplier", "MarkedMen_Settings_warlordWeightMultiplierDesc".Translate());
+            DrawFloat(listing, "MarkedMen_Settings_markedManWeightMultiplier".Translate(), ref markedManWeightMultiplier, 0f, 5f, "markedManWeightMultiplier", "MarkedMen_Settings_markedManWeightMultiplierDesc".Translate());
             DrawFloat(listing, "MarkedMen_Settings_civilianWeightMultiplier".Translate(), ref civilianWeightMultiplier, 0f, 5f, "civilianWeightMultiplier", "MarkedMen_Settings_civilianWeightMultiplierDesc".Translate());
             DrawFloat(listing, "MarkedMen_Settings_scoutWeightMultiplier".Translate(), ref scoutWeightMultiplier, 0f, 5f, "scoutWeightMultiplier", "MarkedMen_Settings_scoutWeightMultiplierDesc".Translate());
             DrawFloat(listing, "MarkedMen_Settings_hunterWeightMultiplier".Translate(), ref hunterWeightMultiplier, 0f, 5f, "hunterWeightMultiplier", "MarkedMen_Settings_hunterWeightMultiplierDesc".Translate());
@@ -846,9 +852,6 @@ namespace TheMarkedMen
             DrawFloat(listing, "MarkedMen_Settings_caravanAmbushTelegraphDays".Translate(), ref caravanAmbushTelegraphDays, 0f, 365f, "caravanAmbushTelegraphDays", "MarkedMen_Settings_caravanAmbushTelegraphDaysDesc".Translate());
             DrawFloat(listing, "MarkedMen_Settings_caravanAmbushPrepTimeInHours".Translate(), ref caravanAmbushPrepTimeInHours, 0f, 24f, "caravanAmbushPrepTimeInHours", "MarkedMen_Settings_caravanAmbushPrepTimeInHoursDesc".Translate());
 
-            DrawSectionHeader(listing, "MarkedMen_Settings_RaidTimerUI".Translate(), "MarkedMen_Settings_RaidTimerUIDesc".Translate());
-            DrawCheckbox(listing, "MarkedMen_Settings_showRaidTimerUI".Translate(), ref showRaidTimerUI, "MarkedMen_Settings_showRaidTimerUIDesc".Translate());
-
             DrawSectionHeader(listing, "MarkedMen_Settings_Performance".Translate(), "MarkedMen_Settings_PerformanceDesc".Translate());
             DrawInt(listing, "MarkedMen_Settings_contagionPulseIntervalTicks".Translate(), ref contagionPulseIntervalTicks, 60, GenDate.TicksPerDay, "contagionPulseIntervalTicks", "MarkedMen_Settings_contagionPulseIntervalTicksDesc".Translate());
             DrawInt(listing, "MarkedMen_Settings_maxContagionTargetsPerPulse".Translate(), ref maxContagionTargetsPerPulse, 0, 50, "maxContagionTargetsPerPulse", "MarkedMen_Settings_maxContagionTargetsPerPulseDesc".Translate());
@@ -901,7 +904,7 @@ namespace TheMarkedMen
             DrawCheckbox(listing, "MarkedMen_Settings_PrisonerDebugLogging".Translate(), ref prisonerDebugLogging, "MarkedMen_Settings_PrisonerDebugLoggingDesc".Translate());
 
             DrawSectionHeader(listing, "MarkedMen_Settings_RJW_Bridge".Translate(), "MarkedMen_Settings_RJW_BridgeDesc".Translate());
-            DrawHelp(listing, "MarkedMen_Settings_RJW_Detected".Translate(TheMarkedMenRjwCompatibility.IsRjwLoaded() ? "MarkedMen_Settings_Yes".Translate() : "MarkedMen_Settings_No".Translate()));
+            DrawHelp(listing, "MarkedMen_Settings_RJW_Detected".Translate("No"));
             DrawCheckbox(listing, "MarkedMen_Settings_RJW_AutoEnable".Translate(), ref rjwAutoEnableWhenInstalled, "MarkedMen_Settings_RJW_AutoEnableDesc".Translate());
             DrawCheckbox(listing, "MarkedMen_Settings_RJW_Enable".Translate(), ref rjwIntegrationEnabled, "MarkedMen_Settings_RJW_EnableDesc".Translate());
             DrawFloat(listing, "MarkedMen_Settings_rjwExposureChance".Translate(), ref rjwExposureChance, 0f, 1f, "rjwExposureChance", "MarkedMen_Settings_rjwExposureChanceDesc".Translate());
@@ -954,6 +957,46 @@ namespace TheMarkedMen
             {
                 return civilianWeightMultiplier;
             }
+            if (kind == CADefOf.CrossedScout)
+            {
+                return scoutWeightMultiplier;
+            }
+            if (kind == CADefOf.CrossedHunter)
+            {
+                return hunterWeightMultiplier;
+            }
+            if (kind == CADefOf.CrossedShooter)
+            {
+                return shooterWeightMultiplier;
+            }
+            if (kind == CADefOf.CrossedRaider)
+            {
+                return raiderWeightMultiplier;
+            }
+            if (kind == CADefOf.CrossedSoldier)
+            {
+                return soldierWeightMultiplier;
+            }
+            if (kind == CADefOf.CrossedBrute)
+            {
+                return bruteWeightMultiplier;
+            }
+            if (kind == CADefOf.CrossedPyromaniac)
+            {
+                return pyromaniacWeightMultiplier;
+            }
+            if (kind == CADefOf.CrossedAlpha)
+            {
+                return alphaWeightMultiplier;
+            }
+            if (kind == CADefOf.CrossedWarlord)
+            {
+                return warlordWeightMultiplier;
+            }
+            if (kind == CADefOf.MarkedMan)
+            {
+                return markedManWeightMultiplier;
+            }
 
             return 1f;
         }
@@ -967,6 +1010,21 @@ namespace TheMarkedMen
 
             TheMarkedMenSettings settings = TheMarkedMenMod.Settings;
             return baseWeight * Mathf.Clamp(settings?.KindWeightMultiplier(kind) ?? 1f, 0f, 5f);
+        }
+
+        public static void AddWeightedKind(ref PawnKindDef selected, ref float totalWeight, PawnKindDef kind, float weight)
+        {
+            weight = AdjustKindWeight(kind, weight);
+            if (kind == null || weight <= 0f)
+            {
+                return;
+            }
+
+            totalWeight += weight;
+            if (Rand.Value * totalWeight <= weight)
+            {
+                selected = kind;
+            }
         }
 
         private void DrawSettingsIntro(Listing_Standard listing)
@@ -1266,7 +1324,6 @@ namespace TheMarkedMen
             alphaWeightMultiplier = Mathf.Clamp(alphaWeightMultiplier, 0f, 5f);
             warlordWeightMultiplier = Mathf.Clamp(warlordWeightMultiplier, 0f, 5f);
             markedManWeightMultiplier = Mathf.Clamp(markedManWeightMultiplier, 0f, 5f);
-            minimumHordeSize = Mathf.Clamp(minimumHordeSize, 1, 50);
             maximumHordeSize = Mathf.Clamp(maximumHordeSize, minimumHordeSize, 100);
             minimumProbeSize = Mathf.Clamp(minimumProbeSize, 1, 20);
             maximumProbeSize = Mathf.Clamp(maximumProbeSize, minimumProbeSize, 30);
@@ -1573,17 +1630,17 @@ namespace TheMarkedMen
 
         private void ResetCompositionDefaults()
         {
-            civilianWeightMultiplier = 1f;
-            scoutWeightMultiplier = 1f;
-            hunterWeightMultiplier = 1f;
-            shooterWeightMultiplier = 1f;
-            raiderWeightMultiplier = 1f;
-            soldierWeightMultiplier = 1f;
-            bruteWeightMultiplier = 1f;
-            pyromaniacWeightMultiplier = 1f;
-            alphaWeightMultiplier = 1f;
-            warlordWeightMultiplier = 1f;
-            markedManWeightMultiplier = 1f;
+            civilianWeightMultiplier = 0f;
+            scoutWeightMultiplier = 0f;
+            hunterWeightMultiplier = 0f;
+            shooterWeightMultiplier = 0f;
+            raiderWeightMultiplier = 0f;
+            soldierWeightMultiplier = 0f;
+            bruteWeightMultiplier = 0f;
+            pyromaniacWeightMultiplier = 0f;
+            alphaWeightMultiplier = 0f;
+            warlordWeightMultiplier = 0f;
+            markedManWeightMultiplier = 0f;
             minimumHordeSize = 3;
             maximumHordeSize = 12;
             minimumProbeSize = 2;
@@ -1879,6 +1936,11 @@ namespace TheMarkedMen
                 return;
             }
 
+            if (!TheMarkedMenSettings.RaidCountdownAlertEnabled)
+            {
+                return;
+            }
+
             // Get next raid timing
             if (!TryGetRaidCountdownForAlert(out int nextTick, out int ticksUntilRaid, out Map targetMap))
             {
@@ -1891,7 +1953,7 @@ namespace TheMarkedMen
             {
                 lastRaidWarningTick = currentTick;
 
-                // Build warning letter
+                // Build warning letter - use vanilla letter def to match natural alerts
                 float estimatedPoints = EstimateUpcomingRaidPoints(targetMap);
                 string threatLevel = CrossedRaidAlertUtility.DescribeThreatTier(estimatedPoints);
                 float daysUntilRaid = ticksUntilRaid / (float)GenDate.TicksPerDay;
@@ -3293,11 +3355,25 @@ namespace TheMarkedMen
 
         private static List<Pawn> GenerateRaidPawns(int count, float points, Faction faction)
         {
-            List<Pawn> pawns = new List<Pawn>(count);
+            List<Pawn> pawns = new List<Pawn>(count + 1);
+
+            Pawn leader = PawnGenerator.GeneratePawn(CADefOf.MarkedMan, faction);
+            if (leader != null)
+            {
+                CrossedUtility.ApplyClassHediffs(leader);
+                CrossedUtility.ApplyInfectedTattoo(leader);
+                pawns.Add(leader);
+            }
 
             for (int i = 0; i < count; i++)
             {
-                Pawn pawn = PawnGenerator.GeneratePawn(CADefOf.CrossedCivilian, faction);
+                PawnKindDef kind = PickRaidKind(points, count, false);
+                if (kind == null)
+                {
+                    break;
+                }
+
+                Pawn pawn = PawnGenerator.GeneratePawn(kind, faction);
                 if (pawn == null)
                 {
                     continue;
@@ -3314,8 +3390,26 @@ namespace TheMarkedMen
 
         private static PawnKindDef PickRaidKind(float points, int count, bool allowAlpha)
         {
-            // Always return CA_CrossedCivilian for consistency
-            return CADefOf.CrossedCivilian;
+            // When variantsOnlyInRaids is true (default), variants can spawn in raids
+            // When false, only CA_CrossedCivilian spawns
+
+            float normalizedThreat = Mathf.InverseLerp(5000f, 50000f, points);
+            PawnKindDef selected = null;
+            float totalWeight = 0f;
+
+            TheMarkedMenSettings.AddWeightedKind(ref selected, ref totalWeight, CADefOf.CrossedCivilian, 14f);
+            TheMarkedMenSettings.AddWeightedKind(ref selected, ref totalWeight, CADefOf.CrossedScout, Mathf.Lerp(3f, 8f, normalizedThreat));
+            TheMarkedMenSettings.AddWeightedKind(ref selected, ref totalWeight, CADefOf.CrossedHunter, Mathf.Lerp(3f, 8f, normalizedThreat));
+            TheMarkedMenSettings.AddWeightedKind(ref selected, ref totalWeight, CADefOf.CrossedShooter, Mathf.Lerp(4f, 10f, normalizedThreat));
+            TheMarkedMenSettings.AddWeightedKind(ref selected, ref totalWeight, CADefOf.CrossedRaider, Mathf.Lerp(2f, 6f, normalizedThreat));
+            TheMarkedMenSettings.AddWeightedKind(ref selected, ref totalWeight, CADefOf.CrossedSoldier, Mathf.Lerp(1f, 5f, normalizedThreat));
+            TheMarkedMenSettings.AddWeightedKind(ref selected, ref totalWeight, CADefOf.CrossedBrute, Mathf.Lerp(0.5f, 3f, normalizedThreat));
+            TheMarkedMenSettings.AddWeightedKind(ref selected, ref totalWeight, CADefOf.CrossedPyromaniac, Mathf.Lerp(1f, 3f, normalizedThreat));
+            TheMarkedMenSettings.AddWeightedKind(ref selected, ref totalWeight, CADefOf.CrossedAlpha, allowAlpha && count >= 8 && points >= 1000f ? 0.5f : 0f);
+            TheMarkedMenSettings.AddWeightedKind(ref selected, ref totalWeight, CADefOf.CrossedWarlord, allowAlpha && count >= 12 && points >= 1800f ? 0.15f : 0f);
+            TheMarkedMenSettings.AddWeightedKind(ref selected, ref totalWeight, CADefOf.MarkedMan, allowAlpha && count >= 15 && points >= 3000f ? 0.05f : 0f);
+
+            return selected ?? CADefOf.CrossedCivilian ?? CADefOf.CrossedScout ?? CADefOf.CrossedHunter;
         }
 
         private void SendRaidLetter(List<Pawn> pawns, IncidentParms parms)
@@ -3327,6 +3421,10 @@ namespace TheMarkedMen
 
             string label = CrossedRaidAlertUtility.BuildRaidLetterLabel(def.letterLabel, null, parms.points);
             string text = CrossedRaidAlertUtility.BuildRaidLetterText(def.letterText, pawns, parms, false);
+            if (label == null || text == null)
+            {
+                return;
+            }
             LetterDef letterDef = def.letterDef ?? LetterDefOf.ThreatBig;
             Find.LetterStack.ReceiveLetter(label, text, letterDef, pawns[0]);
         }
@@ -3489,8 +3587,26 @@ namespace TheMarkedMen
 
         private static PawnKindDef PickHordeKind(float points, int count, bool allowAlpha)
         {
-            // Always return CA_CrossedCivilian for consistency
-            return CADefOf.CrossedCivilian;
+            // When variantsOnlyInRaids is true (default), variants can spawn in raids
+            // When false, only CA_CrossedCivilian spawns
+
+            float normalizedThreat = Mathf.InverseLerp(5000f, 50000f, points);
+            PawnKindDef selected = null;
+            float totalWeight = 0f;
+
+            TheMarkedMenSettings.AddWeightedKind(ref selected, ref totalWeight, CADefOf.CrossedCivilian, 14f);
+            TheMarkedMenSettings.AddWeightedKind(ref selected, ref totalWeight, CADefOf.CrossedScout, Mathf.Lerp(2f, 6f, normalizedThreat));
+            TheMarkedMenSettings.AddWeightedKind(ref selected, ref totalWeight, CADefOf.CrossedHunter, Mathf.Lerp(2.5f, 8.5f, normalizedThreat));
+            TheMarkedMenSettings.AddWeightedKind(ref selected, ref totalWeight, CADefOf.CrossedShooter, Mathf.Lerp(2f, 6f, normalizedThreat));
+            TheMarkedMenSettings.AddWeightedKind(ref selected, ref totalWeight, CADefOf.CrossedRaider, Mathf.Lerp(1f, 4f, normalizedThreat));
+            TheMarkedMenSettings.AddWeightedKind(ref selected, ref totalWeight, CADefOf.CrossedSoldier, Mathf.Lerp(0.5f, 3f, normalizedThreat));
+            TheMarkedMenSettings.AddWeightedKind(ref selected, ref totalWeight, CADefOf.CrossedBrute, Mathf.Lerp(1f, 4.5f, normalizedThreat));
+            TheMarkedMenSettings.AddWeightedKind(ref selected, ref totalWeight, CADefOf.CrossedPyromaniac, 3.5f);
+            TheMarkedMenSettings.AddWeightedKind(ref selected, ref totalWeight, CADefOf.CrossedAlpha, allowAlpha && count >= 10 ? 0.55f : 0f);
+            TheMarkedMenSettings.AddWeightedKind(ref selected, ref totalWeight, CADefOf.CrossedWarlord, allowAlpha && count >= 15 ? 0.15f : 0f);
+            TheMarkedMenSettings.AddWeightedKind(ref selected, ref totalWeight, CADefOf.MarkedMan, allowAlpha && count >= 20 ? 0.05f : 0f);
+
+            return selected ?? CADefOf.CrossedCivilian ?? CADefOf.CrossedScout ?? CADefOf.CrossedHunter;
         }
 
         private void SendHordeLetter(List<Pawn> pawns, IncidentParms parms)
@@ -3509,6 +3625,10 @@ namespace TheMarkedMen
             };
             string label = CrossedRaidAlertUtility.BuildRaidLetterLabel(def.letterLabel.NullOrEmpty() ? "Marked Men horde" : def.letterLabel, pawns, letterParms.points);
             string text = CrossedRaidAlertUtility.BuildRaidLetterText(def.letterText, pawns, letterParms, true);
+            if (label == null || text == null)
+            {
+                return;
+            }
             Find.LetterStack.ReceiveLetter(label, text, def.letterDef ?? LetterDefOf.ThreatBig, new LookTargets(pawns));
         }
     }
@@ -3643,8 +3763,22 @@ namespace TheMarkedMen
 
         private static PawnKindDef PickProbeKind(float points)
         {
-            // Always return CA_CrossedCivilian for consistency
-            return CADefOf.CrossedCivilian;
+            // When variantsOnlyInRaids is true (default), variants can spawn in raids
+            // When false, only CA_CrossedCivilian spawns
+
+            float normalizedThreat = Mathf.InverseLerp(5000f, 50000f, points);
+            PawnKindDef selected = null;
+            float totalWeight = 0f;
+
+            TheMarkedMenSettings.AddWeightedKind(ref selected, ref totalWeight, CADefOf.CrossedScout, Mathf.Lerp(4f, 6f, normalizedThreat));
+            TheMarkedMenSettings.AddWeightedKind(ref selected, ref totalWeight, CADefOf.CrossedHunter, Mathf.Lerp(3f, 5f, normalizedThreat));
+            TheMarkedMenSettings.AddWeightedKind(ref selected, ref totalWeight, CADefOf.CrossedShooter, Mathf.Lerp(2f, 4f, normalizedThreat));
+            TheMarkedMenSettings.AddWeightedKind(ref selected, ref totalWeight, CADefOf.CrossedCivilian, 3f);
+            TheMarkedMenSettings.AddWeightedKind(ref selected, ref totalWeight, CADefOf.CrossedPyromaniac, points >= 220f ? Mathf.Lerp(0.5f, 1.75f, normalizedThreat) : 0f);
+            TheMarkedMenSettings.AddWeightedKind(ref selected, ref totalWeight, CADefOf.CrossedRaider, points >= 350f ? 0.5f : 0f);
+            TheMarkedMenSettings.AddWeightedKind(ref selected, ref totalWeight, CADefOf.CrossedBrute, points >= 500f ? 0.35f : 0f);
+
+            return selected ?? CADefOf.CrossedScout ?? CADefOf.CrossedHunter ?? CADefOf.CrossedCivilian;
         }
 
         private void SendProbeLetter(List<Pawn> pawns, IncidentParms parms)
@@ -3663,6 +3797,10 @@ namespace TheMarkedMen
             };
             string label = CrossedRaidAlertUtility.BuildRaidLetterLabel(def.letterLabel.NullOrEmpty() ? "Marked Men scouting pack" : def.letterLabel, pawns, letterParms.points);
             string text = CrossedRaidAlertUtility.BuildRaidLetterText(def.letterText, pawns, letterParms, false);
+            if (label == null || text == null)
+            {
+                return;
+            }
             Find.LetterStack.ReceiveLetter(label, text, def.letterDef ?? LetterDefOf.ThreatSmall, new LookTargets(pawns));
         }
     }
@@ -3877,8 +4015,23 @@ namespace TheMarkedMen
 
         private PawnKindDef PickAmbushKind(float points, int count, bool allowAlpha)
         {
-            // Always return CA_CrossedCivilian for consistency
-            return CADefOf.CrossedCivilian;
+            // When variantsOnlyInRaids is true (default), variants can spawn in raids
+            // When false, only CA_CrossedCivilian spawns
+
+            float normalizedThreat = Mathf.InverseLerp(5000f, 50000f, points);
+            float storytellerFactor = IsMarkedManStoryteller ? 1.5f : 1f;
+
+            PawnKindDef selected = null;
+            float totalWeight = 0f;
+
+            TheMarkedMenSettings.AddWeightedKind(ref selected, ref totalWeight, CADefOf.CrossedCivilian, 8f);
+            TheMarkedMenSettings.AddWeightedKind(ref selected, ref totalWeight, CADefOf.CrossedHunter, Mathf.Lerp(3f, 10f, normalizedThreat) * storytellerFactor);
+            TheMarkedMenSettings.AddWeightedKind(ref selected, ref totalWeight, CADefOf.CrossedScout, Mathf.Lerp(2f, 6f, normalizedThreat));
+            TheMarkedMenSettings.AddWeightedKind(ref selected, ref totalWeight, CADefOf.CrossedPyromaniac, Mathf.Lerp(1f, 4f, normalizedThreat) * storytellerFactor);
+            TheMarkedMenSettings.AddWeightedKind(ref selected, ref totalWeight, CADefOf.CrossedBrute, Mathf.Lerp(0.5f, 3f, normalizedThreat) * storytellerFactor);
+            TheMarkedMenSettings.AddWeightedKind(ref selected, ref totalWeight, CADefOf.CrossedAlpha, allowAlpha && count >= 8 ? 0.4f : 0f);
+
+            return selected ?? CADefOf.CrossedCivilian ?? CADefOf.CrossedHunter ?? CADefOf.CrossedScout;
         }
     }
 }
