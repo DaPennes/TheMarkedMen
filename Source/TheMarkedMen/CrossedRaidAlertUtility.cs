@@ -11,14 +11,44 @@ namespace TheMarkedMen
     {
         public static string BuildRaidLetterLabel(string fallbackLabel, List<Pawn> pawns, float points)
         {
-            // Use vanilla label format - let the base game generate the standard raid alert
-            return null;
+            // Return the fallback label (from incident def letterLabel) for vanilla-style raid alert
+            return fallbackLabel;
         }
 
         public static string BuildRaidLetterText(string baseText, List<Pawn> pawns, IncidentParms parms, bool horde)
         {
-            // Return null to prevent custom letter - let vanilla handle it
-            return null;
+            // Build detailed raid text similar to vanilla
+            if (baseText.NullOrEmpty())
+            {
+                baseText = "A group of infected is attacking your colony.";
+            }
+            
+            StringBuilder sb = new StringBuilder();
+            sb.AppendLine(baseText);
+            sb.AppendLine();
+            
+            string threatTier = DescribeThreatTier(parms?.points ?? 0f);
+            sb.AppendLine("Threat level: " + threatTier.CapitalizeFirst());
+            
+            string approach = DescribeApproach(Find.CurrentMap, pawns);
+            sb.AppendLine("Approach: " + approach);
+            
+            string strategy = DescribeAssaultPattern(parms, horde);
+            sb.AppendLine("Strategy: " + strategy);
+            
+            string composition = DescribeComposition(pawns);
+            if (!composition.NullOrEmpty())
+            {
+                sb.AppendLine("Composition: " + composition);
+            }
+            
+            string priority = DescribePriorityTargets(pawns);
+            if (!priority.NullOrEmpty())
+            {
+                sb.AppendLine("Priority targets: " + priority);
+            }
+            
+            return sb.ToString();
         }
 
         public static string DescribeThreatTier(float points)
