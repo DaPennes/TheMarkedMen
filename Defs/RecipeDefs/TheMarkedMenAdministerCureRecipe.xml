@@ -7,6 +7,16 @@
     <jobString>Administering cure syringe.</jobString>
     <workerClass>TheMarkedMen.RecipeWorker_AdministerCure</workerClass>
     <workAmount>800</workAmount>
+    <workSkill>Medicine</workSkill>
+    <workSpeedStat>MedicalOperationSpeed</workSpeedStat>
+    <effectWorking>Surgery</effectWorking>
+    <soundWorking>Recipe_Surgery</soundWorking>
+    <recipeUsers>
+      <li>Human</li>
+    </recipeUsers>
+    <targetsBodyPart>false</targetsBodyPart>
+    <hideBodyPartNames>true</hideBodyPartNames>
+    <anesthetize>false</anesthetize>
     <ingredients>
       <li>
         <filter>
@@ -17,5 +27,10 @@
         <count>1</count>
       </li>
     </ingredients>
+    <fixedIngredientFilter>
+      <thingDefs>
+        <li>TheMarkedMen_Cure_Syringe</li>
+      </thingDefs>
+    </fixedIngredientFilter>
   </RecipeDef>
 </Defs>

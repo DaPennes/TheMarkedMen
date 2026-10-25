@@ -25,29 +25,6 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
             LongEventHandler.ExecuteWhenFinished(() => Settings?.AutoEnableRjwIntegrationIfInstalled());
             LongEventHandler.ExecuteWhenFinished(CrossedCompatibility.LogDetectedMods);
             LongEventHandler.ExecuteWhenFinished(CrossedUtility.ApplyMarkedVirusResistanceEquippedStatOffsets);
-            LongEventHandler.ExecuteWhenFinished(InitializeCureSurgeryRecipe);
-        }
-
-        private static void InitializeCureSurgeryRecipe()
-        {
-            RecipeDef recipe = DefDatabase<RecipeDef>.GetNamedSilentFail("TheMarkedMen_AdministerCure");
-            if (recipe != null)
-            {
-                var field = AccessTools.Field(typeof(RecipeDef), "isSurgery");
-                if (field != null)
-                {
-                    field.SetValue(recipe, true);
-                    Log.Message("[The Marked Men] Set isSurgery=true on TheMarkedMen_AdministerCure recipe");
-                }
-                else
-                {
-                    Log.Warning("[The Marked Men] isSurgery field NOT found on RecipeDef - operation may not appear in Health tab");
-                }
-            }
-            else
-            {
-                Log.Warning("[The Marked Men] TheMarkedMen_AdministerCure recipe NOT found in DefDatabase!");
-            }
         }
 
         public override string SettingsCategory()
@@ -1753,6 +1730,7 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
         private List<Pawn> corpseLingeringPawns = new List<Pawn>();
         private List<int> corpseLingeringTicks = new List<int>();
         private List<int> corpseLingeringLastSeenTicks = new List<int>();
+        private List<CureOriginRecord> cureOrigins = new List<CureOriginRecord>();
         private readonly Dictionary<int, (Caravan caravan, int ambushTick)> trackedCaravans = new Dictionary<int, (Caravan, int)>();
         private int nextCaravanAmbushUpdateTick;
         private int lastRaidWarningTick = -999999;
@@ -1760,6 +1738,79 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
         public TheMarkedMenGameComponent(Game game)
         {
             this.game = game;
+        }
+
+        /// <summary>
+        /// Records a pawn's identity before it is turned into a Marked Man.
+        /// The cure uses this to restore the previous faction, kind and xenotype.
+        /// </summary>
+        public void RecordCureOrigin(Pawn pawn)
+        {
+            if (pawn == null || pawn.Dead || pawn.Destroyed)
+                return;
+
+            if (cureOrigins == null)
+                cureOrigins = new List<CureOriginRecord>();
+            if (FindCureOrigin(pawn) != null)
+                return;
+
+            Faction crossed = Find.FactionManager?.FirstFactionOfDef(CADefOf.CrossedFaction);
+            if (crossed != null && pawn.Faction == crossed)
+                return;
+
+            CureOriginRecord record = new CureOriginRecord
+            {
+                pawn = pawn,
+                faction = pawn.Faction,
+                kind = pawn.kindDef
+            };
+            if (ModsConfig.BiotechActive && pawn.genes != null)
+            {
+                record.xenotype = pawn.genes.Xenotype;
+            }
+            cureOrigins.Add(record);
+        }
+
+        public CureOriginRecord TakeCureOrigin(Pawn pawn)
+        {
+            if (pawn == null || cureOrigins == null)
+                return null;
+
+            for (int i = 0; i < cureOrigins.Count; i++)
+            {
+                CureOriginRecord record = cureOrigins[i];
+                if (record?.pawn != pawn)
+                    continue;
+
+                cureOrigins.RemoveAt(i);
+                return record;
+            }
+
+            return null;
+        }
+
+        private CureOriginRecord FindCureOrigin(Pawn pawn)
+        {
+            if (pawn == null || cureOrigins == null)
+                return null;
+
+            for (int i = 0; i < cureOrigins.Count; i++)
+            {
+                CureOriginRecord record = cureOrigins[i];
+                if (record != null && record.pawn == pawn)
+                    return record;
+            }
+
+            return null;
+        }
+
+        private void PruneCureOrigins()
+        {
+            if (cureOrigins == null || cureOrigins.Count == 0)
+                return;
+
+            cureOrigins.RemoveAll(record =>
+                record == null || record.pawn == null || record.pawn.Destroyed || record.pawn.Dead);
         }
 
         public override void StartedNewGame()
@@ -1864,6 +1915,15 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
             Scribe_Collections.Look(ref corpseLingeringPawns, "corpseLingeringPawns", LookMode.Reference);
             Scribe_Collections.Look(ref corpseLingeringTicks, "corpseLingeringTicks", LookMode.Value);
             Scribe_Collections.Look(ref corpseLingeringLastSeenTicks, "corpseLingeringLastSeenTicks", LookMode.Value);
+            if (Scribe.mode == LoadSaveMode.Saving)
+            {
+                PruneCureOrigins();
+            }
+            Scribe_Collections.Look(ref cureOrigins, "cureOrigins", LookMode.Deep);
+            if (cureOrigins == null)
+            {
+                cureOrigins = new List<CureOriginRecord>();
+            }
             if (recentIncidents == null)
             {
                 recentIncidents = new List<string>();

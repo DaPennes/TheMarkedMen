@@ -15,6 +15,9 @@
           <categories>
             <li>Medicine</li>
           </categories>
+          <disallowedThingDefs>
+            <li>TheMarkedMen_Cure_Syringe</li>
+          </disallowedThingDefs>
         </filter>
         <count>4</count>
       </li>

@@ -1059,6 +1059,7 @@ namespace TheMarkedMen
 				return;
 			}
 
+			Component?.RecordCureOrigin(pawn);
 			Faction faction = Component?.EnsureCrossedFaction();
 			PawnKindDef kind = PickTransformationKind(pawn);
 			if (kind != null && pawn.kindDef != kind)
@@ -1399,6 +1400,8 @@ namespace TheMarkedMen
 	{
 		return;
 	}
+
+	Component?.RecordCureOrigin(pawn);
 
 	// Apply CA_MarkedTurned hediff to mark this pawn as virus-transformed
 	HediffDef markedTurned = CADefOf.MarkedTurned;

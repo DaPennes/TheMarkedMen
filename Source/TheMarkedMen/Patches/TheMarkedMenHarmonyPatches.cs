@@ -598,31 +598,4 @@ namespace TheMarkedMen
             }
         }
     }
-
-    [HarmonyPatch(typeof(RecipeDef), MethodType.Constructor)]
-    public static class Patch_RecipeDef_CureSurgeryFlag
-    {
-        public static void Postfix(RecipeDef __instance)
-        {
-            if (__instance.defName != "TheMarkedMen_AdministerCure")
-            {
-                return;
-            }
-
-            // Try multiple possible field names for the surgery flag
-            string[] fieldNames = { "isSurgery", "surgery", "IsSurgery", "surgeryRecipe" };
-            foreach (string name in fieldNames)
-            {
-                var field = AccessTools.Field(typeof(RecipeDef), name);
-                if (field != null)
-                {
-                    field.SetValue(__instance, true);
-                    Log.Message($"[The Marked Men] Constructor patch: Set {name}=true on TheMarkedMen_AdministerCure");
-                    return;
-                }
-            }
-
-            Log.Warning("[The Marked Men] No surgery flag field found on RecipeDef - operation will not appear in Health tab");
-        }
-    }
 }

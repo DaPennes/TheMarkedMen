@@ -1,107 +1,121 @@
 using System.Collections.Generic;
-using System.Linq;
 using RimWorld;
 using UnityEngine;
 using Verse;
 
 namespace TheMarkedMen
 {
+    /// <summary>
+    /// Gives cure syringes a "Inject cure" gizmo and a right-click float menu
+    /// option. Injecting consumes one syringe from the stack.
+    /// </summary>
     public class CompInjectCure : ThingComp
     {
         public override IEnumerable<Gizmo> CompGetGizmosExtra()
         {
-            foreach (Gizmo g in base.CompGetGizmosExtra())
-                yield return g;
+            foreach (Gizmo gizmo in base.CompGetGizmosExtra())
+                yield return gizmo;
 
-            if (parent.IsForbidden(Faction.OfPlayer))
+            if (!CanUseNow())
                 yield break;
 
             yield return new Command_Action
             {
-                defaultLabel = "Inject Cure",
-                defaultDesc = "Inject the Marked Virus cure into a selected target pawn.",
+                defaultLabel = "TheMarkedMen_InjectCureGizmoLabel".Translate(),
+                defaultDesc = "TheMarkedMen_InjectCureGizmoDesc".Translate(),
                 icon = ContentFinder<Texture2D>.Get("Item/Cure/Cure_Syringe", false),
-                action = delegate
-                {
-                    List<Pawn> targets = Find.Maps.SelectMany(m => m.mapPawns.AllPawns)
-                        .Where(p => p.RaceProps.Humanlike && !p.Dead)
-                        .ToList();
-
-                    if (targets.Count == 0)
-                    {
-                        Messages.Message("No valid targets found.", MessageTypeDefOf.RejectInput);
-                        return;
-                    }
-
-                    Find.Targeter.BeginTargeting(new TargetingParameters
-                    {
-                        canTargetPawns = true,
-                        canTargetLocations = false,
-                        validator = p => p.Thing is Pawn pawn && pawn.RaceProps.Humanlike && !pawn.Dead
-                    }, target =>
-                    {
-                        Pawn pawn = target.Thing as Pawn;
-                        if (pawn != null)
-                        {
-                            ApplyCure(pawn);
-                        }
-                    });
-                }
+                action = BeginTargeting
             };
         }
 
-        private void ApplyCure(Pawn pawn)
+        public override IEnumerable<FloatMenuOption> CompFloatMenuOptions(Pawn selPawn)
         {
-            // Consume 1 cure syringe from stack
-            if (parent.stackCount > 1)
+            foreach (FloatMenuOption option in base.CompFloatMenuOptions(selPawn))
+                yield return option;
+
+            if (!CanUseNow())
+                yield break;
+
+            if (selPawn != null && !selPawn.Dead)
             {
-                parent.SplitOff(1).Destroy();
-            }
-            else
-            {
-                parent.Destroy();
+                AcceptanceReport report = CureUtility.CanCure(selPawn);
+                string label = "TheMarkedMen_InjectCureInto".Translate(selPawn.LabelShort).Resolve();
+
+                if (report.Accepted)
+                    yield return new FloatMenuOption(label, delegate { InjectInto(selPawn); });
+                else
+                    yield return new FloatMenuOption(label + " (" + report.Reason + ")", null);
             }
 
-            // Remove all Marked Men hediff
-            List<Hediff> toRemove = new List<Hediff>();
-            foreach (Hediff h in pawn.health.hediffSet.hediffs)
+            yield return new FloatMenuOption("TheMarkedMen_InjectCureChooseTarget".Translate(), BeginTargeting);
+        }
+
+        public override IEnumerable<FloatMenuOption> CompMultiSelectFloatMenuOptions(IEnumerable<Pawn> selPawns)
+        {
+            foreach (FloatMenuOption option in base.CompMultiSelectFloatMenuOptions(selPawns))
+                yield return option;
+
+            if (!CanUseNow())
+                yield break;
+
+            yield return new FloatMenuOption("TheMarkedMen_InjectCureChooseTarget".Translate(), BeginTargeting);
+        }
+
+        private bool CanUseNow()
+        {
+            return parent != null
+                && !parent.DestroyedOrNull()
+                && parent.Spawned
+                && parent.Map != null
+                && parent.stackCount > 0
+                && !parent.IsForbidden(Faction.OfPlayer);
+        }
+
+        private void BeginTargeting()
+        {
+            if (!CanUseNow())
+                return;
+
+            Find.Targeter.BeginTargeting(new TargetingParameters
             {
-                if (h.def == CADefOf.CrossVirus ||
-                    h.def == CADefOf.MarkedTurned ||
-                    h.def == CADefOf.BloodRush ||
-                    h.def == CADefOf.CrossedRash ||
-                    h.def.defName.Contains("Marked") ||
-                    h.def.defName.Contains("Crossed"))
+                canTargetPawns = true,
+                canTargetHumans = true,
+                canTargetAnimals = true,
+                canTargetMechs = false,
+                canTargetSubhumans = true,
+                canTargetEntities = false,
+                canTargetBuildings = false,
+                canTargetFires = false,
+                canTargetItems = false,
+                canTargetLocations = false,
+                canTargetPlants = false,
+                validator = target =>
                 {
-                    toRemove.Add(h);
+                    Pawn pawn = target.Thing as Pawn;
+                    return pawn != null && CureUtility.CanCure(pawn).Accepted;
                 }
-            }
-            foreach (Hediff h in toRemove)
-                pawn.health.RemoveHediff(h);
-
-            // Restore to player faction
-            if (pawn.Faction != Faction.OfPlayer && pawn.Faction != null)
+            }, target =>
             {
-                pawn.SetFaction(Faction.OfPlayer);
-            }
+                Pawn pawn = target.Thing as Pawn;
+                if (pawn != null)
+                    InjectInto(pawn);
+            });
+        }
 
-            // Add Victim Remorse hediff
-            if (CADefOf.VictimRemorse != null)
+        private void InjectInto(Pawn target)
+        {
+            if (!CanUseNow())
+                return;
+
+            string reason;
+            if (!CureUtility.TryCure(target, out reason))
             {
-                pawn.health.AddHediff(CADefOf.VictimRemorse);
+                Messages.Message(reason.NullOrEmpty() ? "TheMarkedMen_CannotInject".Translate() : reason,
+                    target, MessageTypeDefOf.RejectInput);
+                return;
             }
 
-            // Heal all injuries
-            List<Hediff> injuries = new List<Hediff>();
-            pawn.health.hediffSet.GetHediffs(ref injuries);
-            for (int i = 0; i < injuries.Count; i++)
-            {
-                Hediff_Injury injury = injuries[i] as Hediff_Injury;
-                if (injury != null)
-                    injury.Heal(injury.Severity);
-            }
-
-            Messages.Message("TheMarkedMen_MessageCured".Translate(pawn.Named("PAWN")), pawn, MessageTypeDefOf.PositiveEvent);
+            CureUtility.ConsumeOne(parent);
         }
     }
 }

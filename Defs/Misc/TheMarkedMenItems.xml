@@ -3,18 +3,34 @@
   <ThingDef>
     <defName>TheMarkedMen_Cure_Syringe</defName>
     <label>Marked Virus cure syringe</label>
-    <description>A cure for the Marked Virus infection.</description>
+    <description>A syringe containing a cure for the Marked Virus. It can be administered through a medical operation or injected directly into an infected pawn.</description>
     <thingClass>TheMarkedMen.Thing_CureSyringe</thingClass>
     <category>Item</category>
+    <thingCategories>
+      <li>Medicine</li>
+    </thingCategories>
     <selectable>true</selectable>
     <altitudeLayer>Item</altitudeLayer>
+    <useHitPoints>true</useHitPoints>
+    <alwaysHaulable>true</alwaysHaulable>
+    <drawerType>MapMeshOnly</drawerType>
+    <resourceReadoutPriority>Middle</resourceReadoutPriority>
+    <rotatable>false</rotatable>
+    <pathCost>14</pathCost>
+    <drawGUIOverlay>true</drawGUIOverlay>
     <stackLimit>10</stackLimit>
+    <statBases>
+      <MarketValue>100</MarketValue>
+      <Mass>0.5</Mass>
+      <DeteriorationRate>2</DeteriorationRate>
+    </statBases>
     <graphicData>
       <texPath>Item/Cure/Cure_Syringe</texPath>
       <graphicClass>Graphic_Single</graphicClass>
       <drawSize>1</drawSize>
     </graphicData>
     <comps>
+      <li Class="CompProperties_Forbiddable" />
       <li Class="TheMarkedMen.CompProperties_InjectCure" />
     </comps>
   </ThingDef>
