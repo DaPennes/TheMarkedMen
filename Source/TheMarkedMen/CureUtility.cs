@@ -33,6 +33,7 @@ namespace TheMarkedMen
     {
         public const string CureSyringeDefName = "TheMarkedMen_Cure_Syringe";
         private const string ModPackageId = "dapennes.themarkedmen";
+        private const int RemorseThoughtDurationDays = 90;
 
         // Hediffs from this mod that must survive a cure.
         private static readonly HashSet<string> PreservedModHediffs = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
@@ -132,6 +133,7 @@ namespace TheMarkedMen
             if (remorse != null && !pawn.health.hediffSet.HasHediff(remorse))
                 pawn.health.AddHediff(remorse);
 
+            AddRemorseThought(pawn);
             HealInjuries(pawn);
             pawn.Drawer?.renderer?.SetAllGraphicsDirty();
 
@@ -196,6 +198,41 @@ namespace TheMarkedMen
 
             if (target != null && pawn.genes.Xenotype != target)
                 pawn.genes.SetXenotypeDirect(target);
+        }
+
+        private static void AddRemorseThought(Pawn pawn)
+        {
+            ThoughtDef thoughtDef = CADefOf.RememberEverything;
+            if (thoughtDef == null || pawn?.needs?.mood?.thoughts?.memories == null)
+                return;
+
+            if (pawn.needs.mood.thoughts.memories.GetFirstMemoryOfDef(thoughtDef) == null)
+                pawn.needs.mood.thoughts.memories.TryGainMemoryFast(thoughtDef);
+
+            Thought_Memory memory = pawn.needs.mood.thoughts.memories.GetFirstMemoryOfDef(thoughtDef);
+            if (memory != null)
+            {
+                memory.permanent = false;
+                memory.durationTicksOverride = RemorseThoughtDurationDays * GenDate.TicksPerDay;
+            }
+        }
+
+        /// <summary>
+        /// Converts memories left by the earlier permanent version of the
+        /// debuff into 90-day memories. Does not re-add expired memories.
+        /// </summary>
+        public static void NormalizeRemorseThought(Pawn pawn)
+        {
+            ThoughtDef thoughtDef = CADefOf.RememberEverything;
+            if (thoughtDef == null || pawn?.needs?.mood?.thoughts?.memories == null)
+                return;
+
+            Thought_Memory memory = pawn.needs.mood.thoughts.memories.GetFirstMemoryOfDef(thoughtDef);
+            if (memory == null)
+                return;
+
+            memory.permanent = false;
+            memory.durationTicksOverride = RemorseThoughtDurationDays * GenDate.TicksPerDay;
         }
 
         private static void HealInjuries(Pawn pawn)

@@ -29,10 +29,5 @@
         </capMods>
       </li>
     </stages>
-    <comps>
-      <li Class="HediffCompProperties_ThoughtSetter">
-        <thought>TheMarkedMen_IRememberEverything</thought>
-      </li>
-    </comps>
   </HediffDef>
 </Defs>

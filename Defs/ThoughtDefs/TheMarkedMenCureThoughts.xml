@@ -3,6 +3,7 @@
   <ThoughtDef>
     <defName>TheMarkedMen_IRememberEverything</defName>
     <thoughtClass>Thought_Memory</thoughtClass>
+    <durationDays>90</durationDays>
     <stackLimit>1</stackLimit>
     <stages>
       <li>

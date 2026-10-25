@@ -3330,6 +3330,7 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
                     CrossedUtility.EnsureStarterLineageResistance(pawns[j]);
                     CrossedUtility.EnsureInfectedState(pawns[j]);
                     CrossedUtility.RemoveMarkedVirusHediffFromFullyTurnedPawn(pawns[j]);
+                    CureUtility.NormalizeRemorseThought(pawns[j]);
                 }
             }
         }

@@ -23,6 +23,7 @@ namespace TheMarkedMen
 
         private int nextFastTick;
         private int nextRareTick;
+        private int nextRestrainedContagionTick;
         private int nextSelfHarmTick;
         private int nextCosmeticTick;
         private int nextPrisonerRefreshTick;
@@ -62,6 +63,12 @@ namespace TheMarkedMen
             {
                 nextRareTick = tick + RareTickInterval;
                 TickRare();
+            }
+
+            if (tick >= nextRestrainedContagionTick)
+            {
+                nextRestrainedContagionTick = tick + TheMarkedMenSettings.ContagionPulseIntervalTicks;
+                TickRestrainedContagion();
             }
 
             if (tick >= nextSelfHarmTick)
@@ -152,6 +159,25 @@ namespace TheMarkedMen
                 {
                     TryBreakDoor(pawn);
                 }
+            }
+        }
+
+        private void TickRestrainedContagion()
+        {
+            if (cachedMarkedPrisoners.Count == 0 || Settings == null || !Settings.prisonerInfectionEnabled)
+            {
+                return;
+            }
+
+            for (int i = 0; i < cachedMarkedPrisoners.Count; i++)
+            {
+                Pawn pawn = cachedMarkedPrisoners[i];
+                if (pawn == null || pawn.Dead || !pawn.Spawned || !pawn.IsPrisonerOfColony || !IsRestrained(pawn))
+                {
+                    continue;
+                }
+
+                CrossedContagionUtility.TryRestrainedPrisonerContagion(pawn);
             }
         }
 
@@ -842,6 +868,7 @@ namespace TheMarkedMen
             base.ExposeData();
             Scribe_Values.Look(ref nextFastTick, "nextFastTick", 0);
             Scribe_Values.Look(ref nextRareTick, "nextRareTick", 0);
+            Scribe_Values.Look(ref nextRestrainedContagionTick, "nextRestrainedContagionTick", 0);
             Scribe_Values.Look(ref nextSelfHarmTick, "nextSelfHarmTick", 0);
             Scribe_Values.Look(ref nextCosmeticTick, "nextCosmeticTick", 0);
             Scribe_Values.Look(ref nextPrisonerRefreshTick, "nextPrisonerRefreshTick", 0);

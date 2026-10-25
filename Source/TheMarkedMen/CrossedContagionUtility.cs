@@ -11,22 +11,63 @@ namespace TheMarkedMen
         private const float ContagionRadiusSquared = ContagionRadius * ContagionRadius;
         private const int ContagionPulseIntervalTicks = 500;
         private const int MaxContagionTargetsPerPulse = 3;
+        public const float RestrainedPrisonerExposureChance = 0.02f;
 
         public static void TryContagionPulse(Pawn source)
+        {
+            if (!CanStartContagionPulse(source))
+            {
+                return;
+            }
+
+            if (!source.IsHashIntervalTick(TheMarkedMenSettings.ContagionPulseIntervalTicks))
+            {
+                return;
+            }
+
+            DoContagionPulse(source, TheMarkedMenSettings.CloseContactExposureChance);
+        }
+
+        /// <summary>
+        /// Restrained infected prisoners cannot attack, but they can still
+        /// expose someone tending or standing close to them. The chance is
+        /// deliberately tiny so restraint remains a meaningful containment.
+        /// </summary>
+        public static void TryRestrainedPrisonerContagion(Pawn source)
+        {
+            if (source == null || !source.IsPrisonerOfColony || !MarkedPrisonerManager.IsRestrained(source))
+            {
+                return;
+            }
+
+            if (!CanStartContagionPulse(source))
+            {
+                return;
+            }
+
+            DoContagionPulse(source, RestrainedPrisonerExposureChance);
+        }
+
+        private static bool CanStartContagionPulse(Pawn source)
         {
             TheMarkedMenSettings settings = TheMarkedMenMod.Settings;
             if (settings != null && !settings.infectionEnabled)
             {
-                return;
+                return false;
             }
 
             if (source == null || source.Dead || !source.Spawned || source.Map == null || !CrossedUtility.IsInfectedPawn(source))
             {
-                return;
+                return false;
             }
 
+            return TheMarkedMenSettings.MaxContagionTargetsPerPulse > 0;
+        }
+
+        private static void DoContagionPulse(Pawn source, float exposureChance)
+        {
             int maxTargets = TheMarkedMenSettings.MaxContagionTargetsPerPulse;
-            if (maxTargets <= 0 || !source.IsHashIntervalTick(TheMarkedMenSettings.ContagionPulseIntervalTicks))
+            if (maxTargets <= 0)
             {
                 return;
             }
@@ -60,7 +101,7 @@ namespace TheMarkedMen
                     {
                         if (things[t] is Pawn target && CanContagionReach(source, target))
                         {
-                            if (CrossedUtility.TryExpose(target, TheMarkedMenSettings.CloseContactExposureChance, "contagious Marked Virus contact", source))
+                            if (CrossedUtility.TryExpose(target, exposureChance, "contagious Marked Virus contact", source))
                             {
                                 exposedTargets++;
                                 if (exposedTargets >= maxTargets)
