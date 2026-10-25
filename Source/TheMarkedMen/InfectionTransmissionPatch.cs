@@ -1,5 +1,6 @@
 ﻿using HarmonyLib;
 using RimWorld;
+using UnityEngine;
 using Verse;
 
 namespace TheMarkedMen
@@ -47,6 +48,11 @@ namespace TheMarkedMen
             }
 
             float infectionChance = CrossedDamageUtility.GetInfectChanceForAttack(dinfo, victim);
+            if (attacker.IsPrisonerOfColony)
+            {
+                infectionChance = Mathf.Min(infectionChance, CrossedContagionUtility.GetPrisonerExposureChance(attacker));
+            }
+
             if (infectionChance <= 0f)
             {
                 return;
@@ -75,6 +81,11 @@ namespace TheMarkedMen
             }
 
             float infectionChance = CrossedDamageUtility.GetInfectChanceForAttack(dinfo, victim);
+            if (attacker.IsPrisonerOfColony)
+            {
+                infectionChance = Mathf.Min(infectionChance, CrossedContagionUtility.GetPrisonerExposureChance(attacker));
+            }
+
             if (infectionChance <= 0f)
             {
                 return;

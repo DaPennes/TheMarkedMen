@@ -11,7 +11,8 @@ namespace TheMarkedMen
         private const float ContagionRadiusSquared = ContagionRadius * ContagionRadius;
         private const int ContagionPulseIntervalTicks = 500;
         private const int MaxContagionTargetsPerPulse = 3;
-        public const float RestrainedPrisonerExposureChance = 0.02f;
+        public const float RestrainedPrisonerExposureChance = 0.000005f; // 0.0005%
+        public const float UnrestrainedPrisonerExposureChance = 0.02f; // 2%
 
         public static void TryContagionPulse(Pawn source)
         {
@@ -28,14 +29,21 @@ namespace TheMarkedMen
             DoContagionPulse(source, TheMarkedMenSettings.CloseContactExposureChance);
         }
 
-        /// <summary>
-        /// Restrained infected prisoners cannot attack, but they can still
-        /// expose someone tending or standing close to them. The chance is
-        /// deliberately tiny so restraint remains a meaningful containment.
-        /// </summary>
-        public static void TryRestrainedPrisonerContagion(Pawn source)
+        public static float GetPrisonerExposureChance(Pawn source)
         {
-            if (source == null || !source.IsPrisonerOfColony || !MarkedPrisonerManager.IsRestrained(source))
+            return MarkedPrisonerManager.IsRestrained(source)
+                ? RestrainedPrisonerExposureChance
+                : UnrestrainedPrisonerExposureChance;
+        }
+
+        /// <summary>
+        /// Infected prisoners can expose someone tending or standing close to
+        /// them. Restraint makes transmission extremely unlikely; an
+        /// unrestrained prisoner is a much greater risk.
+        /// </summary>
+        public static void TryPrisonerContagion(Pawn source)
+        {
+            if (source == null || !source.IsPrisonerOfColony)
             {
                 return;
             }
@@ -45,7 +53,7 @@ namespace TheMarkedMen
                 return;
             }
 
-            DoContagionPulse(source, RestrainedPrisonerExposureChance);
+            DoContagionPulse(source, GetPrisonerExposureChance(source));
         }
 
         private static bool CanStartContagionPulse(Pawn source)

@@ -23,7 +23,7 @@ namespace TheMarkedMen
 
         private int nextFastTick;
         private int nextRareTick;
-        private int nextRestrainedContagionTick;
+        private int nextPrisonerContagionTick;
         private int nextSelfHarmTick;
         private int nextCosmeticTick;
         private int nextPrisonerRefreshTick;
@@ -65,10 +65,10 @@ namespace TheMarkedMen
                 TickRare();
             }
 
-            if (tick >= nextRestrainedContagionTick)
+            if (tick >= nextPrisonerContagionTick)
             {
-                nextRestrainedContagionTick = tick + TheMarkedMenSettings.ContagionPulseIntervalTicks;
-                TickRestrainedContagion();
+                nextPrisonerContagionTick = tick + TheMarkedMenSettings.ContagionPulseIntervalTicks;
+                TickPrisonerContagion();
             }
 
             if (tick >= nextSelfHarmTick)
@@ -162,7 +162,7 @@ namespace TheMarkedMen
             }
         }
 
-        private void TickRestrainedContagion()
+        private void TickPrisonerContagion()
         {
             if (cachedMarkedPrisoners.Count == 0 || Settings == null || !Settings.prisonerInfectionEnabled)
             {
@@ -172,12 +172,12 @@ namespace TheMarkedMen
             for (int i = 0; i < cachedMarkedPrisoners.Count; i++)
             {
                 Pawn pawn = cachedMarkedPrisoners[i];
-                if (pawn == null || pawn.Dead || !pawn.Spawned || !pawn.IsPrisonerOfColony || !IsRestrained(pawn))
+                if (pawn == null || pawn.Dead || !pawn.Spawned || !pawn.IsPrisonerOfColony)
                 {
                     continue;
                 }
 
-                CrossedContagionUtility.TryRestrainedPrisonerContagion(pawn);
+                CrossedContagionUtility.TryPrisonerContagion(pawn);
             }
         }
 
@@ -570,7 +570,9 @@ namespace TheMarkedMen
                 target.TakeDamage(dinfo);
                 lastSuccessfulAttackTick[prisoner.thingIDNumber] = tick;
 
-                float infectionChance = CrossedDamageUtility.GetInfectChanceForAttack(dinfo, target);
+                float infectionChance = Mathf.Min(
+                    CrossedDamageUtility.GetInfectChanceForAttack(dinfo, target),
+                    CrossedContagionUtility.GetPrisonerExposureChance(prisoner));
                 CrossedUtility.TryExpose(target, infectionChance, "marked prisoner attack", prisoner);
 
                 if (dinfo.Def == DamageDefOf.Bite)
@@ -868,7 +870,7 @@ namespace TheMarkedMen
             base.ExposeData();
             Scribe_Values.Look(ref nextFastTick, "nextFastTick", 0);
             Scribe_Values.Look(ref nextRareTick, "nextRareTick", 0);
-            Scribe_Values.Look(ref nextRestrainedContagionTick, "nextRestrainedContagionTick", 0);
+            Scribe_Values.Look(ref nextPrisonerContagionTick, "nextPrisonerContagionTick", 0);
             Scribe_Values.Look(ref nextSelfHarmTick, "nextSelfHarmTick", 0);
             Scribe_Values.Look(ref nextCosmeticTick, "nextCosmeticTick", 0);
             Scribe_Values.Look(ref nextPrisonerRefreshTick, "nextPrisonerRefreshTick", 0);

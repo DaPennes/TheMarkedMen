@@ -226,7 +226,7 @@ namespace TheMarkedMen
                 attackJob.checkOverrideOnExpire = true;
                 pawn.jobs.TryTakeOrderedJob(attackJob, JobTag.Misc);
 
-                float infectChance = 0.5f;
+                float infectChance = CrossedContagionUtility.GetPrisonerExposureChance(pawn);
                 CrossedUtility.TryExpose(roomTarget, infectChance, "marked prisoner escape attack", pawn);
 
                 if (settings.prisonerDebugLogging)
