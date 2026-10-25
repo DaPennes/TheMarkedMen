@@ -25,6 +25,29 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
             LongEventHandler.ExecuteWhenFinished(() => Settings?.AutoEnableRjwIntegrationIfInstalled());
             LongEventHandler.ExecuteWhenFinished(CrossedCompatibility.LogDetectedMods);
             LongEventHandler.ExecuteWhenFinished(CrossedUtility.ApplyMarkedVirusResistanceEquippedStatOffsets);
+            LongEventHandler.ExecuteWhenFinished(InitializeCureSurgeryRecipe);
+        }
+
+        private static void InitializeCureSurgeryRecipe()
+        {
+            RecipeDef recipe = DefDatabase<RecipeDef>.GetNamedSilentFail("TheMarkedMen_AdministerCure");
+            if (recipe != null)
+            {
+                var field = AccessTools.Field(typeof(RecipeDef), "isSurgery");
+                if (field != null)
+                {
+                    field.SetValue(recipe, true);
+                    Log.Message("[The Marked Men] Set isSurgery=true on TheMarkedMen_AdministerCure recipe");
+                }
+                else
+                {
+                    Log.Warning("[The Marked Men] isSurgery field NOT found on RecipeDef - operation may not appear in Health tab");
+                }
+            }
+            else
+            {
+                Log.Warning("[The Marked Men] TheMarkedMen_AdministerCure recipe NOT found in DefDatabase!");
+            }
         }
 
         public override string SettingsCategory()

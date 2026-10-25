@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+  <RecipeDef>
+    <defName>TheMarkedMen_AdministerCure</defName>
+    <label>administer cure syringe</label>
+    <description>Inject a Marked Virus cure syringe into a patient to cure the infection.</description>
+    <jobString>Administering cure syringe.</jobString>
+    <workerClass>TheMarkedMen.RecipeWorker_AdministerCure</workerClass>
+    <workAmount>800</workAmount>
+    <ingredients>
+      <li>
+        <filter>
+          <thingDefs>
+            <li>TheMarkedMen_Cure_Syringe</li>
+          </thingDefs>
+        </filter>
+        <count>1</count>
+      </li>
+    </ingredients>
+  </RecipeDef>
+</Defs>

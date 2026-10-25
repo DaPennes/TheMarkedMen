@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+  <RecipeDef>
+    <defName>TheMarkedMen_Cure_Syringe_Make</defName>
+    <label>make cure syringe</label>
+    <description>Craft a cure for the Marked Virus infection.</description>
+    <jobString>Crafting cure syringe.</jobString>
+    <workAmount>2000</workAmount>
+    <recipeUsers>
+      <li>DrugLab</li>
+    </recipeUsers>
+    <ingredients>
+      <li>
+        <filter>
+          <categories>
+            <li>Medicine</li>
+          </categories>
+        </filter>
+        <count>4</count>
+      </li>
+      <li>
+        <filter>
+          <thingDefs>
+            <li>Neutroamine</li>
+          </thingDefs>
+        </filter>
+        <count>1</count>
+      </li>
+    </ingredients>
+    <products>
+      <TheMarkedMen_Cure_Syringe>1</TheMarkedMen_Cure_Syringe>
+    </products>
+  </RecipeDef>
+</Defs>

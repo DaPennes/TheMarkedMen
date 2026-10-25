@@ -10,6 +10,9 @@
   <CA_SurvivorJournal_01>Survivor Journal: They did not forget us. That was the first lesson. The second was that they knew which doors we locked.</CA_SurvivorJournal_01>
   <CA_AudioLog_01>Audio Log C-44: Rash presentation forms a marked vascular pattern across the face and neck. Advanced cases glow red under certain scanner bands.</CA_AudioLog_01>
   <CA_PlanetaryTimeline>Medical timeline: contagious close-contact exposure, infected blood contamination, fast terminal progression, rare slow infection, uncommon immune survival, viral death risk, and Marked Men transformation.</CA_PlanetaryTimeline>
+  <TheMarkedMen_MessageCured>{0} has been cured of the Marked Virus and has recovered.</TheMarkedMen_MessageCured>
+  <TheMarkedMen_MissingCure>Warning: You don't have a cure to administer.</TheMarkedMen_MissingCure>
+  <TheMarkedMen_NotInfected>{0} is not infected with the Marked Virus.</TheMarkedMen_NotInfected>
 
   <!-- Mod Settings Window -->
   <MarkedMen_Settings_Title>The Marked Men - Settings</MarkedMen_Settings_Title>

@@ -1,9 +1,0 @@
-Build succeeded! 0 errors, 0 warnings.
-
-**Summary of fixes:
-1. VehicleFrameworkDebugUtilities.cs: Removed non-existent compatibility references
-2. CrossedTacticalAI.cs: Patched out all TheMarkedMenRjwCompatibility references and fixed logic
-3. IncidentWorker_UrbanAmbush.cs: Created new Urban Ambush incident worker
-4. IncidentWorker_UrbanSurvivor.cs: Created new Urban Survivor incident worker
-
-All 13 compilation errors resolved successfully. The Marked Men mod is now complete and ready to use.
