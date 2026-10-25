@@ -74,6 +74,7 @@ namespace TheMarkedMen
         private static HediffDef soldierDiscipline;
         private static HediffDef fireHunger;
         private static HediffDef warlordPresence;
+        private static HediffDef victimRemorse;
 
         public static HediffDef CrossVirus => crossVirus ?? (crossVirus = DefDatabase<HediffDef>.GetNamedSilentFail("CA_CrossVirus"));
         public static HediffDef CrossVirusImmunity => crossVirusImmunity ?? (crossVirusImmunity = DefDatabase<HediffDef>.GetNamedSilentFail("CA_CrossVirusImmunity"));
@@ -135,6 +136,7 @@ namespace TheMarkedMen
         public static HediffDef SoldierDiscipline => soldierDiscipline ?? (soldierDiscipline = DefDatabase<HediffDef>.GetNamedSilentFail("CA_SoldierDiscipline"));
         public static HediffDef FireHunger => fireHunger ?? (fireHunger = DefDatabase<HediffDef>.GetNamedSilentFail("CA_FireHunger"));
         public static HediffDef WarlordPresence => warlordPresence ?? (warlordPresence = DefDatabase<HediffDef>.GetNamedSilentFail("CA_WarlordPresence"));
+        public static HediffDef VictimRemorse => victimRemorse ?? (victimRemorse = DefDatabase<HediffDef>.GetNamedSilentFail("TheMarkedMen_VictimRemorse"));
         public static IncidentDef CA_LostSurvivor => lostSurvivor ?? (lostSurvivor = DefDatabase<IncidentDef>.GetNamedSilentFail("CA_LostSurvivor"));
         public static ThoughtDef CA_BetrayedByColonist => betrayedByColonist ?? (betrayedByColonist = DefDatabase<ThoughtDef>.GetNamedSilentFail("CA_BetrayedByColonist"));
         public static ThoughtDef CA_BetrayedByColonistSocial => betrayedByColonistSocial ?? (betrayedByColonistSocial = DefDatabase<ThoughtDef>.GetNamedSilentFail("CA_BetrayedByColonistSocial"));

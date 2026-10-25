@@ -41,50 +41,57 @@ namespace TheMarkedMen
 
         private void ApplyCureEffects(Pawn pawn)
         {
-            // Remove CrossVirus infection
-            if (pawn.health.hediffSet.HasHediff(CADefOf.CrossVirus))
+            // Remove ALL Marked Men hediff
+            List<Hediff> toRemove = new List<Hediff>();
+            foreach (Hediff h in pawn.health.hediffSet.hediffs)
             {
-                Hediff virus = pawn.health.hediffSet.GetFirstHediffOfDef(CADefOf.CrossVirus);
-                if (virus != null)
+                if (h.def == CADefOf.CrossVirus ||
+                    h.def == CADefOf.MarkedTurned ||
+                    h.def == CADefOf.BloodRush ||
+                    h.def == CADefOf.CrossedRash ||
+                    h.def == CADefOf.CrossedStrength ||
+                    h.def == CADefOf.CrossedRampage ||
+                    h.def == CADefOf.ScoutAdrenaline ||
+                    h.def == CADefOf.HunterFocus ||
+                    h.def == CADefOf.ShooterRush ||
+                    h.def == CADefOf.RaiderFury ||
+                    h.def == CADefOf.SoldierDiscipline ||
+                    h.def == CADefOf.FireHunger ||
+                    h.def == CADefOf.WarlordPresence ||
+                    h.def == CADefOf.WarlordTier ||
+                    h.def == CADefOf.AlphaTier ||
+                    h.def == CADefOf.MarkedTier ||
+                    h.def == CADefOf.CommandAura ||
+                    h.def == CADefOf.PsychicAura ||
+                    h.def.defName.Contains("Marked") ||
+                    h.def.defName.Contains("Crossed"))
                 {
-                    pawn.health.RemoveHediff(virus);
+                    toRemove.Add(h);
                 }
             }
+            foreach (Hediff h in toRemove)
+                pawn.health.RemoveHediff(h);
 
-            // Remove MarkedTurned status
-            if (pawn.health.hediffSet.HasHediff(CADefOf.MarkedTurned))
-            {
-                Hediff turned = pawn.health.hediffSet.GetFirstHediffOfDef(CADefOf.MarkedTurned);
-                if (turned != null)
-                {
-                    pawn.health.RemoveHediff(turned);
-                }
-            }
-
-            // Restore original faction
+            // Restore to player faction
             if (pawn.Faction != Faction.OfPlayer && pawn.Faction != null)
             {
                 pawn.SetFaction(Faction.OfPlayer);
             }
 
-            // Remove all predator stats/effects
-            if (pawn.health.hediffSet.HasHediff(CADefOf.BloodRush))
+            // Add Victim Remorse hediff
+            if (CADefOf.VictimRemorse != null)
             {
-                pawn.health.RemoveHediff(pawn.health.hediffSet.GetFirstHediffOfDef(CADefOf.BloodRush));
+                pawn.health.AddHediff(CADefOf.VictimRemorse);
             }
 
             // Heal all injuries
-            if (pawn.health.hediffSet == null) return;
-
-            List<Hediff> allHediffs = new List<Hediff>();
-            pawn.health.hediffSet.GetHediffs(ref allHediffs);
-            for (int i = 0; i < allHediffs.Count; i++)
+            List<Hediff> injuries = new List<Hediff>();
+            pawn.health.hediffSet.GetHediffs(ref injuries);
+            for (int i = 0; i < injuries.Count; i++)
             {
-                Hediff_Injury injury = allHediffs[i] as Hediff_Injury;
+                Hediff_Injury injury = injuries[i] as Hediff_Injury;
                 if (injury != null)
-                {
                     injury.Heal(injury.Severity);
-                }
             }
 
             Messages.Message("TheMarkedMen_MessageCured".Translate(pawn.Named("PAWN")), pawn, MessageTypeDefOf.PositiveEvent);

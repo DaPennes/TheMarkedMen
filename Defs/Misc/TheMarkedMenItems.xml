@@ -14,5 +14,8 @@
       <graphicClass>Graphic_Single</graphicClass>
       <drawSize>1</drawSize>
     </graphicData>
+    <comps>
+      <li Class="TheMarkedMen.CompInjectCure" />
+    </comps>
   </ThingDef>
 </Defs>
