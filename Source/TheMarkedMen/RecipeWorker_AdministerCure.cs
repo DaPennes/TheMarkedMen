@@ -27,7 +27,7 @@ namespace TheMarkedMen
                 return;
             }
 
-            cure.SplitOff(cure.stackCount).Destroy();
+            cure.SplitOff(1).Destroy();
 
             // Check if patient has CrossVirus
             if (!pawn.health.hediffSet.HasHediff(CADefOf.CrossVirus))

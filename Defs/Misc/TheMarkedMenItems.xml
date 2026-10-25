@@ -4,11 +4,11 @@
     <defName>TheMarkedMen_Cure_Syringe</defName>
     <label>Marked Virus cure syringe</label>
     <description>A cure for the Marked Virus infection.</description>
-    <thingClass>ThingWithComps</thingClass>
+    <thingClass>TheMarkedMen.Thing_CureSyringe</thingClass>
     <category>Item</category>
     <selectable>true</selectable>
     <altitudeLayer>Item</altitudeLayer>
-    <stackLimit>1</stackLimit>
+    <stackLimit>10</stackLimit>
     <graphicData>
       <texPath>Item/Cure/Cure_Syringe</texPath>
       <graphicClass>Graphic_Single</graphicClass>

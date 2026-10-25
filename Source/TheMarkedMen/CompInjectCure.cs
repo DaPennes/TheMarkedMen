@@ -52,6 +52,16 @@ namespace TheMarkedMen
 
         private void ApplyCure(Pawn pawn)
         {
+            // Consume 1 cure syringe from stack
+            if (parent.stackCount > 1)
+            {
+                parent.SplitOff(1).Destroy();
+            }
+            else
+            {
+                parent.Destroy();
+            }
+
             // Remove all Marked Men hediff
             List<Hediff> toRemove = new List<Hediff>();
             foreach (Hediff h in pawn.health.hediffSet.hediffs)
