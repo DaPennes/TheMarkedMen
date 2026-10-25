@@ -16,8 +16,6 @@
   <TheMarkedMen_OperationInvalidTarget>Invalid target.</TheMarkedMen_OperationInvalidTarget>
   <TheMarkedMen_OperationNotInfected>not infected with the Marked Virus</TheMarkedMen_OperationNotInfected>
   <TheMarkedMen_CannotInject>Cannot inject the cure.</TheMarkedMen_CannotInject>
-  <TheMarkedMen_InjectCureGizmoLabel>Inject cure...</TheMarkedMen_InjectCureGizmoLabel>
-  <TheMarkedMen_InjectCureGizmoDesc>Inject this cure syringe into a pawn infected with the Marked Virus.</TheMarkedMen_InjectCureGizmoDesc>
   <TheMarkedMen_InjectCureInto>Inject cure into {0}</TheMarkedMen_InjectCureInto>
   <TheMarkedMen_InjectCureChooseTarget>Inject cure into...</TheMarkedMen_InjectCureChooseTarget>
 

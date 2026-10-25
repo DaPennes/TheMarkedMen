@@ -1,33 +1,15 @@
 using System.Collections.Generic;
 using RimWorld;
-using UnityEngine;
 using Verse;
 
 namespace TheMarkedMen
 {
     /// <summary>
-    /// Gives cure syringes a "Inject cure" gizmo and a right-click float menu
-    /// option. Injecting consumes one syringe from the stack.
+    /// Gives cure syringes a right-click float menu option to inject.
+    /// Injecting consumes one syringe from the stack.
     /// </summary>
     public class CompInjectCure : ThingComp
     {
-        public override IEnumerable<Gizmo> CompGetGizmosExtra()
-        {
-            foreach (Gizmo gizmo in base.CompGetGizmosExtra())
-                yield return gizmo;
-
-            if (!CanUseNow())
-                yield break;
-
-            yield return new Command_Action
-            {
-                defaultLabel = "TheMarkedMen_InjectCureGizmoLabel".Translate(),
-                defaultDesc = "TheMarkedMen_InjectCureGizmoDesc".Translate(),
-                icon = ContentFinder<Texture2D>.Get("Item/Cure/Cure_Syringe", false),
-                action = BeginTargeting
-            };
-        }
-
         public override IEnumerable<FloatMenuOption> CompFloatMenuOptions(Pawn selPawn)
         {
             foreach (FloatMenuOption option in base.CompFloatMenuOptions(selPawn))
