@@ -15,7 +15,7 @@
       <drawSize>1</drawSize>
     </graphicData>
     <comps>
-      <li Class="TheMarkedMen.CompInjectCure" />
+      <li Class="TheMarkedMen.CompProperties_InjectCure" />
     </comps>
   </ThingDef>
 </Defs>
