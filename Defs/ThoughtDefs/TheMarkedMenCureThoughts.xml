@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+  <ThoughtDef>
+    <defName>TheMarkedMen_IRememberEverything</defName>
+    <thoughtClass>Thought_Memory</thoughtClass>
+    <stackLimit>1</stackLimit>
+    <stages>
+      <li>
+        <label>I Remember everything i did, what i have done</label>
+        <description>Every hour I spent as one of them is still inside my head. I remember the faces. I remember the begging. I remember how easily I stopped listening. The virus is gone, but it gave the memories back—sharp, whole, and impossible to look away from. I did those things. I chose them. Now I have to carry every one of them for the rest of my life.</description>
+        <baseMoodEffect>-50</baseMoodEffect>
+      </li>
+    </stages>
+  </ThoughtDef>
+</Defs>
