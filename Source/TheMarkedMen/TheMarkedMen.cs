@@ -40,7 +40,7 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
 
     public sealed class TheMarkedMenSettings : ModSettings
     {
-        private const int CurrentSettingsVersion = 14;
+        private const int CurrentSettingsVersion = 15;
         public const float InfectionTransmissionChance = 0.45f;
         public const float DefaultMarkedRaidFrequencyMultiplier = 2f;
         public const float MinMarkedRaidFrequencyMultiplier = 0f;
@@ -107,22 +107,22 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
         public bool allowDistributedGroupArrival = true;
         public bool allowDistributedArrival = true;
         public bool allowSingleEdgeArrival = true;
-        public float civilianWeightMultiplier = 0f;
-        public float scoutWeightMultiplier = 0f;
-        public float hunterWeightMultiplier = 0f;
-        public float shooterWeightMultiplier = 0f;
-        public float raiderWeightMultiplier = 0f;
-        public float soldierWeightMultiplier = 0f;
-        public float bruteWeightMultiplier = 0f;
-        public float pyromaniacWeightMultiplier = 0f;
-        public float alphaWeightMultiplier = 0f;
-        public float warlordWeightMultiplier = 0f;
-        public float markedManWeightMultiplier = 0f;
+        public float civilianWeightMultiplier = 1f;
+        public float scoutWeightMultiplier = 1f;
+        public float hunterWeightMultiplier = 1f;
+        public float shooterWeightMultiplier = 1f;
+        public float raiderWeightMultiplier = 1f;
+        public float soldierWeightMultiplier = 1f;
+        public float bruteWeightMultiplier = 1f;
+        public float pyromaniacWeightMultiplier = 1f;
+        public float alphaWeightMultiplier = 1f;
+        public float warlordWeightMultiplier = 1f;
+        public float markedManWeightMultiplier = 1f;
         public int minimumHordeSize = 3;
         public int maximumHordeSize = 12;
         public int minimumProbeSize = 2;
         public int maximumProbeSize = 4;
-        public int maximumAlphasPerRaid = 99;
+        public int maximumAlphasPerRaid = 2;
         public float bloodExposureChance = InfectionTransmissionChance;
         public float foodExposureChance = InfectionTransmissionChance;
         public float rjwExposureChance = InfectionTransmissionChance;
@@ -405,22 +405,22 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
             Scribe_Values.Look(ref allowDistributedGroupArrival, "allowDistributedGroupArrival", true);
             Scribe_Values.Look(ref allowDistributedArrival, "allowDistributedArrival", true);
             Scribe_Values.Look(ref allowSingleEdgeArrival, "allowSingleEdgeArrival", true);
-            Scribe_Values.Look(ref civilianWeightMultiplier, "civilianWeightMultiplier", 0f);
-            Scribe_Values.Look(ref scoutWeightMultiplier, "scoutWeightMultiplier", 0f);
-            Scribe_Values.Look(ref hunterWeightMultiplier, "hunterWeightMultiplier", 0f);
-            Scribe_Values.Look(ref shooterWeightMultiplier, "shooterWeightMultiplier", 0f);
-            Scribe_Values.Look(ref raiderWeightMultiplier, "raiderWeightMultiplier", 0f);
-            Scribe_Values.Look(ref soldierWeightMultiplier, "soldierWeightMultiplier", 0f);
-            Scribe_Values.Look(ref bruteWeightMultiplier, "bruteWeightMultiplier", 0f);
-            Scribe_Values.Look(ref pyromaniacWeightMultiplier, "pyromaniacWeightMultiplier", 0f);
-            Scribe_Values.Look(ref alphaWeightMultiplier, "alphaWeightMultiplier", 0f);
-            Scribe_Values.Look(ref warlordWeightMultiplier, "warlordWeightMultiplier", 0f);
-            Scribe_Values.Look(ref markedManWeightMultiplier, "markedManWeightMultiplier", 0f);
+            Scribe_Values.Look(ref civilianWeightMultiplier, "civilianWeightMultiplier", 1f);
+            Scribe_Values.Look(ref scoutWeightMultiplier, "scoutWeightMultiplier", 1f);
+            Scribe_Values.Look(ref hunterWeightMultiplier, "hunterWeightMultiplier", 1f);
+            Scribe_Values.Look(ref shooterWeightMultiplier, "shooterWeightMultiplier", 1f);
+            Scribe_Values.Look(ref raiderWeightMultiplier, "raiderWeightMultiplier", 1f);
+            Scribe_Values.Look(ref soldierWeightMultiplier, "soldierWeightMultiplier", 1f);
+            Scribe_Values.Look(ref bruteWeightMultiplier, "bruteWeightMultiplier", 1f);
+            Scribe_Values.Look(ref pyromaniacWeightMultiplier, "pyromaniacWeightMultiplier", 1f);
+            Scribe_Values.Look(ref alphaWeightMultiplier, "alphaWeightMultiplier", 1f);
+            Scribe_Values.Look(ref warlordWeightMultiplier, "warlordWeightMultiplier", 1f);
+            Scribe_Values.Look(ref markedManWeightMultiplier, "markedManWeightMultiplier", 1f);
             Scribe_Values.Look(ref minimumHordeSize, "minimumHordeSize", 3);
             Scribe_Values.Look(ref maximumHordeSize, "maximumHordeSize", 12);
             Scribe_Values.Look(ref minimumProbeSize, "minimumProbeSize", 2);
             Scribe_Values.Look(ref maximumProbeSize, "maximumProbeSize", 4);
-            Scribe_Values.Look(ref maximumAlphasPerRaid, "maximumAlphasPerRaid", 99);
+            Scribe_Values.Look(ref maximumAlphasPerRaid, "maximumAlphasPerRaid", 2);
             Scribe_Values.Look(ref bloodExposureChance, "bloodExposureChance", InfectionTransmissionChance);
             Scribe_Values.Look(ref foodExposureChance, "foodExposureChance", InfectionTransmissionChance);
             Scribe_Values.Look(ref rjwExposureChance, "rjwExposureChance", InfectionTransmissionChance);
@@ -655,6 +655,25 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
                     markedPanicDurationTicks = 18000;
                 }
 
+                if (loadedSettingsVersion < 15)
+                {
+                    civilianWeightMultiplier = 1f;
+                    scoutWeightMultiplier = 1f;
+                    hunterWeightMultiplier = 1f;
+                    shooterWeightMultiplier = 1f;
+                    raiderWeightMultiplier = 1f;
+                    soldierWeightMultiplier = 1f;
+                    bruteWeightMultiplier = 1f;
+                    pyromaniacWeightMultiplier = 1f;
+                    alphaWeightMultiplier = 1f;
+                    warlordWeightMultiplier = 1f;
+                    markedManWeightMultiplier = 1f;
+                    if (maximumAlphasPerRaid == 99)
+                    {
+                        maximumAlphasPerRaid = 2;
+                    }
+                }
+
                 settingsVersion = CurrentSettingsVersion;
             }
 
@@ -746,17 +765,6 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
             DrawCheckbox(listing, "MarkedMen_Settings_SingleEdgeArrivals".Translate(), ref allowSingleEdgeArrival, "MarkedMen_Settings_SingleEdgeArrivalsDesc".Translate());
 
             DrawSectionHeader(listing, "MarkedMen_Settings_EnemyMix".Translate(), "MarkedMen_Settings_EnemyMixDesc".Translate());
-            DrawFloat(listing, "MarkedMen_Settings_civilianWeightMultiplier".Translate(), ref civilianWeightMultiplier, 0f, 5f, "civilianWeightMultiplier", "MarkedMen_Settings_civilianWeightMultiplierDesc".Translate());
-            DrawFloat(listing, "MarkedMen_Settings_scoutWeightMultiplier".Translate(), ref scoutWeightMultiplier, 0f, 5f, "scoutWeightMultiplier", "MarkedMen_Settings_scoutWeightMultiplierDesc".Translate());
-            DrawFloat(listing, "MarkedMen_Settings_hunterWeightMultiplier".Translate(), ref hunterWeightMultiplier, 0f, 5f, "hunterWeightMultiplier", "MarkedMen_Settings_hunterWeightMultiplierDesc".Translate());
-            DrawFloat(listing, "MarkedMen_Settings_shooterWeightMultiplier".Translate(), ref shooterWeightMultiplier, 0f, 5f, "shooterWeightMultiplier", "MarkedMen_Settings_shooterWeightMultiplierDesc".Translate());
-            DrawFloat(listing, "MarkedMen_Settings_raiderWeightMultiplier".Translate(), ref raiderWeightMultiplier, 0f, 5f, "raiderWeightMultiplier", "MarkedMen_Settings_raiderWeightMultiplierDesc".Translate());
-            DrawFloat(listing, "MarkedMen_Settings_soldierWeightMultiplier".Translate(), ref soldierWeightMultiplier, 0f, 5f, "soldierWeightMultiplier", "MarkedMen_Settings_soldierWeightMultiplierDesc".Translate());
-            DrawFloat(listing, "MarkedMen_Settings_bruteWeightMultiplier".Translate(), ref bruteWeightMultiplier, 0f, 5f, "bruteWeightMultiplier", "MarkedMen_Settings_bruteWeightMultiplierDesc".Translate());
-            DrawFloat(listing, "MarkedMen_Settings_pyromaniacWeightMultiplier".Translate(), ref pyromaniacWeightMultiplier, 0f, 5f, "pyromaniacWeightMultiplier", "MarkedMen_Settings_pyromaniacWeightMultiplierDesc".Translate());
-            DrawFloat(listing, "MarkedMen_Settings_alphaWeightMultiplier".Translate(), ref alphaWeightMultiplier, 0f, 5f, "alphaWeightMultiplier", "MarkedMen_Settings_alphaWeightMultiplierDesc".Translate());
-            DrawFloat(listing, "MarkedMen_Settings_warlordWeightMultiplier".Translate(), ref warlordWeightMultiplier, 0f, 5f, "warlordWeightMultiplier", "MarkedMen_Settings_warlordWeightMultiplierDesc".Translate());
-            DrawFloat(listing, "MarkedMen_Settings_markedManWeightMultiplier".Translate(), ref markedManWeightMultiplier, 0f, 5f, "markedManWeightMultiplier", "MarkedMen_Settings_markedManWeightMultiplierDesc".Translate());
             DrawFloat(listing, "MarkedMen_Settings_civilianWeightMultiplier".Translate(), ref civilianWeightMultiplier, 0f, 5f, "civilianWeightMultiplier", "MarkedMen_Settings_civilianWeightMultiplierDesc".Translate());
             DrawFloat(listing, "MarkedMen_Settings_scoutWeightMultiplier".Translate(), ref scoutWeightMultiplier, 0f, 5f, "scoutWeightMultiplier", "MarkedMen_Settings_scoutWeightMultiplierDesc".Translate());
             DrawFloat(listing, "MarkedMen_Settings_hunterWeightMultiplier".Translate(), ref hunterWeightMultiplier, 0f, 5f, "hunterWeightMultiplier", "MarkedMen_Settings_hunterWeightMultiplierDesc".Translate());
@@ -1492,6 +1500,17 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
             reanimationChance = 0.35f;
             minimumHordeSize = 2;
             maximumHordeSize = 6;
+            civilianWeightMultiplier = 1.35f;
+            scoutWeightMultiplier = 0.8f;
+            hunterWeightMultiplier = 0.8f;
+            shooterWeightMultiplier = 0.75f;
+            raiderWeightMultiplier = 0.75f;
+            soldierWeightMultiplier = 0.6f;
+            bruteWeightMultiplier = 0.6f;
+            pyromaniacWeightMultiplier = 0.6f;
+            alphaWeightMultiplier = 0.5f;
+            warlordWeightMultiplier = 0.3f;
+            markedManWeightMultiplier = 0.2f;
             maximumAlphasPerRaid = 1;
             socialTerrorStrength = 0.5f;
             ClampSettings();
@@ -1510,6 +1529,18 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
             raidEscalationMaxBonus = 2f;
             corpseContaminationChance = 0.65f;
             reanimationChance = 0.7f;
+            civilianWeightMultiplier = 1.2f;
+            scoutWeightMultiplier = 0.9f;
+            hunterWeightMultiplier = 0.9f;
+            shooterWeightMultiplier = 0.85f;
+            raiderWeightMultiplier = 0.85f;
+            soldierWeightMultiplier = 0.75f;
+            bruteWeightMultiplier = 0.75f;
+            pyromaniacWeightMultiplier = 0.75f;
+            alphaWeightMultiplier = 0.7f;
+            warlordWeightMultiplier = 0.5f;
+            markedManWeightMultiplier = 0.4f;
+            maximumAlphasPerRaid = 1;
             socialTerrorStrength = 0.75f;
             ClampSettings();
             ClearNumericBuffers();
@@ -1531,9 +1562,18 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
             minimumHordeSize = 5;
             maximumHordeSize = 18;
             maximumProbeSize = 6;
+            civilianWeightMultiplier = 1.1f;
+            scoutWeightMultiplier = 1.1f;
+            hunterWeightMultiplier = 1.15f;
+            shooterWeightMultiplier = 1.2f;
+            raiderWeightMultiplier = 1.2f;
+            soldierWeightMultiplier = 1.25f;
+            bruteWeightMultiplier = 1.4f;
+            pyromaniacWeightMultiplier = 1.25f;
             alphaWeightMultiplier = 1.6f;
             warlordWeightMultiplier = 1.3f;
-            bruteWeightMultiplier = 1.4f;
+            markedManWeightMultiplier = 1.1f;
+            maximumAlphasPerRaid = 3;
             bloodExposureChance = 0.65f;
             infectedAssaultExposureChance = 0.65f;
             meleeTransmissionEnabled = true;
@@ -1583,10 +1623,18 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
             raidPointsMultiplier = 0.85f;
             minimumHordeSize = 8;
             maximumHordeSize = 30;
-            civilianWeightMultiplier = 1.5f;
-            hunterWeightMultiplier = 0.75f;
-            bruteWeightMultiplier = 0.8f;
-            alphaWeightMultiplier = 0.6f;
+            civilianWeightMultiplier = 1.4f;
+            scoutWeightMultiplier = 1.1f;
+            hunterWeightMultiplier = 1.05f;
+            shooterWeightMultiplier = 1.15f;
+            raiderWeightMultiplier = 1.15f;
+            soldierWeightMultiplier = 1.1f;
+            bruteWeightMultiplier = 1.3f;
+            pyromaniacWeightMultiplier = 1.25f;
+            alphaWeightMultiplier = 1.2f;
+            warlordWeightMultiplier = 1f;
+            markedManWeightMultiplier = 0.8f;
+            maximumAlphasPerRaid = 4;
             bloodExposureChance = 0.8f;
             foodExposureChance = 0.7f;
             infectedAssaultExposureChance = 0.8f;
@@ -1637,22 +1685,22 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
 
         private void ResetCompositionDefaults()
         {
-            civilianWeightMultiplier = 0f;
-            scoutWeightMultiplier = 0f;
-            hunterWeightMultiplier = 0f;
-            shooterWeightMultiplier = 0f;
-            raiderWeightMultiplier = 0f;
-            soldierWeightMultiplier = 0f;
-            bruteWeightMultiplier = 0f;
-            pyromaniacWeightMultiplier = 0f;
-            alphaWeightMultiplier = 0f;
-            warlordWeightMultiplier = 0f;
-            markedManWeightMultiplier = 0f;
+            civilianWeightMultiplier = 1f;
+            scoutWeightMultiplier = 1f;
+            hunterWeightMultiplier = 1f;
+            shooterWeightMultiplier = 1f;
+            raiderWeightMultiplier = 1f;
+            soldierWeightMultiplier = 1f;
+            bruteWeightMultiplier = 1f;
+            pyromaniacWeightMultiplier = 1f;
+            alphaWeightMultiplier = 1f;
+            warlordWeightMultiplier = 1f;
+            markedManWeightMultiplier = 1f;
             minimumHordeSize = 3;
             maximumHordeSize = 12;
             minimumProbeSize = 2;
             maximumProbeSize = 4;
-            maximumAlphasPerRaid = 99;
+            maximumAlphasPerRaid = 2;
         }
 
         private void ResetStoryDefaults()
@@ -3535,18 +3583,21 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
         private static List<Pawn> GenerateRaidPawns(int count, float points, Faction faction)
         {
             List<Pawn> pawns = new List<Pawn>(count + 1);
+            CrossedRaidComposition composition = new CrossedRaidComposition(CrossedRaidCompositionRole.Warband, points);
 
-            Pawn leader = PawnGenerator.GeneratePawn(CADefOf.MarkedMan, faction);
+            PawnKindDef leaderKind = CrossedRaidComposition.PickWarbandLeader();
+            Pawn leader = leaderKind == null ? null : PawnGenerator.GeneratePawn(leaderKind, faction);
             if (leader != null)
             {
                 CrossedUtility.ApplyClassHediffs(leader);
                 CrossedUtility.ApplyInfectedTattoo(leader);
+                composition.Register(leaderKind);
                 pawns.Add(leader);
             }
 
             for (int i = 0; i < count; i++)
             {
-                PawnKindDef kind = PickRaidKind(points, count, false);
+                PawnKindDef kind = composition.Pick();
                 if (kind == null)
                 {
                     break;
@@ -3565,30 +3616,6 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
 
             CrossedUtility.ApplyGeneratedRaidKindTuning(pawns);
             return pawns;
-        }
-
-        private static PawnKindDef PickRaidKind(float points, int count, bool allowAlpha)
-        {
-            // When variantsOnlyInRaids is true (default), variants can spawn in raids
-            // When false, only CA_CrossedCivilian spawns
-
-            float normalizedThreat = Mathf.InverseLerp(5000f, 50000f, points);
-            PawnKindDef selected = null;
-            float totalWeight = 0f;
-
-            TheMarkedMenSettings.AddWeightedKind(ref selected, ref totalWeight, CADefOf.CrossedCivilian, 14f);
-            TheMarkedMenSettings.AddWeightedKind(ref selected, ref totalWeight, CADefOf.CrossedScout, Mathf.Lerp(3f, 8f, normalizedThreat));
-            TheMarkedMenSettings.AddWeightedKind(ref selected, ref totalWeight, CADefOf.CrossedHunter, Mathf.Lerp(3f, 8f, normalizedThreat));
-            TheMarkedMenSettings.AddWeightedKind(ref selected, ref totalWeight, CADefOf.CrossedShooter, Mathf.Lerp(4f, 10f, normalizedThreat));
-            TheMarkedMenSettings.AddWeightedKind(ref selected, ref totalWeight, CADefOf.CrossedRaider, Mathf.Lerp(2f, 6f, normalizedThreat));
-            TheMarkedMenSettings.AddWeightedKind(ref selected, ref totalWeight, CADefOf.CrossedSoldier, Mathf.Lerp(1f, 5f, normalizedThreat));
-            TheMarkedMenSettings.AddWeightedKind(ref selected, ref totalWeight, CADefOf.CrossedBrute, Mathf.Lerp(0.5f, 3f, normalizedThreat));
-            TheMarkedMenSettings.AddWeightedKind(ref selected, ref totalWeight, CADefOf.CrossedPyromaniac, Mathf.Lerp(1f, 3f, normalizedThreat));
-            TheMarkedMenSettings.AddWeightedKind(ref selected, ref totalWeight, CADefOf.CrossedAlpha, allowAlpha && count >= 8 && points >= 1000f ? 0.5f : 0f);
-            TheMarkedMenSettings.AddWeightedKind(ref selected, ref totalWeight, CADefOf.CrossedWarlord, allowAlpha && count >= 12 && points >= 1800f ? 0.15f : 0f);
-            TheMarkedMenSettings.AddWeightedKind(ref selected, ref totalWeight, CADefOf.MarkedMan, allowAlpha && count >= 15 && points >= 3000f ? 0.05f : 0f);
-
-            return selected ?? CADefOf.CrossedCivilian ?? CADefOf.CrossedScout ?? CADefOf.CrossedHunter;
         }
 
         private void SendRaidLetter(List<Pawn> pawns, IncidentParms parms)
@@ -3732,6 +3759,7 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
         private static List<Pawn> GenerateHordePawns(int count, float points, Faction faction, Map map)
         {
             List<Pawn> pawns = new List<Pawn>(count + 1);
+            CrossedRaidComposition composition = new CrossedRaidComposition(CrossedRaidCompositionRole.Horde, points);
 
             Pawn leader = PawnGenerator.GeneratePawn(CADefOf.CrossedCivilian, faction, map.Tile);
             if (leader != null)
@@ -3743,7 +3771,7 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
 
             for (int i = 0; i < count; i++)
             {
-                PawnKindDef kind = PickHordeKind(points, count, false);
+                PawnKindDef kind = composition.Pick();
                 if (kind == null)
                 {
                     break;
@@ -3762,30 +3790,6 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
 
             CrossedUtility.ApplyGeneratedRaidKindTuning(pawns);
             return pawns;
-        }
-
-        private static PawnKindDef PickHordeKind(float points, int count, bool allowAlpha)
-        {
-            // When variantsOnlyInRaids is true (default), variants can spawn in raids
-            // When false, only CA_CrossedCivilian spawns
-
-            float normalizedThreat = Mathf.InverseLerp(5000f, 50000f, points);
-            PawnKindDef selected = null;
-            float totalWeight = 0f;
-
-            TheMarkedMenSettings.AddWeightedKind(ref selected, ref totalWeight, CADefOf.CrossedCivilian, 14f);
-            TheMarkedMenSettings.AddWeightedKind(ref selected, ref totalWeight, CADefOf.CrossedScout, Mathf.Lerp(2f, 6f, normalizedThreat));
-            TheMarkedMenSettings.AddWeightedKind(ref selected, ref totalWeight, CADefOf.CrossedHunter, Mathf.Lerp(2.5f, 8.5f, normalizedThreat));
-            TheMarkedMenSettings.AddWeightedKind(ref selected, ref totalWeight, CADefOf.CrossedShooter, Mathf.Lerp(2f, 6f, normalizedThreat));
-            TheMarkedMenSettings.AddWeightedKind(ref selected, ref totalWeight, CADefOf.CrossedRaider, Mathf.Lerp(1f, 4f, normalizedThreat));
-            TheMarkedMenSettings.AddWeightedKind(ref selected, ref totalWeight, CADefOf.CrossedSoldier, Mathf.Lerp(0.5f, 3f, normalizedThreat));
-            TheMarkedMenSettings.AddWeightedKind(ref selected, ref totalWeight, CADefOf.CrossedBrute, Mathf.Lerp(1f, 4.5f, normalizedThreat));
-            TheMarkedMenSettings.AddWeightedKind(ref selected, ref totalWeight, CADefOf.CrossedPyromaniac, 3.5f);
-            TheMarkedMenSettings.AddWeightedKind(ref selected, ref totalWeight, CADefOf.CrossedAlpha, allowAlpha && count >= 10 ? 0.55f : 0f);
-            TheMarkedMenSettings.AddWeightedKind(ref selected, ref totalWeight, CADefOf.CrossedWarlord, allowAlpha && count >= 15 ? 0.15f : 0f);
-            TheMarkedMenSettings.AddWeightedKind(ref selected, ref totalWeight, CADefOf.MarkedMan, allowAlpha && count >= 20 ? 0.05f : 0f);
-
-            return selected ?? CADefOf.CrossedCivilian ?? CADefOf.CrossedScout ?? CADefOf.CrossedHunter;
         }
 
         private void SendHordeLetter(List<Pawn> pawns, IncidentParms parms)
@@ -3917,9 +3921,10 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
         private static List<Pawn> GenerateProbePawns(int count, float points, Faction faction, Map map)
         {
             List<Pawn> pawns = new List<Pawn>(count);
+            CrossedRaidComposition composition = new CrossedRaidComposition(CrossedRaidCompositionRole.Probe, points);
             for (int i = 0; i < count; i++)
             {
-                PawnKindDef kind = PickProbeKind(points);
+                PawnKindDef kind = composition.Pick();
                 if (kind == null)
                 {
                     break;
@@ -3938,26 +3943,6 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
 
             CrossedUtility.ApplyGeneratedRaidKindTuning(pawns);
             return pawns;
-        }
-
-        private static PawnKindDef PickProbeKind(float points)
-        {
-            // When variantsOnlyInRaids is true (default), variants can spawn in raids
-            // When false, only CA_CrossedCivilian spawns
-
-            float normalizedThreat = Mathf.InverseLerp(5000f, 50000f, points);
-            PawnKindDef selected = null;
-            float totalWeight = 0f;
-
-            TheMarkedMenSettings.AddWeightedKind(ref selected, ref totalWeight, CADefOf.CrossedScout, Mathf.Lerp(4f, 6f, normalizedThreat));
-            TheMarkedMenSettings.AddWeightedKind(ref selected, ref totalWeight, CADefOf.CrossedHunter, Mathf.Lerp(3f, 5f, normalizedThreat));
-            TheMarkedMenSettings.AddWeightedKind(ref selected, ref totalWeight, CADefOf.CrossedShooter, Mathf.Lerp(2f, 4f, normalizedThreat));
-            TheMarkedMenSettings.AddWeightedKind(ref selected, ref totalWeight, CADefOf.CrossedCivilian, 3f);
-            TheMarkedMenSettings.AddWeightedKind(ref selected, ref totalWeight, CADefOf.CrossedPyromaniac, points >= 220f ? Mathf.Lerp(0.5f, 1.75f, normalizedThreat) : 0f);
-            TheMarkedMenSettings.AddWeightedKind(ref selected, ref totalWeight, CADefOf.CrossedRaider, points >= 350f ? 0.5f : 0f);
-            TheMarkedMenSettings.AddWeightedKind(ref selected, ref totalWeight, CADefOf.CrossedBrute, points >= 500f ? 0.35f : 0f);
-
-            return selected ?? CADefOf.CrossedScout ?? CADefOf.CrossedHunter ?? CADefOf.CrossedCivilian;
         }
 
         private void SendProbeLetter(List<Pawn> pawns, IncidentParms parms)
@@ -4167,10 +4152,10 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
         private List<Pawn> GenerateAmbushPawns(int count, float points, Faction faction)
         {
             List<Pawn> pawns = new List<Pawn>(count);
-            bool alphaAdded = false;
+            CrossedRaidComposition composition = new CrossedRaidComposition(CrossedRaidCompositionRole.Ambush, points);
             for (int i = 0; i < count; i++)
             {
-                PawnKindDef kind = PickAmbushKind(points, count, !alphaAdded);
+                PawnKindDef kind = composition.Pick();
                 if (kind == null)
                 {
                     break;
@@ -4184,33 +4169,10 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
 
                 CrossedUtility.ApplyClassHediffs(pawn);
                 CrossedUtility.ApplyInfectedTattoo(pawn);
-
-                alphaAdded = false; // No alpha/warlord/marked man tracking needed
                 pawns.Add(pawn);
             }
 
             return pawns;
-        }
-
-        private PawnKindDef PickAmbushKind(float points, int count, bool allowAlpha)
-        {
-            // When variantsOnlyInRaids is true (default), variants can spawn in raids
-            // When false, only CA_CrossedCivilian spawns
-
-            float normalizedThreat = Mathf.InverseLerp(5000f, 50000f, points);
-            float storytellerFactor = IsMarkedManStoryteller ? 1.5f : 1f;
-
-            PawnKindDef selected = null;
-            float totalWeight = 0f;
-
-            TheMarkedMenSettings.AddWeightedKind(ref selected, ref totalWeight, CADefOf.CrossedCivilian, 8f);
-            TheMarkedMenSettings.AddWeightedKind(ref selected, ref totalWeight, CADefOf.CrossedHunter, Mathf.Lerp(3f, 10f, normalizedThreat) * storytellerFactor);
-            TheMarkedMenSettings.AddWeightedKind(ref selected, ref totalWeight, CADefOf.CrossedScout, Mathf.Lerp(2f, 6f, normalizedThreat));
-            TheMarkedMenSettings.AddWeightedKind(ref selected, ref totalWeight, CADefOf.CrossedPyromaniac, Mathf.Lerp(1f, 4f, normalizedThreat) * storytellerFactor);
-            TheMarkedMenSettings.AddWeightedKind(ref selected, ref totalWeight, CADefOf.CrossedBrute, Mathf.Lerp(0.5f, 3f, normalizedThreat) * storytellerFactor);
-            TheMarkedMenSettings.AddWeightedKind(ref selected, ref totalWeight, CADefOf.CrossedAlpha, allowAlpha && count >= 8 ? 0.4f : 0f);
-
-            return selected ?? CADefOf.CrossedCivilian ?? CADefOf.CrossedHunter ?? CADefOf.CrossedScout;
         }
     }
 }

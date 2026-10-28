@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using RimWorld;
 using Verse;
@@ -154,20 +155,42 @@ namespace TheMarkedMen
                 return null;
             }
 
-            int count = 0;
+            Dictionary<PawnKindDef, int> counts = new Dictionary<PawnKindDef, int>();
             for (int i = 0; i < pawns.Count; i++)
             {
-                if (pawns[i] != null && pawns[i].kindDef == CADefOf.CrossedCivilian)
+                PawnKindDef kind = pawns[i]?.kindDef;
+                if (kind == null)
                 {
-                    count++;
+                    continue;
                 }
+
+                counts.TryGetValue(kind, out int count);
+                counts[kind] = count + 1;
             }
 
-            if (count == 0)
+            if (counts.Count == 0)
             {
                 return "unclassified infected";
             }
-            return count + " infected" + (count == 1 ? "" : "s");
+
+            StringBuilder sb = new StringBuilder();
+            foreach (KeyValuePair<PawnKindDef, int> pair in counts.OrderByDescending(p => p.Value).ThenBy(p => p.Key.label))
+            {
+                if (sb.Length > 0)
+                {
+                    sb.Append(", ");
+                }
+
+                string label = pair.Key.GetLabelPlural(pair.Value);
+                if (label.NullOrEmpty())
+                {
+                    label = pair.Key.defName;
+                }
+
+                sb.Append(pair.Value).Append(' ').Append(label);
+            }
+
+            return sb.ToString();
         }
 
         private static string DescribePriorityTargets(List<Pawn> pawns)
@@ -177,20 +200,31 @@ namespace TheMarkedMen
                 return null;
             }
 
-            int count = 0;
+            bool commanders = false;
+            bool ranged = false;
             for (int i = 0; i < pawns.Count; i++)
             {
-                if (pawns[i] != null && pawns[i].kindDef == CADefOf.CrossedCivilian)
+                PawnKindDef kind = pawns[i]?.kindDef;
+                if (kind == CADefOf.CrossedAlpha || kind == CADefOf.CrossedWarlord || kind == CADefOf.MarkedMan)
                 {
-                    count++;
+                    commanders = true;
+                }
+                else if (kind == CADefOf.CrossedShooter || kind == CADefOf.CrossedSoldier
+                    || kind == CADefOf.CrossedRaider || kind == CADefOf.CrossedHunter)
+                {
+                    ranged = true;
                 }
             }
 
-            if (count == 0)
+            if (commanders)
             {
-                return "closest armed infected and exposed flankers";
+                return "elite infected commanders and their escorts";
             }
-            return "infected forces approaching";
+            if (ranged)
+            {
+                return "ranged infected and exposed flanks";
+            }
+            return "closest armed infected and exposed flankers";
         }
     }
 }
