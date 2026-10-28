@@ -14,6 +14,9 @@ namespace TheMarkedMen
 
     internal sealed class CrossedRaidComposition
     {
+        // Weights lerp from early-game to late-game pressure, then the player's
+        // Enemy Mix multipliers are applied by AddWeightedKind. Elite counts are
+        // capped so a lucky roll cannot flood a raid with commanders.
         private readonly CrossedRaidCompositionRole role;
         private readonly float threat;
         private readonly int maxAlphas;
