@@ -189,6 +189,7 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
         public int contagionPulseIntervalTicks = 500;
         public int maxContagionTargetsPerPulse = 3;
         public int corpseContaminationIntervalTicks = 750;
+        public float corpseLingeringExposureChance = 0.10f;
         public int maxCorpsesPerPulse = 2;
         public int tacticalRetargetIntervalTicks = 60;
         public int infightingCheckIntervalTicks = 1000;
@@ -309,6 +310,8 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
         public static int MaxContagionTargetsPerPulse => Mathf.Clamp(TheMarkedMenMod.Settings?.maxContagionTargetsPerPulse ?? 3, 0, 50);
 
         public static int CorpseContaminationIntervalTicks => Mathf.Clamp(TheMarkedMenMod.Settings?.corpseContaminationIntervalTicks ?? 750, 60, GenDate.TicksPerDay);
+
+        public static float CorpseLingeringExposureChance => Mathf.Clamp01(TheMarkedMenMod.Settings?.corpseLingeringExposureChance ?? 0.10f);
 
         public static int MaxCorpsesPerPulse => Mathf.Clamp(TheMarkedMenMod.Settings?.maxCorpsesPerPulse ?? 2, 0, 50);
 
@@ -480,6 +483,7 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
             Scribe_Values.Look(ref contagionPulseIntervalTicks, "contagionPulseIntervalTicks", 500);
             Scribe_Values.Look(ref maxContagionTargetsPerPulse, "maxContagionTargetsPerPulse", 3);
             Scribe_Values.Look(ref corpseContaminationIntervalTicks, "corpseContaminationIntervalTicks", 750);
+            Scribe_Values.Look(ref corpseLingeringExposureChance, "corpseLingeringExposureChance", 0.10f);
             Scribe_Values.Look(ref maxCorpsesPerPulse, "maxCorpsesPerPulse", 2);
             Scribe_Values.Look(ref tacticalRetargetIntervalTicks, "tacticalRetargetIntervalTicks", 60);
             Scribe_Values.Look(ref infightingCheckIntervalTicks, "infightingCheckIntervalTicks", 1000);
@@ -856,6 +860,7 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
             DrawInt(listing, "MarkedMen_Settings_contagionPulseIntervalTicks".Translate(), ref contagionPulseIntervalTicks, 60, GenDate.TicksPerDay, "contagionPulseIntervalTicks", "MarkedMen_Settings_contagionPulseIntervalTicksDesc".Translate());
             DrawInt(listing, "MarkedMen_Settings_maxContagionTargetsPerPulse".Translate(), ref maxContagionTargetsPerPulse, 0, 50, "maxContagionTargetsPerPulse", "MarkedMen_Settings_maxContagionTargetsPerPulseDesc".Translate());
             DrawInt(listing, "MarkedMen_Settings_corpseContaminationIntervalTicks".Translate(), ref corpseContaminationIntervalTicks, 60, GenDate.TicksPerDay, "corpseContaminationIntervalTicks", "MarkedMen_Settings_corpseContaminationIntervalTicksDesc".Translate());
+            DrawFloat(listing, "MarkedMen_Settings_corpseLingeringExposureChance".Translate(), ref corpseLingeringExposureChance, 0f, 1f, "corpseLingeringExposureChance", "MarkedMen_Settings_corpseLingeringExposureChanceDesc".Translate());
             DrawInt(listing, "MarkedMen_Settings_maxCorpsesPerPulse".Translate(), ref maxCorpsesPerPulse, 0, 50, "maxCorpsesPerPulse", "MarkedMen_Settings_maxCorpsesPerPulseDesc".Translate());
             DrawInt(listing, "MarkedMen_Settings_tacticalRetargetIntervalTicks".Translate(), ref tacticalRetargetIntervalTicks, 1, 2500, "tacticalRetargetIntervalTicks", "MarkedMen_Settings_tacticalRetargetIntervalTicksDesc".Translate());
             DrawInt(listing, "MarkedMen_Settings_infightingCheckIntervalTicks".Translate(), ref infightingCheckIntervalTicks, 60, GenDate.TicksPerDay, "infightingCheckIntervalTicks", "MarkedMen_Settings_infightingCheckIntervalTicksDesc".Translate());
@@ -1358,6 +1363,7 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
             contagionPulseIntervalTicks = Mathf.Clamp(contagionPulseIntervalTicks, 60, GenDate.TicksPerDay);
             maxContagionTargetsPerPulse = Mathf.Clamp(maxContagionTargetsPerPulse, 0, 50);
             corpseContaminationIntervalTicks = Mathf.Clamp(corpseContaminationIntervalTicks, 60, GenDate.TicksPerDay);
+            corpseLingeringExposureChance = Mathf.Clamp01(corpseLingeringExposureChance);
             maxCorpsesPerPulse = Mathf.Clamp(maxCorpsesPerPulse, 0, 50);
             tacticalRetargetIntervalTicks = Mathf.Clamp(tacticalRetargetIntervalTicks, 1, 2500);
             infightingCheckIntervalTicks = Mathf.Clamp(infightingCheckIntervalTicks, 60, GenDate.TicksPerDay);
@@ -1609,6 +1615,7 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
             contagionPulseIntervalTicks = 300;
             maxContagionTargetsPerPulse = 6;
             corpseContaminationIntervalTicks = 360;
+            corpseLingeringExposureChance = 0.25f;
             maxCorpsesPerPulse = 5;
             socialTerrorStrength = 1.25f;
             if (!updatePreset)
@@ -1663,6 +1670,7 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
             contagionPulseIntervalTicks = 500;
             maxContagionTargetsPerPulse = 3;
             corpseContaminationIntervalTicks = 750;
+            corpseLingeringExposureChance = 0.10f;
             maxCorpsesPerPulse = 2;
             tacticalRetargetIntervalTicks = 60;
             infightingCheckIntervalTicks = 1000;
@@ -1677,6 +1685,9 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
     {
         private const int MaintenanceTickInterval = 2500;
         private const int RaidMonitorIntervalTicks = 250;
+        private const int RaidWarningCheckIntervalTicks = 250;
+        private const int ColonyPresenceCacheTicks = 250;
+        private const int InfectedStateReconciliationIntervalTicks = GenDate.TicksPerDay;
         private const int ReanimationDelayTicks = 900;
         private const int InitialThreatFirstTick = GenDate.TicksPerDay * 45;
         private const int RaidFirstTick = InitialThreatFirstTick;
@@ -1684,6 +1695,7 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
         private const int RaidMinimumIntervalTicks = GenDate.TicksPerDay;
         private const int DebugEarlyRaidDelayTicks = 2500;
         private const int RaidScheduleVersion = 3;
+        private const int RaidRetryTicks = GenDate.TicksPerDay;
         private const int HordeFirstTick = InitialThreatFirstTick + HordeBaseIntervalTicks;
         private const int HordeRetryTicks = GenDate.TicksPerDay;
         private const int HordeBaseIntervalTicks = GenDate.TicksPerDay * 3;
@@ -1709,13 +1721,8 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
         private int totalCrossedRaidsStarted;
         private int survivedRaidCount;
         private bool activeRaid;
-        private int countdownCacheTick = -1;
-        private int countdownCachedNextTick;
-        private int countdownCachedTicksUntilRaid;
         private float lastRaidEscalationMultiplier = 1f;
         private int lastSpikeRaidNumber = -999;
-        private Map countdownCachedTargetMap;
-        private bool countdownCachedValid;
         private int activeRaidStartedTick;
         private int activeRaidWaveCount;
         private int activeRaidPeakInfected;
@@ -1733,7 +1740,11 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
         private List<CureOriginRecord> cureOrigins = new List<CureOriginRecord>();
         private readonly Dictionary<int, (Caravan caravan, int ambushTick)> trackedCaravans = new Dictionary<int, (Caravan, int)>();
         private int nextCaravanAmbushUpdateTick;
-        private int lastRaidWarningTick = -999999;
+        private int lastWarnedRaidTick;
+        private int nextRaidWarningCheckTick;
+        private int colonyPresenceCacheTick = -1;
+        private bool colonyPresenceCacheValue;
+        private int nextInfectedStateReconciliationTick;
 
         public TheMarkedMenGameComponent(Game game)
         {
@@ -1837,6 +1848,7 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
             InitializeStarterLineageResistance();
             EnsureInfectedStateOnLoadedPawns();
             int ticks = Find.TickManager?.TicksGame ?? 0;
+            nextInfectedStateReconciliationTick = ticks + InfectedStateReconciliationIntervalTicks;
             int raidFirstTick = TheMarkedMenSettings.FirstMarkedRaidTick;
             int hordeFirstTick = CurrentHordeFirstTick;
             if (ticks >= raidFirstTick)
@@ -1893,6 +1905,7 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
             Scribe_Values.Look(ref nextCorpseExposureTick, "nextCorpseExposureTick", 0);
             Scribe_Values.Look(ref nextRaidTick, "nextRaidTick", 0);
             Scribe_Values.Look(ref nextHordeTick, "nextHordeTick", 0);
+            Scribe_Values.Look(ref lastWarnedRaidTick, "lastWarnedRaidTick", 0);
             Scribe_Values.Look(ref raidScheduleActivated, "raidScheduleActivated", false);
             Scribe_Values.Look(ref raidScheduleVersion, "raidScheduleVersion", 0);
             Scribe_Values.Look(ref starterLineageInitialized, "starterLineageInitialized", false);
@@ -1998,17 +2011,24 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
             MonitorActiveRaid(ticks);
             CheckAndSendRaidWarningLetter(ticks);
 
+            // Keep scheduled raids, hordes, and periodic upkeep advancing even
+            // when no infected corpses are present on any map.
+            TryRunPeriodicMaintenance(ticks);
+
+            // Corpse exposure used to be driven from NoteCorpseLingering, which is
+            // only called by this scan. Run the scan on its own timer so the loop
+            // is no longer self-referential.
+            if (ticks >= nextCorpseExposureTick)
+            {
+                nextCorpseExposureTick = ticks + TheMarkedMenSettings.CorpseContaminationIntervalTicks;
+                PruneCorpseLingeringTrackers(ticks);
+                CrossedCorpseUtility.TryExposeNearbyPawnsToInfectedCorpses();
+            }
+
             if (ticks >= nextReanimationProcessTick)
             {
                 nextReanimationProcessTick = ticks + TheMarkedMenSettings.ReanimationProcessIntervalTicks;
                 ProcessPendingReanimations();
-            }
-
-            // Update caravan ambush timers
-            if (ticks >= nextCaravanAmbushUpdateTick)
-            {
-                nextCaravanAmbushUpdateTick = ticks + 2500;
-                UpdateCaravanAmbushTimers(ticks);
             }
         }
 
@@ -2024,31 +2044,50 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
                 return;
             }
 
-            // Get next raid timing
-            if (!TryGetRaidCountdownForAlert(out int nextTick, out int ticksUntilRaid, out Map targetMap))
+            // The warning is day-scale; four checks per second is plenty and avoids
+            // recalculating threat points every single tick.
+            if (currentTick < nextRaidWarningCheckTick)
+            {
+                return;
+            }
+            nextRaidWarningCheckTick = currentTick + RaidWarningCheckIntervalTicks;
+
+            if (!TryGetScheduledRaidTick(currentTick, out int nextTick))
             {
                 return;
             }
 
-            // Send warning when raid is 1-2 days away and we haven't sent one yet for this raid
-            int warningWindowTicks = GenDate.TicksPerDay;
-            if (ticksUntilRaid > 0 && ticksUntilRaid <= warningWindowTicks && currentTick - lastRaidWarningTick > GenDate.TicksPerDay * 0.5f)
+            int ticksUntilRaid = Mathf.Max(0, nextTick - currentTick);
+            if (ticksUntilRaid <= 0 || ticksUntilRaid > GenDate.TicksPerDay)
             {
-                lastRaidWarningTick = currentTick;
-
-                // Build warning letter - use vanilla letter def to match natural alerts
-                float estimatedPoints = EstimateUpcomingRaidPoints(targetMap);
-                string threatLevel = CrossedRaidAlertUtility.DescribeThreatTier(estimatedPoints);
-                float daysUntilRaid = ticksUntilRaid / (float)GenDate.TicksPerDay;
-
-                string letterLabel = "The Marked: Incoming Threat";
-                string letterText = $"Intelligence report: The chronometer ticks down. The Marked are mobilizing for an attack on {targetMap.Parent.Label}.\n\n"
-                    + $"Estimated threat level: {threatLevel}\n"
-                    + $"Time until arrival: approximately {daysUntilRaid:F1} day" + (daysUntilRaid < 1.5f ? "" : "s") + "\n\n"
-                    + "Prepare your defenses. The Marked will come when they are ready.";
-
-                Find.LetterStack.ReceiveLetter(letterLabel, letterText, LetterDefOf.ThreatBig, new GlobalTargetInfo(targetMap.Center, targetMap, false));
+                return;
             }
+
+            // Warn exactly once per scheduled raid, even across retries and reloads.
+            if (nextTick == lastWarnedRaidTick)
+            {
+                return;
+            }
+
+            Map targetMap = FindRaidTargetMap();
+            if (targetMap == null)
+            {
+                return;
+            }
+
+            lastWarnedRaidTick = nextTick;
+
+            float estimatedPoints = EstimateUpcomingRaidPoints(targetMap);
+            string threatLevel = CrossedRaidAlertUtility.DescribeThreatTier(estimatedPoints);
+            string timeUntilArrival = ticksUntilRaid.ToStringTicksToPeriod(allowSeconds: false, allowYears: false);
+
+            string letterLabel = "MarkedMen_RaidWarningLetterLabel".Translate().Resolve();
+            string letterText = "MarkedMen_RaidWarningLetterText".Translate(
+                targetMap.Parent.Label,
+                threatLevel,
+                timeUntilArrival).Resolve();
+
+            Find.LetterStack.ReceiveLetter(letterLabel, letterText, LetterDefOf.ThreatBig, new GlobalTargetInfo(targetMap.Center, targetMap, false));
         }
 
         private void UpdateCaravanAmbushTimers(int currentTick)
@@ -2121,13 +2160,31 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
 
             EnsureCorpseLingeringTrackerLists();
 
-            if (currentTick >= nextCorpseExposureTick)
+            int index = corpseLingeringPawns.IndexOf(pawn);
+            if (index < 0)
             {
-                nextCorpseExposureTick = currentTick + TheMarkedMenSettings.CorpseContaminationIntervalTicks;
-                CrossedCorpseUtility.TryExposeNearbyPawnsToInfectedCorpses();
-                PruneCorpseLingeringTrackers(currentTick);
+                corpseLingeringPawns.Add(pawn);
+                corpseLingeringTicks.Add(0);
+                corpseLingeringLastSeenTicks.Add(currentTick);
+                index = corpseLingeringPawns.Count - 1;
             }
 
+            corpseLingeringTicks[index] += Mathf.Max(0, observedTicks);
+            corpseLingeringLastSeenTicks[index] = currentTick;
+
+            // Only expose after enough observed lingering time. The caller resets
+            // the tracker after a qualifying pulse, so each exposure roll costs a
+            // fresh 2500 ticks of exposure to an infectious corpse.
+            return corpseLingeringTicks[index] >= CorpseLingeringRequiredTicks;
+        }
+
+        /// <summary>
+        /// Shared 2500-tick upkeep, run once by whichever caller reaches the
+        /// window first. Scheduled raids and hordes must not depend on corpse
+        /// tracking, which only runs when infected corpses are present.
+        /// </summary>
+        private bool TryRunPeriodicMaintenance(int currentTick)
+        {
             if (currentTick < nextMaintenanceTick)
             {
                 return false;
@@ -2136,9 +2193,16 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
             nextMaintenanceTick = currentTick + MaintenanceTickInterval;
             TryFireScheduledRaid(currentTick);
             InitializeStarterLineageResistance();
-            EnsureInfectedStateOnLoadedPawns();
             TryFireScheduledHorde(currentTick);
             MapClassificationService.PruneDestroyedMaps();
+
+            // Full pawn reconciliation is expensive; run it once per in-game day.
+            // Loading a game and starting a new one still run it immediately.
+            if (currentTick >= nextInfectedStateReconciliationTick)
+            {
+                nextInfectedStateReconciliationTick = currentTick + InfectedStateReconciliationIntervalTicks;
+                EnsureInfectedStateOnLoadedPawns();
+            }
 
             // Update caravan ambush timers
             if (currentTick >= nextCaravanAmbushUpdateTick)
@@ -2193,51 +2257,41 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
             }
         }
 
-        public void InvalidateRaidCountdownCache()
+        public bool TryGetRaidCountdownForHud(out int ticksUntilRaid)
         {
-            countdownCacheTick = -1;
-        }
-
-        public bool TryGetRaidCountdownForAlert(out int nextTick, out int ticksUntilRaid, out Map targetMap)
-        {
-            int currentTick = Find.TickManager?.TicksGame ?? -1;
-
-            if (currentTick == countdownCacheTick && countdownCacheTick >= 0)
-            {
-                nextTick = countdownCachedNextTick;
-                ticksUntilRaid = countdownCachedTicksUntilRaid;
-                targetMap = countdownCachedTargetMap;
-                return countdownCachedValid;
-            }
-
-            nextTick = 0;
             ticksUntilRaid = 0;
-            targetMap = null;
-            countdownCachedValid = false;
-
-            if (currentTick < 0 || activeRaid || CADefOf.CrossedRaid == null || !TheMarkedMenSettings.WarbandsEnabled)
+            if (!TheMarkedMenSettings.RaidCountdownAlertEnabled)
             {
-                countdownCacheTick = currentTick;
-                countdownCachedNextTick = 0;
-                countdownCachedTicksUntilRaid = 0;
-                countdownCachedTargetMap = null;
                 return false;
             }
 
-            targetMap = FindRaidTargetMap();
-            if (targetMap == null)
+            int currentTick = Find.TickManager?.TicksGame ?? -1;
+            if (!TryGetScheduledRaidTick(currentTick, out int nextTick))
             {
-                countdownCacheTick = currentTick;
-                countdownCachedNextTick = 0;
-                countdownCachedTicksUntilRaid = 0;
-                countdownCachedTargetMap = null;
+                return false;
+            }
+
+            if (!HasPlayerHomeWithFreeColonistCached())
+            {
+                return false;
+            }
+
+            ticksUntilRaid = Mathf.Max(0, nextTick - currentTick);
+            return true;
+        }
+
+        private bool TryGetScheduledRaidTick(int currentTick, out int nextTick)
+        {
+            nextTick = 0;
+            if (currentTick < 0 || activeRaid || CADefOf.CrossedRaid == null || !TheMarkedMenSettings.WarbandsEnabled)
+            {
                 return false;
             }
 
             int raidFirstTick = TheMarkedMenSettings.FirstMarkedRaidTick;
-            if (!raidScheduleActivated && currentTick < raidFirstTick)
+            if (!raidScheduleActivated)
             {
-                nextTick = raidFirstTick;
+                nextTick = currentTick < raidFirstTick ? raidFirstTick : currentTick;
             }
             else
             {
@@ -2252,14 +2306,6 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
             {
                 nextTick = currentTick;
             }
-
-            ticksUntilRaid = Mathf.Max(0, nextTick - currentTick);
-            countdownCachedValid = true;
-
-            countdownCacheTick = currentTick;
-            countdownCachedNextTick = nextTick;
-            countdownCachedTicksUntilRaid = ticksUntilRaid;
-            countdownCachedTargetMap = targetMap;
 
             return true;
         }
@@ -2496,7 +2542,6 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
 
             if (!activeRaid || activeRaidMap != map)
             {
-                InvalidateRaidCountdownCache();
                 activeRaid = true;
                 activeRaidMap = map;
                 activeRaidStartedTick = Find.TickManager?.TicksGame ?? 0;
@@ -2641,7 +2686,6 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
 
         private void ClearActiveRaid()
         {
-            InvalidateRaidCountdownCache();
             activeRaid = false;
             activeRaidMap = null;
             activeRaidStartedTick = 0;
@@ -2940,8 +2984,15 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
                 return;
             }
 
-            TryFireRaidIncident(true);
-            ScheduleNextRaid(ticks);
+            if (TryFireRaidIncident(true))
+            {
+                ScheduleNextRaid(ticks);
+            }
+            else
+            {
+                // Do not silently skip this raid; try again tomorrow.
+                nextRaidTick = ticks + RaidRetryTicks;
+            }
         }
 
         private bool TryFireRaidIncident(bool force = false)
@@ -2970,7 +3021,6 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
 
         private void ScheduleNextRaid(int fromTick)
         {
-            InvalidateRaidCountdownCache();
             if (!TheMarkedMenSettings.WarbandsEnabled)
             {
                 nextRaidTick = 0;
@@ -3096,6 +3146,51 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
             return (force || probeDef.Worker.CanFireNow(parms)) && probeDef.Worker.TryExecute(parms);
         }
 
+        private static bool IsValidRaidTargetMap(Map map)
+        {
+            return map != null
+                && map.IsPlayerHome
+                && map.mapPawns != null
+                && map.mapPawns.AnyFreeColonistSpawned;
+        }
+
+        private static bool HasPlayerHomeWithFreeColonist()
+        {
+            List<Map> maps = Find.Maps;
+            if (maps == null)
+            {
+                return false;
+            }
+
+            for (int i = 0; i < maps.Count; i++)
+            {
+                if (IsValidRaidTargetMap(maps[i]))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private bool HasPlayerHomeWithFreeColonistCached()
+        {
+            int currentTick = Find.TickManager?.TicksGame ?? -1;
+            if (currentTick < 0)
+            {
+                return false;
+            }
+
+            if (colonyPresenceCacheTick >= 0 && currentTick - colonyPresenceCacheTick < ColonyPresenceCacheTicks)
+            {
+                return colonyPresenceCacheValue;
+            }
+
+            colonyPresenceCacheValue = HasPlayerHomeWithFreeColonist();
+            colonyPresenceCacheTick = currentTick;
+            return colonyPresenceCacheValue;
+        }
+
         private static Map FindHordeTargetMap()
         {
             if (Find.Maps == null)
@@ -3108,7 +3203,7 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
             for (int i = 0; i < Find.Maps.Count; i++)
             {
                 Map map = Find.Maps[i];
-                if (map == null || !map.IsPlayerHome || map.mapPawns == null || !map.mapPawns.AnyFreeColonistSpawned)
+                if (!IsValidRaidTargetMap(map))
                 {
                     continue;
                 }

@@ -55,45 +55,25 @@ namespace TheMarkedMen
         {
             if (points >= 2400f)
             {
-                return "catastrophic pressure";
+                return "MarkedMen_ThreatTier_Catastrophic".Translate().Resolve();
             }
 
             if (points >= 1200f)
             {
-                return "heavy pressure";
+                return "MarkedMen_ThreatTier_Heavy".Translate().Resolve();
             }
 
             if (points >= 500f)
             {
-                return "major pressure";
+                return "MarkedMen_ThreatTier_Major".Translate().Resolve();
             }
 
             if (points >= 220f)
             {
-                return "organized pressure";
+                return "MarkedMen_ThreatTier_Organized".Translate().Resolve();
             }
 
-            return "probing pressure";
-        }
-
-        private static int CountActivePawns(List<Pawn> pawns)
-        {
-            if (pawns == null)
-            {
-                return 0;
-            }
-
-            int count = 0;
-            for (int i = 0; i < pawns.Count; i++)
-            {
-                Pawn pawn = pawns[i];
-                if (pawn != null && !pawn.Destroyed && !pawn.Dead)
-                {
-                    count++;
-                }
-            }
-
-            return count;
+            return "MarkedMen_ThreatTier_Probing".Translate().Resolve();
         }
 
         private static string DescribeApproach(Map map, List<Pawn> pawns)
@@ -190,28 +170,6 @@ namespace TheMarkedMen
             return count + " infected" + (count == 1 ? "" : "s");
         }
 
-        private static void AddKindCount(List<string> parts, List<Pawn> pawns, PawnKindDef kind, string label)
-        {
-            if (parts == null || pawns == null || kind == null)
-            {
-                return;
-            }
-
-            int count = 0;
-            for (int i = 0; i < pawns.Count; i++)
-            {
-                if (pawns[i]?.kindDef == kind)
-                {
-                    count++;
-                }
-            }
-
-            if (count > 0)
-            {
-                parts.Add(count + " " + label + (count == 1 ? "" : "s"));
-            }
-        }
-
         private static string DescribePriorityTargets(List<Pawn> pawns)
         {
             if (pawns == null || pawns.Count == 0)
@@ -233,24 +191,6 @@ namespace TheMarkedMen
                 return "closest armed infected and exposed flankers";
             }
             return "infected forces approaching";
-        }
-
-        private static bool HasKind(List<Pawn> pawns, PawnKindDef kind)
-        {
-            if (pawns == null || kind == null)
-            {
-                return false;
-            }
-
-            for (int i = 0; i < pawns.Count; i++)
-            {
-                if (pawns[i]?.kindDef == kind)
-                {
-                    return true;
-                }
-            }
-
-            return false;
         }
     }
 }

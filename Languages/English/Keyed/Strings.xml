@@ -299,12 +299,23 @@
   <MarkedMen_Settings_anticipationDecayMultiplierDesc>How quickly kill anticipation fades after combat ends. Higher values fade faster.</MarkedMen_Settings_anticipationDecayMultiplierDesc>
   <MarkedMen_Settings_MessagesAndDevTools>Messages And Dev Tools</MarkedMen_Settings_MessagesAndDevTools>
   <MarkedMen_Settings_MessagesAndDevToolsDesc>Controls player-facing alerts, incident history, and optional debug actions.</MarkedMen_Settings_MessagesAndDevToolsDesc>
-  <MarkedMen_Settings_RaidCountdown>Show raid countdown alert</MarkedMen_Settings_RaidCountdown>
-  <MarkedMen_Settings_RaidCountdownDesc>Shows a gizmo alert when a scheduled Marked Men raid is approaching.</MarkedMen_Settings_RaidCountdownDesc>
+  <MarkedMen_Settings_RaidCountdown>Show raid countdown HUD</MarkedMen_Settings_RaidCountdown>
+  <MarkedMen_Settings_RaidCountdownDesc>Shows a countdown above the time and environment HUD and enables the one-day warning letter for the next scheduled Marked Men raid.</MarkedMen_Settings_RaidCountdownDesc>
   <MarkedMen_Settings_raidCountdownVisibleDays>Countdown visible days</MarkedMen_Settings_raidCountdownVisibleDays>
-  <MarkedMen_Settings_raidCountdownVisibleDaysDesc>How many in-game days before a scheduled raid the countdown alert becomes visible.</MarkedMen_Settings_raidCountdownVisibleDaysDesc>
+  <MarkedMen_Settings_raidCountdownVisibleDaysDesc>How many in-game days before a scheduled raid the countdown appears.</MarkedMen_Settings_raidCountdownVisibleDaysDesc>
   <MarkedMen_Settings_raidCountdownHighPriorityDays>High-priority countdown days</MarkedMen_Settings_raidCountdownHighPriorityDays>
-  <MarkedMen_Settings_raidCountdownHighPriorityDaysDesc>How many in-game days before a scheduled raid the alert becomes high priority.</MarkedMen_Settings_raidCountdownHighPriorityDaysDesc>
+  <MarkedMen_Settings_raidCountdownHighPriorityDaysDesc>How many in-game days before a scheduled raid the countdown turns red.</MarkedMen_Settings_raidCountdownHighPriorityDaysDesc>
+  <MarkedMen_RaidCountdownHUD>Marked Men raid in {0}</MarkedMen_RaidCountdownHUD>
+  <MarkedMen_RaidCountdownHUDImminent>Marked Men raid imminent</MarkedMen_RaidCountdownHUDImminent>
+  <MarkedMen_RaidCountdownHUDTooltip>The next Marked Men raid is expected in {0}. Prepare your defenses.</MarkedMen_RaidCountdownHUDTooltip>
+  <MarkedMen_RaidCountdownHUDTooltipImminent>The Marked Men are about to attack. Prepare your defenses.</MarkedMen_RaidCountdownHUDTooltipImminent>
+  <MarkedMen_RaidWarningLetterLabel>The Marked: Incoming Threat</MarkedMen_RaidWarningLetterLabel>
+  <MarkedMen_RaidWarningLetterText>Intelligence report: The chronometer ticks down. The Marked are mobilizing for an attack on {0}.\n\nEstimated threat level: {1}\nTime until arrival: approximately {2}.\n\nPrepare your defenses. The Marked will come when they are ready.</MarkedMen_RaidWarningLetterText>
+  <MarkedMen_ThreatTier_Catastrophic>catastrophic pressure</MarkedMen_ThreatTier_Catastrophic>
+  <MarkedMen_ThreatTier_Heavy>heavy pressure</MarkedMen_ThreatTier_Heavy>
+  <MarkedMen_ThreatTier_Major>major pressure</MarkedMen_ThreatTier_Major>
+  <MarkedMen_ThreatTier_Organized>organized pressure</MarkedMen_ThreatTier_Organized>
+  <MarkedMen_ThreatTier_Probing>probing pressure</MarkedMen_ThreatTier_Probing>
   <MarkedMen_Settings_caravanAmbushTimerVisible>Caravan ambush timer visible</MarkedMen_Settings_caravanAmbushTimerVisible>
   <MarkedMen_Settings_caravanAmbushTimerVisibleDesc>Show ambush warning timer when traveling with caravans.</MarkedMen_Settings_caravanAmbushTimerVisibleDesc>
   <MarkedMen_Settings_caravanAmbushTelegraphDays>Ambush telegraph days</MarkedMen_Settings_caravanAmbushTelegraphDays>
@@ -324,7 +335,9 @@
   <MarkedMen_Settings_maxContagionTargetsPerPulse>Max contagion targets per pulse</MarkedMen_Settings_maxContagionTargetsPerPulse>
   <MarkedMen_Settings_maxContagionTargetsPerPulseDesc>Maximum nearby pawns checked by each contagion pulse. Set to 0 to disable pulse-based close-contact spread.</MarkedMen_Settings_maxContagionTargetsPerPulseDesc>
   <MarkedMen_Settings_corpseContaminationIntervalTicks>Ticks between corpse contamination pulses</MarkedMen_Settings_corpseContaminationIntervalTicks>
-  <MarkedMen_Settings_corpseContaminationIntervalTicksDesc>How often infected pawns try to contaminate nearby corpses.</MarkedMen_Settings_corpseContaminationIntervalTicksDesc>
+  <MarkedMen_Settings_corpseContaminationIntervalTicksDesc>How often infected pawns try to contaminate nearby corpses and how often lingering near infectious corpses is checked.</MarkedMen_Settings_corpseContaminationIntervalTicksDesc>
+  <MarkedMen_Settings_corpseLingeringExposureChance>Corpse exposure chance per roll</MarkedMen_Settings_corpseLingeringExposureChance>
+  <MarkedMen_Settings_corpseLingeringExposureChanceDesc>Chance (0 to 1) that a colonist who has lingered long enough near an infectious corpse is exposed to the Marked virus. The lingering timer resets after each roll, whether or not exposure occurs. Default 0.1 means 10 percent.</MarkedMen_Settings_corpseLingeringExposureChanceDesc>
   <MarkedMen_Settings_maxCorpsesPerPulse>Max corpses checked per pulse</MarkedMen_Settings_maxCorpsesPerPulse>
   <MarkedMen_Settings_maxCorpsesPerPulseDesc>Maximum nearby corpses checked during each corpse contamination pulse. Set to 0 to disable corpse contamination.</MarkedMen_Settings_maxCorpsesPerPulseDesc>
   <MarkedMen_Settings_tacticalRetargetIntervalTicks>Ticks between tactical retarget checks</MarkedMen_Settings_tacticalRetargetIntervalTicks>

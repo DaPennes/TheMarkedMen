@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using HarmonyLib;
 using RimWorld;
+using TheMarkedMen.UI;
 using UnityEngine;
 using Verse;
 using Verse.AI.Group;
@@ -568,18 +569,21 @@ namespace TheMarkedMen
         }
     }
 
+    [HarmonyPatch(typeof(LetterStack), nameof(LetterStack.LettersOnGUI))]
+    public static class Patch_RaidCountdownHud
+    {
+        public static void Prefix(ref float __0)
+        {
+            RaidTimerUIOverlay.Draw(ref __0);
+        }
+    }
+
 [HarmonyPatch(typeof(IncidentWorker_Ambush))]
     public static class Patch_IncidentWorkerAmbushTryExecute
     {
         public static MethodBase TargetMethod()
         {
             return AccessTools.Method(typeof(IncidentWorker_Ambush), "TryExecuteWorker");
-        }
-
-        public static bool Prefix(IncidentParms parms)
-        {
-            // Allow the original execution to proceed, then patch will register the ambush
-            return true;
         }
 
         public static void Postfix(IncidentParms parms, bool __result)

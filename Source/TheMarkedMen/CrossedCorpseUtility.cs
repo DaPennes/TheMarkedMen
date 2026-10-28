@@ -12,9 +12,7 @@ namespace TheMarkedMen
         private const float CorpseContaminationRadiusSquared = CorpseContaminationRadius * CorpseContaminationRadius;
         private const float CorpseLingeringExposureRadius = 2.4f;
         private const float CorpseLingeringExposureRadiusSquared = CorpseLingeringExposureRadius * CorpseLingeringExposureRadius;
-        private const float CorpseLingeringExposureChance = 0.10f;
         private const int CorpseLingeringMaxObservedTicksPerPulse = 750;
-        private const int MaxCorpsesPerPulse = 2;
 
         public static void TryContaminateNearbyCorpses(Pawn source)
         {
@@ -151,7 +149,7 @@ namespace TheMarkedMen
                                 }
 
                                 component.ResetCorpseLingering(target);
-                                if (CrossedUtility.TryExpose(target, CorpseLingeringExposureChance, "lingering near infected corpse", corpse.InnerPawn))
+                                if (CrossedUtility.TryExpose(target, TheMarkedMenSettings.CorpseLingeringExposureChance, "lingering near infected corpse", corpse.InnerPawn))
                                 {
                                     exposedTargets++;
                                     if (exposedTargets >= maxTargets)

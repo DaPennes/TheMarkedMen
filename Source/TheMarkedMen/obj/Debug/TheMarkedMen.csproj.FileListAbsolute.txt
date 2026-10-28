@@ -18,3 +18,11 @@ C:\Program Files (x86)\Steam\steamapps\common\RimWorld\Mods\The Marked Men\Assem
 C:\Program Files (x86)\Steam\steamapps\common\RimWorld\Mods\The Marked Men\Assemblies\TheMarkedMen.pdb
 C:\Program Files (x86)\Steam\steamapps\common\RimWorld\Mods\The Marked Men\Source\TheMarkedMen\obj\Debug\TheMarkedMen.dll
 C:\Program Files (x86)\Steam\steamapps\common\RimWorld\Mods\The Marked Men\Source\TheMarkedMen\obj\Debug\TheMarkedMen.pdb
+C:\Users\edria\AppData\Local\Temp\opencode\markedmen_build\TheMarkedMen.dll
+C:\Users\edria\AppData\Local\Temp\opencode\markedmen_build\TheMarkedMen.pdb
+C:\Users\edria\AppData\Local\Temp\opencode\markedmen_build2\TheMarkedMen.dll
+C:\Users\edria\AppData\Local\Temp\opencode\markedmen_build2\TheMarkedMen.pdb
+C:\Users\edria\AppData\Local\Temp\opencode\markedmen_build3\TheMarkedMen.dll
+C:\Users\edria\AppData\Local\Temp\opencode\markedmen_build3\TheMarkedMen.pdb
+C:\Users\edria\AppData\Local\Temp\opencode\markedmen_build4\TheMarkedMen.dll
+C:\Users\edria\AppData\Local\Temp\opencode\markedmen_build4\TheMarkedMen.pdb
