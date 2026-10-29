@@ -541,25 +541,21 @@ namespace TheMarkedMen
 				return false;
 			}
 
-			MarkedVirusApparelProtection exposureProtection = default(MarkedVirusApparelProtection);
+			MarkedVirusApparelProtection exposureProtection = GetMarkedVirusExposureProtection(pawn);
 			float effectiveChance = Mathf.Clamp01(chance);
 			if (starterLineageBreakthrough)
 			{
 				effectiveChance *= TheMarkedMenSettings.StarterLineageBreakthroughChance;
 			}
 
-			if (CanApparelReduceMarkedVirusExposure(source))
+			if (exposureProtection.blocksMarkedVirusExposure)
 			{
-				exposureProtection = GetMarkedVirusExposureProtection(pawn);
-				if (exposureProtection.blocksMarkedVirusExposure)
-				{
-					return false;
-				}
+				return false;
+			}
 
-				if (exposureProtection.resistance > 0f)
-				{
-					effectiveChance *= 1f - exposureProtection.resistance;
-				}
+			if (exposureProtection.resistance > 0f)
+			{
+				effectiveChance *= 1f - exposureProtection.resistance;
 			}
 
 			if (effectiveChance <= 0f)
@@ -1047,11 +1043,6 @@ namespace TheMarkedMen
 				&& text.IndexOf(value, StringComparison.OrdinalIgnoreCase) >= 0;
 		}
 
-		private static bool CanApparelReduceMarkedVirusExposure(string source)
-		{
-			return string.IsNullOrEmpty(source) || source.IndexOf("food", StringComparison.OrdinalIgnoreCase) < 0;
-		}
-
 		public static void TransformPawn(Pawn pawn, bool suppressNotification = false, Pawn infector = null)
 		{
 			if (pawn == null || pawn.Dead || IsShambler(pawn))
@@ -1100,18 +1091,8 @@ namespace TheMarkedMen
 				return;
 			}
 
-			// All infected pawns are now CA_CrossedCivilian, no tuning needed
-		}
-
-		private static PawnKindDef PickReplacementMarkedKind()
-		{
-			// Always use CA_CrossedCivilian for replacement infected
-			return CADefOf.CrossedCivilian;
-		}
-
-		private static void RemoveClassHediffs(Pawn pawn)
-		{
-			// No class-specific hediffs to remove for CA_CrossedCivilian
+			// Raid composition already assigns each pawn its intended kind. This
+			// hook is kept as the single place for any future per-pawn tuning.
 		}
 
 		private static void RemoveHediffIfPresent(Pawn pawn, HediffDef def)
@@ -1171,6 +1152,8 @@ namespace TheMarkedMen
 				pawn.health.AddHediff(CADefOf.CrossedStrength);
 			}
 
+			ApplyEliteTierHediff(pawn);
+
 			if (IsCrossedFactionPawn(pawn))
 			{
 				ApplyRandomBionics(pawn);
@@ -1198,8 +1181,32 @@ namespace TheMarkedMen
 
         public static void ApplyRandomBionics(Pawn pawn)
         {
-            // No bionics for CA_CrossedCivilian infected
-            return;
+            if (pawn == null || pawn.health == null || !IsCrossedFactionPawn(pawn))
+            {
+                return;
+            }
+
+            // Only the Marked Man is heavily augmented; the other kinds rely on
+            // their pawn kind gear and tier hediffs.
+            if (pawn.kindDef != CADefOf.MarkedMan)
+            {
+                return;
+            }
+
+            int maxBionics = 3;
+            float perPartChance = 0.5f;
+
+            int installed = 0;
+            TryInstallBionic(pawn, BionicEyeHediffDef, BodyPartDefOf.Eye, perPartChance, ref installed, maxBionics);
+            TryInstallBionic(pawn, BionicArmHediffDef, BodyPartDefOf.Arm, perPartChance, ref installed, maxBionics);
+            TryInstallBionic(pawn, AdvBionicArmHediffDef, BodyPartDefOf.Arm, perPartChance * 0.2f, ref installed, maxBionics);
+            TryInstallBionic(pawn, BionicLegHediffDef, BodyPartDefOf.Leg, perPartChance, ref installed, maxBionics);
+            TryInstallBionic(pawn, AdvBionicLegHediffDef, BodyPartDefOf.Leg, perPartChance * 0.2f, ref installed, maxBionics);
+            TryInstallBionic(pawn, BionicHeartHediffDef, BodyPartDefOf.Heart, perPartChance * 0.5f, ref installed, maxBionics);
+            TryInstallBionic(pawn, BionicStomachHediffDef, StomachBodyPartDef, perPartChance * 0.5f, ref installed, maxBionics);
+            TryInstallBionic(pawn, BionicLungHediffDef, BodyPartDefOf.Lung, perPartChance * 0.4f, ref installed, maxBionics);
+            TryInstallBionic(pawn, BionicKidneyHediffDef, KidneyBodyPartDef, perPartChance * 0.4f, ref installed, maxBionics);
+            TryInstallBionic(pawn, BionicEarHediffDef, EarBodyPartDef, perPartChance * 0.3f, ref installed, maxBionics);
         }
 
         private static void TryInstallBionic(Pawn pawn, HediffDef hediffDef, BodyPartDef bodyPartDef, float chance, ref int installed, int maxBionics)
@@ -1220,8 +1227,29 @@ namespace TheMarkedMen
 
 		public static void ApplyEliteTierHediff(Pawn pawn)
 		{
-			// No tier-specific hediffs for CA_CrossedCivilian infected
-			return;
+			if (pawn == null || pawn.health == null || !IsCrossedFactionPawn(pawn))
+			{
+				return;
+			}
+
+			HediffDef tierDef = null;
+			if (pawn.kindDef == CADefOf.CrossedWarlord)
+			{
+				tierDef = CADefOf.WarlordTier;
+			}
+			else if (pawn.kindDef == CADefOf.CrossedAlpha)
+			{
+				tierDef = CADefOf.AlphaTier;
+			}
+			else if (pawn.kindDef == CADefOf.MarkedMan)
+			{
+				tierDef = CADefOf.MarkedTier;
+			}
+
+			if (tierDef != null && !pawn.health.hediffSet.HasHediff(tierDef))
+			{
+				pawn.health.AddHediff(tierDef);
+			}
 		}
 
 		public static void EnsurePredatorHediffs(Pawn pawn)
@@ -1492,7 +1520,6 @@ public static void RemoveMarkedVirusHediffFromFullyTurnedPawn(Pawn pawn)
 				EnsureFearlessCrossedState(pawn);
 				ApplyInfectedTattoo(pawn);
 				CrossedContagionUtility.TryContagionPulse(pawn);
-				CrossedCorpseUtility.TryContaminateNearbyCorpses(pawn);
 				return;
 			}
 
@@ -1515,7 +1542,6 @@ public static void RemoveMarkedVirusHediffFromFullyTurnedPawn(Pawn pawn)
 			EnsureFearlessCrossedState(pawn);
 			ApplyInfectedTattoo(pawn);
 			CrossedContagionUtility.TryContagionPulse(pawn);
-			CrossedCorpseUtility.TryContaminateNearbyCorpses(pawn);
 		}
 
 		public static bool CanSafelyProcessInfectedState(Pawn pawn)

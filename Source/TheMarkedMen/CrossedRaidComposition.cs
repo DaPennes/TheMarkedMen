@@ -31,9 +31,14 @@ namespace TheMarkedMen
             this.role = role;
             threat = NormalizeThreat(points);
             TheMarkedMenSettings settings = TheMarkedMenMod.Settings;
-            maxAlphas = Mathf.Clamp(settings?.maximumAlphasPerRaid ?? 2, 0, 99);
-            maxWarlords = 1;
-            maxMarkedMen = role == CrossedRaidCompositionRole.Warband ? 2 : 1;
+            int configuredAlphas = Mathf.Clamp(settings?.maximumAlphasPerRaid ?? 2, 0, 99);
+            // Large raids can support more commanders, but the player's cap
+            // always wins. Small raids still allow at most one of each elite.
+            maxAlphas = Mathf.Min(configuredAlphas, Mathf.Max(1, Mathf.RoundToInt(points / 1800f)));
+            maxWarlords = Mathf.Clamp(Mathf.RoundToInt(points / 5000f), 1, 3);
+            maxMarkedMen = role == CrossedRaidCompositionRole.Warband
+                ? Mathf.Clamp(Mathf.RoundToInt(points / 3000f), 1, 4)
+                : 1;
         }
 
         public static PawnKindDef PickWarbandLeader()

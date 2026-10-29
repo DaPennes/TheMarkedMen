@@ -33,7 +33,7 @@
   <MarkedMen_Settings_Preset_Brutal>Hard</MarkedMen_Settings_Preset_Brutal>
   <MarkedMen_Settings_Preset_BrutalTip>Faster, harder, less forgiving raids with stronger infection pressure.</MarkedMen_Settings_Preset_BrutalTip>
   <MarkedMen_Settings_Preset_Outbreak>Very Hard</MarkedMen_Settings_Preset_Outbreak>
-  <MarkedMen_Settings_Preset_OutbreakTip>Large outbreak pressure with faster spread, larger hordes, and faster corpse cycling.</MarkedMen_Settings_Preset_OutbreakTip>
+  <MarkedMen_Settings_Preset_OutbreakTip>Large outbreak pressure with faster spread, larger hordes, and faster reanimation.</MarkedMen_Settings_Preset_OutbreakTip>
   <MarkedMen_Settings_Preset_Custom>Custom</MarkedMen_Settings_Preset_Custom>
   <MarkedMen_Settings_Preset_VeryEasy>Very Easy</MarkedMen_Settings_Preset_VeryEasy>
   <MarkedMen_Settings_Preset_VeryEasyTip>Slower raids, lower exposure risk, smaller hordes, and more immune survivors.</MarkedMen_Settings_Preset_VeryEasyTip>
@@ -44,7 +44,7 @@
   <MarkedMen_Settings_Preset_Hard>Hard</MarkedMen_Settings_Preset_Hard>
   <MarkedMen_Settings_Preset_HardTip>Faster, harder, less forgiving raids with stronger infection pressure.</MarkedMen_Settings_Preset_HardTip>
   <MarkedMen_Settings_Preset_VeryHard>Very Hard</MarkedMen_Settings_Preset_VeryHard>
-  <MarkedMen_Settings_Preset_VeryHardTip>Large outbreak pressure with faster spread, larger hordes, and faster corpse cycling.</MarkedMen_Settings_Preset_VeryHardTip>
+  <MarkedMen_Settings_Preset_VeryHardTip>Large outbreak pressure with faster spread, larger hordes, and faster reanimation.</MarkedMen_Settings_Preset_VeryHardTip>
   <MarkedMen_Settings_InfectColonists>Infect colonists</MarkedMen_Settings_InfectColonists>
   <MarkedMen_Settings_InfectColonistsDesc>When enabled, your own colonists can be infected by the Marked Virus. Disable to make colonists immune to new infections.</MarkedMen_Settings_InfectColonistsDesc>
   <MarkedMen_Settings_InfectAllies>Infect allies</MarkedMen_Settings_InfectAllies>
@@ -80,8 +80,8 @@
   <MarkedMen_Settings_warlordWeightMultiplierDesc>Regional commander infected. Rare and extremely dangerous.</MarkedMen_Settings_warlordWeightMultiplierDesc>
   <MarkedMen_Settings_markedManWeightMultiplier>Marked Man weight</MarkedMen_Settings_markedManWeightMultiplier>
   <MarkedMen_Settings_markedManWeightMultiplierDesc>Ultimate infected. Endgame encounter, extremely rare.</MarkedMen_Settings_markedManWeightMultiplierDesc>
-  <MarkedMen_Settings_VirusAndCorpses>Virus And Corpses</MarkedMen_Settings_VirusAndCorpses>
-  <MarkedMen_Settings_VirusAndCorpsesDesc>Controls exposure chances, infection timing, terminal outcomes, and infected corpse transformation.</MarkedMen_Settings_VirusAndCorpsesDesc>
+  <MarkedMen_Settings_VirusAndCorpses>Virus And Reanimation</MarkedMen_Settings_VirusAndCorpses>
+  <MarkedMen_Settings_VirusAndCorpsesDesc>Controls exposure chances, infection timing, terminal outcomes, and infected reanimation.</MarkedMen_Settings_VirusAndCorpsesDesc>
   <MarkedMen_Settings_CA_MarkedTurned_Strength>CA_MarkedTurned Strength</MarkedMen_Settings_CA_MarkedTurned_Strength>
   <MarkedMen_Settings_CA_MarkedTurned_StrengthDesc>Scales the base stat modifiers applied to pawns transformed by CA_MarkedTurned hediff. Higher values make transformed victims stronger.</MarkedMen_Settings_CA_MarkedTurned_StrengthDesc>
   <MarkedMen_Settings_markedTurnedMoveSpeedFactor>Move speed factor</MarkedMen_Settings_markedTurnedMoveSpeedFactor>
@@ -104,7 +104,7 @@
   <MarkedMen_Settings_AIStorytelling>AI &amp; Storytelling</MarkedMen_Settings_AIStorytelling>
   <MarkedMen_Settings_AIStorytellingDesc>Controls Marked Men pressure logic, strategic AI activation thresholds, storyteller integration, raid countdown warnings, and custom story events.</MarkedMen_Settings_AIStorytellingDesc>
   <MarkedMen_Settings_PerformanceCap>Performance &amp; Cap</MarkedMen_Settings_PerformanceCap>
-  <MarkedMen_Settings_PerformanceCapDesc>Controls maximum simultaneous infected, cleanup intervals, corpse removal rates, world pawn tracking limits, and performance optimization settings.</MarkedMen_Settings_PerformanceCapDesc>
+  <MarkedMen_Settings_PerformanceCapDesc>Controls maximum simultaneous infected, cleanup intervals, reanimation processing, world pawn tracking limits, and performance optimization settings.</MarkedMen_Settings_PerformanceCapDesc>
   <MarkedMen_Settings_UrbanBiome>Urban Biome</MarkedMen_Settings_UrbanBiome>
   <MarkedMen_Settings_UrbanBiomeDesc>Controls Marked Men presence in urban maps: ambush frequency, dormant infestation density, epicenter encounters, and survivor spawn chances.</MarkedMen_Settings_UrbanBiomeDesc>
   <MarkedMen_Settings_UINotifications>UI &amp; Notifications</MarkedMen_Settings_UINotifications>
@@ -174,14 +174,10 @@
   <MarkedMen_Settings_maximumAlphasPerRaidDesc>Hard cap for alpha infected in generated raids. Set to 0 to prevent alphas from spawning.</MarkedMen_Settings_maximumAlphasPerRaidDesc>
   <MarkedMen_Settings_bloodExposureChance>Blood exposure chance</MarkedMen_Settings_bloodExposureChance>
   <MarkedMen_Settings_bloodExposureChanceDesc>Chance that infected blood exposure creates a Marked Virus exposure event.</MarkedMen_Settings_bloodExposureChanceDesc>
-  <MarkedMen_Settings_foodExposureChance>Contaminated food exposure chance</MarkedMen_Settings_foodExposureChance>
-  <MarkedMen_Settings_foodExposureChanceDesc>Chance that eating contaminated food creates a Marked Virus exposure event.</MarkedMen_Settings_foodExposureChanceDesc>
   <MarkedMen_Settings_infectedAssaultExposureChance>Infected melee contact chance</MarkedMen_Settings_infectedAssaultExposureChance>
   <MarkedMen_Settings_infectedAssaultExposureChanceDesc>Chance that direct infected assault contact creates a Marked Virus exposure event.</MarkedMen_Settings_infectedAssaultExposureChanceDesc>
   <MarkedMen_Settings_closeContactExposureChance>Close-contact contagion chance</MarkedMen_Settings_closeContactExposureChance>
   <MarkedMen_Settings_closeContactExposureChanceDesc>Chance per valid nearby target during a contagion pulse from an infected pawn.</MarkedMen_Settings_closeContactExposureChanceDesc>
-  <MarkedMen_Settings_corpseContaminationChance>Corpse contamination chance</MarkedMen_Settings_corpseContaminationChance>
-  <MarkedMen_Settings_corpseContaminationChanceDesc>Chance that an infected pawn contaminates a nearby corpse during a corpse contamination pulse.</MarkedMen_Settings_corpseContaminationChanceDesc>
   <MarkedMen_Settings_infectionProgressionSpeedMultiplier>Infection progression speed</MarkedMen_Settings_infectionProgressionSpeedMultiplier>
   <MarkedMen_Settings_infectionProgressionSpeedMultiplierDesc>Higher values make the disease advance faster. Lower values give victims more time.</MarkedMen_Settings_infectionProgressionSpeedMultiplierDesc>
   <MarkedMen_Settings_incubationDurationMultiplier>Incubation duration multiplier</MarkedMen_Settings_incubationDurationMultiplier>
@@ -312,12 +308,6 @@
   <MarkedMen_Settings_contagionPulseIntervalTicksDesc>How often infected pawns try nearby close-contact exposure checks.</MarkedMen_Settings_contagionPulseIntervalTicksDesc>
   <MarkedMen_Settings_maxContagionTargetsPerPulse>Max contagion targets per pulse</MarkedMen_Settings_maxContagionTargetsPerPulse>
   <MarkedMen_Settings_maxContagionTargetsPerPulseDesc>Maximum nearby pawns checked by each contagion pulse. Set to 0 to disable pulse-based close-contact spread.</MarkedMen_Settings_maxContagionTargetsPerPulseDesc>
-  <MarkedMen_Settings_corpseContaminationIntervalTicks>Ticks between corpse contamination pulses</MarkedMen_Settings_corpseContaminationIntervalTicks>
-  <MarkedMen_Settings_corpseContaminationIntervalTicksDesc>How often infected pawns try to contaminate nearby corpses and how often lingering near infectious corpses is checked.</MarkedMen_Settings_corpseContaminationIntervalTicksDesc>
-  <MarkedMen_Settings_corpseLingeringExposureChance>Corpse exposure chance per roll</MarkedMen_Settings_corpseLingeringExposureChance>
-  <MarkedMen_Settings_corpseLingeringExposureChanceDesc>Chance (0 to 1) that a colonist who has lingered long enough near an infectious corpse is exposed to the Marked virus. The lingering timer resets after each roll, whether or not exposure occurs. Default 0.1 means 10 percent.</MarkedMen_Settings_corpseLingeringExposureChanceDesc>
-  <MarkedMen_Settings_maxCorpsesPerPulse>Max corpses checked per pulse</MarkedMen_Settings_maxCorpsesPerPulse>
-  <MarkedMen_Settings_maxCorpsesPerPulseDesc>Maximum nearby corpses checked during each corpse contamination pulse. Set to 0 to disable corpse contamination.</MarkedMen_Settings_maxCorpsesPerPulseDesc>
   <MarkedMen_Settings_tacticalRetargetIntervalTicks>Ticks between tactical retarget checks</MarkedMen_Settings_tacticalRetargetIntervalTicks>
   <MarkedMen_Settings_tacticalRetargetIntervalTicksDesc>How often infected pawns can reconsider tactical targets. Higher values improve performance by reducing scans for new targets.</MarkedMen_Settings_tacticalRetargetIntervalTicksDesc>
   <MarkedMen_Settings_infightingCheckIntervalTicks>Ticks between infighting checks</MarkedMen_Settings_infightingCheckIntervalTicks>

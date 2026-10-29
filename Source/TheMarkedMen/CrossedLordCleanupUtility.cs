@@ -69,6 +69,23 @@ namespace TheMarkedMen
             }
         }
 
+        public static void DetachFromAnyLord(IEnumerable<Pawn> pawns)
+        {
+            if (pawns == null)
+            {
+                return;
+            }
+
+            foreach (Pawn pawn in pawns)
+            {
+                Lord existing = pawn?.GetLord();
+                if (existing != null)
+                {
+                    existing.RemovePawn(pawn);
+                }
+            }
+        }
+
         public static bool IsValidSpawnedLordPawn(Pawn pawn, Map map, Faction faction)
         {
             return pawn != null
@@ -77,6 +94,7 @@ namespace TheMarkedMen
                 && !pawn.Downed
                 && pawn.Spawned
                 && pawn.Map == map
+                && pawn.Position.InBounds(map)
                 && (faction == null || pawn.Faction == faction)
                 && !HasRecoveryWaitJob(pawn);
         }

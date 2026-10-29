@@ -301,30 +301,6 @@ namespace TheMarkedMen
         }
     }
 
-    [HarmonyPatch(typeof(FoodUtility), nameof(FoodUtility.AddFoodPoisoningHediff))]
-    public static class Patch_ContaminatedFoodExposure
-    {
-        public static void Postfix(Pawn pawn, Thing ingestible)
-        {
-            if (pawn == null || ingestible == null)
-            {
-                return;
-            }
-
-            if (TheMarkedMenMod.Settings != null && !TheMarkedMenMod.Settings.infectionEnabled)
-            {
-                return;
-            }
-
-            string label = ingestible.def?.defName ?? string.Empty;
-            if (label.IndexOf("Human", StringComparison.OrdinalIgnoreCase) >= 0 || label.IndexOf("Meat", StringComparison.OrdinalIgnoreCase) >= 0)
-            {
-                float chance = TheMarkedMenMod.Settings?.foodExposureChance ?? TheMarkedMenSettings.InfectionTransmissionChance;
-                CrossedUtility.TryExpose(pawn, chance, "contaminated food");
-            }
-        }
-    }
-
     [HarmonyPatch(typeof(PawnGenerator), nameof(PawnGenerator.GeneratePawn), typeof(PawnGenerationRequest))]
     public static class Patch_CrossedEquipmentOverlay
     {

@@ -93,7 +93,7 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
         public float hordeFrequencyMultiplier = 1f;
         public float probeFrequencyMultiplier = 1f;
         public int firstMarkedRaidDay = 45;
-        public float raidPointsMultiplier = 2000f;
+        public float raidPointsMultiplier = 2f;
         public float minimumRaidPoints = 2000f;
         public float maximumRaidPoints = 10000f;
         public float raidEscalationPerRaid = DefaultRaidEscalationPerRaid;
@@ -124,11 +124,9 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
         public int maximumProbeSize = 4;
         public int maximumAlphasPerRaid = 2;
         public float bloodExposureChance = InfectionTransmissionChance;
-        public float foodExposureChance = InfectionTransmissionChance;
         public float rjwExposureChance = InfectionTransmissionChance;
         public float infectedAssaultExposureChance = InfectionTransmissionChance;
         public float closeContactExposureChance = InfectionTransmissionChance;
-        public float corpseContaminationChance = 1f;
 
         public bool meleeTransmissionEnabled = true;
         public bool biteTransmissionEnabled = true;
@@ -188,9 +186,6 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
         public float caravanAmbushPrepTimeInHours = 8f;
         public int contagionPulseIntervalTicks = 500;
         public int maxContagionTargetsPerPulse = 3;
-        public int corpseContaminationIntervalTicks = 750;
-        public float corpseLingeringExposureChance = 0.10f;
-        public int maxCorpsesPerPulse = 2;
         public int tacticalRetargetIntervalTicks = 60;
         public int infightingCheckIntervalTicks = 1000;
         public int lordCleanupIntervalTicks = 250;
@@ -295,8 +290,6 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
 
         public static float CloseContactExposureChance => Mathf.Clamp01(TheMarkedMenMod.Settings?.closeContactExposureChance ?? InfectionTransmissionChance);
 
-        public static float CorpseContaminationChance => Mathf.Clamp01(TheMarkedMenMod.Settings?.corpseContaminationChance ?? 1f);
-
         public static float ReanimationChance => Mathf.Clamp01(TheMarkedMenMod.Settings?.reanimationChance ?? 1f);
 
         public static int ReanimationDelayTicks => Mathf.Clamp(TheMarkedMenMod.Settings?.reanimationDelayTicks ?? 900, 60, GenDate.TicksPerDay * 30);
@@ -308,12 +301,6 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
         public static int ContagionPulseIntervalTicks => Mathf.Clamp(TheMarkedMenMod.Settings?.contagionPulseIntervalTicks ?? 500, 60, GenDate.TicksPerDay);
 
         public static int MaxContagionTargetsPerPulse => Mathf.Clamp(TheMarkedMenMod.Settings?.maxContagionTargetsPerPulse ?? 3, 0, 50);
-
-        public static int CorpseContaminationIntervalTicks => Mathf.Clamp(TheMarkedMenMod.Settings?.corpseContaminationIntervalTicks ?? 750, 60, GenDate.TicksPerDay);
-
-        public static float CorpseLingeringExposureChance => Mathf.Clamp01(TheMarkedMenMod.Settings?.corpseLingeringExposureChance ?? 0.10f);
-
-        public static int MaxCorpsesPerPulse => Mathf.Clamp(TheMarkedMenMod.Settings?.maxCorpsesPerPulse ?? 2, 0, 50);
 
         public static int TacticalRetargetIntervalTicks => Mathf.Clamp(TheMarkedMenMod.Settings?.tacticalRetargetIntervalTicks ?? 60, 1, 2500);
 
@@ -422,11 +409,9 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
             Scribe_Values.Look(ref maximumProbeSize, "maximumProbeSize", 4);
             Scribe_Values.Look(ref maximumAlphasPerRaid, "maximumAlphasPerRaid", 2);
             Scribe_Values.Look(ref bloodExposureChance, "bloodExposureChance", InfectionTransmissionChance);
-            Scribe_Values.Look(ref foodExposureChance, "foodExposureChance", InfectionTransmissionChance);
             Scribe_Values.Look(ref rjwExposureChance, "rjwExposureChance", InfectionTransmissionChance);
             Scribe_Values.Look(ref infectedAssaultExposureChance, "infectedAssaultExposureChance", InfectionTransmissionChance);
             Scribe_Values.Look(ref closeContactExposureChance, "closeContactExposureChance", InfectionTransmissionChance);
-            Scribe_Values.Look(ref corpseContaminationChance, "corpseContaminationChance", 1f);
             Scribe_Values.Look(ref meleeTransmissionEnabled, "meleeTransmissionEnabled", true);
             Scribe_Values.Look(ref biteTransmissionEnabled, "biteTransmissionEnabled", true);
             Scribe_Values.Look(ref clawTransmissionEnabled, "clawTransmissionEnabled", true);
@@ -482,9 +467,6 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
             Scribe_Values.Look(ref debugActionsEnabled, "debugActionsEnabled", true);
             Scribe_Values.Look(ref contagionPulseIntervalTicks, "contagionPulseIntervalTicks", 500);
             Scribe_Values.Look(ref maxContagionTargetsPerPulse, "maxContagionTargetsPerPulse", 3);
-            Scribe_Values.Look(ref corpseContaminationIntervalTicks, "corpseContaminationIntervalTicks", 750);
-            Scribe_Values.Look(ref corpseLingeringExposureChance, "corpseLingeringExposureChance", 0.10f);
-            Scribe_Values.Look(ref maxCorpsesPerPulse, "maxCorpsesPerPulse", 2);
             Scribe_Values.Look(ref tacticalRetargetIntervalTicks, "tacticalRetargetIntervalTicks", 60);
             Scribe_Values.Look(ref infightingCheckIntervalTicks, "infightingCheckIntervalTicks", 1000);
             Scribe_Values.Look(ref lordCleanupIntervalTicks, "lordCleanupIntervalTicks", 250);
@@ -543,7 +525,6 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
                 if (loadedSettingsVersion < 3)
                 {
                     bloodExposureChance = InfectionTransmissionChance;
-                    foodExposureChance = InfectionTransmissionChance;
                 }
 
                 if (loadedSettingsVersion < 4)
@@ -582,7 +563,6 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
                     ResetCompositionDefaults();
                     infectedAssaultExposureChance = InfectionTransmissionChance;
                     closeContactExposureChance = InfectionTransmissionChance;
-                    corpseContaminationChance = 1f;
                     infectionProgressionSpeedMultiplier = 1f;
                     incubationDurationMultiplier = 1f;
                     immunitySurvivalChance = DefaultImmunitySurvivalChance;
@@ -784,10 +764,8 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
 
             DrawSectionHeader(listing, "MarkedMen_Settings_VirusAndCorpses".Translate(), "MarkedMen_Settings_VirusAndCorpsesDesc".Translate());
             DrawFloat(listing, "MarkedMen_Settings_bloodExposureChance".Translate(), ref bloodExposureChance, 0f, 1f, "bloodExposureChance", "MarkedMen_Settings_bloodExposureChanceDesc".Translate());
-            DrawFloat(listing, "MarkedMen_Settings_foodExposureChance".Translate(), ref foodExposureChance, 0f, 1f, "foodExposureChance", "MarkedMen_Settings_foodExposureChanceDesc".Translate());
             DrawFloat(listing, "MarkedMen_Settings_infectedAssaultExposureChance".Translate(), ref infectedAssaultExposureChance, 0f, 1f, "infectedAssaultExposureChance", "MarkedMen_Settings_infectedAssaultExposureChanceDesc".Translate());
             DrawFloat(listing, "MarkedMen_Settings_closeContactExposureChance".Translate(), ref closeContactExposureChance, 0f, 1f, "closeContactExposureChance", "MarkedMen_Settings_closeContactExposureChanceDesc".Translate());
-            DrawFloat(listing, "MarkedMen_Settings_corpseContaminationChance".Translate(), ref corpseContaminationChance, 0f, 1f, "corpseContaminationChance", "MarkedMen_Settings_corpseContaminationChanceDesc".Translate());
             DrawFloat(listing, "MarkedMen_Settings_infectionProgressionSpeedMultiplier".Translate(), ref infectionProgressionSpeedMultiplier, 0.05f, 10f, "infectionProgressionSpeedMultiplier", "MarkedMen_Settings_infectionProgressionSpeedMultiplierDesc".Translate());
             DrawFloat(listing, "MarkedMen_Settings_incubationDurationMultiplier".Translate(), ref incubationDurationMultiplier, 0.05f, 10f, "incubationDurationMultiplier", "MarkedMen_Settings_incubationDurationMultiplierDesc".Translate());
             DrawFloat(listing, "MarkedMen_Settings_immunitySurvivalChance".Translate(), ref immunitySurvivalChance, 0f, 1f, "immunitySurvivalChance", "MarkedMen_Settings_immunitySurvivalChanceDesc".Translate());
@@ -867,9 +845,6 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
             DrawSectionHeader(listing, "MarkedMen_Settings_Performance".Translate(), "MarkedMen_Settings_PerformanceDesc".Translate());
             DrawInt(listing, "MarkedMen_Settings_contagionPulseIntervalTicks".Translate(), ref contagionPulseIntervalTicks, 60, GenDate.TicksPerDay, "contagionPulseIntervalTicks", "MarkedMen_Settings_contagionPulseIntervalTicksDesc".Translate());
             DrawInt(listing, "MarkedMen_Settings_maxContagionTargetsPerPulse".Translate(), ref maxContagionTargetsPerPulse, 0, 50, "maxContagionTargetsPerPulse", "MarkedMen_Settings_maxContagionTargetsPerPulseDesc".Translate());
-            DrawInt(listing, "MarkedMen_Settings_corpseContaminationIntervalTicks".Translate(), ref corpseContaminationIntervalTicks, 60, GenDate.TicksPerDay, "corpseContaminationIntervalTicks", "MarkedMen_Settings_corpseContaminationIntervalTicksDesc".Translate());
-            DrawFloat(listing, "MarkedMen_Settings_corpseLingeringExposureChance".Translate(), ref corpseLingeringExposureChance, 0f, 1f, "corpseLingeringExposureChance", "MarkedMen_Settings_corpseLingeringExposureChanceDesc".Translate());
-            DrawInt(listing, "MarkedMen_Settings_maxCorpsesPerPulse".Translate(), ref maxCorpsesPerPulse, 0, 50, "maxCorpsesPerPulse", "MarkedMen_Settings_maxCorpsesPerPulseDesc".Translate());
             DrawInt(listing, "MarkedMen_Settings_tacticalRetargetIntervalTicks".Translate(), ref tacticalRetargetIntervalTicks, 1, 2500, "tacticalRetargetIntervalTicks", "MarkedMen_Settings_tacticalRetargetIntervalTicksDesc".Translate());
             DrawInt(listing, "MarkedMen_Settings_infightingCheckIntervalTicks".Translate(), ref infightingCheckIntervalTicks, 60, GenDate.TicksPerDay, "infightingCheckIntervalTicks", "MarkedMen_Settings_infightingCheckIntervalTicksDesc".Translate());
             DrawInt(listing, "MarkedMen_Settings_lordCleanupIntervalTicks".Translate(), ref lordCleanupIntervalTicks, 60, GenDate.TicksPerDay, "lordCleanupIntervalTicks", "MarkedMen_Settings_lordCleanupIntervalTicksDesc".Translate());
@@ -1342,11 +1317,9 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
             maximumProbeSize = Mathf.Clamp(maximumProbeSize, minimumProbeSize, 30);
             maximumAlphasPerRaid = Mathf.Clamp(maximumAlphasPerRaid, 0, 99);
             bloodExposureChance = Mathf.Clamp01(bloodExposureChance);
-            foodExposureChance = Mathf.Clamp01(foodExposureChance);
             rjwExposureChance = Mathf.Clamp01(rjwExposureChance);
             infectedAssaultExposureChance = Mathf.Clamp01(infectedAssaultExposureChance);
             closeContactExposureChance = Mathf.Clamp01(closeContactExposureChance);
-            corpseContaminationChance = Mathf.Clamp01(corpseContaminationChance);
             biteInfectionChance = Mathf.Clamp01(biteInfectionChance);
             clawInfectionChance = Mathf.Clamp01(clawInfectionChance);
             scratchInfectionChance = Mathf.Clamp01(scratchInfectionChance);
@@ -1370,9 +1343,6 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
             raidCountdownHighPriorityDays = Mathf.Clamp(raidCountdownHighPriorityDays, 0f, 30f);
             contagionPulseIntervalTicks = Mathf.Clamp(contagionPulseIntervalTicks, 60, GenDate.TicksPerDay);
             maxContagionTargetsPerPulse = Mathf.Clamp(maxContagionTargetsPerPulse, 0, 50);
-            corpseContaminationIntervalTicks = Mathf.Clamp(corpseContaminationIntervalTicks, 60, GenDate.TicksPerDay);
-            corpseLingeringExposureChance = Mathf.Clamp01(corpseLingeringExposureChance);
-            maxCorpsesPerPulse = Mathf.Clamp(maxCorpsesPerPulse, 0, 50);
             tacticalRetargetIntervalTicks = Mathf.Clamp(tacticalRetargetIntervalTicks, 1, 2500);
             infightingCheckIntervalTicks = Mathf.Clamp(infightingCheckIntervalTicks, 60, GenDate.TicksPerDay);
             lordCleanupIntervalTicks = Mathf.Clamp(lordCleanupIntervalTicks, 60, GenDate.TicksPerDay);
@@ -1426,11 +1396,9 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
             ResetArrivalDefaults();
             ResetCompositionDefaults();
             bloodExposureChance = InfectionTransmissionChance;
-            foodExposureChance = InfectionTransmissionChance;
             rjwExposureChance = InfectionTransmissionChance;
             infectedAssaultExposureChance = InfectionTransmissionChance;
             closeContactExposureChance = InfectionTransmissionChance;
-            corpseContaminationChance = 1f;
             infectionProgressionSpeedMultiplier = 1f;
             incubationDurationMultiplier = 1f;
             immunitySurvivalChance = DefaultImmunitySurvivalChance;
@@ -1476,7 +1444,6 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
             raidEscalationPerRaid = 0.08f;
             raidEscalationMaxBonus = 1.5f;
             bloodExposureChance = 0.22f;
-            foodExposureChance = 0.15f;
             infectedAssaultExposureChance = 0.25f;
             meleeTransmissionEnabled = true;
             biteTransmissionEnabled = true;
@@ -1492,7 +1459,6 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
             markedMenInfectionChance = 1f;
             markedMenGuaranteedInfection = true;
             closeContactExposureChance = 0.2f;
-            corpseContaminationChance = 0.35f;
             infectionProgressionSpeedMultiplier = 0.55f;
             immunitySurvivalChance = 0.08f;
             terminalTransformationWeight = 0.35f;
@@ -1527,7 +1493,6 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
             raidPointsMultiplier = 0.9f;
             raidEscalationPerRaid = 0.1f;
             raidEscalationMaxBonus = 2f;
-            corpseContaminationChance = 0.65f;
             reanimationChance = 0.7f;
             civilianWeightMultiplier = 1.2f;
             scoutWeightMultiplier = 0.9f;
@@ -1590,7 +1555,6 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
             markedMenInfectionChance = 1f;
             markedMenGuaranteedInfection = true;
             closeContactExposureChance = 0.65f;
-            corpseContaminationChance = 1f;
             infectionProgressionSpeedMultiplier = 1.5f;
             immunitySurvivalChance = 0.01f;
             terminalTransformationWeight = 0.75f;
@@ -1636,7 +1600,6 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
             markedManWeightMultiplier = 0.8f;
             maximumAlphasPerRaid = 4;
             bloodExposureChance = 0.8f;
-            foodExposureChance = 0.7f;
             infectedAssaultExposureChance = 0.8f;
             meleeTransmissionEnabled = true;
             biteTransmissionEnabled = true;
@@ -1652,7 +1615,6 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
             markedMenInfectionChance = 1f;
             markedMenGuaranteedInfection = true;
             closeContactExposureChance = 0.9f;
-            corpseContaminationChance = 1f;
             infectionProgressionSpeedMultiplier = 2.2f;
             immunitySurvivalChance = 0.005f;
             terminalTransformationWeight = 0.9f;
@@ -1662,9 +1624,6 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
             starterLineageBreakthroughChance = 0.12f;
             contagionPulseIntervalTicks = 300;
             maxContagionTargetsPerPulse = 6;
-            corpseContaminationIntervalTicks = 360;
-            corpseLingeringExposureChance = 0.25f;
-            maxCorpsesPerPulse = 5;
             socialTerrorStrength = 1.25f;
             if (!updatePreset)
             {
@@ -1717,9 +1676,6 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
         {
             contagionPulseIntervalTicks = 500;
             maxContagionTargetsPerPulse = 3;
-            corpseContaminationIntervalTicks = 750;
-            corpseLingeringExposureChance = 0.10f;
-            maxCorpsesPerPulse = 2;
             tacticalRetargetIntervalTicks = 60;
             infightingCheckIntervalTicks = 1000;
             lordCleanupIntervalTicks = 250;
@@ -1750,7 +1706,6 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
         private const int HordeMinIntervalTicks = GenDate.TicksPerDay * 2;
         private const int HordeMaxIntervalTicks = HordeBaseIntervalTicks;
         private const int RecentIncidentLimit = 12;
-        private const int CorpseLingeringRequiredTicks = 2500;
         private const float RaidEscalationPerRaid = 0.18f;
         private const float RaidEscalationMaxBonus = 5f;
         private const float RandomRaidIntervalMinFactor = 0.2f;
@@ -1760,7 +1715,6 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
         private int nextMaintenanceTick;
         private int nextReanimationProcessTick;
         private int nextRaidMonitorTick;
-        private int nextCorpseExposureTick;
         private int nextRaidTick;
         private int nextHordeTick;
         private bool raidScheduleActivated;
@@ -1782,9 +1736,6 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
         private List<int> pendingReanimationTicks = new List<int>();
         private List<Pawn> activeRaidPawns = new List<Pawn>();
         private List<Pawn> activeRaidColonistsAtStart = new List<Pawn>();
-        private List<Pawn> corpseLingeringPawns = new List<Pawn>();
-        private List<int> corpseLingeringTicks = new List<int>();
-        private List<int> corpseLingeringLastSeenTicks = new List<int>();
         private List<CureOriginRecord> cureOrigins = new List<CureOriginRecord>();
         private readonly Dictionary<int, (Caravan caravan, int ambushTick)> trackedCaravans = new Dictionary<int, (Caravan, int)>();
         private int nextCaravanAmbushUpdateTick;
@@ -1950,7 +1901,6 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
             Scribe_Values.Look(ref nextMaintenanceTick, "nextMaintenanceTick", 0);
             Scribe_Values.Look(ref nextReanimationProcessTick, "nextReanimationProcessTick", 0);
             Scribe_Values.Look(ref nextRaidMonitorTick, "nextRaidMonitorTick", 0);
-            Scribe_Values.Look(ref nextCorpseExposureTick, "nextCorpseExposureTick", 0);
             Scribe_Values.Look(ref nextRaidTick, "nextRaidTick", 0);
             Scribe_Values.Look(ref nextHordeTick, "nextHordeTick", 0);
             Scribe_Values.Look(ref lastWarnedRaidTick, "lastWarnedRaidTick", 0);
@@ -1973,9 +1923,6 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
             Scribe_Collections.Look(ref pendingReanimationTicks, "pendingReanimationTicks", LookMode.Value);
             Scribe_Collections.Look(ref activeRaidPawns, "activeRaidPawns", LookMode.Reference);
             Scribe_Collections.Look(ref activeRaidColonistsAtStart, "activeRaidColonistsAtStart", LookMode.Reference);
-            Scribe_Collections.Look(ref corpseLingeringPawns, "corpseLingeringPawns", LookMode.Reference);
-            Scribe_Collections.Look(ref corpseLingeringTicks, "corpseLingeringTicks", LookMode.Value);
-            Scribe_Collections.Look(ref corpseLingeringLastSeenTicks, "corpseLingeringLastSeenTicks", LookMode.Value);
             if (Scribe.mode == LoadSaveMode.Saving)
             {
                 PruneCureOrigins();
@@ -2013,39 +1960,6 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
             {
                 activeRaidColonistsAtStart = new List<Pawn>();
             }
-            EnsureCorpseLingeringTrackerLists();
-        }
-
-        private void EnsureCorpseLingeringTrackerLists()
-        {
-            if (corpseLingeringPawns == null)
-            {
-                corpseLingeringPawns = new List<Pawn>();
-            }
-            if (corpseLingeringTicks == null)
-            {
-                corpseLingeringTicks = new List<int>();
-            }
-            if (corpseLingeringLastSeenTicks == null)
-            {
-                corpseLingeringLastSeenTicks = new List<int>();
-            }
-            while (corpseLingeringTicks.Count < corpseLingeringPawns.Count)
-            {
-                corpseLingeringTicks.Add(0);
-            }
-            while (corpseLingeringLastSeenTicks.Count < corpseLingeringPawns.Count)
-            {
-                corpseLingeringLastSeenTicks.Add(0);
-            }
-            while (corpseLingeringTicks.Count > corpseLingeringPawns.Count)
-            {
-                corpseLingeringTicks.RemoveAt(corpseLingeringTicks.Count - 1);
-            }
-            while (corpseLingeringLastSeenTicks.Count > corpseLingeringPawns.Count)
-            {
-                corpseLingeringLastSeenTicks.RemoveAt(corpseLingeringLastSeenTicks.Count - 1);
-            }
         }
 
         public override void GameComponentTick()
@@ -2059,19 +1973,15 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
             MonitorActiveRaid(ticks);
             CheckAndSendRaidWarningLetter(ticks);
 
-            // Keep scheduled raids, hordes, and periodic upkeep advancing even
-            // when no infected corpses are present on any map.
-            TryRunPeriodicMaintenance(ticks);
+            // Scheduled attacks are due on an exact tick. The other periodic
+            // upkeep is gated to 2500-tick windows, but raids and hordes must
+            // not wait for the next window after their countdown reaches zero.
+            TryFireScheduledRaid(ticks);
+            TryFireScheduledHorde(ticks);
 
-            // Corpse exposure used to be driven from NoteCorpseLingering, which is
-            // only called by this scan. Run the scan on its own timer so the loop
-            // is no longer self-referential.
-            if (ticks >= nextCorpseExposureTick)
-            {
-                nextCorpseExposureTick = ticks + TheMarkedMenSettings.CorpseContaminationIntervalTicks;
-                PruneCorpseLingeringTrackers(ticks);
-                CrossedCorpseUtility.TryExposeNearbyPawnsToInfectedCorpses();
-            }
+            // Keep scheduled raids, hordes, and periodic upkeep advancing even
+            // when no infected pawns are active on any map.
+            TryRunPeriodicMaintenance(ticks);
 
             if (ticks >= nextReanimationProcessTick)
             {
@@ -2199,37 +2109,8 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
             return -1f;
         }
 
-        public bool NoteCorpseLingering(Pawn pawn, int currentTick, int observedTicks)
-        {
-            if (pawn == null || pawn.Destroyed || pawn.Dead || CrossedUtility.IsInfectedPawn(pawn) || CrossedUtility.IsFullyProtectedFromCrossVirusExposure(pawn))
-            {
-                return false;
-            }
-
-            EnsureCorpseLingeringTrackerLists();
-
-            int index = corpseLingeringPawns.IndexOf(pawn);
-            if (index < 0)
-            {
-                corpseLingeringPawns.Add(pawn);
-                corpseLingeringTicks.Add(0);
-                corpseLingeringLastSeenTicks.Add(currentTick);
-                index = corpseLingeringPawns.Count - 1;
-            }
-
-            corpseLingeringTicks[index] += Mathf.Max(0, observedTicks);
-            corpseLingeringLastSeenTicks[index] = currentTick;
-
-            // Only expose after enough observed lingering time. The caller resets
-            // the tracker after a qualifying pulse, so each exposure roll costs a
-            // fresh 2500 ticks of exposure to an infectious corpse.
-            return corpseLingeringTicks[index] >= CorpseLingeringRequiredTicks;
-        }
-
         /// <summary>
-        /// Shared 2500-tick upkeep, run once by whichever caller reaches the
-        /// window first. Scheduled raids and hordes must not depend on corpse
-        /// tracking, which only runs when infected corpses are present.
+        /// Shared 2500-tick upkeep for reconciliation and caravan timers.
         /// </summary>
         private bool TryRunPeriodicMaintenance(int currentTick)
         {
@@ -2239,9 +2120,7 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
             }
 
             nextMaintenanceTick = currentTick + MaintenanceTickInterval;
-            TryFireScheduledRaid(currentTick);
             InitializeStarterLineageResistance();
-            TryFireScheduledHorde(currentTick);
             MapClassificationService.PruneDestroyedMaps();
 
             // Full pawn reconciliation is expensive; run it once per in-game day.
@@ -2260,49 +2139,6 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
             }
 
             return true;
-        }
-
-        public void ResetCorpseLingering(Pawn pawn)
-        {
-            if (pawn == null)
-            {
-                return;
-            }
-
-            EnsureCorpseLingeringTrackerLists();
-            int index = corpseLingeringPawns.IndexOf(pawn);
-            if (index < 0)
-            {
-                return;
-            }
-
-            corpseLingeringTicks[index] = 0;
-            corpseLingeringLastSeenTicks[index] = Find.TickManager?.TicksGame ?? corpseLingeringLastSeenTicks[index];
-        }
-
-        private void PruneCorpseLingeringTrackers(int currentTick)
-        {
-            EnsureCorpseLingeringTrackerLists();
-
-            int staleAfterTicks = Mathf.Max(CorpseLingeringRequiredTicks * 2, TheMarkedMenSettings.CorpseContaminationIntervalTicks * 4);
-            for (int i = corpseLingeringPawns.Count - 1; i >= 0; i--)
-            {
-                Pawn pawn = corpseLingeringPawns[i];
-                bool invalid = pawn == null || pawn.Destroyed || pawn.Dead || CrossedUtility.IsInfectedPawn(pawn) || CrossedUtility.IsFullyProtectedFromCrossVirusExposure(pawn);
-                bool stale = i >= corpseLingeringLastSeenTicks.Count || currentTick - corpseLingeringLastSeenTicks[i] > staleAfterTicks;
-                if (invalid || stale || i >= corpseLingeringTicks.Count)
-                {
-                    corpseLingeringPawns.RemoveAt(i);
-                    if (i < corpseLingeringTicks.Count)
-                    {
-                        corpseLingeringTicks.RemoveAt(i);
-                    }
-                    if (i < corpseLingeringLastSeenTicks.Count)
-                    {
-                        corpseLingeringLastSeenTicks.RemoveAt(i);
-                    }
-                }
-            }
         }
 
         public bool TryGetRaidCountdownForHud(out int ticksUntilRaid)
@@ -3278,6 +3114,69 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
             parms.raidArrivalMode = ChooseMarkedRaidArrivalMode(parms);
         }
 
+        /// <summary>
+        /// Resolves the arrival mode and its spawn center before spawning raiders.
+        /// Vanilla calls TryResolveRaidSpawnCenter before Arrive; skipping it made
+        /// single-edge walk-ins spawn at IntVec3.Invalid, losing the whole raid.
+        /// </summary>
+        public static bool TryArriveRaidPawns(List<Pawn> pawns, IncidentParms parms)
+        {
+            if (pawns == null || pawns.Count == 0 || parms == null || !(parms.target is Map))
+            {
+                return false;
+            }
+
+            PawnsArrivalModeDef mode = parms.raidArrivalMode;
+            if (mode?.Worker == null || !mode.Worker.CanUseWith(parms))
+            {
+                mode = PawnsArrivalModeDefOf.EdgeWalkInGroups;
+                parms.raidArrivalMode = mode;
+            }
+
+            if (mode.Worker == null || !mode.Worker.TryResolveRaidSpawnCenter(parms))
+            {
+                mode = PawnsArrivalModeDefOf.EdgeWalkInGroups;
+                parms.raidArrivalMode = mode;
+                if (mode.Worker == null || !mode.Worker.TryResolveRaidSpawnCenter(parms))
+                {
+                    Log.Warning("[The Marked Men] Could not resolve a raid spawn center; the raid will retry later.");
+                    return false;
+                }
+            }
+
+            mode.Worker.Arrive(pawns, parms);
+
+            // Arrival workers can silently drop pawns when no cell resolves. Do
+            // not leave unspawned or out-of-bounds infected behind for the lord
+            // cleanup pass to trip over later.
+            Map map = (Map)parms.target;
+            for (int i = pawns.Count - 1; i >= 0; i--)
+            {
+                Pawn pawn = pawns[i];
+                if (pawn == null)
+                {
+                    pawns.RemoveAt(i);
+                    continue;
+                }
+
+                if (!pawn.Spawned || pawn.Map != map || !pawn.Position.InBounds(map))
+                {
+                    try
+                    {
+                        pawn.Destroy(DestroyMode.Vanish);
+                    }
+                    catch (Exception ex)
+                    {
+                        Log.Warning("[The Marked Men] Could not remove a raid pawn after a failed spawn: " + ex.Message);
+                    }
+
+                    pawns.RemoveAt(i);
+                }
+            }
+
+            return pawns.Count > 0;
+        }
+
         private static PawnsArrivalModeDef ChooseMarkedRaidArrivalMode(IncidentParms parms)
         {
             PawnsArrivalModeDef fallback = PawnsArrivalModeDefOf.EdgeWalkInGroups;
@@ -3482,8 +3381,12 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
 
     public sealed class IncidentWorker_CrossedRaid : IncidentWorker_RaidEnemy
     {
-        private const int MinRaidCount = 3;
-        private const int MaxRaidCount = 10;
+        // Dire Raid-scale warbands: the pawn count scales with the raid points
+        // instead of being a fixed handful. The cap keeps a late-game raid
+        // large without letting pathfinding and lord updates run away.
+        private const int MinRaidCount = 6;
+        private const int MaxRaidCount = 90;
+        private const float RaidPointsPerPawn = 90f;
 
         public override float ChanceFactorNow(IIncidentTarget target)
         {
@@ -3532,7 +3435,7 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
             parms.canTimeoutOrFlee = false;
             TheMarkedMenGameComponent.ApplyMarkedRaidArrivalPattern(parms);
 
-            int count = Rand.RangeInclusive(MinRaidCount, MaxRaidCount);
+            int count = CalculateRaidCount(parms.points);
             List<Pawn> pawns = GenerateRaidPawns(count, parms.points, crossed);
             if (pawns.Count == 0)
             {
@@ -3540,45 +3443,54 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
             }
 
             parms.pawnCount = pawns.Count;
-            if (parms.raidArrivalMode?.Worker == null || !parms.raidArrivalMode.Worker.CanUseWith(parms))
-            {
-                parms.raidArrivalMode = PawnsArrivalModeDefOf.EdgeWalkIn;
-            }
-
-            IntVec3 _;
-            bool needsEdge = parms.raidArrivalMode == PawnsArrivalModeDefOf.EdgeWalkIn
-                || parms.raidArrivalMode == PawnsArrivalModeDefOf.EdgeWalkInGroups
-                || parms.raidArrivalMode == PawnsArrivalModeDefOf.EdgeWalkInDistributed
-                || parms.raidArrivalMode == PawnsArrivalModeDefOf.EdgeWalkInDistributedGroups;
-
-            if (needsEdge && !CellFinder.TryFindRandomEdgeCellWith(c => c.Standable(map), map, 0f, out _))
+            if (!TheMarkedMenGameComponent.TryArriveRaidPawns(pawns, parms))
             {
                 for (int i = 0; i < pawns.Count; i++)
+                {
                     pawns[i]?.Destroy(DestroyMode.Vanish);
+                }
                 return false;
             }
 
-            parms.raidArrivalMode.Worker.Arrive(pawns, parms);
             pawns = CrossedLordCleanupUtility.CollectValidSpawnedLordPawns(pawns, map, crossed);
             if (pawns.Count == 0)
             {
                 return false;
             }
 
+            parms.pawnCount = pawns.Count;
             CrossedUtility.ApplyGeneratedRaidKindTuning(pawns);
 
             // Build the raid lord only after arrival. Assigning lords per pawn here
             // would split the warband and break coordinated breaching.
             LordJob lordJob = CrossedRaidTactics.CreateAssaultLordJob(crossed, parms.points, pawns);
+            CrossedLordCleanupUtility.DetachFromAnyLord(pawns);
             LordMaker.MakeNewLord(crossed, lordJob, map, pawns);
             SendRaidLetter(pawns, parms);
             component?.NotifyRaidLaunched(parms.points, pawns, map);
             return true;
         }
 
+        private static int CalculateRaidCount(float points)
+        {
+            // Points already include the storyteller, difficulty, escalation, and
+            // player multipliers. Roughly one infected per 90 points lands near
+            // vanilla combat power, while the floor keeps early raids threatening.
+            float threat = Mathf.InverseLerp(600f, 15000f, Mathf.Max(0f, points));
+            float minimum = Mathf.Lerp(8f, 24f, threat);
+            int expected = Mathf.Clamp(
+                Mathf.RoundToInt(Mathf.Max(points / RaidPointsPerPawn, minimum)),
+                MinRaidCount,
+                MaxRaidCount);
+            int variance = Mathf.Clamp(Mathf.RoundToInt(expected * 0.16f), 1, 8);
+            return Rand.RangeInclusive(
+                Mathf.Max(MinRaidCount, expected - variance),
+                Mathf.Min(MaxRaidCount, expected + variance));
+        }
+
         private static List<Pawn> GenerateRaidPawns(int count, float points, Faction faction)
         {
-            List<Pawn> pawns = new List<Pawn>(count + 1);
+            List<Pawn> pawns = new List<Pawn>(count);
             CrossedRaidComposition composition = new CrossedRaidComposition(CrossedRaidCompositionRole.Warband, points);
 
             PawnKindDef leaderKind = CrossedRaidComposition.PickWarbandLeader();
@@ -3591,7 +3503,9 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
                 pawns.Add(leader);
             }
 
-            for (int i = 0; i < count; i++)
+            // The leader counts toward the raid size so the cap is a real cap.
+            int followers = leader == null ? count : Mathf.Max(0, count - 1);
+            for (int i = 0; i < followers; i++)
             {
                 PawnKindDef kind = composition.Pick();
                 if (kind == null)
@@ -3684,25 +3598,15 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
             }
 
             parms.pawnCount = pawns.Count;
-            if (parms.raidArrivalMode?.Worker == null || !parms.raidArrivalMode.Worker.CanUseWith(parms))
-            {
-                parms.raidArrivalMode = PawnsArrivalModeDefOf.EdgeWalkIn;
-            }
-
-            IntVec3 _;
-            bool needsEdge = parms.raidArrivalMode == PawnsArrivalModeDefOf.EdgeWalkIn
-                || parms.raidArrivalMode == PawnsArrivalModeDefOf.EdgeWalkInGroups
-                || parms.raidArrivalMode == PawnsArrivalModeDefOf.EdgeWalkInDistributed
-                || parms.raidArrivalMode == PawnsArrivalModeDefOf.EdgeWalkInDistributedGroups;
-
-            if (needsEdge && !CellFinder.TryFindRandomEdgeCellWith(c => c.Standable(map), map, 0f, out _))
+            if (!TheMarkedMenGameComponent.TryArriveRaidPawns(pawns, parms))
             {
                 for (int i = 0; i < pawns.Count; i++)
+                {
                     pawns[i]?.Destroy(DestroyMode.Vanish);
+                }
                 return false;
             }
 
-            parms.raidArrivalMode.Worker.Arrive(pawns, parms);
             pawns = CrossedLordCleanupUtility.CollectValidSpawnedLordPawns(pawns, map, crossed);
             if (pawns.Count == 0)
             {
@@ -3710,6 +3614,7 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
             }
 
             parms.pawnCount = pawns.Count;
+            CrossedLordCleanupUtility.DetachFromAnyLord(pawns);
             LordMaker.MakeNewLord(crossed, CrossedRaidTactics.CreateAssaultLordJob(crossed, parms.points, pawns), map, pawns);
             CrossedUtility.Component?.NotifyHordeLaunched(pawns.Count, parms.points);
             SendHordeLetter(pawns, parms);
@@ -3857,25 +3762,15 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
             }
 
             parms.pawnCount = pawns.Count;
-            if (parms.raidArrivalMode?.Worker == null || !parms.raidArrivalMode.Worker.CanUseWith(parms))
-            {
-                parms.raidArrivalMode = PawnsArrivalModeDefOf.EdgeWalkIn;
-            }
-
-            IntVec3 _;
-            bool needsEdge = parms.raidArrivalMode == PawnsArrivalModeDefOf.EdgeWalkIn
-                || parms.raidArrivalMode == PawnsArrivalModeDefOf.EdgeWalkInGroups
-                || parms.raidArrivalMode == PawnsArrivalModeDefOf.EdgeWalkInDistributed
-                || parms.raidArrivalMode == PawnsArrivalModeDefOf.EdgeWalkInDistributedGroups;
-
-            if (needsEdge && !CellFinder.TryFindRandomEdgeCellWith(c => c.Standable(map), map, 0f, out _))
+            if (!TheMarkedMenGameComponent.TryArriveRaidPawns(pawns, parms))
             {
                 for (int i = 0; i < pawns.Count; i++)
+                {
                     pawns[i]?.Destroy(DestroyMode.Vanish);
+                }
                 return false;
             }
 
-            parms.raidArrivalMode.Worker.Arrive(pawns, parms);
             pawns = CrossedLordCleanupUtility.CollectValidSpawnedLordPawns(pawns, map, crossed);
             if (pawns.Count == 0)
             {
@@ -3883,6 +3778,7 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
             }
 
             parms.pawnCount = pawns.Count;
+            CrossedLordCleanupUtility.DetachFromAnyLord(pawns);
             LordMaker.MakeNewLord(crossed, CrossedRaidTactics.CreateAssaultLordJob(crossed, parms.points, pawns), map, pawns);
             CrossedUtility.Component?.NotifyProbeLaunched(pawns.Count, parms.points);
             SendProbeLetter(pawns, parms);
