@@ -7,6 +7,8 @@
 - A countdown in the corner showing how long until the next Marked Men raid.
 - A warning letter about a day before a raid, with the threat level and estimated arrival time.
 - A setting for how likely colonists are to become infected after lingering near infected corpses.
+- Marked Men now break through walls and hunt colonists during raids. They prefer the wounded, the isolated, and anyone trying to run.
+- Large raids now begin with a coordinated breach and switch to a full hunt once they get inside.
 
 ### Changed
 - Raids now become more varied as they grow stronger: early attacks are mostly civilians, while later attacks bring more specialists and elites.
@@ -34,3 +36,5 @@
 - Fixed caravan ambushes being handled twice.
 - Fixed raid warnings always appearing in English instead of the selected language.
 - Fixed the countdown and warning letter sometimes showing different times.
+- Fixed raids sometimes splitting into small groups instead of attacking together.
+- Fixed caravan ambushes losing their leaders and coordination.

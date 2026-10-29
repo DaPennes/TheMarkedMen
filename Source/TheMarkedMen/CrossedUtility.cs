@@ -1689,7 +1689,8 @@ public static void RemoveMarkedVirusHediffFromFullyTurnedPawn(Pawn pawn)
 				{
 					if (lord.faction == crossed &&
 						(lord.LordJob is LordJob_AssaultColony ||
-						 lord.LordJob is LordJob_Siege))
+						 lord.LordJob is LordJob_Siege ||
+						 lord.LordJob is LordJob_CrossedAssault))
 					{
 						lord.AddPawn(pawn);
 						return;
@@ -1704,7 +1705,7 @@ public static void RemoveMarkedVirusHediffFromFullyTurnedPawn(Pawn pawn)
 				{
 					LordMaker.MakeNewLord(
 						crossed,
-						new LordJob_AssaultColony(crossed, false, false, false, false, false, false, true),
+						CrossedRaidTactics.CreateAssaultLordJob(crossed, 0f),
 						map,
 						new List<Pawn> { pawn }
 					);

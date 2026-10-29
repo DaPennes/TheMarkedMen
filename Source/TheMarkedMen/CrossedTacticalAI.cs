@@ -19,18 +19,24 @@ namespace TheMarkedMen
         private const float MaxTacticalTargetDistance = 120f;
         private const float MaxTacticalTargetDistanceSquared = MaxTacticalTargetDistance * MaxTacticalTargetDistance;
         private const float AggressionScoreMultiplier = 100f;
-        private const float PartialInfectionTargetBonus = 10000f;
+        private const float PartialInfectionTargetBonus = 120f;
         private const int InfightingCheckInterval = 1000;
         private const float InfightingChance = 0.12f;
         private const float MaxInfightingTargetDistanceSquared = 2500f;
         private const string WaitDownedJobDefName = "Wait_Downed";
-        private const int BestTargetCacheIntervalTicks = 250;
+        private const int BestTargetScanIntervalTicks = 750;
+        private const int BreachRetryTicks = 300;
+        private const int BreachPathSearchIntervalTicks = 20;
+        private const float MaxBreachSearchDistanceSquared = 3600f;
 
         private static readonly Dictionary<int, CachedEntry> bestTargetCache = new Dictionary<int, CachedEntry>();
+        private static readonly Dictionary<int, int> nextTargetScanTick = new Dictionary<int, int>();
+        private static readonly Dictionary<int, int> lastBreachTick = new Dictionary<int, int>();
+        private static int nextBreachPathTick;
 
         private struct CachedEntry
         {
-            public int tick;
+            public Pawn owner;
             public Pawn target;
         }
 
@@ -58,6 +64,13 @@ namespace TheMarkedMen
             if (HasRampageHediff(pawn))
             {
                 return TryIssueRampageJob(pawn);
+            }
+
+            // Vanilla breaching/sapping is already a coordinated siege: let the breachers
+            // finish their wall work instead of pulling them away every tactical refresh.
+            if (IsCommittedBreacher(pawn))
+            {
+                return false;
             }
 
             int pawnId = pawn.thingIDNumber;
@@ -125,7 +138,25 @@ namespace TheMarkedMen
                     return false;
                 }
 
-                return TryAssignAttackJob(pawn, bestNonInfected, true);
+                // If the target is walled in, break the wall before trying to walk
+                // into it. Grenadiers would otherwise stall at the perimeter in a
+                // normal move job and never reach the breach fallback.
+                if (!pawn.CanReach(bestNonInfected, PathEndMode.Touch, Danger.Deadly, true, true)
+                    && TryAssignBreachJob(pawn, bestNonInfected))
+                {
+                    return true;
+                }
+
+                if (TryAssignAttackJob(pawn, bestNonInfected, true))
+                {
+                    return true;
+                }
+
+                // The target may have moved behind a wall since the reach check.
+                if (TryAssignBreachJob(pawn, bestNonInfected))
+                {
+                    return true;
+                }
             }
 
             if (!pawn.IsHashIntervalTick(TheMarkedMenSettings.TacticalRetargetIntervalTicks) || IsAttackJob(currentJobDef))
@@ -159,6 +190,11 @@ namespace TheMarkedMen
                 return TryIssueRampageJob(pawn);
             }
 
+            if (!forceCurrentJob && IsCommittedBreacher(pawn))
+            {
+                return false;
+            }
+
             bool pyromaniac = CrossedUtility.IsCrossedPyromaniac(pawn);
             if (pyromaniac)
             {
@@ -188,7 +224,18 @@ namespace TheMarkedMen
             }
 
             bool shouldForceCurrentJob = forceCurrentJob || !IsAttackJob(currentJobDef) || pawn.CurJob?.targetA.Pawn != target;
-            return TryAssignAttackJob(pawn, target, shouldForceCurrentJob);
+            if (!pawn.CanReach(target, PathEndMode.Touch, Danger.Deadly, true, true)
+                && TryAssignBreachJob(pawn, target))
+            {
+                return true;
+            }
+
+            if (TryAssignAttackJob(pawn, target, shouldForceCurrentJob))
+            {
+                return true;
+            }
+
+            return TryAssignBreachJob(pawn, target);
         }
 
         public static bool TryRetargetAwayFromPawn(Pawn pawn, Pawn invalidTarget, bool forceEndCurrentJob)
@@ -389,7 +436,7 @@ namespace TheMarkedMen
                 verb = verb,
                 maxRangeFromCaster = MaxTacticalTargetDistance,
                 maxRangeFromTarget = Mathf.Max(verb.EffectiveRange, 1f),
-                wantCoverFromTarget = false,
+                wantCoverFromTarget = true,
                 maxRegions = RangedCastSearchMaxRegions,
                 validator = cell => IsValidRangedCastPosition(pawn, target, verb, cell)
             };
@@ -441,13 +488,27 @@ namespace TheMarkedMen
         {
             int pawnId = pawn.thingIDNumber;
             int currentTick = Find.TickManager?.TicksGame ?? 0;
+            bool nextScanDue = !nextTargetScanTick.TryGetValue(pawnId, out int nextScanTick)
+                || currentTick >= nextScanTick;
 
-            if (bestTargetCache.TryGetValue(pawnId, out CachedEntry cached)
-                && currentTick - cached.tick < BestTargetCacheIntervalTicks
-                && cached.target != null && cached.target.Spawned && !cached.target.Dead
-                && IsValidNonInfectedPawnTarget(cached.target, pawn))
+            if (bestTargetCache.TryGetValue(pawnId, out CachedEntry cached))
             {
-                return cached.target;
+                if (cached.target != null
+                    && cached.target.Spawned
+                    && !cached.target.Dead
+                    && IsValidNonInfectedPawnTarget(cached.target, pawn))
+                {
+                    return cached.target;
+                }
+
+                if (cached.target == null && !nextScanDue)
+                {
+                    return null;
+                }
+
+                // The chosen prey died or left the map. Look for a new one now
+                // instead of waiting for the next scheduled scan.
+                nextScanDue = true;
             }
 
             IReadOnlyList<Pawn> candidates = pawn.Map?.mapPawns?.AllPawnsSpawned;
@@ -456,10 +517,12 @@ namespace TheMarkedMen
                 return null;
             }
 
-            if (!pawn.IsHashIntervalTick(TheMarkedMenSettings.TacticalRetargetIntervalTicks))
+            if (!nextScanDue)
             {
                 return null;
             }
+
+            nextTargetScanTick[pawnId] = currentTick + BestTargetScanIntervalTicks;
 
             Pawn best = null;
             float bestScore = 0f;
@@ -474,7 +537,7 @@ namespace TheMarkedMen
                 }
             }
 
-            bestTargetCache[pawnId] = new CachedEntry { tick = currentTick, target = best };
+            bestTargetCache[pawnId] = new CachedEntry { owner = pawn, target = best };
             return best;
         }
 
@@ -565,6 +628,12 @@ namespace TheMarkedMen
             {
                 score += PartialInfectionTargetBonus;
             }
+            else
+            {
+                // Prefer healthy colonists: a live, uninfected target is how the
+                // pack spreads the virus, while already-marked pawns are lower value.
+                score += 25f;
+            }
 
             if (target.Downed)
             {
@@ -599,7 +668,13 @@ namespace TheMarkedMen
 
             if (target.Faction == Faction.OfPlayer || target.HostFaction == Faction.OfPlayer || target.IsColonistPlayerControlled)
             {
-                score += 20f;
+                // Colonists are the primary prey; hunting them is the point of the raid.
+                score += 60f;
+            }
+
+            if (IsFleeingFrom(target, searcher))
+            {
+                score += 35f;
             }
 
             Need_MarkedBloodlust bloodlustNeed = searcher.needs?.TryGetNeed<Need_MarkedBloodlust>();
@@ -609,6 +684,24 @@ namespace TheMarkedMen
             }
 
             return score * AggressionScoreMultiplier - Mathf.Sqrt(distanceSquared) * 1.15f;
+        }
+
+        private static bool IsFleeingFrom(Pawn target, Pawn searcher)
+        {
+            if (target?.pather == null || !target.pather.Moving || searcher?.Map == null)
+            {
+                return false;
+            }
+
+            IntVec3 destination = target.pather.Destination.Cell;
+            if (!destination.IsValid || !destination.InBounds(searcher.Map))
+            {
+                return false;
+            }
+
+            float currentDistanceSquared = target.Position.DistanceToSquared(searcher.Position);
+            float destinationDistanceSquared = destination.DistanceToSquared(searcher.Position);
+            return destinationDistanceSquared > currentDistanceSquared + 16f;
         }
 
         private static bool IsIsolatedTarget(Pawn searcher, Pawn target)
@@ -661,6 +754,7 @@ namespace TheMarkedMen
                 && target != searcher
                 && target.Spawned
                 && !target.Dead
+                && target.Map == searcher.Map
                 && target.RaceProps != null
                 && target.RaceProps.Humanlike
                 && !CrossedUtility.IsFullyTurnedMarkedPawn(target);
@@ -707,6 +801,268 @@ namespace TheMarkedMen
                 && CrossedUtility.IsInfectedPawn(target);
         }
 
+        internal static bool IsCommittedBreacher(Pawn pawn)
+        {
+            PawnDuty duty = pawn?.mindState?.duty;
+            if (duty?.def == null)
+            {
+                return false;
+            }
+
+            if (duty.def == DutyDefOf.Breaching || duty.def == DutyDefOf.Sapper)
+            {
+                return true;
+            }
+
+            return duty.def == DutyDefOf.Escort
+                && pawn.GetLord()?.CurLordToil is LordToil_CrossedBreach;
+        }
+
+        internal static bool TryAssignBreachJob(Pawn pawn, Thing target)
+        {
+            if (pawn?.Map == null || target == null || target.Destroyed || !target.Spawned)
+            {
+                return false;
+            }
+
+            if (pawn.CanReach(target, PathEndMode.Touch, Danger.Deadly, true, true))
+            {
+                return false;
+            }
+
+            // Only pawns with a wall-breaking weapon, or a melee weapon that can
+            // chip at masonry, should spend time on a breach.
+            Verb breachVerb = BreachingUtility.FindVerbToUseForBreaching(pawn);
+            if (breachVerb == null
+                || (!breachVerb.IsMeleeAttack && !breachVerb.verbProps.ai_IsBuildingDestroyer))
+            {
+                return false;
+            }
+
+            int pawnId = pawn.thingIDNumber;
+            int currentTick = Find.TickManager?.TicksGame ?? 0;
+            if (lastBreachTick.TryGetValue(pawnId, out int lastBreach)
+                && currentTick - lastBreach < BreachRetryTicks)
+            {
+                return false;
+            }
+
+            if (!TryFindBreachBuilding(pawn, target.Position, out Building breach))
+            {
+                return false;
+            }
+
+            lastBreachTick[pawnId] = currentTick;
+            return breach != null && TryAssignBreachAttackJob(pawn, breach, breachVerb);
+        }
+
+        private static bool TryAssignBreachAttackJob(Pawn pawn, Building building, Verb verb)
+        {
+            Job job;
+            if (verb.IsMeleeAttack)
+            {
+                job = JobMaker.MakeJob(JobDefOf.AttackMelee, building);
+                job.verbToUse = verb;
+            }
+            else
+            {
+                if (!TryFindRangedCastPosition(pawn, building, verb, out IntVec3 firingPosition))
+                {
+                    return false;
+                }
+
+                job = JobMaker.MakeJob(JobDefOf.UseVerbOnThing, building, firingPosition);
+                job.verbToUse = verb;
+                job.preventFriendlyFire = true;
+            }
+
+            if (job == null)
+            {
+                return false;
+            }
+
+            BreachingUtility.FinalizeTrashJob(job);
+            job.canBashDoors = TheMarkedMenSettings.DoorTargetingEnabled;
+            job.canBashFences = true;
+            job.locomotionUrgency = LocomotionUrgency.Sprint;
+            return TryTakeTacticalJob(pawn, job, true);
+        }
+
+        private static bool TryFindBreachBuilding(Pawn pawn, IntVec3 targetPos, out Building breach)
+        {
+            breach = null;
+            Map map = pawn.Map;
+            if (map == null || !targetPos.IsValid || !targetPos.InBounds(map))
+            {
+                return false;
+            }
+
+            // A destroyable path is the cheapest reliable way to find the actual
+            // wall or door standing between the pack and its prey. Budget the
+            // searches so a large raid cannot stall the game on pathfinding.
+            int now = Find.TickManager?.TicksGame ?? 0;
+            if (now >= nextBreachPathTick)
+            {
+                nextBreachPathTick = now + BreachPathSearchIntervalTicks;
+
+                TraverseParms parms = TraverseParms.For(
+                    pawn,
+                    Danger.Deadly,
+                    TraverseMode.PassAllDestroyableThings,
+                    canBashDoors: true,
+                    alwaysUseAvoidGrid: false,
+                    canBashFences: true);
+
+                using (PawnPath path = map.pathFinder.FindPathNow(pawn.Position, targetPos, parms))
+                {
+                    if (path.Found)
+                    {
+                        List<IntVec3> nodes = path.NodesReversed;
+                        for (int i = nodes.Count - 1; i >= 0; i--)
+                        {
+                            Building building = nodes[i].GetEdifice(map);
+                            if (IsBreachablePlayerBuilding(building))
+                            {
+                                breach = building;
+                                return true;
+                            }
+                        }
+                    }
+                }
+            }
+
+            return TryFindNearestBreachBuilding(pawn, targetPos, out breach);
+        }
+
+        private static bool TryFindNearestBreachBuilding(Pawn pawn, IntVec3 targetPos, out Building breach)
+        {
+            breach = null;
+            Map map = pawn.Map;
+            if (map?.listerBuildings?.allBuildingsColonist == null)
+            {
+                return false;
+            }
+
+            List<Building> buildings = map.listerBuildings.allBuildingsColonist;
+            float bestScore = float.MaxValue;
+            Building best = null;
+            for (int i = 0; i < buildings.Count; i++)
+            {
+                Building candidate = buildings[i];
+                if (!IsBreachablePlayerBuilding(candidate))
+                {
+                    continue;
+                }
+
+                float pawnDistanceSquared = candidate.Position.DistanceToSquared(pawn.Position);
+                float targetDistanceSquared = candidate.Position.DistanceToSquared(targetPos);
+                if (pawnDistanceSquared > MaxBreachSearchDistanceSquared
+                    && targetDistanceSquared > MaxBreachSearchDistanceSquared)
+                {
+                    continue;
+                }
+
+                float score = pawnDistanceSquared + targetDistanceSquared * 0.35f;
+                if (score < bestScore)
+                {
+                    bestScore = score;
+                    best = candidate;
+                }
+            }
+
+            if (best == null || !pawn.CanReach(best, PathEndMode.Touch, Danger.Deadly, true, true))
+            {
+                return false;
+            }
+
+            breach = best;
+            return true;
+        }
+
+        private static bool IsBreachablePlayerBuilding(Building building)
+        {
+            if (building == null || building.Destroyed || !building.Spawned || building.Faction != Faction.OfPlayer)
+            {
+                return false;
+            }
+
+            if (!building.def.IsEdifice() || building.def.IsFrame)
+            {
+                return false;
+            }
+
+            if (building.def.building != null && building.def.building.ai_neverTrashThis)
+            {
+                return false;
+            }
+
+            return PathUtility.IsDestroyable(building);
+        }
+
+        internal static void PruneStaleCaches()
+        {
+            if (bestTargetCache.Count > 0)
+            {
+                List<int> stale = null;
+                foreach (KeyValuePair<int, CachedEntry> pair in bestTargetCache)
+                {
+                    Pawn owner = pair.Value.owner;
+                    if (owner == null || owner.Dead || !owner.Spawned)
+                    {
+                        if (stale == null)
+                        {
+                            stale = new List<int>();
+                        }
+
+                        stale.Add(pair.Key);
+                    }
+                }
+
+                if (stale != null)
+                {
+                    for (int i = 0; i < stale.Count; i++)
+                    {
+                        bestTargetCache.Remove(stale[i]);
+                        nextTargetScanTick.Remove(stale[i]);
+                    }
+                }
+            }
+
+            int now = Find.TickManager?.TicksGame ?? 0;
+            PruneTickCache(nextTargetScanTick, now - GenDate.TicksPerDay * 2);
+            PruneTickCache(lastBreachTick, now - GenDate.TicksPerDay * 2);
+        }
+
+        private static void PruneTickCache(Dictionary<int, int> cache, int cutoff)
+        {
+            if (cache.Count == 0)
+            {
+                return;
+            }
+
+            List<int> stale = null;
+            foreach (KeyValuePair<int, int> pair in cache)
+            {
+                if (pair.Value < cutoff)
+                {
+                    if (stale == null)
+                    {
+                        stale = new List<int>();
+                    }
+
+                    stale.Add(pair.Key);
+                }
+            }
+
+            if (stale != null)
+            {
+                for (int i = 0; i < stale.Count; i++)
+                {
+                    cache.Remove(stale[i]);
+                }
+            }
+        }
+
         private static bool CanUseTacticalAI(Pawn pawn)
         {
             return pawn != null
@@ -714,6 +1070,9 @@ namespace TheMarkedMen
                 && !pawn.Dead
                 && !pawn.Downed
                 && pawn.Map != null
+                && pawn.Faction != null
+                && Faction.OfPlayer != null
+                && pawn.Faction.HostileTo(Faction.OfPlayer)
                 && CrossedUtility.IsInfectedPawn(pawn)
                 && TheMarkedMenSettings.TacticalRetargetingEnabled;
         }

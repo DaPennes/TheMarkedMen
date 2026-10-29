@@ -114,6 +114,7 @@ namespace TheMarkedMen
             PruneDict(lastScentInvestigation, validIds);
             PruneDict(lastNoiseInvestigation, validIds);
             PruneDict(lastMemoryInvestigation, validIds);
+            CrossedTacticalAI.PruneStaleCaches();
         }
 
         private static void PruneDict<T>(Dictionary<int, T> dict, HashSet<int> validIds)
@@ -465,6 +466,11 @@ namespace TheMarkedMen
                 return;
             }
 
+            if (CrossedTacticalAI.IsCommittedBreacher(pawn))
+            {
+                return;
+            }
+
             if (!pawn.IsHashIntervalTick(300))
             {
                 return;
@@ -706,7 +712,8 @@ namespace TheMarkedMen
                 && !pawn.Downed
                 && pawn.jobs != null
                 && pawn.mindState != null
-                && CrossedUtility.IsInfectedPawn(pawn);
+                && CrossedUtility.IsInfectedPawn(pawn)
+                && !CrossedTacticalAI.IsCommittedBreacher(pawn);
         }
 
         private static bool HasOffensiveJob(Pawn pawn)

@@ -3567,13 +3567,9 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
 
             CrossedUtility.ApplyGeneratedRaidKindTuning(pawns);
 
-            // Ensure all pawns have valid Lords and won't exit map
-            for (int i = 0; i < pawns.Count; i++)
-            {
-                CrossedUtility.EnsureInfectedHasValidLord(pawns[i]);
-            }
-
-            LordJob lordJob = new LordJob_AssaultColony(crossed, false, false, false, false, false, parms.points >= 700f, true);
+            // Build the raid lord only after arrival. Assigning lords per pawn here
+            // would split the warband and break coordinated breaching.
+            LordJob lordJob = CrossedRaidTactics.CreateAssaultLordJob(crossed, parms.points, pawns);
             LordMaker.MakeNewLord(crossed, lordJob, map, pawns);
             SendRaidLetter(pawns, parms);
             component?.NotifyRaidLaunched(parms.points, pawns, map);
@@ -3714,7 +3710,7 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
             }
 
             parms.pawnCount = pawns.Count;
-            LordMaker.MakeNewLord(crossed, new LordJob_AssaultColony(crossed, false, false, false, false, false, parms.points >= 700f, true), map, pawns);
+            LordMaker.MakeNewLord(crossed, CrossedRaidTactics.CreateAssaultLordJob(crossed, parms.points, pawns), map, pawns);
             CrossedUtility.Component?.NotifyHordeLaunched(pawns.Count, parms.points);
             SendHordeLetter(pawns, parms);
             return true;
@@ -3887,7 +3883,7 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
             }
 
             parms.pawnCount = pawns.Count;
-            LordMaker.MakeNewLord(crossed, new LordJob_AssaultColony(crossed, false, false, false, false, false, false, true), map, pawns);
+            LordMaker.MakeNewLord(crossed, CrossedRaidTactics.CreateAssaultLordJob(crossed, parms.points, pawns), map, pawns);
             CrossedUtility.Component?.NotifyProbeLaunched(pawns.Count, parms.points);
             SendProbeLetter(pawns, parms);
             return true;
@@ -4067,17 +4063,16 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
         {
             CrossedUtility.ApplyGeneratedRaidKindTuning(generatedPawns);
 
-            // Ensure all pawns have valid Lords and won't exit map
-            for (int i = 0; i < generatedPawns.Count; i++)
-            {
-                CrossedUtility.EnsureInfectedHasValidLord(generatedPawns[i]);
-            }
+            // The ambush lord is created right after this callback. Creating lords
+            // per pawn here would leave the real ambush lord empty.
         }
 
         protected override LordJob CreateLordJob(List<Pawn> generatedPawns, IncidentParms parms)
         {
-            bool useBreachers = IsMarkedManStoryteller || (parms.points >= 600f);
-            return new LordJob_AssaultColony(parms.faction, false, false, false, false, false, useBreachers, true);
+            float points = IsMarkedManStoryteller
+                ? Mathf.Max(parms.points, CrossedRaidTactics.BreacherThresholdPoints)
+                : parms.points;
+            return CrossedRaidTactics.CreateAssaultLordJob(parms.faction, points, generatedPawns);
         }
 
         protected override string GetLetterLabel(Pawn anyPawn, IncidentParms parms)
