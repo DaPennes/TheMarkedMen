@@ -1193,6 +1193,14 @@ namespace TheMarkedMen
                 return;
             }
 
+            // This method is also reached from the daily infected-state pass.
+            // Never stack a second set of implants on a pawn that already has
+            // any of the bionics from the first pass.
+            if (HasAnyMarkedManBionic(pawn))
+            {
+                return;
+            }
+
             int maxBionics = 3;
             float perPartChance = 0.5f;
 
@@ -1207,6 +1215,26 @@ namespace TheMarkedMen
             TryInstallBionic(pawn, BionicLungHediffDef, BodyPartDefOf.Lung, perPartChance * 0.4f, ref installed, maxBionics);
             TryInstallBionic(pawn, BionicKidneyHediffDef, KidneyBodyPartDef, perPartChance * 0.4f, ref installed, maxBionics);
             TryInstallBionic(pawn, BionicEarHediffDef, EarBodyPartDef, perPartChance * 0.3f, ref installed, maxBionics);
+        }
+
+        private static bool HasAnyMarkedManBionic(Pawn pawn)
+        {
+            HediffSet hediffs = pawn?.health?.hediffSet;
+            if (hediffs == null)
+            {
+                return false;
+            }
+
+            return hediffs.HasHediff(BionicEyeHediffDef)
+                || hediffs.HasHediff(BionicArmHediffDef)
+                || hediffs.HasHediff(AdvBionicArmHediffDef)
+                || hediffs.HasHediff(BionicLegHediffDef)
+                || hediffs.HasHediff(AdvBionicLegHediffDef)
+                || hediffs.HasHediff(BionicHeartHediffDef)
+                || hediffs.HasHediff(BionicStomachHediffDef)
+                || hediffs.HasHediff(BionicLungHediffDef)
+                || hediffs.HasHediff(BionicKidneyHediffDef)
+                || hediffs.HasHediff(BionicEarHediffDef);
         }
 
         private static void TryInstallBionic(Pawn pawn, HediffDef hediffDef, BodyPartDef bodyPartDef, float chance, ref int installed, int maxBionics)
