@@ -5,8 +5,10 @@ using Verse;
 namespace TheMarkedMen
 {
     /// <summary>
-    /// Gives cure syringes a right-click float menu option to inject.
-    /// Injecting consumes one syringe from the stack.
+    /// Gives cure syringes a right-click float menu option to inject. The
+    /// injecting pawn must carry a cure syringe in their inventory (picking
+    /// one up from this stack first if needed), and one syringe is consumed
+    /// from that inventory after the injection succeeds.
     /// </summary>
     public class CompInjectCure : ThingComp
     {
@@ -18,18 +20,19 @@ namespace TheMarkedMen
             if (!CanUseNow())
                 yield break;
 
-            if (selPawn != null && !selPawn.Dead)
-            {
-                AcceptanceReport report = CureUtility.CanCure(selPawn);
-                string label = "TheMarkedMen_InjectCureInto".Translate(selPawn.LabelShort).Resolve();
+            if (!CureUtility.CanActorUse(selPawn))
+                yield break;
 
-                if (report.Accepted)
-                    yield return new FloatMenuOption(label, delegate { InjectInto(selPawn); });
-                else
-                    yield return new FloatMenuOption(label + " (" + report.Reason + ")", null);
-            }
+            AcceptanceReport report = CureUtility.CanCure(selPawn);
+            string label = "TheMarkedMen_InjectCureInto".Translate(selPawn.LabelShort).Resolve();
 
-            yield return new FloatMenuOption("TheMarkedMen_InjectCureChooseTarget".Translate(), BeginTargeting);
+            if (report.Accepted)
+                yield return new FloatMenuOption(label, delegate { CureUtility.TryStartInject(selPawn, selPawn, parent); });
+            else
+                yield return new FloatMenuOption(label + " (" + report.Reason + ")", null);
+
+            yield return new FloatMenuOption("TheMarkedMen_InjectCureChooseTarget".Translate(),
+                delegate { CureUtility.BeginTargeting(selPawn, parent); });
         }
 
         public override IEnumerable<FloatMenuOption> CompMultiSelectFloatMenuOptions(IEnumerable<Pawn> selPawns)
@@ -40,7 +43,21 @@ namespace TheMarkedMen
             if (!CanUseNow())
                 yield break;
 
-            yield return new FloatMenuOption("TheMarkedMen_InjectCureChooseTarget".Translate(), BeginTargeting);
+            Pawn actor = FirstPawn(selPawns);
+            if (CureUtility.CanActorUse(actor))
+                yield return new FloatMenuOption("TheMarkedMen_InjectCureChooseTarget".Translate(),
+                    delegate { CureUtility.BeginTargeting(actor, parent); });
+        }
+
+        private static Pawn FirstPawn(IEnumerable<Pawn> pawns)
+        {
+            if (pawns == null)
+                return null;
+
+            foreach (Pawn pawn in pawns)
+                return pawn;
+
+            return null;
         }
 
         private bool CanUseNow()
@@ -51,53 +68,6 @@ namespace TheMarkedMen
                 && parent.Map != null
                 && parent.stackCount > 0
                 && !parent.IsForbidden(Faction.OfPlayer);
-        }
-
-        private void BeginTargeting()
-        {
-            if (!CanUseNow())
-                return;
-
-            Find.Targeter.BeginTargeting(new TargetingParameters
-            {
-                canTargetPawns = true,
-                canTargetHumans = true,
-                canTargetAnimals = true,
-                canTargetMechs = false,
-                canTargetSubhumans = true,
-                canTargetEntities = false,
-                canTargetBuildings = false,
-                canTargetFires = false,
-                canTargetItems = false,
-                canTargetLocations = false,
-                canTargetPlants = false,
-                validator = target =>
-                {
-                    Pawn pawn = target.Thing as Pawn;
-                    return pawn != null && CureUtility.CanCure(pawn).Accepted;
-                }
-            }, target =>
-            {
-                Pawn pawn = target.Thing as Pawn;
-                if (pawn != null)
-                    InjectInto(pawn);
-            });
-        }
-
-        private void InjectInto(Pawn target)
-        {
-            if (!CanUseNow())
-                return;
-
-            string reason;
-            if (!CureUtility.TryCure(target, out reason))
-            {
-                Messages.Message(reason.NullOrEmpty() ? "TheMarkedMen_CannotInject".Translate() : reason,
-                    target, MessageTypeDefOf.RejectInput);
-                return;
-            }
-
-            CureUtility.ConsumeOne(parent);
         }
     }
 }

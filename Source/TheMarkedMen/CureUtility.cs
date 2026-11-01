@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using RimWorld;
 using Verse;
+using Verse.AI;
 
 namespace TheMarkedMen
 {
@@ -79,6 +80,126 @@ namespace TheMarkedMen
                 return "TheMarkedMen_OperationNotInfected".Translate();
 
             return true;
+        }
+
+        public static bool CanActorUse(Pawn actor)
+        {
+            return actor != null
+                && !actor.Dead
+                && !actor.Downed
+                && !actor.Destroyed
+                && !actor.InMentalState
+                && actor.Spawned
+                && actor.Map != null;
+        }
+
+        public static int CountCureSyringesInInventory(Pawn pawn)
+        {
+            if (pawn?.inventory?.innerContainer == null)
+                return 0;
+
+            int count = 0;
+            foreach (Thing thing in pawn.inventory.innerContainer)
+            {
+                if (IsCureSyringe(thing))
+                    count += thing.stackCount;
+            }
+
+            return count;
+        }
+
+        public static Thing FindCureSyringeInInventory(Pawn pawn)
+        {
+            if (pawn?.inventory?.innerContainer == null)
+                return null;
+
+            foreach (Thing thing in pawn.inventory.innerContainer)
+            {
+                if (IsCureSyringe(thing))
+                    return thing;
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// Queues the injection job. If the actor is not already carrying a
+        /// cure syringe, the job first picks one up from
+        /// <paramref name="cureSource"/>.
+        /// </summary>
+        public static bool TryStartInject(Pawn actor, Pawn target, Thing cureSource)
+        {
+            if (!CanActorUse(actor) || cureSource == null)
+                return false;
+
+            AcceptanceReport report = CanCure(target);
+            if (!report.Accepted)
+            {
+                Messages.Message(report.Reason.NullOrEmpty()
+                        ? "TheMarkedMen_CannotInject".Translate()
+                        : report.Reason,
+                    target, MessageTypeDefOf.RejectInput);
+                return false;
+            }
+
+            if (target.MapHeld != actor.Map)
+                return false;
+
+            if (CountCureSyringesInInventory(actor) <= 0)
+            {
+                if (cureSource.DestroyedOrNull()
+                    || !cureSource.Spawned
+                    || cureSource.stackCount <= 0
+                    || cureSource.IsForbidden(Faction.OfPlayer)
+                    || !actor.CanReserve(cureSource, 1, 1))
+                {
+                    Messages.Message("TheMarkedMen_CannotInject".Translate(), actor, MessageTypeDefOf.RejectInput);
+                    return false;
+                }
+            }
+
+            JobDef jobDef = CADefOf.InjectCureJob;
+            if (jobDef == null)
+            {
+                Log.Error("[The Marked Men] Missing JobDef TheMarkedMen_InjectCure; cannot inject the cure.");
+                return false;
+            }
+
+            Job job = JobMaker.MakeJob(jobDef, target, cureSource);
+            job.count = 1;
+            actor.jobs.TryTakeOrderedJob(job, JobTag.Misc);
+            return true;
+        }
+
+        public static void BeginTargeting(Pawn actor, Thing cureSource)
+        {
+            if (!CanActorUse(actor) || cureSource == null)
+                return;
+
+            Find.Targeter.BeginTargeting(new TargetingParameters
+            {
+                canTargetPawns = true,
+                canTargetHumans = true,
+                canTargetAnimals = true,
+                canTargetMechs = false,
+                canTargetSubhumans = true,
+                canTargetEntities = false,
+                canTargetBuildings = false,
+                canTargetFires = false,
+                canTargetItems = false,
+                canTargetLocations = false,
+                canTargetPlants = false,
+                validator = target =>
+                {
+                    Pawn pawn = target.Thing as Pawn;
+                    return pawn != null && CanCure(pawn).Accepted;
+                }
+            }, target =>
+            {
+                Pawn pawn = target.Thing as Pawn;
+                if (pawn != null)
+                    TryStartInject(actor, pawn, cureSource);
+            });
         }
 
         public static bool TryCure(Pawn pawn, out string failureReason)

@@ -7,4 +7,11 @@
     <casualInterruptible>false</casualInterruptible>
     <suspendable>false</suspendable>
   </JobDef>
+  <JobDef>
+    <defName>TheMarkedMen_InjectCure</defName>
+    <driverClass>TheMarkedMen.JobDriver_InjectCure</driverClass>
+    <reportString>injecting the cure into TargetA.</reportString>
+    <casualInterruptible>false</casualInterruptible>
+    <suspendable>false</suspendable>
+  </JobDef>
 </Defs>

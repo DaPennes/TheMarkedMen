@@ -18,6 +18,8 @@
   <TheMarkedMen_CannotInject>Cannot inject the cure.</TheMarkedMen_CannotInject>
   <TheMarkedMen_InjectCureInto>Inject cure into {0}</TheMarkedMen_InjectCureInto>
   <TheMarkedMen_InjectCureChooseTarget>Inject cure into...</TheMarkedMen_InjectCureChooseTarget>
+  <TheMarkedMen_NeedsCureInInventory>{0} needs a cure syringe in their inventory to inject the cure.</TheMarkedMen_NeedsCureInInventory>
+  <TheMarkedMen_InjectCureGizmoDesc>Inject a cure syringe carried in this pawn's inventory into an infected pawn.</TheMarkedMen_InjectCureGizmoDesc>
   <TheMarkedMen_CannotDrawBlood>Cannot draw blood.</TheMarkedMen_CannotDrawBlood>
   <TheMarkedMen_DrawBloodFrom>Draw blood from {0}</TheMarkedMen_DrawBloodFrom>
   <TheMarkedMen_DrawBloodChooseTarget>Draw blood from...</TheMarkedMen_DrawBloodChooseTarget>
