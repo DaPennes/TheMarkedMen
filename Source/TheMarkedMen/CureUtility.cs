@@ -283,6 +283,7 @@ namespace TheMarkedMen
             CureOriginRecord origin = CrossedUtility.Component?.TakeCureOrigin(pawn);
 
             RemoveModHediffs(pawn);
+            RemoveRestraint(pawn);
 
             Faction targetFaction = ResolveCureFaction(origin?.faction);
             if (targetFaction != null && pawn.Faction != targetFaction)
@@ -333,6 +334,22 @@ namespace TheMarkedMen
 
             for (int i = 0; i < toRemove.Count; i++)
                 pawn.health.RemoveHediff(toRemove[i]);
+        }
+
+        private static void RemoveRestraint(Pawn pawn)
+        {
+            if (pawn?.health?.hediffSet == null)
+                return;
+
+            HediffDef restraintDef = CADefOf.CA_Restrained;
+            if (restraintDef == null)
+                return;
+
+            Hediff restraint = pawn.health.hediffSet.GetFirstHediffOfDef(restraintDef);
+            if (restraint != null)
+            {
+                pawn.health.RemoveHediff(restraint);
+            }
         }
 
         private static Faction ResolveCureFaction(Faction recorded)
