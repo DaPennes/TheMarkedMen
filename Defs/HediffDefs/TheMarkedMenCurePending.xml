@@ -8,7 +8,7 @@
     <isBad>false</isBad>
     <tendable>false</tendable>
     <everCurableByItem>false</everCurableByItem>
-    <initialSeverity>1</initialSeverity>
+    <initialSeverity>0.01</initialSeverity>
     <maxSeverity>1</maxSeverity>
     <comps>
       <li Class="TheMarkedMen.HediffCompProperties_CureCountdown">

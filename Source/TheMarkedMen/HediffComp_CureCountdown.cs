@@ -62,6 +62,11 @@ namespace TheMarkedMen
                     // Remove the pending cure hediff after cure is applied
                     Pawn.health.RemoveHediff(parent);
                 }
+                else
+                {
+                    // If cure failed, log the reason
+                    Log.Warning($"[The Marked Men] Cure failed for {Pawn.LabelShort}: {failureReason}");
+                }
             }
         }
 
@@ -70,8 +75,8 @@ namespace TheMarkedMen
             if (parent == null || ticksTotal <= 0)
                 return;
 
-            // Progress from 0 to 1 based on remaining ticks
-            float progress = 1f - ((float)ticksRemaining / ticksTotal);
+            // Progress from 0.01 to 1 based on remaining ticks
+            float progress = 0.01f + (0.99f * (1f - ((float)ticksRemaining / ticksTotal)));
             parent.Severity = Mathf.Clamp01(progress);
         }
 
