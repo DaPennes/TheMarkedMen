@@ -41,7 +41,8 @@ namespace TheMarkedMen
         {
             "CA_CrossVirusImmunity",
             "CA_Restrained",
-            "TheMarkedMen_VictimRemorse"
+            "TheMarkedMen_VictimRemorse",
+            "TheMarkedMen_CurePending"
         };
 
         public static bool IsCureSyringe(Thing thing)
@@ -261,6 +262,15 @@ namespace TheMarkedMen
 
             ApplyCure(pawn);
             return true;
+        }
+
+        /// <summary>
+        /// Directly applies the cure without validation checks.
+        /// Used internally when the cure is ready to apply.
+        /// </summary>
+        public static void ApplyCureDirectly(Pawn pawn)
+        {
+            ApplyCure(pawn);
         }
 
         /// <summary>

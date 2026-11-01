@@ -55,17 +55,12 @@ namespace TheMarkedMen
 
             if (ticksRemaining <= 0)
             {
-                // Apply the cure
-                string failureReason;
-                if (CureUtility.TryCure(Pawn, out failureReason))
+                // Apply the cure directly without validation since countdown is already validated
+                if (Pawn != null && !Pawn.Dead && Pawn.Spawned)
                 {
+                    CureUtility.ApplyCureDirectly(Pawn);
                     // Remove the pending cure hediff after cure is applied
                     Pawn.health.RemoveHediff(parent);
-                }
-                else
-                {
-                    // If cure failed, log the reason
-                    Log.Warning($"[The Marked Men] Cure failed for {Pawn.LabelShort}: {failureReason}");
                 }
             }
         }
