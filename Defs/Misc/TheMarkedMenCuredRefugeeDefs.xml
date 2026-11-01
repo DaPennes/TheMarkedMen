@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+
+  <!-- Letter def for cured refugee choice letter -->
+  <LetterDef>
+    <defName>TheMarkedMen_CuredRefugeeLetter</defName>
+    <label>cured refugee</label>
+    <color>(0.2, 0.8, 0.2)</color>
+    <flashInterval>0.5</flashInterval>
+  </LetterDef>
+
+</Defs>

@@ -473,4 +473,20 @@
   <CA_ReleasePrisonerDesc>Remove the restraints from this prisoner. They will resume attacking wardens, self-harming, and attempting escape.</CA_ReleasePrisonerDesc>
   <CA_PrisonerRestrained>{PAWN_labelShort} has been restrained with heavy chains. They struggle against the bindings but cannot break free.</CA_PrisonerRestrained>
   <CA_PrisonerReleased>{PAWN_labelShort} has been released from restraints.</CA_PrisonerReleased>
+
+  <!-- Cured Refugee Letter -->
+  <TheMarkedMen_CuredRefugee_LetterTitle>Cured Survivor: {0}</TheMarkedMen_CuredRefugee_LetterTitle>
+  <TheMarkedMen_CuredRefugee_LetterBody>{0} has been cured of the Marked Virus. They are no longer infected and have regained their humanity.\n\nThey are reaching out to your colony, hoping to start a new life free from the curse that consumed them. Will you offer them sanctuary?</TheMarkedMen_CuredRefugee_LetterBody>
+  <TheMarkedMen_CuredRefugee_LetterFromFaction>They were originally part of the {0} faction before infection took them.</TheMarkedMen_CuredRefugee_LetterFromFaction>
+  <TheMarkedMen_CuredRefugee_HealthStatus>Their physical health is at {0}% - they are recovering from the ordeal of infection and cure.</TheMarkedMen_CuredRefugee_HealthStatus>
+  <TheMarkedMen_CuredRefugee_RequestToJoin>They humbly ask if they might join your colony and contribute to rebuilding their life.</TheMarkedMen_CuredRefugee_RequestToJoin>
+
+  <!-- Choice buttons -->
+  <TheMarkedMen_CuredRefugee_Accept>Accept them into the colony</TheMarkedMen_CuredRefugee_Accept>
+  <TheMarkedMen_CuredRefugee_Reject>Turn them away - they must find their own path</TheMarkedMen_CuredRefugee_Reject>
+
+  <!-- Messages -->
+  <TheMarkedMen_MessageRefugeeAccepted>{0} has been accepted into the colony and is ready to contribute.</TheMarkedMen_MessageRefugeeAccepted>
+  <TheMarkedMen_MessageRefugeeRejected>{0} has been turned away and is leaving to find sanctuary elsewhere.</TheMarkedMen_MessageRefugeeRejected>
+  <TheMarkedMen_MessageRefugeeLeft>{0} has left the colony after being turned away, departing to find a new home elsewhere.</TheMarkedMen_MessageRefugeeLeft>
 </LanguageData>

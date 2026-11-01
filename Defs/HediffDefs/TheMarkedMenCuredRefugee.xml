@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+
+  <!-- Hediff for tracking that a pawn is a cured refugee -->
+  <HediffDef>
+    <defName>TheMarkedMen_CuredRefugee</defName>
+    <label>cured refugee</label>
+    <description>This person has been cured of the Marked Virus infection and is seeking acceptance into a new community.</description>
+    <hediffClass>Hediff</hediffClass>
+    <defaultLabelColor>(0.5, 0.5, 0.5)</defaultLabelColor>
+    <stages>
+      <li>
+        <label>seeking refuge</label>
+      </li>
+    </stages>
+  </HediffDef>
+
+  <!-- Thought for being accepted as a refugee -->
+  <ThoughtDef>
+    <defName>TheMarkedMen_RefugeeAccepted</defName>
+    <label>accepted as refugee</label>
+    <description>I was cured and given a second chance at life. These people accepted me into their community. I won't let them down.</description>
+    <thoughtClass>Thought_Memory</thoughtClass>
+    <stages>
+      <li>
+        <label>accepted as refugee</label>
+        <description>I was cured and given a second chance at life. These people accepted me into their community. I won't let them down.</description>
+        <baseMoodEffect>15</baseMoodEffect>
+      </li>
+    </stages>
+    <durationDays>30</durationDays>
+    <stackedEffectMultiplier>0.25</stackedEffectMultiplier>
+    <stackLimit>5</stackLimit>
+  </ThoughtDef>
+
+  <!-- Thought for being rejected as a refugee -->
+  <ThoughtDef>
+    <defName>TheMarkedMen_RefugeeRejected</defName>
+    <label>rejected as refugee</label>
+    <description>I thought they would accept me... but they turned me away. I guess I'm not worthy of a second chance.</description>
+    <thoughtClass>Thought_Memory</thoughtClass>
+    <stages>
+      <li>
+        <label>rejected as refugee</label>
+        <description>I thought they would accept me... but they turned me away. I guess I'm not worthy of a second chance.</description>
+        <baseMoodEffect>-20</baseMoodEffect>
+      </li>
+    </stages>
+    <durationDays>60</durationDays>
+    <stackedEffectMultiplier>0.1</stackedEffectMultiplier>
+    <stackLimit>1</stackLimit>
+  </ThoughtDef>
+
+  <!-- Trait bonus for cured refugee acceptance - shows they're humble and grateful -->
+  <TraitDef>
+    <defName>TheMarkedMen_SecondChance</defName>
+    <label>second chance</label>
+    <description>This person has been cured of the Marked Virus and accepted into a new community. They are grateful for the opportunity and work with increased dedication.</description>
+    <degreeDatas>
+      <li>
+        <label>second chance recipient</label>
+        <description>This person was cured of the Marked Virus infection and accepted into a new community. They carry the weight of their past but are grateful to have been given another chance.</description>
+        <statOffsets>
+          <WorkSpeedGlobal>0.15</WorkSpeedGlobal>
+        </statOffsets>
+      </li>
+    </degreeDatas>
+  </TraitDef>
+
+</Defs>
