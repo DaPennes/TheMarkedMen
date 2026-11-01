@@ -79,7 +79,18 @@ namespace TheMarkedMen
             if (!IsInfected(pawn))
                 return "TheMarkedMen_OperationNotInfected".Translate();
 
+            if (HasPendingCure(pawn))
+                return "TheMarkedMen_CureAlreadyWorking".Translate();
+
             return true;
+        }
+
+        public static bool HasPendingCure(Pawn pawn)
+        {
+            HediffDef pending = CADefOf.CurePending;
+            return pending != null
+                && pawn?.health?.hediffSet != null
+                && pawn.health.hediffSet.HasHediff(pending);
         }
 
         public static bool CanActorUse(Pawn actor)
@@ -200,6 +211,42 @@ namespace TheMarkedMen
                 if (pawn != null)
                     TryStartInject(actor, pawn, cureSource);
             });
+        }
+
+        /// <summary>
+        /// Starts the cure. The pawn gets a "cure working" status that counts
+        /// down a random delay before the actual cure is applied.
+        /// </summary>
+        public static bool TryBeginCure(Pawn pawn, out string failureReason)
+        {
+            failureReason = null;
+            AcceptanceReport report = CanCure(pawn);
+            if (!report.Accepted)
+            {
+                failureReason = report.Reason;
+                return false;
+            }
+
+            HediffDef pendingDef = CADefOf.CurePending;
+            if (pendingDef == null)
+            {
+                // Fall back to an instant cure if the hediff def is missing.
+                ApplyCure(pawn);
+                return true;
+            }
+
+            // Check if a cure is already pending for this pawn.
+            if (HasPendingCure(pawn))
+            {
+                failureReason = "TheMarkedMen_CureAlreadyWorking".Translate();
+                return false;
+            }
+
+            Hediff pending = HediffMaker.MakeHediff(pendingDef, pawn);
+            pawn.health.AddHediff(pending);
+            Messages.Message("TheMarkedMen_MessageCureStarted".Translate(pawn.LabelShort),
+                pawn, MessageTypeDefOf.PositiveEvent);
+            return true;
         }
 
         public static bool TryCure(Pawn pawn, out string failureReason)

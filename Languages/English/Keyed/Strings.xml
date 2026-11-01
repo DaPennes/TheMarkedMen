@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version='1.0' encoding='utf-8'?>
 <LanguageData>
   <CA_ModName>The Marked Men</CA_ModName>
   <CA_CrossVirusName>Marked Virus</CA_CrossVirusName>
@@ -16,6 +16,8 @@
   <TheMarkedMen_OperationInvalidTarget>Invalid target.</TheMarkedMen_OperationInvalidTarget>
   <TheMarkedMen_OperationNotInfected>not infected with the Marked Virus</TheMarkedMen_OperationNotInfected>
   <TheMarkedMen_CannotInject>Cannot inject the cure.</TheMarkedMen_CannotInject>
+  <TheMarkedMen_CureAlreadyWorking>a cure is already working</TheMarkedMen_CureAlreadyWorking>
+  <TheMarkedMen_MessageCureStarted>The cure is working through {0}. It will take effect in a few minutes.</TheMarkedMen_MessageCureStarted>
   <TheMarkedMen_InjectCureInto>Inject cure into {0}</TheMarkedMen_InjectCureInto>
   <TheMarkedMen_InjectCureChooseTarget>Inject cure into...</TheMarkedMen_InjectCureChooseTarget>
   <TheMarkedMen_NeedsCureInInventory>{0} needs a cure syringe in their inventory to inject the cure.</TheMarkedMen_NeedsCureInInventory>
@@ -29,7 +31,7 @@
   <TheMarkedMen_NeedsSyringeInInventory>{0} needs a syringe in their inventory to draw blood.</TheMarkedMen_NeedsSyringeInInventory>
   <TheMarkedMen_DrawBloodGizmoDesc>Draw blood from an infected pawn using a syringe carried in this pawn's inventory.</TheMarkedMen_DrawBloodGizmoDesc>
 
-  <!-- Mod Settings Window -->
+  
   <MarkedMen_Settings_Title>The Marked Men - Settings</MarkedMen_Settings_Title>
   <MarkedMen_Settings_Intro>Use presets for a quick difficulty pass, or tune each section directly. Editing any field changes the active preset to Custom.</MarkedMen_Settings_Intro>
   <MarkedMen_Settings_ActivePreset>Active preset: {0}</MarkedMen_Settings_ActivePreset>
@@ -412,7 +414,7 @@
   <MarkedMen_Settings_rjwExposureChance>RimJobWorld exposure chance</MarkedMen_Settings_rjwExposureChance>
   <MarkedMen_Settings_rjwExposureChanceDesc>Chance that a valid RJW close-contact event involving one infected pawn exposes the other pawn.</MarkedMen_Settings_rjwExposureChanceDesc>
 
-  <!-- Predatory Instincts System -->
+  
   <CA_KillAnticipation_Label>kill anticipation</CA_KillAnticipation_Label>
   <CA_KillAnticipation_Desc>The predator's senses sharpen in the presence of prey. Reflexes quicken and focus intensifies with every hostile nearby.</CA_KillAnticipation_Desc>
   <CA_FreshKillSatisfaction_Label>satisfying kill</CA_FreshKillSatisfaction_Label>
@@ -424,7 +426,7 @@
   <CA_PredatorPatience_Label>predator's patience</CA_PredatorPatience_Label>
   <CA_PredatorPatience_Desc>Watching. Waiting. The prey does not know it is already marked.</CA_PredatorPatience_Desc>
 
-  <!-- Lost Survivor System -->
+  
   <CA_LostSurvivor_Title>Lost survivor found</CA_LostSurvivor_Title>
   <CA_LostSurvivor_Desc>A disoriented survivor has wandered to the colony's edge. They claim to have been separated from their group days ago and have been traveling alone since. Something about their story feels incomplete, but they seem grateful for shelter.</CA_LostSurvivor_Desc>
   <CA_LostSurvivor_Accept>Accept them</CA_LostSurvivor_Accept>
@@ -436,7 +438,7 @@
   <CA_DormantMark_Label>dormant mark</CA_DormantMark_Label>
   <CA_DormantMark_Desc>A latent Marked Virus infection that has not yet activated. The host shows no symptoms and carries the infection without visible signs.</CA_DormantMark_Desc>
 
-  <!-- Betrayal Thoughts -->
+  
   <CA_BetrayedByColonist_Label>betrayed by colonist</CA_BetrayedByColonist_Label>
   <CA_BetrayedByColonist_Desc>Someone I trusted was carrying the Marked Virus. They were one of us until they weren't.</CA_BetrayedByColonist_Desc>
   <CA_BetrayedByColonistSocial_Label>betrayed by</CA_BetrayedByColonistSocial_Label>
@@ -447,7 +449,7 @@
   <CA_MercifulKill_Label>merciful execution</CA_MercifulKill_Label>
   <CA_MercifulKill_Desc>I put down a colonist before they could turn. It was the right call, but that does not make it easier.</CA_MercifulKill_Desc>
 
-  <!-- Marked Prisoner System -->
+  
   <CA_MarkedPrisoner_RecruitBlocked>The Marked Virus has completely overwritten {PAWN_labelShort}'s will. They can no longer be recruited, their mind is no longer their own.</CA_MarkedPrisoner_RecruitBlocked>
   <CA_MarkedPrisoner_Attack>{PRISONER_labelShort} lunges at {TARGET_labelShort} with a vicious {TYPE}!</CA_MarkedPrisoner_Attack>
   <CA_MarkedPrisoner_SelfHarm_Bruise>{PAWN_labelShort} slams their body against the cell walls and floor, leaving dark, spreading bruises across their skin.</CA_MarkedPrisoner_SelfHarm_Bruise>
@@ -464,7 +466,7 @@
   <CA_MarkedPrisoner_CosmeticLaugh>{PAWN_labelShort} bursts into manic, hollow laughter that raises the hairs on the back of your neck.</CA_MarkedPrisoner_CosmeticLaugh>
    <CA_MarkedPrisoner_CosmeticPound>{PAWN_labelShort} pounds against the cell walls with bloody fists, testing for weaknesses.</CA_MarkedPrisoner_CosmeticPound>
 
-  <!-- Restraint System -->
+  
   <CA_RestrainPrisoner>Restrain prisoner</CA_RestrainPrisoner>
   <CA_RestrainPrisonerDesc>Restrain this Marked prisoner with heavy chains. Restrained prisoners cannot attack, self-harm, or escape, but the virus continues to progress.</CA_RestrainPrisonerDesc>
   <CA_ReleasePrisoner>Release prisoner</CA_ReleasePrisoner>

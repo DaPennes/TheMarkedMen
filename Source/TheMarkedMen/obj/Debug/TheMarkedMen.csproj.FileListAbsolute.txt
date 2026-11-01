@@ -28,3 +28,9 @@ C:\Users\edria\AppData\Local\Temp\opencode\markedmen_build4\TheMarkedMen.dll
 C:\Users\edria\AppData\Local\Temp\opencode\markedmen_build4\TheMarkedMen.pdb
 C:\Users\edria\AppData\Local\Temp\opencode\TheMarkedMenBuild\TheMarkedMen.dll
 C:\Users\edria\AppData\Local\Temp\opencode\TheMarkedMenBuild\TheMarkedMen.pdb
+C:\Users\edria\AppData\Local\Temp\opencode\TheMarkedMenBuild2\TheMarkedMen.dll
+C:\Users\edria\AppData\Local\Temp\opencode\TheMarkedMenBuild2\TheMarkedMen.pdb
+C:\Users\edria\AppData\Local\Temp\opencode\TheMarkedMenBuild3\TheMarkedMen.dll
+C:\Users\edria\AppData\Local\Temp\opencode\TheMarkedMenBuild3\TheMarkedMen.pdb
+C:\Users\edria\AppData\Local\Temp\opencode\TheMarkedMenBuildFinal\TheMarkedMen.dll
+C:\Users\edria\AppData\Local\Temp\opencode\TheMarkedMenBuildFinal\TheMarkedMen.pdb

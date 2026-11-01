@@ -81,6 +81,7 @@ namespace TheMarkedMen
         private static JobDef injectCureJob;
         private static ThingDef syringe;
         private static ThingDef cureSyringe;
+        private static HediffDef curePending;
 
         public static HediffDef CrossVirus => crossVirus ?? (crossVirus = DefDatabase<HediffDef>.GetNamedSilentFail("CA_CrossVirus"));
         public static HediffDef CrossVirusImmunity => crossVirusImmunity ?? (crossVirusImmunity = DefDatabase<HediffDef>.GetNamedSilentFail("CA_CrossVirusImmunity"));
@@ -156,6 +157,7 @@ namespace TheMarkedMen
         public static JobDef InjectCureJob => injectCureJob ?? (injectCureJob = DefDatabase<JobDef>.GetNamedSilentFail("TheMarkedMen_InjectCure"));
         public static ThingDef Syringe => syringe ?? (syringe = DefDatabase<ThingDef>.GetNamedSilentFail("TheMarkedMen_Syringe"));
         public static ThingDef CureSyringe => cureSyringe ?? (cureSyringe = DefDatabase<ThingDef>.GetNamedSilentFail("TheMarkedMen_Cure_Syringe"));
+        public static HediffDef CurePending => curePending ?? (curePending = DefDatabase<HediffDef>.GetNamedSilentFail("TheMarkedMen_CurePending"));
 
         public static bool IsCrossedFaceTattoo(TattooDef tattoo)
         {

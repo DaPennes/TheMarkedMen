@@ -164,6 +164,13 @@ namespace TheMarkedMen
             nextProgressTick = ticks + ProgressTickInterval;
             CrossedUtility.EnsureInfectedState(pawn);
 
+            // A cure is already working; hold the virus where it is so the
+            // pawn cannot transform or die before the cure finishes.
+            if (CureUtility.HasPendingCure(pawn))
+            {
+                return;
+            }
+
             if (transformed)
             {
                 return;

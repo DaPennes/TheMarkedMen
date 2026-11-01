@@ -31,7 +31,7 @@ namespace TheMarkedMen
             }
 
             string reason;
-            if (!CureUtility.TryCure(pawn, out reason))
+            if (!CureUtility.TryBeginCure(pawn, out reason))
             {
                 Pawn target = billDoer ?? pawn;
                 Messages.Message(reason.NullOrEmpty() ? "TheMarkedMen_CannotInject".Translate() : reason,

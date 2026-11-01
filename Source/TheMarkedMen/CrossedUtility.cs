@@ -1540,6 +1540,13 @@ public static void RemoveMarkedVirusHediffFromFullyTurnedPawn(Pawn pawn)
 				return;
 			}
 
+			// A cure is in progress; do not let the Marked Virus advance
+			// while the countdown is active.
+			if (CureUtility.HasPendingCure(pawn))
+			{
+				return;
+			}
+
 			RemoveDeprecatedCrossedRashHediff(pawn);
 
 			// Handle CA_MarkedTurned victims (virus-transformed original-kind pawns)
