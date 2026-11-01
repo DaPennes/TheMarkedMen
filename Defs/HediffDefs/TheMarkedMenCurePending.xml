@@ -10,6 +10,7 @@
     <everCurableByItem>false</everCurableByItem>
     <initialSeverity>0.01</initialSeverity>
     <maxSeverity>1</maxSeverity>
+    <showOnNarrative>false</showOnNarrative>
     <comps>
       <li Class="TheMarkedMen.HediffCompProperties_CureCountdown">
         <minTicks>3600</minTicks>

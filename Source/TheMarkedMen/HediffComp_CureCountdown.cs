@@ -32,6 +32,7 @@ namespace TheMarkedMen
                 ticksTotal = ticksRemaining;
                 countdownStarted = true;
                 UpdateSeverity();
+                Log.Message($"[The Marked Men] Cure countdown started for {Pawn.LabelShort}. Duration: {ticksRemaining} ticks (~{ticksRemaining / 2500f:F1} days)");
             }
         }
 
@@ -48,6 +49,7 @@ namespace TheMarkedMen
                 ticksTotal = ticksRemaining;
                 countdownStarted = true;
                 UpdateSeverity();
+                Log.Message($"[The Marked Men] Cure countdown started for {Pawn.LabelShort}. Duration: {ticksRemaining} ticks (~{ticksRemaining / 2500f:F1} days)");
             }
 
             ticksRemaining--;
@@ -55,12 +57,14 @@ namespace TheMarkedMen
 
             if (ticksRemaining <= 0)
             {
+                Log.Message($"[The Marked Men] Cure countdown completed for {Pawn.LabelShort}. Applying cure...");
                 // Apply the cure directly without validation since countdown is already validated
                 if (Pawn != null && !Pawn.Dead && Pawn.Spawned)
                 {
                     CureUtility.ApplyCureDirectly(Pawn);
                     // Remove the pending cure hediff after cure is applied
                     Pawn.health.RemoveHediff(parent);
+                    Log.Message($"[The Marked Men] Cure applied and pending hediff removed for {Pawn.LabelShort}");
                 }
             }
         }
