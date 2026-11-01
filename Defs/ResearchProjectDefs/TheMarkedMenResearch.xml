@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+  <ResearchProjectDef>
+    <defName>TheMarkedMen_MarkedVirusResearch</defName>
+    <label>Marked virus studies</label>
+    <description>Study the Marked Virus and the blood of its hosts. Unlocks the syringe, infected blood sample handling, and the Marked Virus cure.</description>
+    <baseCost>1200</baseCost>
+    <techLevel>Industrial</techLevel>
+    <researchViewX>3.00</researchViewX>
+    <researchViewY>3.50</researchViewY>
+    <prerequisites>
+      <li>DrugProduction</li>
+    </prerequisites>
+  </ResearchProjectDef>
+</Defs>

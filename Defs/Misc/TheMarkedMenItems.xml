@@ -34,4 +34,76 @@
       <li Class="TheMarkedMen.CompProperties_InjectCure" />
     </comps>
   </ThingDef>
+
+  <ThingDef>
+    <defName>TheMarkedMen_Syringe</defName>
+    <label>syringe</label>
+    <description>An empty syringe with a steel needle. It can be used to draw blood from a creature infected with the Marked Virus.</description>
+    <thingClass>TheMarkedMen.Thing_BloodSyringe</thingClass>
+    <category>Item</category>
+    <thingCategories>
+      <li>Items</li>
+    </thingCategories>
+    <selectable>true</selectable>
+    <altitudeLayer>Item</altitudeLayer>
+    <useHitPoints>true</useHitPoints>
+    <alwaysHaulable>true</alwaysHaulable>
+    <drawerType>MapMeshOnly</drawerType>
+    <resourceReadoutPriority>Middle</resourceReadoutPriority>
+    <rotatable>false</rotatable>
+    <pathCost>14</pathCost>
+    <drawGUIOverlay>true</drawGUIOverlay>
+    <stackLimit>10</stackLimit>
+    <statBases>
+      <MarketValue>12</MarketValue>
+      <Mass>0.1</Mass>
+      <DeteriorationRate>2</DeteriorationRate>
+    </statBases>
+    <graphicData>
+      <texPath>Item/Syringe/Syringe_craft_1</texPath>
+      <graphicClass>Graphic_Single</graphicClass>
+      <drawSize>1</drawSize>
+    </graphicData>
+    <comps>
+      <li Class="CompProperties_Forbiddable" />
+      <li Class="TheMarkedMen.CompProperties_DrawBlood">
+        <bloodSampleDef>TheMarkedMen_InfectedBloodSample</bloodSampleDef>
+        <drawDurationTicks>180</drawDurationTicks>
+      </li>
+    </comps>
+  </ThingDef>
+
+  <ThingDef>
+    <defName>TheMarkedMen_InfectedBloodSample</defName>
+    <label>infected blood sample</label>
+    <description>A syringe filled with blood drawn from a Marked Virus carrier. It is a required ingredient for crafting a cure.</description>
+    <thingClass>TheMarkedMen.Thing_InfectedBloodSample</thingClass>
+    <category>Item</category>
+    <thingCategories>
+      <li>Items</li>
+    </thingCategories>
+    <selectable>true</selectable>
+    <altitudeLayer>Item</altitudeLayer>
+    <useHitPoints>true</useHitPoints>
+    <alwaysHaulable>true</alwaysHaulable>
+    <drawerType>MapMeshOnly</drawerType>
+    <resourceReadoutPriority>Middle</resourceReadoutPriority>
+    <rotatable>false</rotatable>
+    <pathCost>14</pathCost>
+    <drawGUIOverlay>true</drawGUIOverlay>
+    <stackLimit>10</stackLimit>
+    <statBases>
+      <MarketValue>60</MarketValue>
+      <Mass>0.2</Mass>
+      <DeteriorationRate>2</DeteriorationRate>
+    </statBases>
+    <graphicData>
+      <texPath>Item/Infected Sample/Infected-Sample_blood1</texPath>
+      <graphicClass>Graphic_Single</graphicClass>
+      <drawSize>1</drawSize>
+    </graphicData>
+    <comps>
+      <li Class="CompProperties_Forbiddable" />
+    </comps>
+  </ThingDef>
 </Defs>

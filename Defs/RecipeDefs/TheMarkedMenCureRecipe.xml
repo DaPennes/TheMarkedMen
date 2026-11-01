@@ -6,6 +6,7 @@
     <description>Craft a cure for the Marked Virus infection.</description>
     <jobString>Crafting cure syringe.</jobString>
     <workAmount>2000</workAmount>
+    <researchPrerequisite>TheMarkedMen_MarkedVirusResearch</researchPrerequisite>
     <!-- VFE Production's electric drug lab inherits DrugLab recipes through
          Vanilla Expanded Framework. Listing it explicitly is safe because
          VEF skips recipes already assigned to that worktable. -->
@@ -14,6 +15,14 @@
       <li MayRequire="VanillaExpanded.VFEProduction">VFE_TableDrugLabElectric</li>
     </recipeUsers>
     <ingredients>
+      <li>
+        <filter>
+          <thingDefs>
+            <li>TheMarkedMen_InfectedBloodSample</li>
+          </thingDefs>
+        </filter>
+        <count>1</count>
+      </li>
       <li>
         <filter>
           <thingDefs>

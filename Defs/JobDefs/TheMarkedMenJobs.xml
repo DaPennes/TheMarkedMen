@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+  <JobDef>
+    <defName>TheMarkedMen_DrawBlood</defName>
+    <driverClass>TheMarkedMen.JobDriver_DrawBlood</driverClass>
+    <reportString>drawing blood from TargetA.</reportString>
+    <casualInterruptible>false</casualInterruptible>
+    <suspendable>false</suspendable>
+  </JobDef>
+</Defs>

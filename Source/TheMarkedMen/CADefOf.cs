@@ -76,6 +76,9 @@ namespace TheMarkedMen
         private static HediffDef warlordPresence;
         private static HediffDef victimRemorse;
         private static ThoughtDef rememberEverything;
+        private static ResearchProjectDef markedVirusResearch;
+        private static JobDef drawBloodJob;
+        private static ThingDef syringe;
 
         public static HediffDef CrossVirus => crossVirus ?? (crossVirus = DefDatabase<HediffDef>.GetNamedSilentFail("CA_CrossVirus"));
         public static HediffDef CrossVirusImmunity => crossVirusImmunity ?? (crossVirusImmunity = DefDatabase<HediffDef>.GetNamedSilentFail("CA_CrossVirusImmunity"));
@@ -146,6 +149,9 @@ namespace TheMarkedMen
         public static ThoughtDef CA_SuspiciousOfColonists => suspiciousOfColonists ?? (suspiciousOfColonists = DefDatabase<ThoughtDef>.GetNamedSilentFail("CA_SuspiciousOfColonists"));
         public static ThoughtDef CA_MercifulKill => mercifulKill ?? (mercifulKill = DefDatabase<ThoughtDef>.GetNamedSilentFail("CA_MercifulKill"));
         public static ThinkTreeDef HunterThinkTree => hunterThinkTree ?? (hunterThinkTree = DefDatabase<ThinkTreeDef>.GetNamedSilentFail("CA_HunterThinkTree"));
+        public static ResearchProjectDef MarkedVirusResearch => markedVirusResearch ?? (markedVirusResearch = DefDatabase<ResearchProjectDef>.GetNamedSilentFail("TheMarkedMen_MarkedVirusResearch"));
+        public static JobDef DrawBloodJob => drawBloodJob ?? (drawBloodJob = DefDatabase<JobDef>.GetNamedSilentFail("TheMarkedMen_DrawBlood"));
+        public static ThingDef Syringe => syringe ?? (syringe = DefDatabase<ThingDef>.GetNamedSilentFail("TheMarkedMen_Syringe"));
 
         public static bool IsCrossedFaceTattoo(TattooDef tattoo)
         {

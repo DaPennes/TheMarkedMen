@@ -18,6 +18,14 @@
   <TheMarkedMen_CannotInject>Cannot inject the cure.</TheMarkedMen_CannotInject>
   <TheMarkedMen_InjectCureInto>Inject cure into {0}</TheMarkedMen_InjectCureInto>
   <TheMarkedMen_InjectCureChooseTarget>Inject cure into...</TheMarkedMen_InjectCureChooseTarget>
+  <TheMarkedMen_CannotDrawBlood>Cannot draw blood.</TheMarkedMen_CannotDrawBlood>
+  <TheMarkedMen_DrawBloodFrom>Draw blood from {0}</TheMarkedMen_DrawBloodFrom>
+  <TheMarkedMen_DrawBloodChooseTarget>Draw blood from...</TheMarkedMen_DrawBloodChooseTarget>
+  <TheMarkedMen_DrawBloodLocked>Draw blood (requires Marked virus studies)</TheMarkedMen_DrawBloodLocked>
+  <TheMarkedMen_MessageBloodDrawn>Drew an infected blood sample from {0}.</TheMarkedMen_MessageBloodDrawn>
+  <TheMarkedMen_NoRoomForSample>There is no room to place the infected blood sample.</TheMarkedMen_NoRoomForSample>
+  <TheMarkedMen_NeedsSyringeInInventory>{0} needs a syringe in their inventory to draw blood.</TheMarkedMen_NeedsSyringeInInventory>
+  <TheMarkedMen_DrawBloodGizmoDesc>Draw blood from an infected pawn using a syringe carried in this pawn's inventory.</TheMarkedMen_DrawBloodGizmoDesc>
 
   <!-- Mod Settings Window -->
   <MarkedMen_Settings_Title>The Marked Men - Settings</MarkedMen_Settings_Title>
