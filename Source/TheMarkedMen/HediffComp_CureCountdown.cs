@@ -1,4 +1,5 @@
 using RimWorld;
+using UnityEngine;
 using Verse;
 
 namespace TheMarkedMen
@@ -17,6 +18,7 @@ namespace TheMarkedMen
     public class HediffComp_CureCountdown : HediffComp
     {
         private int ticksRemaining;
+        private int ticksTotal;
         private bool countdownStarted;
 
         public HediffCompProperties_CureCountdown Props => (HediffCompProperties_CureCountdown)props;
@@ -27,7 +29,9 @@ namespace TheMarkedMen
             if (!countdownStarted)
             {
                 ticksRemaining = Rand.Range(Props.minTicks, Props.maxTicks);
+                ticksTotal = ticksRemaining;
                 countdownStarted = true;
+                UpdateSeverity();
             }
         }
 
@@ -41,10 +45,13 @@ namespace TheMarkedMen
             if (!countdownStarted)
             {
                 ticksRemaining = Rand.Range(Props.minTicks, Props.maxTicks);
+                ticksTotal = ticksRemaining;
                 countdownStarted = true;
+                UpdateSeverity();
             }
 
             ticksRemaining--;
+            UpdateSeverity();
 
             if (ticksRemaining <= 0)
             {
@@ -58,10 +65,21 @@ namespace TheMarkedMen
             }
         }
 
+        private void UpdateSeverity()
+        {
+            if (parent == null || ticksTotal <= 0)
+                return;
+
+            // Progress from 0 to 1 based on remaining ticks
+            float progress = 1f - ((float)ticksRemaining / ticksTotal);
+            parent.Severity = Mathf.Clamp01(progress);
+        }
+
         public override void CompExposeData()
         {
             base.CompExposeData();
             Scribe_Values.Look(ref ticksRemaining, "ticksRemaining", 0);
+            Scribe_Values.Look(ref ticksTotal, "ticksTotal", 0);
             Scribe_Values.Look(ref countdownStarted, "countdownStarted", false);
         }
     }
