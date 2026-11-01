@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+  <HediffDef>
+    <defName>TheMarkedMen_CurePending</defName>
+    <label>cure working</label>
+    <description>The cure is working through the infection. The Marked Virus will be gone soon.</description>
+    <hediffClass>HediffWithComps</hediffClass>
+    <isBad>false</isBad>
+    <tendable>false</tendable>
+    <everCurableByItem>false</everCurableByItem>
+    <initialSeverity>1</initialSeverity>
+    <maxSeverity>1</maxSeverity>
+    <comps>
+      <li Class="TheMarkedMen.HediffCompProperties_CureCountdown">
+        <minTicks>3600</minTicks>
+        <maxTicks>18000</maxTicks>
+      </li>
+    </comps>
+  </HediffDef>
+</Defs>
