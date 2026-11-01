@@ -296,15 +296,12 @@ namespace TheMarkedMen
                 pawn.ChangeKind(origin.kind);
 
             RestoreXenotype(pawn, origin);
-            CrossedUtility.RemoveCrossedRashVisualsIfNotSuccumbed(pawn);
 
             HediffDef remorse = CADefOf.VictimRemorse;
             if (remorse != null && !pawn.health.hediffSet.HasHediff(remorse))
                 pawn.health.AddHediff(remorse);
 
             AddRemorseThought(pawn);
-            HealInjuries(pawn);
-            pawn.Drawer?.renderer?.SetAllGraphicsDirty();
 
             Messages.Message("TheMarkedMen_MessageCured".Translate(pawn.LabelShort), pawn, MessageTypeDefOf.PositiveEvent);
         }
