@@ -4,6 +4,7 @@
     <defName>CA_MarkedBloodlustNeed</defName>
     <label>marked bloodlust</label>
     <description>Creates an insatiable craving for violence. The bloodlust level builds over time and affects the pawn's mood. Low bloodlust causes a negative mood, while high bloodlust satisfies the predator drive.</description>
+    <iconPath>UI/Genes/Marked Bloodlust Gene/Marked Bloodlust Gene</iconPath>
     <geneClass>TheMarkedMen.Gene_MarkedBloodlustGene</geneClass>
     <biostatCpx>2</biostatCpx>
     <biostatMet>0</biostatMet>

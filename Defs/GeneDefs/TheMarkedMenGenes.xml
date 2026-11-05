@@ -2,9 +2,9 @@
 <Defs>
   <GeneDef MayRequire="Ludeon.RimWorld.Biotech">
     <defName>CA_CrossVirusResistance</defName>
-    <label>marked virus resistance</label>
+    <label>Marked Virus Immunity</label>
     <description>Unusual immune markers make this person more resistant to the Marked Virus and other blood-borne infections.</description>
-    <iconPath>UI/Genes/MarkedOneGenes</iconPath>
+    <iconPath>UI/Genes/Marked Immune Gene/Marked Immune Gene</iconPath>
     <displayCategory>Miscellaneous</displayCategory>
     <biostatCpx>2</biostatCpx>
     <biostatMet>-1</biostatMet>
@@ -17,7 +17,7 @@
     <defName>CA_CrossedAggressionMarker</defName>
     <label>aggression marker</label>
     <description>A dangerous neurological expression pattern seen in late-stage Marked Virus mutations. It increases movement speed and melee capability at the cost of social stability.</description>
-    <iconPath>UI/Genes/MarkedOneGenes</iconPath>
+    <iconPath>UI/Genes/Marked Aggression Gene/Marked Aggression Gene</iconPath>
     <displayCategory>Miscellaneous</displayCategory>
     <biostatCpx>3</biostatCpx>
     <biostatMet>2</biostatMet>
