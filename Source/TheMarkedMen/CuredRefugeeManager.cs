@@ -198,7 +198,7 @@ namespace TheMarkedMen
                 return;
             }
 
-            // Generate the letter body text for the title
+            // Generate the letter body text.
             string bodyText = "TheMarkedMen_CuredRefugee_LetterBody".Translate(pawn?.LabelShort ?? "Unknown");
 
             if (originalFaction != null)
@@ -218,7 +218,9 @@ namespace TheMarkedMen
             {
                 pawn = pawn,
                 originalFaction = originalFaction,
-                title = bodyText,
+                title = "TheMarkedMen_CuredRefugee_LetterTitle".Translate(pawn?.LabelShort ?? "Unknown"),
+                Label = "TheMarkedMen_CuredRefugee_LetterTitle".Translate(pawn?.LabelShort ?? "Unknown"),
+                Text = bodyText,
                 lookTargets = new LookTargets(pawn),
                 def = DefDatabase<LetterDef>.GetNamed("TheMarkedMen_CuredRefugeeLetter", false) ?? LetterDefOf.NeutralEvent
             };

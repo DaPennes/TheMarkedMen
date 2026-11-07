@@ -13,6 +13,8 @@ namespace TheMarkedMen
         public Pawn pawn;
         public Faction originalFaction;
 
+        public override bool CanDismissWithRightClick => false;
+
         public ChoiceLetter_CuredRefugee()
         {
             // Initialize required letter properties
@@ -75,6 +77,8 @@ namespace TheMarkedMen
                         // Clean up the refugee marker
                         CuredRefugeeManager.GetForMap(pawn.Map)?.RemoveRefugee(pawn);
                     }
+
+                    Find.LetterStack.RemoveLetter(this);
                 };
                 diaOption.resolveTree = true;
                 return diaOption;
@@ -128,6 +132,8 @@ namespace TheMarkedMen
                         // Clean up the refugee marker
                         CuredRefugeeManager.GetForMap(pawn.Map)?.RemoveRefugee(pawn);
                     }
+
+                    Find.LetterStack.RemoveLetter(this);
                 };
                 diaOption.resolveTree = true;
                 return diaOption;
@@ -142,4 +148,3 @@ namespace TheMarkedMen
         }
     }
 }
-
