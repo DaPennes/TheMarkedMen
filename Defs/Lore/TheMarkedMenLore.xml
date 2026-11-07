@@ -10,6 +10,12 @@
         <li>crossed_audio_log->Audio Log C-44: Marked rash is most visible around the eyes and cheeks. Advanced cases show a dark red X pattern across the face, neck, and upper torso.</li>
         <li>crossed_progression->Medical Note: Most confirmed victims resolve quickly. A terminal case usually becomes one of the Marked Men or dies from viral collapse; rare slow infections remain lucid longer.</li>
         <li>crossed_timeline->Planetary Timeline: Exposure. Rapid onset. Psychosis. Transformation. Organized raids. Settlement collapse. Alpha migration.</li>
+        <li>crossed_pack_structure->Field Note: The pack is not a single mind. Its members retain scraps of old loyalties and skills, but rank is enforced through fear and usefulness. An Alpha can direct a hunt; remove that leader and the pack may scatter, hesitate, or erupt into a reckless charge.</li>
+        <li>crossed_roles->Quartermaster's Ledger: The infected adapt their tools to the job. Watchers carry light gear and range ahead, Pursuers track isolated prey, Gunners cover open ground, and Breakers wear whatever protection can survive a breach. Their equipment is scavenged, repaired, and taken from the fallen.</li>
+        <li>crossed_memory->Recovered Letter: I heard one of them call another by a childhood nickname. Then they laughed and dragged him back into the fight. I do not know whether the memory made them more human or only made the violence harder to watch.</li>
+        <li>crossed_temporary_service->Quarantine Addendum: A transformed captive may obey a stronger pack without belonging to it. Treat cooperation as borrowed time, not trust. When the bond ends, the old loyalties are gone and the new ones may be gone too.</li>
+        <li>crossed_outpost->Settlement Survey: The Marked Men do not need a capital to hold ground. A barricaded workshop, a guarded food store, and a clear line of retreat are enough to turn a ruin into a foothold. They build where the next hunt can begin.</li>
+        <li>crossed_survival->Field Manual: Do not assume a quiet infected pawn is harmless, and do not assume a loud pack is disorganized. Watch their spacing, their weapons, and who the others follow. The first target is often the one no one is looking at.</li>
       </rulesStrings>
     </rulePack>
   </RulePackDef>

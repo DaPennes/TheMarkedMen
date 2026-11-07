@@ -1484,7 +1484,7 @@ namespace TheMarkedMen
 	if (ScenPart_MarkedMenPlayerState.IsActive)
 	{
 		scenarioPlayerFaction = Faction.OfPlayer;
-		temporaryAllyDef = DefDatabase<HediffDef>.GetNamedSilentFail("CA_TemporaryMarkedAlly");
+		temporaryAllyDef = CADefOf.TemporaryMarkedAlly;
 		if (scenarioPlayerFaction == null || temporaryAllyDef == null || pawn.guest == null)
 		{
 			Log.Error("[The Marked Men] Could not convert the infected pawn into a temporary controlled ally because a required faction, hediff, or guest tracker is missing.");

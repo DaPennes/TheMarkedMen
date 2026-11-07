@@ -9,6 +9,9 @@
         <li>crossed_dormant_survivor->Witness Statement: They ate with us. They slept in the bunk next to mine. They helped reinforce the barricades. When it happened, there was no warning. No fever. No rash. Just the change in their eyes and then the screaming.</li>
         <li>crossed_dormant_alpha_emergence->Field Report: Dormant Alpha activation produces immediate coordination in surrounding infected. Quarantine protocol revised: any carrier reaching transformation threshold triggers immediate zone lockdown. Alphas emerging from dormancy are priority-alpha threats.</li>
         <li>crossed_dormant_close_contact->Safety Bulletin: Dormancy does not reduce contagiousness. Carriers shed viral material at lower rates than active cases, but prolonged close contact carries measurable risk. Maintain standard exposure protocols for all personnel regardless of symptom presentation.</li>
+        <li>crossed_dormant_pack_memory->Debrief: The transformed crew did not behave like strangers. They returned to familiar rooms, reclaimed tools, and moved in the order they had practiced before the outbreak. No one could tell whether the virus preserved their routines or simply found them useful.</li>
+        <li>crossed_dormant_survivor_choice->Personal Log: One of the infected lowered his weapon when he recognized my voice. It lasted only a moment. We learned that memory can interrupt the hunt, but it cannot be trusted to end it.</li>
+        <li>crossed_dormant_protocol->Revised Protocol: A clear scan is not a guarantee of safety. Keep records, rotate watches, and agree on a response before anyone shows symptoms. Panic after activation is exactly when a pack loses control of the room.</li>
       </rulesStrings>
     </rulePack>
   </RulePackDef>

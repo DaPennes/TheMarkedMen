@@ -21,7 +21,7 @@
   <FactionDef ParentName="FactionBase">
     <defName>CA_CrossedFaction</defName>
     <label>The Marked Men</label>
-    <description>The Marked Men are not shambling dead. They are living, intelligent infected who retain enough memory, tool use, language, and tactical instinct to hunt survivors, raid settlements, force breaches, and spread the Marked Virus through blood exposure.</description>
+    <description>The Marked Men are living infected, not risen corpses. The virus leaves its hosts with fragments of memory, language, craft, and tactical judgment, all bent toward violence and survival. Packs adapt to their surroundings: scouts watch approaches, shooters hold distance, raiders scavenge, and Alphas impose order through presence and force. The Marked rash is their visible sign, but it does not make them mindless or predictable. Their attacks spread the virus through blood and close contact, while their victims may transform, resist, or die.</description>
     <fixedName>The Marked Men</fixedName>
     <pawnSingular>Marked One</pawnSingular>
     <pawnsPlural>Marked Men</pawnsPlural>
@@ -56,7 +56,7 @@
     </allowedCultures>
     <fixedIdeo>true</fixedIdeo>
     <ideoName>The Marked One</ideoName>
-    <ideoDescription>The Marked One is less a faith than a command that survives inside the fever. It teaches that the red cross is proof of selection: the infected remember enough to hunt, speak, and organize, while the unmarked are failed kin fit only to feed the spread. Every raid is a sermon, every corpse a warning, and every survivor taken alive is another chance for the world to wear the mark.</ideoDescription>
+    <ideoDescription>The Marked One is less a faith than a brutal order built from memory, fear, and the need to belong. The mark binds the infected into a pack, but hierarchy is never gentle: Alphas command, specialists earn their place, and the weak are tested by every hunt. The unmarked are seen as prey or potential kin. A captured survivor may be forced to serve, yet no borrowed loyalty is permanent. Every settlement taken is another chance to impose the pack's rule on a world that once cast it out.</ideoDescription>
     <hiddenIdeo>true</hiddenIdeo>
     <forcedMemes>
       <li MayRequire="Ludeon.RimWorld.Ideology">Structure_Ideological</li>

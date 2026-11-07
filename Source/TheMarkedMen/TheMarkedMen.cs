@@ -538,6 +538,11 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
             }
             if (Scribe.mode == LoadSaveMode.PostLoadInit && loadedSettingsVersion < CurrentSettingsVersion)
             {
+                if (loadedSettingsVersion < 16)
+                {
+                    temporaryAllyDurationDays = 30f;
+                }
+
                 if (loadedSettingsVersion < 3)
                 {
                     bloodExposureChance = InfectionTransmissionChance;
@@ -2345,6 +2350,17 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
 
         public void NotifyTransformation(Pawn pawn)
         {
+            HediffDef temporaryAlly = CADefOf.TemporaryMarkedAlly;
+            if (ScenPart_MarkedMenPlayerState.IsActive
+                && pawn != null
+                && pawn.Faction == Faction.OfPlayer
+                && temporaryAlly != null
+                && pawn.health?.hediffSet?.HasHediff(temporaryAlly) == true)
+            {
+                AddIncident(pawn.LabelShortCap + " transformed and joined the pack temporarily.");
+                return;
+            }
+
             AddIncident(pawn.LabelShortCap + " transformed into one of the Marked Men.");
         }
 
@@ -3418,10 +3434,15 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
                 IReadOnlyList<Pawn> pawns = map.mapPawns.AllPawnsSpawned;
                 for (int j = 0; j < pawns.Count; j++)
                 {
-                    CrossedUtility.EnsureStarterLineageResistance(pawns[j]);
-                    CrossedUtility.EnsureInfectedState(pawns[j]);
-                    CrossedUtility.RemoveMarkedVirusHediffFromFullyTurnedPawn(pawns[j]);
-                    CureUtility.NormalizeRemorseThought(pawns[j]);
+                    Pawn pawn = pawns[j];
+                    CrossedUtility.EnsureStarterLineageResistance(pawn);
+                    CrossedUtility.EnsureInfectedState(pawn);
+                    CrossedUtility.RemoveMarkedVirusHediffFromFullyTurnedPawn(pawn);
+                    CureUtility.NormalizeRemorseThought(pawn);
+                    Hediff temporaryAlly = CADefOf.TemporaryMarkedAlly == null
+                        ? null
+                        : pawn?.health?.hediffSet?.GetFirstHediffOfDef(CADefOf.TemporaryMarkedAlly);
+                    temporaryAlly?.TryGetComp<HediffComp_TemporaryMarkedAlly>()?.EnsureOwnershipStateAfterLoad();
                 }
             }
         }

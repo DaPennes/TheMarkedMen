@@ -19,6 +19,8 @@ namespace TheMarkedMen
         private int expiresAtTick;
         private bool expired;
         private bool expiryFailureLogged;
+        private bool ownershipStateNormalized;
+        private bool ownershipFailureLogged;
 
         private HediffCompProperties_TemporaryMarkedAlly Props => (HediffCompProperties_TemporaryMarkedAlly)props;
 
@@ -31,11 +33,17 @@ namespace TheMarkedMen
                 return;
             }
 
+            if (!ownershipStateNormalized && !NormalizePlayerOwnership(pawn))
+            {
+                return;
+            }
+
             int currentTick = Find.TickManager?.TicksGame ?? 0;
             if (expiresAtTick <= 0)
             {
                 int durationTicks = TheMarkedMenSettings.TemporaryAllyDurationTicks;
-                expiresAtTick = currentTick + (durationTicks > 0 ? durationTicks : Props.durationTicks);
+                durationTicks = durationTicks > 0 ? durationTicks : Props.durationTicks;
+                expiresAtTick = currentTick + System.Math.Max(1, durationTicks);
                 return;
             }
 
@@ -69,12 +77,81 @@ namespace TheMarkedMen
             }
         }
 
+        private bool NormalizePlayerOwnership(Pawn pawn)
+        {
+            if (pawn == null || pawn.Dead)
+            {
+                ownershipStateNormalized = true;
+                return true;
+            }
+
+            if (!ScenPart_MarkedMenPlayerState.IsActive)
+            {
+                ownershipStateNormalized = true;
+                return true;
+            }
+
+            Faction playerFaction = Faction.OfPlayer;
+            if (playerFaction == null || pawn.guest == null)
+            {
+                if (!ownershipFailureLogged)
+                {
+                    Log.Error("[The Marked Men] Could not restore temporary ally control after loading because the player faction or pawn guest tracker is missing; retrying.");
+                    ownershipFailureLogged = true;
+                }
+
+                return false;
+            }
+
+            if (pawn.Faction == playerFaction && CrossedEquipmentGenerator.IsCrossedKind(pawn.kindDef))
+            {
+                pawn.health?.RemoveHediff(parent);
+                ownershipStateNormalized = true;
+                return true;
+            }
+
+            if (pawn.Faction != playerFaction)
+            {
+                pawn.SetFaction(playerFaction, null);
+            }
+
+            if (ModsConfig.IdeologyActive)
+            {
+                if (pawn.guest.GuestStatus != GuestStatus.Slave || pawn.guest.HostFaction != playerFaction)
+                {
+                    pawn.guest.SetGuestStatus(playerFaction, GuestStatus.Slave);
+                }
+            }
+            else
+            {
+                pawn.guest.SetGuestStatus(null);
+            }
+
+            ownershipStateNormalized = true;
+            return true;
+        }
+
+        public void EnsureOwnershipStateAfterLoad()
+        {
+            if (!expired && !ownershipStateNormalized)
+            {
+                NormalizePlayerOwnership(parent?.pawn);
+            }
+        }
+
         public override void CompExposeData()
         {
             base.CompExposeData();
             Scribe_Values.Look(ref expiresAtTick, "expiresAtTick", 0);
             Scribe_Values.Look(ref expired, "expired", false);
             Scribe_Values.Look(ref expiryFailureLogged, "expiryFailureLogged", false);
+            Scribe_Values.Look(ref ownershipStateNormalized, "ownershipStateNormalized", false);
+            Scribe_Values.Look(ref ownershipFailureLogged, "ownershipFailureLogged", false);
+
+            if (Scribe.mode == LoadSaveMode.PostLoadInit && expiresAtTick < 0)
+            {
+                expiresAtTick = 0;
+            }
         }
     }
 }

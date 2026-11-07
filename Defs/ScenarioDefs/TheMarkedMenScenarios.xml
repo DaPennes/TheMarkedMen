@@ -3,7 +3,7 @@
   <ScenPartDef>
     <defName>CA_MarkedMenPlayerState</defName>
     <label>play as the Marked Men</label>
-    <description>Start with player-controlled infected and recruit victims temporarily by infecting them.</description>
+    <description>Start as a disciplined infected pack with recovered supplies. Control your own infected, turn victims into temporary followers, and build a lasting foothold.</description>
     <category>StartingImportant</category>
     <scenPartClass>TheMarkedMen.ScenPart_MarkedMenPlayerState</scenPartClass>
     <summaryPriority>490</summaryPriority>
@@ -15,9 +15,9 @@
   <ScenarioDef ParentName="ScenarioBase">
     <defName>CA_MarkedMenPlayerColony</defName>
     <label>The Marked Men</label>
-    <description>You are the Marked Men. Your infected colonists are under your direct control, and the enemy Marked Men faction is excluded from world generation. Pawns infected by your attacks become temporary allies for 30 days before returning to the Marked Men.</description>
+    <description>You are the Marked Men. Your starting infected remain under your command, while the separate hostile Marked Men faction is left out of world generation. Victims who complete the transformation can be controlled temporarily; with Ideology, they serve as slaves rather than colonists. Their allegiance lasts for the duration selected in the mod settings, which defaults to 30 days.</description>
     <scenario>
-      <summary>Control infected colonists, infect victims to temporarily recruit them, and build a colony without generating the enemy Marked Men faction or its settlements.</summary>
+      <summary>Lead a pack of infected, temporarily control transformed victims, and build a foothold without generating hostile Marked Men settlements. Temporary service defaults to 30 days and can be changed in the mod settings.</summary>
       <playerFaction>
         <factionDef>PlayerColony</factionDef>
       </playerFaction>
@@ -33,6 +33,44 @@
         </li>
         <li Class="TheMarkedMen.ScenPart_MarkedMenPlayerState">
           <def>CA_MarkedMenPlayerState</def>
+        </li>
+        <li Class="ScenPart_StartingResearch">
+          <def>StartingResearch</def>
+          <project>Smithing</project>
+        </li>
+        <li Class="ScenPart_StartingResearch">
+          <def>StartingResearch</def>
+          <project>Machining</project>
+        </li>
+        <li Class="ScenPart_StartingThing_Defined">
+          <def>StartingThing_Defined</def>
+          <thingDef>Steel</thingDef>
+          <count>140</count>
+        </li>
+        <li Class="ScenPart_StartingThing_Defined">
+          <def>StartingThing_Defined</def>
+          <thingDef>WoodLog</thingDef>
+          <count>100</count>
+        </li>
+        <li Class="ScenPart_StartingThing_Defined">
+          <def>StartingThing_Defined</def>
+          <thingDef>MealSurvivalPack</thingDef>
+          <count>12</count>
+        </li>
+        <li Class="ScenPart_StartingThing_Defined">
+          <def>StartingThing_Defined</def>
+          <thingDef>MedicineHerbal</thingDef>
+          <count>6</count>
+        </li>
+        <li Class="ScenPart_StartingThing_Defined">
+          <def>StartingThing_Defined</def>
+          <thingDef>ComponentIndustrial</thingDef>
+          <count>6</count>
+        </li>
+        <li Class="ScenPart_GameStartDialog">
+          <def>GameStartDialog</def>
+          <text>The fever did not leave you empty. It left you with the names of your companions, the skills in your hands, and a hunger that turns every quiet moment into a test.\n\nYou have chosen to build rather than wander. This outpost is a foothold, not a home yet. Use what the pack remembers: how to find cover, keep watch, repair a door, and make a weapon last. The marked face is a warning to strangers and a promise to your own.\n\nThose who succumb to your attacks may serve beside you for a time. Their obedience is not trust, and their service will end. Make use of the days you have, keep the pack supplied, and decide what kind of order will survive when the old world is gone.</text>
+          <closeSound>GameStartSting</closeSound>
         </li>
       </parts>
     </scenario>

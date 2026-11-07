@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System;
 using HarmonyLib;
 using RimWorld;
 using RimWorld.Planet;
@@ -75,11 +76,15 @@ namespace TheMarkedMen
         {
             base.ExposeData();
             Scribe_Values.Look(ref nextStartingKindIndex, "nextStartingKindIndex", 0);
+            if (Scribe.mode == LoadSaveMode.PostLoadInit && nextStartingKindIndex < 0)
+            {
+                nextStartingKindIndex = 0;
+            }
         }
 
         public override IEnumerable<string> GetSummaryListEntries(string tag)
         {
-            yield return "Start as a colony of player-controlled infected without generating an enemy Marked Men faction. Pawns infected by your attacks join you for 30 days before returning to the Marked Men.";
+            yield return "Start as a colony of player-controlled infected without generating an enemy Marked Men faction. Transformed victims serve for a limited time set in the mod settings before returning to the Marked Men.";
         }
 
         public static void SetFactionWorldGenerationSuppressed(bool suppress)
@@ -169,7 +174,7 @@ namespace TheMarkedMen
             for (int i = 0; i < StartingKindDefNames.Length; i++)
             {
                 int index = nextStartingKindIndex % StartingKindDefNames.Length;
-                nextStartingKindIndex++;
+                nextStartingKindIndex = nextStartingKindIndex == int.MaxValue ? 0 : nextStartingKindIndex + 1;
                 PawnKindDef kind = DefDatabase<PawnKindDef>.GetNamedSilentFail(StartingKindDefNames[index]);
                 if (kind != null)
                 {

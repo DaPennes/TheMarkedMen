@@ -52,5 +52,7 @@ The faction does not behave like shambling undead. The Marked Men use weapons, p
 
 The Marked One storyteller is a brutal outbreak-focused alternative to Randy Random: unpredictable, faster, harder, and deliberately short on recovery windows. Use the mod options to tune infection rules, raid frequency, raid strength, pawn mix, AI behavior, performance intervals, urban ruin outbreaks, and optional compatibility bridges through collapsible categories with hover tooltips.
 
+The playable Marked Men scenario lets you lead an infected colony directly. It removes the separate hostile Marked Men faction from that scenario's world generation and allows transformed victims to serve temporarily. Existing saves preserve their stored infection and ally timers, and saved temporary followers are restored to the correct player status when loaded.
+
 This mod is inspired by the horror comic series Crossed, adapted into RimWorld as a hostile outbreak and survival scenario.</description>
 </ModMetaData>

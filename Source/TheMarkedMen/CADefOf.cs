@@ -67,6 +67,7 @@ namespace TheMarkedMen
         private static ThoughtDef suspiciousOfColonists;
         private static ThoughtDef mercifulKill;
         private static HediffDef markedTurned;
+        private static HediffDef temporaryMarkedAlly;
         private static HediffDef scoutAdrenaline;
         private static HediffDef hunterFocus;
         private static HediffDef shooterRush;
@@ -136,6 +137,7 @@ namespace TheMarkedMen
         public static HediffDef AlphaTier => alphaTier ?? (alphaTier = DefDatabase<HediffDef>.GetNamedSilentFail("CA_AlphaTier"));
         public static HediffDef MarkedTier => markedTier ?? (markedTier = DefDatabase<HediffDef>.GetNamedSilentFail("CA_MarkedTier"));
         public static HediffDef MarkedTurned => markedTurned ?? (markedTurned = DefDatabase<HediffDef>.GetNamedSilentFail("CA_MarkedTurned"));
+        public static HediffDef TemporaryMarkedAlly => temporaryMarkedAlly ?? (temporaryMarkedAlly = DefDatabase<HediffDef>.GetNamedSilentFail("CA_TemporaryMarkedAlly"));
         public static HediffDef ScoutAdrenaline => scoutAdrenaline ?? (scoutAdrenaline = DefDatabase<HediffDef>.GetNamedSilentFail("CA_ScoutAdrenaline"));
         public static HediffDef HunterFocus => hunterFocus ?? (hunterFocus = DefDatabase<HediffDef>.GetNamedSilentFail("CA_HunterFocus"));
         public static HediffDef ShooterRush => shooterRush ?? (shooterRush = DefDatabase<HediffDef>.GetNamedSilentFail("CA_ShooterRush"));

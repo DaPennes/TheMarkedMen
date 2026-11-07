@@ -673,7 +673,7 @@
   <HediffDef>
     <defName>CA_MarkedTurned</defName>
     <label>marked turned</label>
-    <description>A pawn who has succumbed to the Marked Virus but retains their original identity. They are now a mindless, relentless entity hostile to all non-infected.</description>
+    <description>A pawn transformed by the Marked Virus. They retain fragments of their former abilities and memory. Hostile Marked Men pursue the uninfected; in the playable Marked Men scenario, infected members of the player pack remain under direct control.</description>
     <hediffClass>HediffWithComps</hediffClass>
     <isBad>true</isBad>
     <tendable>false</tendable>
