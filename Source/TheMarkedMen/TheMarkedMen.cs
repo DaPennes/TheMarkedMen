@@ -2017,7 +2017,9 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
 
         private void CheckAndSendRaidWarningLetter(int currentTick)
         {
-            if (!TheMarkedMenSettings.WarbandsEnabled || CADefOf.CrossedRaid == null)
+            if (ScenPart_MarkedMenPlayerState.IsActive
+                || !TheMarkedMenSettings.WarbandsEnabled
+                || CADefOf.CrossedRaid == null)
             {
                 return;
             }
@@ -2169,7 +2171,7 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
         public bool TryGetRaidCountdownForHud(out int ticksUntilRaid)
         {
             ticksUntilRaid = 0;
-            if (!TheMarkedMenSettings.RaidCountdownAlertEnabled)
+            if (ScenPart_MarkedMenPlayerState.IsActive || !TheMarkedMenSettings.RaidCountdownAlertEnabled)
             {
                 return false;
             }
@@ -2192,7 +2194,11 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
         private bool TryGetScheduledRaidTick(int currentTick, out int nextTick)
         {
             nextTick = 0;
-            if (currentTick < 0 || activeRaid || CADefOf.CrossedRaid == null || !TheMarkedMenSettings.WarbandsEnabled)
+            if (ScenPart_MarkedMenPlayerState.IsActive
+                || currentTick < 0
+                || activeRaid
+                || CADefOf.CrossedRaid == null
+                || !TheMarkedMenSettings.WarbandsEnabled)
             {
                 return false;
             }
@@ -2244,7 +2250,11 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
 
         public bool DebugScheduleRaidSoon()
         {
-            if (Find.TickManager == null || CADefOf.CrossedRaid == null || FindRaidTargetMap() == null || !TheMarkedMenSettings.WarbandsEnabled)
+            if (ScenPart_MarkedMenPlayerState.IsActive
+                || Find.TickManager == null
+                || CADefOf.CrossedRaid == null
+                || FindRaidTargetMap() == null
+                || !TheMarkedMenSettings.WarbandsEnabled)
             {
                 return false;
             }
@@ -2928,6 +2938,11 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
 
         private bool TryFireRaidIncident(bool force = false)
         {
+            if (ScenPart_MarkedMenPlayerState.IsActive)
+            {
+                return false;
+            }
+
             IncidentDef raidDef = CADefOf.CrossedRaid;
             Map map = FindRaidTargetMap();
             Faction crossed = EnsureCrossedFaction();
@@ -3043,6 +3058,11 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
 
         private bool TryFireHordeIncident(bool force = false)
         {
+            if (ScenPart_MarkedMenPlayerState.IsActive)
+            {
+                return false;
+            }
+
             IncidentDef hordeDef = CADefOf.CrossedHorde;
             Map map = FindHordeTargetMap();
             Faction crossed = EnsureCrossedFaction();
@@ -3067,6 +3087,11 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
 
         private bool TryFireProbeIncident(bool force = false)
         {
+            if (ScenPart_MarkedMenPlayerState.IsActive)
+            {
+                return false;
+            }
+
             IncidentDef probeDef = CADefOf.CrossedProbe;
             Map map = FindHordeTargetMap();
             Faction crossed = EnsureCrossedFaction();
@@ -3465,7 +3490,9 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
 
         protected override bool CanFireNowSub(IncidentParms parms)
         {
-            return base.CanFireNowSub(parms) && CrossedUtility.Component?.EnsureCrossedFaction() != null;
+            return !ScenPart_MarkedMenPlayerState.IsActive
+                && base.CanFireNowSub(parms)
+                && CrossedUtility.Component?.EnsureCrossedFaction() != null;
         }
 
         protected override string GetLetterLabel(IncidentParms parms)
@@ -3480,6 +3507,11 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
 
         protected override bool TryExecuteWorker(IncidentParms parms)
         {
+            if (ScenPart_MarkedMenPlayerState.IsActive)
+            {
+                return false;
+            }
+
             Faction crossed = CrossedUtility.Component?.EnsureCrossedFaction();
             if (crossed == null)
             {
@@ -3629,7 +3661,11 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
 
         protected override bool CanFireNowSub(IncidentParms parms)
         {
-            if (!base.CanFireNowSub(parms) || !(parms.target is Map map) || map.mapPawns == null || !map.mapPawns.AnyFreeColonistSpawned)
+            if (ScenPart_MarkedMenPlayerState.IsActive
+                || !base.CanFireNowSub(parms)
+                || !(parms.target is Map map)
+                || map.mapPawns == null
+                || !map.mapPawns.AnyFreeColonistSpawned)
             {
                 return false;
             }
@@ -3645,6 +3681,11 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
 
         protected override bool TryExecuteWorker(IncidentParms parms)
         {
+            if (ScenPart_MarkedMenPlayerState.IsActive)
+            {
+                return false;
+            }
+
             Map map = parms.target as Map;
             Faction crossed = CrossedUtility.Component?.EnsureCrossedFaction();
             if (map == null || crossed == null)
@@ -3799,7 +3840,11 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
 
         protected override bool CanFireNowSub(IncidentParms parms)
         {
-            if (!base.CanFireNowSub(parms) || !(parms.target is Map map) || map.mapPawns == null || !map.mapPawns.AnyFreeColonistSpawned)
+            if (ScenPart_MarkedMenPlayerState.IsActive
+                || !base.CanFireNowSub(parms)
+                || !(parms.target is Map map)
+                || map.mapPawns == null
+                || !map.mapPawns.AnyFreeColonistSpawned)
             {
                 return false;
             }
@@ -3809,6 +3854,11 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
 
         protected override bool TryExecuteWorker(IncidentParms parms)
         {
+            if (ScenPart_MarkedMenPlayerState.IsActive)
+            {
+                return false;
+            }
+
             Map map = parms.target as Map;
             Faction crossed = CrossedUtility.Component?.EnsureCrossedFaction();
             if (map == null || crossed == null)
@@ -3935,6 +3985,11 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
     {
         protected override bool CanFireNowSub(IncidentParms parms)
         {
+            if (ScenPart_MarkedMenPlayerState.IsActive)
+            {
+                return false;
+            }
+
             if (!base.CanFireNowSub(parms)) return false;
             if (!(parms.target is Map map) || map.mapPawns == null || !map.mapPawns.AnyFreeColonistSpawned) return false;
             return CrossedUtility.Component?.EnsureCrossedFaction() != null;
@@ -3942,6 +3997,11 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
 
         protected override bool TryExecuteWorker(IncidentParms parms)
         {
+            if (ScenPart_MarkedMenPlayerState.IsActive)
+            {
+                return false;
+            }
+
             Map map = parms.target as Map;
             Faction crossed = CrossedUtility.Component?.EnsureCrossedFaction();
             if (map == null || crossed == null) return false;
@@ -3986,7 +4046,7 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
 
         protected override bool CanFireNowSub(IncidentParms parms)
         {
-            if (!base.CanFireNowSub(parms))
+            if (ScenPart_MarkedMenPlayerState.IsActive || !base.CanFireNowSub(parms))
             {
                 return false;
             }

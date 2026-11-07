@@ -28,7 +28,11 @@ namespace TheMarkedMen
 
         public override IEnumerable<FiringIncident> MakeIntervalIncidents(IIncidentTarget target)
         {
-            if (!(target is Map map) || !map.IsPlayerHome || map.mapPawns == null || !map.mapPawns.AnyFreeColonistSpawned)
+            if (ScenPart_MarkedMenPlayerState.IsActive
+                || !(target is Map map)
+                || !map.IsPlayerHome
+                || map.mapPawns == null
+                || !map.mapPawns.AnyFreeColonistSpawned)
             {
                 yield break;
             }
