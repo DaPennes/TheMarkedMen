@@ -92,11 +92,11 @@
     <comps>
       <li Class="TheMarkedMen.HediffCompProperties_CrossVirus">
         <incubationTicks>600</incubationTicks>
-        <commonTransformationMinTicks>900</commonTransformationMinTicks>
-        <commonTransformationMaxTicks>2400</commonTransformationMaxTicks>
+        <commonTransformationMinTicks>600</commonTransformationMinTicks>
+        <commonTransformationMaxTicks>1800</commonTransformationMaxTicks>
         <rareSlowProgressionChance>0.02</rareSlowProgressionChance>
-        <rareTransformationMinTicks>3600</rareTransformationMinTicks>
-        <rareTransformationMaxTicks>7200</rareTransformationMaxTicks>
+        <rareTransformationMinTicks>3000</rareTransformationMinTicks>
+        <rareTransformationMaxTicks>6000</rareTransformationMaxTicks>
         <symptomOnsetFraction>0.15</symptomOnsetFraction>
         <immunityChance>0.05</immunityChance>
         <terminalTransformationChance>0.85</terminalTransformationChance>

@@ -176,9 +176,12 @@ namespace TheMarkedMen
 
             int tier = GetKindBaseTier(pawn.kindDef);
 
-            EnsureSignatureApparel(pawn, tier, pawn.kindDef);
-
             StripDisallowedApparel(pawn);
+
+            if (pawn.kindDef != CADefOf.CrossedCivilian)
+            {
+                EnsureSignatureApparel(pawn, tier, pawn.kindDef);
+            }
 
             EquipWeapon(pawn, tier);
 
@@ -187,9 +190,13 @@ namespace TheMarkedMen
 
         private static void EnsureSignatureApparel(Pawn pawn, int tier, PawnKindDef kind)
         {
-            // All infected pawns get basic civilian clothing
-            EnsureLayerByTags(pawn, tier, ShellLayer, TorsoGroup, CivilianTags, "jacket or duster", minSharp: 0f);
-            EnsureLayerByTags(pawn, tier, OverheadLayer, null, CivilianTags, "helmet", minSharp: 0f);
+            List<string> preferredTags = kind?.apparelTags;
+            if (preferredTags == null || preferredTags.Count == 0)
+            {
+                preferredTags = CivilianTags;
+            }
+
+            EnsureLayerByTags(pawn, tier, ShellLayer, TorsoGroup, preferredTags, "torso apparel", minSharp: 0f);
         }
 
         private static void EnsureTaggedOnSkin(Pawn pawn, int tier, List<string> preferredTags, string label, float minSharp)
@@ -367,7 +374,7 @@ namespace TheMarkedMen
                 if (IsShield(def))
                     continue;
 
-                if (def.apparel.LastLayer == OverheadLayer)
+                if (pawn.kindDef == CADefOf.CrossedCivilian && def.apparel.LastLayer == OverheadLayer)
                 {
                     // Remove heavy armor from civilian infected
                     if (def.GetStatValueAbstract(StatDefOf.ArmorRating_Sharp) >= 0.10f)
@@ -378,7 +385,12 @@ namespace TheMarkedMen
                     continue;
                 }
 
-                // Basic armor stripping for all infected
+                if (pawn.kindDef != CADefOf.CrossedCivilian)
+                {
+                    continue;
+                }
+
+                // Keep Common Infected lightly equipped.
                 float sharp = def.GetStatValueAbstract(StatDefOf.ArmorRating_Sharp);
                 bool hasMilTag = HasAnyMilitaryTag(def);
 
@@ -631,7 +643,17 @@ namespace TheMarkedMen
 
         internal static bool IsCrossedKind(PawnKindDef kind)
         {
-            return kind == CADefOf.CrossedCivilian;
+            return kind == CADefOf.CrossedCivilian
+                || kind == CADefOf.CrossedScout
+                || kind == CADefOf.CrossedHunter
+                || kind == CADefOf.CrossedShooter
+                || kind == CADefOf.CrossedRaider
+                || kind == CADefOf.CrossedSoldier
+                || kind == CADefOf.CrossedBrute
+                || kind == CADefOf.CrossedPyromaniac
+                || kind == CADefOf.CrossedAlpha
+                || kind == CADefOf.CrossedWarlord
+                || kind == CADefOf.MarkedMan;
         }
 
         internal static bool CanUseWeapon(Pawn pawn, ThingDef def)
@@ -683,7 +705,7 @@ namespace TheMarkedMen
             if (def?.apparel == null)
                 return false;
 
-            if (IsShield(def))
+            if (IsShield(def) && pawn.kindDef == CADefOf.CrossedCivilian)
                 return false;
 
             return true;
@@ -691,7 +713,13 @@ namespace TheMarkedMen
 
         private static int GetKindBaseTier(PawnKindDef kind)
         {
-            return 0; // All infected get tier 0 (civilian equipment)
+            if (kind == CADefOf.CrossedScout || kind == CADefOf.CrossedHunter) return 1;
+            if (kind == CADefOf.CrossedShooter || kind == CADefOf.CrossedRaider || kind == CADefOf.CrossedPyromaniac) return 2;
+            if (kind == CADefOf.CrossedSoldier || kind == CADefOf.CrossedBrute) return 3;
+            if (kind == CADefOf.CrossedAlpha) return 4;
+            if (kind == CADefOf.CrossedWarlord) return 5;
+            if (kind == CADefOf.MarkedMan) return 6;
+            return 0;
         }
 
         private static int ClassifyApparel(ThingDef def)
