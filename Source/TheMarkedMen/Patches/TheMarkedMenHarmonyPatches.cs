@@ -112,6 +112,8 @@ namespace TheMarkedMen
     {
         public static void Postfix(Pawn __instance, DamageInfo? dinfo)
         {
+            CrossedTacticalAI.NotifyCommanderKilled(__instance);
+
             if (CrossedUtility.IsShambler(__instance))
             {
                 return;

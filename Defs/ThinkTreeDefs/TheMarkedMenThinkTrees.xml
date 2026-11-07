@@ -3,7 +3,7 @@
 
   <ThinkTreeDef>
     <defName>CA_HunterThinkTree</defName>
-    <label>Crossed Hunter Think Tree</label>
+    <label>Pursuer Think Tree</label>
     <thinkRoot Class="Verse.AI.ThinkNode_Priority">
       <subNodes>
         <!-- Find nearest non-infected target -->

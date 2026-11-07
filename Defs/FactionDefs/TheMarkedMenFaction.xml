@@ -23,7 +23,7 @@
     <label>The Marked Men</label>
     <description>The Marked Men are not shambling dead. They are living, intelligent infected who retain enough memory, tool use, language, and tactical instinct to hunt survivors, raid settlements, force breaches, and spread the Marked Virus through blood exposure.</description>
     <fixedName>The Marked Men</fixedName>
-    <pawnSingular>Marked Man</pawnSingular>
+    <pawnSingular>Marked One</pawnSingular>
     <pawnsPlural>Marked Men</pawnsPlural>
     <leaderTitle>Alpha</leaderTitle>
     <leaderForceGenerateNewPawn>false</leaderForceGenerateNewPawn>

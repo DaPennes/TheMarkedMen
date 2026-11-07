@@ -2,8 +2,8 @@
 <Defs>
   <StorytellerDef ParentName="BaseStoryteller">
     <defName>CA_TheMarkedMan</defName>
-    <label>The Marked Man</label>
-    <description>The Marked Man is the outbreak given intent: a hunting pressure that sends scouts, warbands, hordes, disease, ambushes, and bad luck until the colony breaks or adapts.\n\nThis storyteller plays like a hostile Randy Random variant tuned for outbreak survival. Events are less predictable, threat points climb quickly, Marked Men incidents can arrive outside the normal schedule, and recovery windows are short. Expect overlapping problems, early scouting pressure, hard raids, scarce friendly traffic, and infected attacks that keep testing weak doors, wounded pawns, doctors, food stores, and power systems.</description>
+    <label>The Marked One</label>
+    <description>The Marked One is the outbreak given intent: a hunting pressure that sends scouts, warbands, hordes, disease, ambushes, and bad luck until the colony breaks or adapts.\n\nThis storyteller plays like a hostile Randy Random variant tuned for outbreak survival. Events are less predictable, threat points climb quickly, Marked Men incidents can arrive outside the normal schedule, and recovery windows are short. Expect overlapping problems, early scouting pressure, hard raids, scarce friendly traffic, and infected attacks that keep testing weak doors, wounded pawns, doctors, food stores, and power systems.</description>
     <portraitLarge>UI/Storyteller/TheMarkedManStoryTeller</portraitLarge>
     <portraitTiny>UI/Storyteller/TheMarkedManStoryTellerTiny</portraitTiny>
     <listOrder>10</listOrder>

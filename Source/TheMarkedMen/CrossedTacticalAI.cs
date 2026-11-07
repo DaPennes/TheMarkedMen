@@ -18,6 +18,10 @@ namespace TheMarkedMen
         private const int RangedCastSearchMaxRegions = 80;
         private const float MaxTacticalTargetDistance = 120f;
         private const float MaxTacticalTargetDistanceSquared = MaxTacticalTargetDistance * MaxTacticalTargetDistance;
+        private const float CommonInfectedSightRadius = 45f;
+        private const float GunnerMinimumRange = 4f;
+        private const float SoldierMinimumRange = 5f;
+        private const float MarkedOneMeleeRange = 2.25f;
         private const float AggressionScoreMultiplier = 100f;
         private const float PartialInfectionTargetBonus = 120f;
         private const int InfightingCheckInterval = 1000;
@@ -43,7 +47,8 @@ namespace TheMarkedMen
         private static readonly string[] InfrastructureDefNames = { "Battery", "Generator", "Solar", "Geothermal", "Power", "Comms", "Console" };
         private static readonly string[] MedicalDefNames = { "Hospital", "Bed", "Research", "Lab", "Scanner" };
         private static readonly string[] FoodDefNames = { "Nutrient", "Hydroponics", "Cooler", "Freezer", "Food" };
-        private static readonly string[] DefensiveDefNames = { "Turret", "Mortar" };
+        private static readonly string[] DefensiveDefNames =
+            { "Turret", "Mortar", "Barricade", "Sandbags", "Embrasure", "Trap", "IED" };
         private static readonly string[] DoorDefNames = { "Door", "Wall", "Gate" };
 
         public static void NotifyEscapeScanStarted(Pawn pawn)
@@ -64,6 +69,11 @@ namespace TheMarkedMen
             if (HasRampageHediff(pawn))
             {
                 return TryIssueRampageJob(pawn);
+            }
+
+            if (pawn.kindDef == CADefOf.CrossedCivilian)
+            {
+                return TryIssueCommonInfectedJob(pawn);
             }
 
             // Vanilla breaching/sapping is already a coordinated siege: let the breachers
@@ -103,18 +113,72 @@ namespace TheMarkedMen
             }
 
             JobDef currentJobDef = pawn.CurJob?.def;
-            Pawn currentPawnTarget = pawn.CurJob?.targetA.Pawn;
+            Thing currentTarget = GetCurrentJobTarget(pawn);
+            Pawn currentPawnTarget = currentTarget as Pawn;
+            Building currentBuildingTarget = currentTarget as Building;
+
+            if (pawn.kindDef == CADefOf.CrossedBrute)
+            {
+                Building defensiveTarget = FindBestBreakerTarget(pawn);
+                if (defensiveTarget != null
+                    && currentBuildingTarget == defensiveTarget
+                    && (IsAttackJob(currentJobDef) || IsTacticalRangedMoveJob(pawn.CurJob, defensiveTarget)))
+                {
+                    return false;
+                }
+
+                if (defensiveTarget != null && currentBuildingTarget != defensiveTarget)
+                {
+                    if (TryAssignAttackJob(pawn, defensiveTarget, true)
+                        || TryAssignBreachJob(pawn, defensiveTarget))
+                    {
+                        return true;
+                    }
+                }
+            }
+
+            if (!IsCommander(pawn) && FindNearbyCommander(pawn, out Pawn commander))
+            {
+                Thing commandTarget = GetCurrentCommandTarget(commander);
+                if (IsValidCommandTarget(commandTarget, pawn)
+                    && currentTarget != commandTarget
+                    && TryAssignAttackJob(pawn, commandTarget, true))
+                {
+                    return true;
+                }
+
+                if (commandTarget == null
+                    && currentPawnTarget == null
+                    && currentBuildingTarget == null
+                    && pawn.Position.DistanceToSquared(commander.Position) > 144f)
+                {
+                    return TryAssignFollowJob(pawn, commander);
+                }
+            }
+
+            if (currentBuildingTarget != null
+                && (IsAttackJob(currentJobDef) || IsTacticalRangedMoveJob(pawn.CurJob, currentBuildingTarget)))
+            {
+                return false;
+            }
+
             if (currentPawnTarget != null && CrossedUtility.IsFullyTurnedMarkedPawn(currentPawnTarget) && !IsAttackJob(currentJobDef))
             {
                 return TryRetargetAwayFromPawn(pawn, currentPawnTarget, true);
             }
 
-            if (IsAttackJob(currentJobDef) && IsValidNonInfectedPawnTarget(currentPawnTarget, pawn) && !ShouldForceRangedAttack(pawn, currentJobDef))
+            if (IsAttackJob(currentJobDef)
+                && IsValidNonInfectedPawnTarget(currentPawnTarget, pawn)
+                && !ShouldForceRangedAttack(pawn, currentJobDef)
+                && !ShouldRepositionOrSwitchCombat(pawn, currentPawnTarget, currentJobDef)
+                && !ShouldRetargetMarkedOne(pawn, currentPawnTarget))
             {
                 return false;
             }
 
-            if (IsTacticalRangedMoveJob(pawn.CurJob, currentPawnTarget) && IsValidNonInfectedPawnTarget(currentPawnTarget, pawn))
+            if (IsTacticalRangedMoveJob(pawn.CurJob, currentPawnTarget)
+                && IsValidNonInfectedPawnTarget(currentPawnTarget, pawn)
+                && !NeedsRangedPosition(pawn, currentPawnTarget))
             {
                 return false;
             }
@@ -128,12 +192,18 @@ namespace TheMarkedMen
             if (bestNonInfected != null)
             {
                 bool isAttackJob = IsAttackJob(currentJobDef);
-                if (isAttackJob && currentPawnTarget == bestNonInfected && IsValidNonInfectedPawnTarget(currentPawnTarget, pawn) && !ShouldForceRangedAttack(pawn, currentJobDef))
+                if (isAttackJob
+                    && currentPawnTarget == bestNonInfected
+                    && IsValidNonInfectedPawnTarget(currentPawnTarget, pawn)
+                    && !ShouldForceRangedAttack(pawn, currentJobDef)
+                    && !ShouldRepositionOrSwitchCombat(pawn, currentPawnTarget, currentJobDef))
                 {
                     return false;
                 }
 
-                if (IsTacticalRangedMoveJob(pawn.CurJob, bestNonInfected) && IsValidNonInfectedPawnTarget(bestNonInfected, pawn))
+                if (IsTacticalRangedMoveJob(pawn.CurJob, bestNonInfected)
+                    && IsValidNonInfectedPawnTarget(bestNonInfected, pawn)
+                    && !NeedsRangedPosition(pawn, bestNonInfected))
                 {
                     return false;
                 }
@@ -288,6 +358,13 @@ namespace TheMarkedMen
                 return false;
             }
 
+            if (pawn.kindDef == CADefOf.MarkedMan
+                && target is Pawn
+                && pawn.Position.DistanceTo(target.Position) <= MarkedOneMeleeRange)
+            {
+                return TryAssignMeleeAttackJob(pawn, target, forceCurrentJob);
+            }
+
             Verb rangedVerb = GetRangedVerb(pawn);
             if (rangedVerb != null)
             {
@@ -299,6 +376,11 @@ namespace TheMarkedMen
                 return true;
             }
 
+            return TryAssignMeleeAttackJob(pawn, target, forceCurrentJob);
+        }
+
+        private static bool TryAssignMeleeAttackJob(Pawn pawn, Thing target, bool forceCurrentJob)
+        {
             if (!pawn.CanReach(target, PathEndMode.Touch, Danger.Deadly, true, true))
             {
                 return false;
@@ -317,6 +399,32 @@ namespace TheMarkedMen
 
         private static bool TryAssignRangedAttackJob(Pawn pawn, Thing target, Verb verb, bool forceCurrentJob)
         {
+            bool gunner = pawn.kindDef == CADefOf.CrossedShooter;
+            bool soldier = pawn.kindDef == CADefOf.CrossedSoldier;
+            bool raveger = pawn.kindDef == CADefOf.CrossedRaider;
+            float distance = pawn.Position.DistanceTo(target.Position);
+            float minimumRange = gunner ? GunnerMinimumRange : soldier ? SoldierMinimumRange : 0f;
+            if (soldier && target is Pawn && distance <= MarkedOneMeleeRange
+                && !verb.CanHitTargetFrom(pawn.Position, target))
+            {
+                return TryAssignMeleeAttackJob(pawn, target, forceCurrentJob);
+            }
+
+            bool needsPosition = minimumRange > 0f && distance < minimumRange
+                || soldier && pawn.Position.GetCover(pawn.Map) == null;
+
+            if (needsPosition
+                && TryFindRangedCastPosition(pawn, target, verb, out IntVec3 coveredPosition, minimumRange, soldier))
+            {
+                Job positionJob = JobMaker.MakeJob(JobDefOf.Goto, coveredPosition, target);
+                positionJob.expiryInterval = TacticalMoveExpiryTicks;
+                positionJob.checkOverrideOnExpire = true;
+                positionJob.canBashDoors = TheMarkedMenSettings.DoorTargetingEnabled;
+                positionJob.canBashFences = true;
+                positionJob.locomotionUrgency = LocomotionUrgency.Jog;
+                return TryTakeTacticalJob(pawn, positionJob, forceCurrentJob);
+            }
+
             if (verb.CanHitTargetFrom(pawn.Position, target))
             {
                 Job attackJob = JobMaker.MakeJob(JobDefOf.AttackStatic, target);
@@ -333,7 +441,7 @@ namespace TheMarkedMen
 
             float dist = pawn.Position.DistanceTo(target.Position);
             float range = verb.verbProps.range;
-            if (dist <= range * 1.5f || dist <= 12f)
+            if (!gunner && !soldier && (dist <= range * 1.5f || dist <= 12f))
             {
                 Job closeJob = JobMaker.MakeJob(JobDefOf.Goto, target.Position, target);
                 closeJob.expiryInterval = 30;
@@ -345,7 +453,18 @@ namespace TheMarkedMen
                 return TryTakeTacticalJob(pawn, closeJob, forceCurrentJob);
             }
 
-            if (!TryFindRangedCastPosition(pawn, target, verb, out IntVec3 castPosition))
+            if (raveger)
+            {
+                Job chargeJob = JobMaker.MakeJob(JobDefOf.Goto, target.Position, target);
+                chargeJob.expiryInterval = TacticalMoveExpiryTicks;
+                chargeJob.checkOverrideOnExpire = true;
+                chargeJob.canBashDoors = TheMarkedMenSettings.DoorTargetingEnabled;
+                chargeJob.canBashFences = true;
+                chargeJob.locomotionUrgency = LocomotionUrgency.Sprint;
+                return TryTakeTacticalJob(pawn, chargeJob, forceCurrentJob);
+            }
+
+            if (!TryFindRangedCastPosition(pawn, target, verb, out IntVec3 castPosition, minimumRange, soldier))
             {
                 return false;
             }
@@ -421,7 +540,13 @@ namespace TheMarkedMen
             return pawn.jobs.TryTakeOrderedJob(job, JobTag.Misc, false);
         }
 
-        private static bool TryFindRangedCastPosition(Pawn pawn, Thing target, Verb verb, out IntVec3 castPosition)
+        private static bool TryFindRangedCastPosition(
+            Pawn pawn,
+            Thing target,
+            Verb verb,
+            out IntVec3 castPosition,
+            float minimumRangeFromTarget = 0f,
+            bool requireCover = false)
         {
             castPosition = IntVec3.Invalid;
             if (pawn?.Map == null || target == null || target.Destroyed || verb == null)
@@ -438,13 +563,19 @@ namespace TheMarkedMen
                 maxRangeFromTarget = Mathf.Max(verb.EffectiveRange, 1f),
                 wantCoverFromTarget = true,
                 maxRegions = RangedCastSearchMaxRegions,
-                validator = cell => IsValidRangedCastPosition(pawn, target, verb, cell)
+                validator = cell => IsValidRangedCastPosition(pawn, target, verb, cell, minimumRangeFromTarget, requireCover)
             };
 
             return CastPositionFinder.TryFindCastPosition(request, out castPosition) && castPosition.IsValid;
         }
 
-        private static bool IsValidRangedCastPosition(Pawn pawn, Thing target, Verb verb, IntVec3 cell)
+        private static bool IsValidRangedCastPosition(
+            Pawn pawn,
+            Thing target,
+            Verb verb,
+            IntVec3 cell,
+            float minimumRangeFromTarget,
+            bool requireCover)
         {
             Map map = pawn?.Map;
             return map != null
@@ -455,6 +586,8 @@ namespace TheMarkedMen
                 && cell.InBounds(map)
                 && !cell.Fogged(map)
                 && cell.Standable(map)
+                && cell.DistanceTo(target.Position) >= minimumRangeFromTarget
+                && (!requireCover || cell.GetCover(map) != null)
                 && pawn.CanReach(cell, PathEndMode.OnCell, Danger.Deadly, true, true)
                 && verb.CanHitTargetFrom(cell, target);
         }
@@ -472,9 +605,84 @@ namespace TheMarkedMen
 
         private static bool ShouldForceRangedAttack(Pawn pawn, JobDef currentJobDef)
         {
-            return CrossedUtility.IsCrossedPyromaniac(pawn)
+            bool rangedSpecialist = CrossedUtility.IsCrossedPyromaniac(pawn)
+                || pawn.kindDef == CADefOf.CrossedShooter
+                || pawn.kindDef == CADefOf.CrossedSoldier;
+            if (rangedSpecialist
                 && currentJobDef != JobDefOf.AttackStatic
-                && GetRangedVerb(pawn) != null;
+                && GetRangedVerb(pawn) != null)
+            {
+                if (pawn.kindDef == CADefOf.CrossedSoldier
+                    && currentJobDef == JobDefOf.AttackMelee
+                    && pawn.CurJob?.targetA.Pawn is Pawn meleeTarget
+                    && pawn.Position.DistanceTo(meleeTarget.Position) <= MarkedOneMeleeRange)
+                {
+                    return false;
+                }
+
+                return true;
+            }
+
+            if (pawn.kindDef == CADefOf.CrossedRaider && currentJobDef == JobDefOf.AttackStatic)
+            {
+                Pawn target = pawn.CurJob?.targetA.Pawn;
+                Verb verb = GetRangedVerb(pawn);
+                return target != null && verb != null && !verb.CanHitTargetFrom(pawn.Position, target);
+            }
+
+            return false;
+        }
+
+        private static bool ShouldRepositionOrSwitchCombat(Pawn pawn, Pawn target, JobDef currentJobDef)
+        {
+            if (pawn.kindDef == CADefOf.CrossedSoldier
+                && currentJobDef == JobDefOf.AttackMelee
+                && pawn.Position.DistanceTo(target.Position) <= MarkedOneMeleeRange)
+            {
+                return false;
+            }
+
+            if (NeedsRangedPosition(pawn, target))
+            {
+                return true;
+            }
+
+            return pawn.kindDef == CADefOf.MarkedMan
+                && currentJobDef == JobDefOf.AttackStatic
+                && pawn.Position.DistanceTo(target.Position) <= MarkedOneMeleeRange;
+        }
+
+        private static bool NeedsRangedPosition(Pawn pawn, Pawn target)
+        {
+            if (pawn == null || target == null || GetRangedVerb(pawn) == null)
+            {
+                return false;
+            }
+
+            float distance = pawn.Position.DistanceTo(target.Position);
+            if (pawn.kindDef == CADefOf.CrossedShooter)
+            {
+                return distance < GunnerMinimumRange;
+            }
+
+            return pawn.kindDef == CADefOf.CrossedSoldier
+                && (distance < SoldierMinimumRange || pawn.Position.GetCover(pawn.Map) == null);
+        }
+
+        private static bool ShouldRetargetMarkedOne(Pawn pawn, Pawn currentTarget)
+        {
+            if (pawn.kindDef != CADefOf.MarkedMan
+                || !pawn.IsHashIntervalTick(TheMarkedMenSettings.TacticalRetargetIntervalTicks))
+            {
+                return false;
+            }
+
+            bestTargetCache.Remove(pawn.thingIDNumber);
+            nextTargetScanTick.Remove(pawn.thingIDNumber);
+            Pawn preferredTarget = FindBestNonInfectedPawnTarget(pawn);
+            return preferredTarget != null
+                && preferredTarget != currentTarget
+                && ScorePawnTarget(pawn, preferredTarget) > ScorePawnTarget(pawn, currentTarget) + 10000f;
         }
 
         private static bool IsTacticalRangedMoveJob(Job job, Thing target)
@@ -482,6 +690,291 @@ namespace TheMarkedMen
             return job?.def == JobDefOf.Goto
                 && target != null
                 && job.targetB.Thing == target;
+        }
+
+        private static bool TryIssueCommonInfectedJob(Pawn pawn)
+        {
+            Pawn commander = null;
+            bool hasCommander = FindNearbyCommander(pawn, out commander);
+            if (hasCommander)
+            {
+                Thing commandTarget = GetCurrentCommandTarget(commander);
+                if (IsValidCommandTarget(commandTarget, pawn))
+                {
+                    if (GetCurrentJobTarget(pawn) == commandTarget
+                        && (IsAttackJob(pawn.CurJob.def) || IsTacticalRangedMoveJob(pawn.CurJob, commandTarget)))
+                    {
+                        return false;
+                    }
+
+                    return TryAssignAttackJob(pawn, commandTarget, true);
+                }
+
+                Pawn visibleTarget = FindVisibleNonInfectedTarget(pawn);
+                if (visibleTarget != null)
+                {
+                    return TryAssignAttackJob(pawn, visibleTarget, true);
+                }
+
+                if (pawn.Position.DistanceToSquared(commander.Position) > 144f)
+                {
+                    return TryAssignFollowJob(pawn, commander);
+                }
+
+                return false;
+            }
+
+            Pawn unledTarget = FindVisibleNonInfectedTarget(pawn);
+            if (unledTarget != null)
+            {
+                if (pawn.CurJob?.targetA.Pawn == unledTarget && IsAttackJob(pawn.CurJob.def))
+                {
+                    return false;
+                }
+
+                return TryAssignAttackJob(pawn, unledTarget, true);
+            }
+
+            return TryAssignWanderJob(pawn);
+        }
+
+        private static Pawn FindVisibleNonInfectedTarget(Pawn pawn)
+        {
+            IReadOnlyList<Pawn> candidates = pawn.Map?.mapPawns?.AllPawnsSpawned;
+            if (candidates == null)
+            {
+                return null;
+            }
+
+            Pawn best = null;
+            float bestScore = float.MinValue;
+            for (int i = 0; i < candidates.Count; i++)
+            {
+                Pawn candidate = candidates[i];
+                if (!IsValidNonInfectedPawnTarget(candidate, pawn)
+                    || pawn.Position.DistanceToSquared(candidate.Position) > CommonInfectedSightRadius * CommonInfectedSightRadius
+                    || !pawn.CanSee(candidate))
+                {
+                    continue;
+                }
+
+                float score = -pawn.Position.DistanceToSquared(candidate.Position);
+                if (candidate.Downed)
+                {
+                    score += 100f;
+                }
+
+                if (score > bestScore)
+                {
+                    best = candidate;
+                    bestScore = score;
+                }
+            }
+
+            return best;
+        }
+
+        private static bool TryAssignWanderJob(Pawn pawn)
+        {
+            Job currentJob = pawn.CurJob;
+            if (currentJob?.def == JobDefOf.Goto && currentJob.targetA.Cell.IsValid)
+            {
+                return false;
+            }
+
+            for (int i = 0; i < 12; i++)
+            {
+                IntVec3 destination = pawn.Position + new IntVec3(
+                    Rand.RangeInclusive(-8, 8),
+                    0,
+                    Rand.RangeInclusive(-8, 8));
+                if (!destination.InBounds(pawn.Map)
+                    || !destination.Standable(pawn.Map)
+                    || !pawn.CanReach(destination, PathEndMode.OnCell, Danger.Some, true, true))
+                {
+                    continue;
+                }
+
+                Job wander = JobMaker.MakeJob(JobDefOf.Goto, destination);
+                wander.expiryInterval = 300;
+                wander.checkOverrideOnExpire = true;
+                wander.locomotionUrgency = LocomotionUrgency.Walk;
+                return TryTakeTacticalJob(pawn, wander, true);
+            }
+
+            return false;
+        }
+
+        private static bool IsCommander(Pawn pawn)
+        {
+            return pawn?.kindDef == CADefOf.CrossedAlpha
+                || pawn?.kindDef == CADefOf.CrossedWarlord
+                || pawn?.kindDef == CADefOf.MarkedMan;
+        }
+
+        private static bool FindNearbyCommander(Pawn pawn, out Pawn commander)
+        {
+            commander = null;
+            IReadOnlyList<Pawn> candidates = pawn.Map?.mapPawns?.AllPawnsSpawned;
+            if (candidates == null)
+            {
+                return false;
+            }
+
+            int bestRank = 0;
+            float bestDistance = float.MaxValue;
+            for (int i = 0; i < candidates.Count; i++)
+            {
+                Pawn candidate = candidates[i];
+                int rank = GetCommanderRank(candidate);
+                if (candidate == pawn || rank == 0 || candidate.Dead || candidate.Downed)
+                {
+                    continue;
+                }
+
+                float distance = pawn.Position.DistanceToSquared(candidate.Position);
+                if (distance > GetCommanderRadius(candidate) * GetCommanderRadius(candidate))
+                {
+                    continue;
+                }
+
+                if (rank > bestRank || rank == bestRank && distance < bestDistance)
+                {
+                    commander = candidate;
+                    bestRank = rank;
+                    bestDistance = distance;
+                }
+            }
+
+            return commander != null;
+        }
+
+        private static int GetCommanderRank(Pawn pawn)
+        {
+            if (pawn?.kindDef == CADefOf.MarkedMan) return 3;
+            if (pawn?.kindDef == CADefOf.CrossedWarlord) return 2;
+            if (pawn?.kindDef == CADefOf.CrossedAlpha) return 1;
+            return 0;
+        }
+
+        private static bool IsValidCommandTarget(Thing target, Pawn follower)
+        {
+            if (target is Pawn pawn)
+            {
+                return IsValidNonInfectedPawnTarget(pawn, follower);
+            }
+
+            return target is Building building
+                && building.Spawned
+                && !building.Destroyed
+                && building.Faction == Faction.OfPlayer;
+        }
+
+        private static float GetCommanderRadius(Pawn commander)
+        {
+            if (commander.kindDef == CADefOf.MarkedMan) return 70f;
+            if (commander.kindDef == CADefOf.CrossedWarlord) return 55f;
+            return 40f;
+        }
+
+        private static Thing GetCurrentCommandTarget(Pawn pawn)
+        {
+            Thing target = GetCurrentJobTarget(pawn);
+            if (target is Pawn targetPawn)
+            {
+                return targetPawn != pawn && !targetPawn.Dead && targetPawn.Spawned ? targetPawn : null;
+            }
+
+            return target != null && !target.Destroyed && target.Spawned ? target : null;
+        }
+
+        private static Thing GetCurrentJobTarget(Pawn pawn)
+        {
+            Job job = pawn?.CurJob;
+            return job?.targetA.Thing ?? job?.targetB.Thing ?? job?.targetC.Thing;
+        }
+
+        private static bool TryAssignFollowJob(Pawn pawn, Pawn commander)
+        {
+            Job currentJob = pawn.CurJob;
+            if (currentJob?.def == JobDefOf.Goto
+                && currentJob.targetA.Cell.IsValid
+                && currentJob.targetA.Cell.DistanceToSquared(commander.Position) <= 64f)
+            {
+                return true;
+            }
+
+            for (int i = 0; i < 12; i++)
+            {
+                IntVec3 destination = commander.Position + new IntVec3(
+                    Rand.RangeInclusive(-4, 4),
+                    0,
+                    Rand.RangeInclusive(-4, 4));
+                if (!destination.InBounds(pawn.Map)
+                    || destination == commander.Position
+                    || destination.DistanceToSquared(commander.Position) > 25f
+                    || !destination.Standable(pawn.Map)
+                    || !pawn.CanReach(destination, PathEndMode.OnCell, Danger.Deadly, true, true))
+                {
+                    continue;
+                }
+
+                Job follow = JobMaker.MakeJob(JobDefOf.Goto, destination);
+                follow.expiryInterval = TacticalMoveExpiryTicks;
+                follow.checkOverrideOnExpire = true;
+                follow.locomotionUrgency = LocomotionUrgency.Jog;
+                follow.canBashDoors = TheMarkedMenSettings.DoorTargetingEnabled;
+                return TryTakeTacticalJob(pawn, follow, true);
+            }
+
+            return false;
+        }
+
+        private static Building FindBestBreakerTarget(Pawn pawn)
+        {
+            List<Building> buildings = pawn.Map?.listerBuildings?.allBuildingsColonist;
+            if (buildings == null)
+            {
+                return null;
+            }
+
+            Building best = null;
+            float bestScore = float.MinValue;
+            for (int i = 0; i < buildings.Count; i++)
+            {
+                Building candidate = buildings[i];
+                if (candidate == null || candidate.Destroyed || !candidate.Spawned
+                    || candidate.Faction != Faction.OfPlayer
+                    || !candidate.def.IsEdifice()
+                    || candidate.def.IsFrame)
+                {
+                    continue;
+                }
+
+                float distanceSquared = pawn.Position.DistanceToSquared(candidate.Position);
+                if (distanceSquared > MaxTacticalTargetDistanceSquared)
+                {
+                    continue;
+                }
+
+                string defName = candidate.def.defName;
+                float priority = ContainsAny(defName, DefensiveDefNames) ? 250f
+                    : ContainsAny(defName, DoorDefNames) ? 200f
+                    : 0f;
+                if (priority <= 0f)
+                {
+                    continue;
+                }
+
+                float score = priority - Mathf.Sqrt(distanceSquared);
+                if (score > bestScore)
+                {
+                    best = candidate;
+                    bestScore = score;
+                }
+            }
+
+            return best;
         }
 
         internal static Pawn FindBestNonInfectedPawnTarget(Pawn pawn)
@@ -674,7 +1167,22 @@ namespace TheMarkedMen
 
             if (IsFleeingFrom(target, searcher))
             {
-                score += 35f;
+                score += searcher.kindDef == CADefOf.CrossedHunter ? 250f : 35f;
+            }
+
+            if (searcher.kindDef == CADefOf.MarkedMan)
+            {
+                Verb targetVerb = target.equipment?.PrimaryEq?.PrimaryVerb;
+                if (targetVerb != null && !targetVerb.IsMeleeAttack)
+                {
+                    score += 180f;
+                }
+
+                SkillRecord shooting = target.skills?.GetSkill(SkillDefOf.Shooting);
+                if (shooting != null && shooting.Level >= 8)
+                {
+                    score += shooting.Level * 8f;
+                }
             }
 
             Need_MarkedBloodlust bloodlustNeed = searcher.needs?.TryGetNeed<Need_MarkedBloodlust>();
@@ -1177,6 +1685,53 @@ namespace TheMarkedMen
             return pawn?.health?.hediffSet?.HasHediff(CADefOf.CrossedRampage) == true;
         }
 
+        public static void NotifyCommanderKilled(Pawn commander)
+        {
+            if (commander == null || GetCommanderRank(commander) == 0)
+            {
+                return;
+            }
+
+            Corpse corpse = commander.Corpse;
+            Map map = corpse?.Map ?? commander.Map;
+            if (map == null)
+            {
+                return;
+            }
+
+            Faction faction = commander.Faction;
+            if (faction == null)
+            {
+                return;
+            }
+
+            float radius = GetCommanderRadius(commander);
+            float radiusSquared = radius * radius;
+            IReadOnlyList<Pawn> pawns = map.mapPawns?.AllPawnsSpawned;
+            HediffDef rampageDef = CADefOf.CrossedRampage;
+            if (pawns == null || rampageDef == null)
+            {
+                return;
+            }
+
+            IntVec3 deathPosition = corpse?.Position ?? commander.Position;
+            for (int i = 0; i < pawns.Count; i++)
+            {
+                Pawn ally = pawns[i];
+                if (ally == null || ally == commander || ally.Dead || ally.Downed
+                    || ally.Faction != faction
+                    || !CrossedUtility.IsInfectedPawn(ally)
+                    || deathPosition.DistanceToSquared(ally.Position) > radiusSquared
+                    || ally.health.hediffSet.HasHediff(rampageDef))
+                {
+                    continue;
+                }
+
+                ally.health.AddHediff(HediffMaker.MakeHediff(rampageDef, ally));
+                TryIssueRampageJob(ally);
+            }
+        }
+
         public static Pawn FindRoomTarget(Pawn pawn)
         {
             Room room = pawn.GetRoom();
@@ -1232,6 +1787,14 @@ namespace TheMarkedMen
         {
             if (!pawn.Spawned || pawn.Map == null) return false;
 
+            Pawn currentTarget = GetCurrentJobTarget(pawn) as Pawn;
+            if (IsValidNonInfectedPawnTarget(currentTarget, pawn)
+                && (pawn.CurJob?.def == JobDefOf.AttackMelee
+                    || pawn.CurJob?.def == JobDefOf.Goto && pawn.CurJob.targetB.Pawn == currentTarget))
+            {
+                return false;
+            }
+
             Pawn best = null;
             float bestDist = float.MaxValue;
             IntVec3 pos = pawn.Position;
@@ -1241,8 +1804,7 @@ namespace TheMarkedMen
             for (int i = 0; i < allPawns.Count; i++)
             {
                 Pawn candidate = allPawns[i];
-                if (candidate == pawn || candidate.Dead || candidate.Downed) continue;
-                if (candidate.RaceProps == null || !candidate.RaceProps.Humanlike) continue;
+                if (!IsValidNonInfectedPawnTarget(candidate, pawn) || candidate.Downed) continue;
 
                 float dist = candidate.Position.DistanceToSquared(pos);
                 if (dist >= bestDist) continue;
@@ -1253,7 +1815,19 @@ namespace TheMarkedMen
 
             if (best == null) return false;
 
-            return TryAssignAttackJob(pawn, best, true);
+            if (pawn.Position.DistanceTo(best.Position) <= 1.5f)
+            {
+                return TryAssignMeleeAttackJob(pawn, best, true);
+            }
+
+            Job chargeJob = JobMaker.MakeJob(JobDefOf.Goto, best.Position, best);
+            chargeJob.expiryInterval = TacticalMoveExpiryTicks;
+            chargeJob.checkOverrideOnExpire = true;
+            chargeJob.canBashDoors = true;
+            chargeJob.canBashFences = true;
+            chargeJob.attackDoorIfTargetLost = true;
+            chargeJob.locomotionUrgency = LocomotionUrgency.Sprint;
+            return TryTakeTacticalJob(pawn, chargeJob, true);
         }
     }
 }
