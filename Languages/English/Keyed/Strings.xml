@@ -63,6 +63,8 @@
   <MarkedMen_Settings_InfectAlliesDesc>When enabled, allied, neutral, and guest pawns can be infected by the Marked Virus. Disable to protect non-hostile non-colonists.</MarkedMen_Settings_InfectAlliesDesc>
   <MarkedMen_Settings_InfectEnemies>Infect enemies</MarkedMen_Settings_InfectEnemies>
   <MarkedMen_Settings_InfectEnemiesDesc>When enabled, hostile pawns like raiders can be infected by the Marked Virus. Disable to prevent the virus from spreading to enemy factions.</MarkedMen_Settings_InfectEnemiesDesc>
+  <MarkedMen_Settings_TemporaryAllyDurationDays>Temporary infected ally duration (days)</MarkedMen_Settings_TemporaryAllyDurationDays>
+  <MarkedMen_Settings_TemporaryAllyDurationDaysDesc>How long infected victims remain controlled in the playable Marked Men scenario before returning to the Marked Men. With Ideology active they are slaves, not colonists; without Ideology, RimWorld treats player-controlled pawns as colonists. Range: 1–365 days.</MarkedMen_Settings_TemporaryAllyDurationDaysDesc>
   <MarkedMen_Settings_VariantsOnlyInRaids>Variants only in raids</MarkedMen_Settings_VariantsOnlyInRaids>
   <MarkedMen_Settings_VariantsOnlyInRaidsDesc>When enabled, specialized infected variants (Watcher, Pursuer, Gunner, Raveger, Soldier, Breaker, Arsonist, Alpha, Overlord, The Marked One) only appear during raids and incidents, not in faction settlements or world spawns.</MarkedMen_Settings_VariantsOnlyInRaidsDesc>
 

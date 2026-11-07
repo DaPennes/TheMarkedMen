@@ -713,6 +713,7 @@ namespace TheMarkedMen
                 && pawn.jobs != null
                 && pawn.mindState != null
                 && CrossedUtility.IsInfectedPawn(pawn)
+                && pawn.Faction != Faction.OfPlayer
                 && !CrossedTacticalAI.IsCommittedBreacher(pawn);
         }
 

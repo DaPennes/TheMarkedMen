@@ -134,7 +134,7 @@ namespace TheMarkedMen
     {
         public static void Postfix(Pawn __instance)
         {
-            if (__instance == null || !CrossedUtility.IsInfectedPawn(__instance))
+            if (__instance == null || __instance.Faction == Faction.OfPlayer || !CrossedUtility.IsInfectedPawn(__instance))
             {
                 return;
             }
@@ -312,6 +312,11 @@ namespace TheMarkedMen
             if (__result?.kindDef != null && Find.FactionManager != null && CrossedEquipmentGenerator.IsCrossedKind(__result.kindDef))
             {
                 CrossedEquipmentGenerator.AssignEquipment(__result);
+            }
+
+            if (ScenPart_MarkedMenPlayerState.IsActive && CrossedUtility.IsMarkedTurnedPawn(__result))
+            {
+                CrossedUtility.ApplyInfectedTattoo(__result);
             }
         }
     }
@@ -532,7 +537,7 @@ namespace TheMarkedMen
     {
         public static void Postfix(Pawn __instance)
         {
-            if (__instance == null || !CrossedUtility.IsInfectedPawn(__instance))
+            if (__instance == null || __instance.Faction == Faction.OfPlayer || !CrossedUtility.IsInfectedPawn(__instance))
                 return;
 
             // Prevent vanilla map-exit behavior for infected

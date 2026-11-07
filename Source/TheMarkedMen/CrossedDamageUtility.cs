@@ -8,6 +8,13 @@ namespace TheMarkedMen
     {
         public static bool IsValidMeleeInfectionSource(DamageInfo dinfo)
         {
+            if (ScenPart_MarkedMenPlayerState.IsActive
+                && dinfo.Instigator is Pawn scenarioInstigator
+                && CrossedUtility.IsInfectedPawn(scenarioInstigator))
+            {
+                return true;
+            }
+
             if (!(dinfo.Instigator is Pawn))
             {
                 return false;
@@ -36,6 +43,13 @@ namespace TheMarkedMen
 
         public static float GetInfectChanceForAttack(DamageInfo dinfo, Pawn victim)
         {
+            if (ScenPart_MarkedMenPlayerState.IsActive
+                && dinfo.Instigator is Pawn scenarioInstigator
+                && CrossedUtility.IsInfectedPawn(scenarioInstigator))
+            {
+                return 1f;
+            }
+
             TheMarkedMenSettings settings = TheMarkedMenMod.Settings;
             if (settings == null)
             {
@@ -61,6 +75,11 @@ namespace TheMarkedMen
 
             if (dinfo.Instigator is Pawn instigator && CrossedUtility.IsInfectedPawn(instigator))
             {
+                if (ScenPart_MarkedMenPlayerState.IsActive)
+                {
+                    return 1f;
+                }
+
                 if (CrossedUtility.IsCrossedPawn(instigator) && settings.markedMenGuaranteedInfection)
                 {
                     return 1f;

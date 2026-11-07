@@ -40,6 +40,11 @@ namespace TheMarkedMen
 				return false;
 			}
 
+			if (IsMarkedTurnedPawn(pawn))
+			{
+				return true;
+			}
+
 			if (pawn.health?.hediffSet?.HasHediff(CADefOf.CrossVirus) == true && pawn.health.hediffSet.GetFirstHediffOfDef(CADefOf.CrossVirus)?.Severity >= 0.92f)
 			{
 				return true;
@@ -58,6 +63,11 @@ namespace TheMarkedMen
 
 			HediffDef virus = CADefOf.CrossVirus;
 			if (virus != null && pawn.health?.hediffSet?.HasHediff(virus) == true)
+			{
+				return true;
+			}
+
+			if (IsMarkedTurnedPawn(pawn))
 			{
 				return true;
 			}
@@ -107,13 +117,18 @@ namespace TheMarkedMen
 
 		public static bool ShouldShowCrossedRash(Pawn pawn)
 		{
-			return HasMarkedVirusHediff(pawn) || IsCrossedFactionPawn(pawn) || HasPersistentCrossedRashTattoo(pawn);
+			return HasMarkedVirusHediff(pawn)
+				|| IsCrossedFactionPawn(pawn)
+				|| ScenPart_MarkedMenPlayerState.IsActive && IsMarkedTurnedPawn(pawn)
+				|| HasPersistentCrossedRashTattoo(pawn);
 		}
 
 		public static TattooDef GetCurrentCrossedFaceTattoo(Pawn pawn)
 		{
 			TattooDef finalTattoo = CADefOf.CrossedFaceTattoo;
-			if (pawn == null || IsCrossedFactionPawn(pawn))
+			if (pawn == null
+				|| IsCrossedFactionPawn(pawn)
+				|| ScenPart_MarkedMenPlayerState.IsActive && IsMarkedTurnedPawn(pawn))
 			{
 				return finalTattoo;
 			}
@@ -1457,6 +1472,26 @@ namespace TheMarkedMen
 		return;
 	}
 
+	if (ScenPart_MarkedMenPlayerState.IsActive
+		&& IsMarkedTurnedPawn(pawn)
+		&& pawn.Faction == Faction.OfPlayer)
+	{
+		return;
+	}
+
+	Faction scenarioPlayerFaction = null;
+	HediffDef temporaryAllyDef = null;
+	if (ScenPart_MarkedMenPlayerState.IsActive)
+	{
+		scenarioPlayerFaction = Faction.OfPlayer;
+		temporaryAllyDef = DefDatabase<HediffDef>.GetNamedSilentFail("CA_TemporaryMarkedAlly");
+		if (scenarioPlayerFaction == null || temporaryAllyDef == null || pawn.guest == null)
+		{
+			Log.Error("[The Marked Men] Could not convert the infected pawn into a temporary controlled ally because a required faction, hediff, or guest tracker is missing.");
+			return;
+		}
+	}
+
 	Component?.RecordCureOrigin(pawn);
 
 	// Apply CA_MarkedTurned hediff to mark this pawn as virus-transformed
@@ -1465,6 +1500,35 @@ namespace TheMarkedMen
 	{
 		Hediff hediff = HediffMaker.MakeHediff(markedTurned, pawn);
 		pawn.health.AddHediff(hediff);
+	}
+
+	if (ScenPart_MarkedMenPlayerState.IsActive)
+	{
+		pawn.SetFaction(scenarioPlayerFaction, null);
+		if (!pawn.health.hediffSet.HasHediff(temporaryAllyDef))
+		{
+			pawn.health.AddHediff(temporaryAllyDef);
+		}
+
+		if (ModsConfig.IdeologyActive)
+		{
+			pawn.guest.SetGuestStatus(scenarioPlayerFaction, GuestStatus.Slave);
+		}
+		else
+		{
+			pawn.guest.SetGuestStatus(null);
+		}
+
+		pawn.mindState?.mentalStateHandler?.Reset();
+		EnsureFearlessCrossedState(pawn);
+		ApplyInfectedTattoo(pawn);
+		pawn.jobs?.EndCurrentJob(JobCondition.InterruptForced);
+		pawn.Drawer?.renderer?.SetAllGraphicsDirty();
+		if (!suppressNotification)
+		{
+			Component?.NotifyTransformation(pawn);
+		}
+		return;
 	}
 
 	Faction faction = Component?.EnsureCrossedFaction();
@@ -1726,7 +1790,7 @@ public static void RemoveMarkedVirusHediffFromFullyTurnedPawn(Pawn pawn)
 		/// </summary>
 		public static void EnsureInfectedHasValidLord(Pawn pawn)
 		{
-			if (pawn == null || pawn.Dead)
+			if (pawn == null || pawn.Dead || pawn.Faction == Faction.OfPlayer)
 				return;
 
 			// Ensure faction is set to Crossed

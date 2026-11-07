@@ -657,6 +657,20 @@
   </HediffDef>
 
   <HediffDef>
+    <defName>CA_TemporaryMarkedAlly</defName>
+    <label>temporary infected ally</label>
+    <description>This infected pawn temporarily serves the player as a controllable slave, not a colonist. It returns to the Marked Men when its timer expires.</description>
+    <hediffClass>HediffWithComps</hediffClass>
+    <isBad>false</isBad>
+    <tendable>false</tendable>
+    <comps>
+      <li Class="TheMarkedMen.HediffCompProperties_TemporaryMarkedAlly">
+        <durationTicks>1800000</durationTicks>
+      </li>
+    </comps>
+  </HediffDef>
+
+  <HediffDef>
     <defName>CA_MarkedTurned</defName>
     <label>marked turned</label>
     <description>A pawn who has succumbed to the Marked Virus but retains their original identity. They are now a mindless, relentless entity hostile to all non-infected.</description>

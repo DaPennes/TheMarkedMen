@@ -1,6 +1,44 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Defs>
   <ScenPartDef>
+    <defName>CA_MarkedMenPlayerState</defName>
+    <label>play as the Marked Men</label>
+    <description>Start with player-controlled infected and recruit victims temporarily by infecting them.</description>
+    <category>StartingImportant</category>
+    <scenPartClass>TheMarkedMen.ScenPart_MarkedMenPlayerState</scenPartClass>
+    <summaryPriority>490</summaryPriority>
+    <maxUses>1</maxUses>
+    <canBeRandomlyAdded>false</canBeRandomlyAdded>
+    <canBePlayerAddedRemoved>false</canBePlayerAddedRemoved>
+  </ScenPartDef>
+
+  <ScenarioDef ParentName="ScenarioBase">
+    <defName>CA_MarkedMenPlayerColony</defName>
+    <label>The Marked Men</label>
+    <description>You are the Marked Men. Your infected colonists are under your direct control, and the enemy Marked Men faction is excluded from world generation. Pawns infected by your attacks become temporary allies for 30 days before returning to the Marked Men.</description>
+    <scenario>
+      <summary>Control infected colonists, infect victims to temporarily recruit them, and build a colony without generating the enemy Marked Men faction or its settlements.</summary>
+      <playerFaction>
+        <factionDef>PlayerColony</factionDef>
+      </playerFaction>
+      <parts>
+        <li Class="ScenPart_ConfigPage_ConfigureStartingPawns">
+          <def>ConfigPage_ConfigureStartingPawns</def>
+          <pawnChoiceCount>8</pawnChoiceCount>
+        </li>
+        <li Class="ScenPart_PlayerPawnsArriveMethod">
+          <def>PlayerPawnsArriveMethod</def>
+          <method>Standing</method>
+          <visible>false</visible>
+        </li>
+        <li Class="TheMarkedMen.ScenPart_MarkedMenPlayerState">
+          <def>CA_MarkedMenPlayerState</def>
+        </li>
+      </parts>
+    </scenario>
+  </ScenarioDef>
+
+  <ScenPartDef>
     <defName>CA_MarkedSurvivorState</defName>
     <label>marked survivor immunity</label>
     <description>Starts the colony with three immune outbreak survivors and gives each a chance to carry the visible marked rash.</description>

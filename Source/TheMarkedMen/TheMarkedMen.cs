@@ -40,7 +40,7 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
 
     public sealed class TheMarkedMenSettings : ModSettings
     {
-        private const int CurrentSettingsVersion = 15;
+        private const int CurrentSettingsVersion = 16;
         public const float InfectionTransmissionChance = 0.45f;
         public const float DefaultMarkedRaidFrequencyMultiplier = 2f;
         public const float MinMarkedRaidFrequencyMultiplier = 0f;
@@ -73,6 +73,7 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
         private const float SectionToggleWidth = 48f;
 
         public bool infectionEnabled = true;
+        public float temporaryAllyDurationDays = 30f;
         public bool colonistsCanBeInfected = true;
         public bool alliesCanBeInfected = true;
         public bool enemiesCanBeInfected = true;
@@ -290,6 +291,20 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
 
         public static float CloseContactExposureChance => Mathf.Clamp01(TheMarkedMenMod.Settings?.closeContactExposureChance ?? InfectionTransmissionChance);
 
+        public static int TemporaryAllyDurationTicks
+        {
+            get
+            {
+                float durationDays = TheMarkedMenMod.Settings?.temporaryAllyDurationDays ?? 30f;
+                if (float.IsNaN(durationDays) || float.IsInfinity(durationDays))
+                {
+                    durationDays = 30f;
+                }
+
+                return Mathf.RoundToInt(Mathf.Clamp(durationDays, 1f, 365f) * GenDate.TicksPerDay);
+            }
+        }
+
         public static float ReanimationChance => Mathf.Clamp01(TheMarkedMenMod.Settings?.reanimationChance ?? 1f);
 
         public static int ReanimationDelayTicks => Mathf.Clamp(TheMarkedMenMod.Settings?.reanimationDelayTicks ?? 900, 60, GenDate.TicksPerDay * 30);
@@ -360,6 +375,7 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
             Scribe_Values.Look(ref settingsVersion, "settingsVersion", 0);
             int loadedSettingsVersion = settingsVersion;
             Scribe_Values.Look(ref infectionEnabled, "infectionEnabled", true);
+            Scribe_Values.Look(ref temporaryAllyDurationDays, "temporaryAllyDurationDays", 30f);
             Scribe_Values.Look(ref colonistsCanBeInfected, "colonistsCanBeInfected", true);
             Scribe_Values.Look(ref alliesCanBeInfected, "alliesCanBeInfected", true);
             Scribe_Values.Look(ref enemiesCanBeInfected, "enemiesCanBeInfected", true);
@@ -717,6 +733,7 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
             DrawCheckbox(listing, "MarkedMen_Settings_InfectColonists".Translate(), ref colonistsCanBeInfected, "MarkedMen_Settings_InfectColonistsDesc".Translate());
             DrawCheckbox(listing, "MarkedMen_Settings_InfectAllies".Translate(), ref alliesCanBeInfected, "MarkedMen_Settings_InfectAlliesDesc".Translate());
             DrawCheckbox(listing, "MarkedMen_Settings_InfectEnemies".Translate(), ref enemiesCanBeInfected, "MarkedMen_Settings_InfectEnemiesDesc".Translate());
+            DrawFloat(listing, "MarkedMen_Settings_TemporaryAllyDurationDays".Translate(), ref temporaryAllyDurationDays, 1f, 365f, "temporaryAllyDurationDays", "MarkedMen_Settings_TemporaryAllyDurationDaysDesc".Translate());
             DrawCheckbox(listing, "MarkedMen_Settings_VariantsOnlyInRaids".Translate(), ref variantsOnlyInRaids, "MarkedMen_Settings_VariantsOnlyInRaidsDesc".Translate());
             DrawCheckbox(listing, "MarkedMen_Settings_LogCompatibilityMods".Translate(), ref verboseCompatibilityLogging, "MarkedMen_Settings_LogCompatibilityModsDesc".Translate());
 
@@ -1284,6 +1301,9 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
 
         private void ClampSettings()
         {
+            temporaryAllyDurationDays = float.IsNaN(temporaryAllyDurationDays) || float.IsInfinity(temporaryAllyDurationDays)
+                ? 30f
+                : Mathf.Clamp(temporaryAllyDurationDays, 1f, 365f);
             markedRaidFrequencyMultiplier = Mathf.Clamp(markedRaidFrequencyMultiplier, MinMarkedRaidFrequencyMultiplier, MaxMarkedRaidFrequencyMultiplier);
             warbandFrequencyMultiplier = Mathf.Clamp(warbandFrequencyMultiplier, 0f, MaxMarkedRaidFrequencyMultiplier);
             hordeFrequencyMultiplier = Mathf.Clamp(hordeFrequencyMultiplier, 0f, MaxMarkedRaidFrequencyMultiplier);
@@ -2620,6 +2640,11 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
 
         private void EnsureCrossedWorldSettlement()
         {
+            if (ScenPart_MarkedMenPlayerState.IsActive)
+            {
+                return;
+            }
+
             Faction faction = EnsureCrossedFaction(true);
             if (faction == null || Find.World?.worldObjects == null || WorldObjectDefOf.Settlement == null)
             {
@@ -2835,6 +2860,12 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
 
         private void TryFireScheduledRaid(int ticks)
         {
+            if (ScenPart_MarkedMenPlayerState.IsActive)
+            {
+                nextRaidTick = 0;
+                return;
+            }
+
             if (!TheMarkedMenSettings.WarbandsEnabled)
             {
                 nextRaidTick = 0;
@@ -2905,6 +2936,12 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
 
         private void ScheduleNextRaid(int fromTick)
         {
+            if (ScenPart_MarkedMenPlayerState.IsActive)
+            {
+                nextRaidTick = 0;
+                return;
+            }
+
             if (!TheMarkedMenSettings.WarbandsEnabled)
             {
                 nextRaidTick = 0;
@@ -2948,6 +2985,12 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
 
         private void TryFireScheduledHorde(int ticks)
         {
+            if (ScenPart_MarkedMenPlayerState.IsActive)
+            {
+                nextHordeTick = 0;
+                return;
+            }
+
             if (!TheMarkedMenSettings.HordesEnabled)
             {
                 nextHordeTick = 0;
@@ -3227,6 +3270,12 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
 
         private void ScheduleNextHorde(int fromTick)
         {
+            if (ScenPart_MarkedMenPlayerState.IsActive)
+            {
+                nextHordeTick = 0;
+                return;
+            }
+
             if (!TheMarkedMenSettings.HordesEnabled)
             {
                 nextHordeTick = 0;
