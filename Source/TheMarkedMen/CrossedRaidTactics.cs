@@ -50,9 +50,7 @@ namespace TheMarkedMen
                 graph.AddToil(breach);
             }
 
-            LordToil_AssaultColony assault = new LordToil_AssaultColony(
-                attackDownedIfStarving: false,
-                canPickUpOpportunisticWeapons: true)
+            LordToil_CrossedAssault assault = new LordToil_CrossedAssault()
             {
                 useAvoidGrid = true
             };
@@ -111,6 +109,24 @@ namespace TheMarkedMen
     {
         public bool ReachedBreachDestination;
 
+        public override void UpdateAllDuties()
+        {
+            base.UpdateAllDuties();
+            if (lord?.ownedPawns == null)
+            {
+                return;
+            }
+
+            for (int i = 0; i < lord.ownedPawns.Count; i++)
+            {
+                Pawn pawn = lord.ownedPawns[i];
+                if (pawn?.mindState != null && !pawn.Dead && !pawn.Downed)
+                {
+                    pawn.mindState.duty = new PawnDuty(DutyDefOf.AssaultColony);
+                }
+            }
+        }
+
         public override void Notify_ReachedDutyLocation(Pawn pawn)
         {
             base.Notify_ReachedDutyLocation(pawn);
@@ -145,6 +161,126 @@ namespace TheMarkedMen
             }
 
             return false;
+        }
+    }
+
+    public sealed class LordToil_CrossedAssault : LordToil_AssaultColony
+    {
+        public LordToil_CrossedAssault()
+            : base(attackDownedIfStarving: false, canPickUpOpportunisticWeapons: true)
+        {
+        }
+
+        public override void UpdateAllDuties()
+        {
+            base.UpdateAllDuties();
+            if (lord?.ownedPawns == null)
+            {
+                return;
+            }
+
+            for (int i = 0; i < lord.ownedPawns.Count; i++)
+            {
+                Pawn pawn = lord.ownedPawns[i];
+                if (pawn?.mindState != null && !pawn.Dead && !pawn.Downed)
+                {
+                    pawn.mindState.duty = new PawnDuty(DutyDefOf.AssaultColony);
+                }
+            }
+        }
+    }
+
+    public sealed class LordJob_CrossedVehicleAssault : LordJob
+    {
+        private Faction faction;
+
+        public override bool GuiltyOnDowned => true;
+
+        public override bool LostImportantReferenceDuringLoading => faction == null;
+
+        public LordJob_CrossedVehicleAssault()
+        {
+        }
+
+        public LordJob_CrossedVehicleAssault(Faction faction)
+        {
+            this.faction = faction;
+        }
+
+        public override StateGraph CreateGraph()
+        {
+            StateGraph graph = new StateGraph();
+            LordToil_CrossedVehicleAssault assault = new LordToil_CrossedVehicleAssault
+            {
+                useAvoidGrid = true
+            };
+            graph.AddToil(assault);
+
+            LordToil_ExitMap exit = new LordToil_ExitMap(LocomotionUrgency.Sprint, canDig: false, interruptCurrentJob: true)
+            {
+                useAvoidGrid = true
+            };
+            graph.AddToil(exit);
+
+            Transition leave = new Transition(assault, exit);
+            leave.AddTrigger(new Trigger_BecameNonHostileToPlayer());
+            if (faction != null)
+            {
+                leave.AddPreAction(new TransitionAction_Message(
+                    "MessageRaidersLeaving".Translate(faction.def.pawnsPlural.CapitalizeFirst(), faction.Name)));
+            }
+            graph.AddTransition(leave);
+            return graph;
+        }
+
+        public override void ExposeData()
+        {
+            Scribe_References.Look(ref faction, "faction");
+        }
+    }
+
+    public sealed class LordToil_CrossedVehicleAssault : LordToil_AssaultColony
+    {
+        public override void UpdateAllDuties()
+        {
+            base.UpdateAllDuties();
+            if (lord?.ownedPawns == null)
+            {
+                return;
+            }
+
+            for (int i = 0; i < lord.ownedPawns.Count; i++)
+            {
+                Pawn pawn = lord.ownedPawns[i];
+                if (pawn?.mindState != null && TheMarkedMenVehicleFrameworkCompatibility.IsVehiclePawn(pawn))
+                {
+                    pawn.mindState.duty = new PawnDuty(DutyDefOf.AssaultColony);
+                }
+            }
+        }
+
+        public override void LordToilTick()
+        {
+            base.LordToilTick();
+            if ((lord?.ticksInToil ?? 0) % 30 != 0
+                || TheMarkedMenMod.Settings?.vehiclePassengerDisembarkEnabled != true)
+            {
+                return;
+            }
+
+            if (lord?.ownedPawns == null)
+            {
+                return;
+            }
+
+            float landRange = TheMarkedMenMod.Settings?.landVehicleDisembarkRange ?? 28f;
+            float airRange = TheMarkedMenMod.Settings?.airborneVehicleDisembarkRange ?? 38f;
+            for (int i = 0; i < lord.ownedPawns.Count; i++)
+            {
+                Pawn vehicle = lord.ownedPawns[i];
+                TheMarkedMenVehicleFrameworkCompatibility.TryDisembarkRaidPassengers(vehicle, landRange, airRange);
+                TheMarkedMenVehicleFrameworkCompatibility.ApplyVehicleCombatBehavior(vehicle);
+            }
         }
     }
 
@@ -186,6 +322,22 @@ namespace TheMarkedMen
             // a wall. Otherwise the group would stand outside shooting masonry.
             bool breachers = points >= BreacherThresholdPoints && HasGoodBreacher(pawns);
             return new LordJob_CrossedAssault(faction, breachers, GetSiegeDurationTicks(points));
+        }
+
+        public static void AssignAssaultDuty(IEnumerable<Pawn> pawns)
+        {
+            if (pawns == null)
+            {
+                return;
+            }
+
+            foreach (Pawn pawn in pawns)
+            {
+                if (pawn?.mindState != null && !pawn.Dead && !pawn.Downed)
+                {
+                    pawn.mindState.duty = new PawnDuty(DutyDefOf.AssaultColony);
+                }
+            }
         }
 
         private static bool HasGoodBreacher(IReadOnlyList<Pawn> pawns)
