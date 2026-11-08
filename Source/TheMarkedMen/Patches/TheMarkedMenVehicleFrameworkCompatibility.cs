@@ -1675,13 +1675,11 @@ namespace TheMarkedMen
                         continue;
                     }
 
-                    string role = Convert.ToString(ReadMember(handler, "handlingType", "HandlingType", "role", "Role", "roleType", "RoleType"))
-                        ?? string.Empty;
+                    string role = DescribeRequiredCrewRole(handler, vehicle);
                     if (role.ToLowerInvariant().IndexOf("passenger", StringComparison.OrdinalIgnoreCase) >= 0)
                     {
                         continue;
                     }
-                    role += " " + handler.GetType().Name;
                     string requiredRole = role.ToLowerInvariant();
                     if (requiredRole.Contains("driver")
                         || requiredRole.Contains("pilot")
@@ -1705,16 +1703,109 @@ namespace TheMarkedMen
                 }
 
                 IEnumerable occupantsEnumerable = occupants as IEnumerable;
-                if (occupantsEnumerable == null)
+                if (occupantsEnumerable != null)
+                {
+                    foreach (object occupant in occupantsEnumerable)
+                    {
+                        if (occupant == pawn)
+                        {
+                            return true;
+                        }
+                    }
+                }
+
+                if (ContainsPawnReference(handler, pawn, new HashSet<object>(), 0))
+                {
+                    return true;
+                }
+
+                return false;
+            }
+
+            private static string DescribeRequiredCrewRole(object handler, Pawn vehicle)
+            {
+                string role = Convert.ToString(
+                    ReadMember(handler, "handlingType", "HandlingType", "role", "Role", "roleType", "RoleType"))
+                    ?? string.Empty;
+                role += " " + handler.GetType().Name + " " + GetHandlerRoleText(handler);
+
+                object handlers = ReadMember(vehicle, "handlers", "Handlers", "vehicleHandlers", "VehicleHandlers");
+                if (handlers != null)
+                {
+                    role += " " + handlers.GetType().Name;
+                }
+
+                return role;
+            }
+
+            private static string GetHandlerRoleText(object handler)
+            {
+                string result = string.Empty;
+                Type type = handler.GetType();
+                foreach (FieldInfo field in type.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic))
+                {
+                    result += " " + field.Name;
+                    if (field.FieldType.IsEnum || field.FieldType == typeof(string))
+                    {
+                        try
+                        {
+                            result += " " + Convert.ToString(field.GetValue(handler));
+                        }
+                        catch
+                        {
+                        }
+                    }
+                }
+                return result;
+            }
+
+            private static bool ContainsPawnReference(object value, Pawn pawn, HashSet<object> visited, int depth)
+            {
+                if (value == null || depth > 5)
                 {
                     return false;
                 }
 
-                foreach (object occupant in occupantsEnumerable)
+                if (value == pawn)
                 {
-                    if (occupant == pawn)
+                    return true;
+                }
+
+                if (!value.GetType().IsValueType)
+                {
+                    if (!visited.Add(value))
                     {
-                        return true;
+                        return false;
+                    }
+                }
+
+                if (value is IEnumerable enumerable && !(value is string))
+                {
+                    foreach (object item in enumerable)
+                    {
+                        if (ContainsPawnReference(item, pawn, visited, depth + 1))
+                        {
+                            return true;
+                        }
+                    }
+                }
+
+                foreach (FieldInfo field in value.GetType().GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic))
+                {
+                    if (field.FieldType.IsPrimitive || field.FieldType == typeof(string))
+                    {
+                        continue;
+                    }
+
+                    try
+                    {
+                        if (ContainsPawnReference(field.GetValue(value), pawn, visited, depth + 1))
+                        {
+                            return true;
+                        }
+                    }
+                    catch
+                    {
                     }
                 }
 
