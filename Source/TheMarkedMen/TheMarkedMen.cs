@@ -100,6 +100,7 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
         public bool vehiclePassengerDisembarkEnabled = true;
         public float landVehicleDisembarkRange = 28f;
         public float airborneVehicleDisembarkRange = 38f;
+        public float vehicleEmergencyDamageThreshold = 35f;
         public bool randomizeMarkedRaids;
         public float markedRaidFrequencyMultiplier = DefaultMarkedRaidFrequencyMultiplier;
         public float warbandFrequencyMultiplier = 1f;
@@ -427,6 +428,7 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
             Scribe_Values.Look(ref vehiclePassengerDisembarkEnabled, "vehiclePassengerDisembarkEnabled", true);
             Scribe_Values.Look(ref landVehicleDisembarkRange, "landVehicleDisembarkRange", 28f);
             Scribe_Values.Look(ref airborneVehicleDisembarkRange, "airborneVehicleDisembarkRange", 38f);
+            Scribe_Values.Look(ref vehicleEmergencyDamageThreshold, "vehicleEmergencyDamageThreshold", 35f);
             Scribe_Values.Look(ref randomizeMarkedRaids, "randomizeMarkedRaids", false);
             Scribe_Values.Look(ref markedRaidFrequencyMultiplier, "markedRaidFrequencyMultiplier", DefaultMarkedRaidFrequencyMultiplier);
             Scribe_Values.Look(ref warbandFrequencyMultiplier, "warbandFrequencyMultiplier", 1f);
@@ -804,6 +806,7 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
             DrawCheckbox(listing, "Vehicle passenger disembark".Translate(), ref vehiclePassengerDisembarkEnabled, "Disembark surplus passengers when raid vehicles enter a configured combat range.".Translate());
             DrawFloat(listing, "Land vehicle disembark range".Translate(), ref landVehicleDisembarkRange, 5f, 80f, "landVehicleDisembarkRange", "Distance to the nearest colony target before land-vehicle passengers disembark.".Translate());
             DrawFloat(listing, "Air vehicle disembark range".Translate(), ref airborneVehicleDisembarkRange, 5f, 100f, "airborneVehicleDisembarkRange", "Distance to the nearest colony target before helicopter passengers disembark.".Translate());
+            DrawFloat(listing, "Vehicle emergency damage threshold".Translate(), ref vehicleEmergencyDamageThreshold, 5f, 90f, "vehicleEmergencyDamageThreshold", "Passenger evacuation threshold based on remaining vehicle hit points; crew remains aboard.".Translate());
             DrawFloat(listing, "MarkedMen_Settings_vehicleAssaultFrequencyMultiplier".Translate(), ref vehicleAssaultFrequencyMultiplier, 0f, MaxMarkedRaidFrequencyMultiplier, "vehicleAssaultFrequencyMultiplier", "MarkedMen_Settings_vehicleAssaultFrequencyMultiplierDesc".Translate());
             DrawFloat(listing, "MarkedMen_Settings_raidPointsMultiplier".Translate(), ref raidPointsMultiplier, 0.05f, 1E+09f, "raidPointsMultiplier", "MarkedMen_Settings_raidPointsMultiplierDesc".Translate());
             DrawFloat(listing, "MarkedMen_Settings_minimumRaidPoints".Translate(), ref minimumRaidPoints, 0f, maximumRaidPoints, "minimumRaidPoints", "MarkedMen_Settings_minimumRaidPointsDesc".Translate());
@@ -1371,6 +1374,7 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
             vehicleAssaultFrequencyMultiplier = Mathf.Clamp(vehicleAssaultFrequencyMultiplier, 0f, MaxMarkedRaidFrequencyMultiplier);
             landVehicleDisembarkRange = Mathf.Clamp(landVehicleDisembarkRange, 5f, 80f);
             airborneVehicleDisembarkRange = Mathf.Clamp(airborneVehicleDisembarkRange, 5f, 100f);
+            vehicleEmergencyDamageThreshold = Mathf.Clamp(vehicleEmergencyDamageThreshold, 5f, 90f);
             firstMarkedRaidDay = Mathf.Clamp(firstMarkedRaidDay, 1, 600);
             raidPointsMultiplier = Mathf.Max(0.05f, raidPointsMultiplier);
             minimumRaidPoints = Mathf.Clamp(minimumRaidPoints, 0f, maximumRaidPoints);

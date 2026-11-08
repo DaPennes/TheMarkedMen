@@ -1529,6 +1529,20 @@ namespace TheMarkedMen
                         && pawn.Position.DistanceToSquared(vehicle.Position) <= range * range)
                     .OrderBy(pawn => pawn.Position.DistanceToSquared(vehicle.Position))
                     .FirstOrFallback();
+                bool emergencyEvacuation = IsVehicleEmergencyEvacuation(vehicle);
+                if (nearestEnemy == null && !emergencyEvacuation)
+                {
+                    return;
+                }
+
+                if (nearestEnemy == null && emergencyEvacuation)
+                {
+                    nearestEnemy = vehicle.Map.mapPawns.AllPawnsSpawned
+                        .Where(pawn => pawn != null && !pawn.Dead && pawn.HostileTo(vehicle))
+                        .OrderBy(pawn => pawn.Position.DistanceToSquared(vehicle.Position))
+                        .FirstOrFallback();
+                }
+
                 if (nearestEnemy == null)
                 {
                     return;
@@ -1550,6 +1564,11 @@ namespace TheMarkedMen
                 for (int i = passengers.Count - 1; i >= 0; i--)
                 {
                     Pawn passenger = passengers[i];
+                    if (IsRequiredVehicleCrew(vehicle, passenger))
+                    {
+                        continue;
+                    }
+
                     if (!TryFindDisembarkCell(vehicle, out IntVec3 cell))
                     {
                         return;
@@ -1576,6 +1595,180 @@ namespace TheMarkedMen
                         JobMaker.MakeJob(JobDefOf.Goto, nearestEnemy.Position),
                         JobCondition.InterruptForced);
                 }
+            }
+
+            private static bool IsVehicleEmergencyEvacuation(Pawn vehicle)
+            {
+                float damageThreshold = TheMarkedMenMod.Settings?.vehicleEmergencyDamageThreshold ?? 35f;
+                if (vehicle.MaxHitPoints > 0
+                    && 100f * vehicle.HitPoints / vehicle.MaxHitPoints <= Mathf.Clamp(damageThreshold, 5f, 90f))
+                {
+                    return true;
+                }
+
+                float? fuelPercent = TryGetVehicleFuelPercent(vehicle);
+                return fuelPercent.HasValue && fuelPercent.Value <= 0.01f;
+            }
+
+            private static float? TryGetVehicleFuelPercent(Pawn vehicle)
+            {
+                if (vehicle?.AllComps == null)
+                {
+                    return null;
+                }
+
+                foreach (ThingComp comp in vehicle.AllComps)
+                {
+                    if (comp == null)
+                    {
+                        continue;
+                    }
+
+                    string fullName = comp.GetType().FullName ?? string.Empty;
+                    if (!fullName.Contains("Refuelable")
+                        && !fullName.Contains("VehicleFuel")
+                        && !fullName.Contains("Fuel"))
+                    {
+                        continue;
+                    }
+
+                    object percent = ReadMember(comp, "FuelPercentOfMax", "FuelPercent", "PercentFull");
+                    if (TryConvertFloat(percent, out float fuelPercent))
+                    {
+                        return Mathf.Clamp01(fuelPercent);
+                    }
+
+                    object fuel = ReadMember(comp, "Fuel", "fuel");
+                    object fuelCapacity = ReadMember(comp, "FuelCapacity", "Props", "capacity");
+                    if (TryConvertFloat(fuel, out float fuelAmount)
+                        && TryConvertFloat(fuelCapacity, out float capacity)
+                        && capacity > 0f)
+                    {
+                        return Mathf.Clamp01(fuelAmount / capacity);
+                    }
+                }
+
+                return null;
+            }
+
+            private static bool IsRequiredVehicleCrew(Pawn vehicle, Pawn pawn)
+            {
+                if (vehicle == null || pawn == null)
+                {
+                    return false;
+                }
+
+                object handlers = ReadMember(vehicle, "handlers", "Handlers", "vehicleHandlers", "VehicleHandlers");
+                IDictionary handlerDictionary = handlers as IDictionary;
+                IEnumerable handlerValues = handlerDictionary != null
+                    ? handlerDictionary.Values
+                    : handlers as IEnumerable;
+                if (handlerValues == null)
+                {
+                    return false;
+                }
+
+                foreach (object handler in handlerValues)
+                {
+                    if (handler == null || !HandlerOccupiesPawn(handler, pawn))
+                    {
+                        continue;
+                    }
+
+                    string role = Convert.ToString(ReadMember(handler, "handlingType", "HandlingType", "role", "Role", "roleType", "RoleType"))
+                        ?? string.Empty;
+                    if (role.ToLowerInvariant().IndexOf("passenger", StringComparison.OrdinalIgnoreCase) >= 0)
+                    {
+                        continue;
+                    }
+                    role += " " + handler.GetType().Name;
+                    string requiredRole = role.ToLowerInvariant();
+                    if (requiredRole.Contains("driver")
+                        || requiredRole.Contains("pilot")
+                        || requiredRole.Contains("operator")
+                        || requiredRole.Contains("gunner")
+                        || requiredRole.Contains("turret"))
+                    {
+                        return true;
+                    }
+                }
+
+                return false;
+            }
+
+            private static bool HandlerOccupiesPawn(object handler, Pawn pawn)
+            {
+                object occupants = ReadMember(handler, "occupants", "Occupants", "occupiedPawns", "OccupiedPawns", "pawn", "Pawn", "occupiedBy", "OccupiedBy");
+                if (occupants == pawn)
+                {
+                    return true;
+                }
+
+                IEnumerable occupantsEnumerable = occupants as IEnumerable;
+                if (occupantsEnumerable == null)
+                {
+                    return false;
+                }
+
+                foreach (object occupant in occupantsEnumerable)
+                {
+                    if (occupant == pawn)
+                    {
+                        return true;
+                    }
+                }
+
+                return false;
+            }
+
+            private static object ReadMember(object instance, params string[] names)
+            {
+                if (instance == null || names == null)
+                {
+                    return null;
+                }
+
+                Type type = instance.GetType();
+                foreach (string name in names)
+                {
+                    FieldInfo field = AccessTools.Field(type, name);
+                    if (field != null)
+                    {
+                        return field.GetValue(instance);
+                    }
+
+                    PropertyInfo property = AccessTools.Property(type, name);
+                    if (property?.GetIndexParameters().Length == 0)
+                    {
+                        try
+                        {
+                            return property.GetValue(instance, null);
+                        }
+                        catch
+                        {
+                        }
+                    }
+                }
+
+                return null;
+            }
+
+            private static bool TryConvertFloat(object value, out float result)
+            {
+                try
+                {
+                    if (value != null)
+                    {
+                        result = Convert.ToSingle(value);
+                        return true;
+                    }
+                }
+                catch
+                {
+                }
+
+                result = 0f;
+                return false;
             }
 
             private static void EnsureRaidPassengerAssaultLord(Pawn passenger, Pawn vehicle)
