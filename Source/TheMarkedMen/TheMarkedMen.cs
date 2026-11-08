@@ -22,6 +22,7 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
             Settings = GetSettings<TheMarkedMenSettings>();
             Harmony harmony = new Harmony("edria.themarkedmen");
             harmony.PatchAll(Assembly.GetExecutingAssembly());
+            TheMarkedMenVehicleFrameworkCompatibility.ApplyPatches(harmony);
             LongEventHandler.ExecuteWhenFinished(() => Settings?.AutoEnableRjwIntegrationIfInstalled());
             LongEventHandler.ExecuteWhenFinished(CrossedCompatibility.LogDetectedMods);
             LongEventHandler.ExecuteWhenFinished(CrossedUtility.ApplyMarkedVirusResistanceEquippedStatOffsets);
@@ -36,11 +37,16 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
         {
             Settings.DoWindowContents(inRect);
         }
+
+        public static void WriteCurrentSettings()
+        {
+            LoadedModManager.GetMod<TheMarkedMenMod>()?.WriteSettings();
+        }
     }
 
     public sealed class TheMarkedMenSettings : ModSettings
     {
-        private const int CurrentSettingsVersion = 16;
+        private const int CurrentSettingsVersion = 17;
         public const float InfectionTransmissionChance = 0.45f;
         public const float DefaultMarkedRaidFrequencyMultiplier = 2f;
         public const float MinMarkedRaidFrequencyMultiplier = 0f;
@@ -88,11 +94,18 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
         public bool scheduledWarbandsEnabled = true;
         public bool scheduledHordesEnabled = true;
         public bool scoutingProbesEnabled = true;
+        public bool landVehicleAssaultsEnabled = true;
+        public bool airborneVehicleAssaultsEnabled = true;
+        public bool combinedArmsAssaultsEnabled = true;
+        public bool vehiclePassengerDisembarkEnabled = true;
+        public float landVehicleDisembarkRange = 28f;
+        public float airborneVehicleDisembarkRange = 38f;
         public bool randomizeMarkedRaids;
         public float markedRaidFrequencyMultiplier = DefaultMarkedRaidFrequencyMultiplier;
         public float warbandFrequencyMultiplier = 1f;
         public float hordeFrequencyMultiplier = 1f;
         public float probeFrequencyMultiplier = 1f;
+        public float vehicleAssaultFrequencyMultiplier = 1f;
         public int firstMarkedRaidDay = 45;
         public float raidPointsMultiplier = 2f;
         public float minimumRaidPoints = 2000f;
@@ -193,6 +206,8 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
         public int infectedStateMaintenanceIntervalTicks = 2500;
         public int reanimationProcessIntervalTicks = 2500;
         public int maxPendingReanimationsPerTick = 24;
+        public int maxRaidInfantry = 60;
+        public int maxRaidVehicles = 10;
 
         public bool bloodlustEnabled = true;
         public float bloodlustDecayRate = 1f;
@@ -257,6 +272,8 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
 
         public float EffectiveProbeFrequencyMultiplier => EffectiveEventFrequency(scoutingProbesEnabled, probeFrequencyMultiplier);
 
+        public float EffectiveVehicleAssaultFrequencyMultiplier => Mathf.Clamp(vehicleAssaultFrequencyMultiplier, 0f, MaxMarkedRaidFrequencyMultiplier);
+
         public static bool WarbandsEnabled => (TheMarkedMenMod.Settings?.EffectiveWarbandFrequencyMultiplier ?? DefaultMarkedRaidFrequencyMultiplier) > 0.001f;
 
         public static bool HordesEnabled => (TheMarkedMenMod.Settings?.EffectiveHordeFrequencyMultiplier ?? DefaultMarkedRaidFrequencyMultiplier) > 0.001f;
@@ -268,6 +285,20 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
         public static float HordeFrequencyMultiplier => TheMarkedMenMod.Settings?.EffectiveHordeFrequencyMultiplier ?? DefaultMarkedRaidFrequencyMultiplier;
 
         public static float ProbeFrequencyMultiplier => TheMarkedMenMod.Settings?.EffectiveProbeFrequencyMultiplier ?? DefaultMarkedRaidFrequencyMultiplier;
+
+        public static bool LandVehicleAssaultsEnabled => WarbandsEnabled
+            && (TheMarkedMenMod.Settings?.landVehicleAssaultsEnabled ?? true)
+            && (TheMarkedMenMod.Settings?.EffectiveVehicleAssaultFrequencyMultiplier ?? 1f) > 0.001f;
+
+        public static bool AirborneVehicleAssaultsEnabled => WarbandsEnabled
+            && (TheMarkedMenMod.Settings?.airborneVehicleAssaultsEnabled ?? true)
+            && (TheMarkedMenMod.Settings?.EffectiveVehicleAssaultFrequencyMultiplier ?? 1f) > 0.001f;
+
+        public static bool CombinedArmsAssaultsEnabled => WarbandsEnabled
+            && (TheMarkedMenMod.Settings?.combinedArmsAssaultsEnabled ?? true)
+            && (TheMarkedMenMod.Settings?.EffectiveVehicleAssaultFrequencyMultiplier ?? 1f) > 0.001f;
+
+        public static float VehicleAssaultFrequencyMultiplier => TheMarkedMenMod.Settings?.EffectiveVehicleAssaultFrequencyMultiplier ?? 1f;
 
         public static bool RandomizeMarkedRaids => TheMarkedMenMod.Settings?.randomizeMarkedRaids == true;
 
@@ -390,11 +421,18 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
             Scribe_Values.Look(ref scheduledWarbandsEnabled, "scheduledWarbandsEnabled", true);
             Scribe_Values.Look(ref scheduledHordesEnabled, "scheduledHordesEnabled", true);
             Scribe_Values.Look(ref scoutingProbesEnabled, "scoutingProbesEnabled", true);
+            Scribe_Values.Look(ref landVehicleAssaultsEnabled, "landVehicleAssaultsEnabled", true);
+            Scribe_Values.Look(ref airborneVehicleAssaultsEnabled, "airborneVehicleAssaultsEnabled", true);
+            Scribe_Values.Look(ref combinedArmsAssaultsEnabled, "combinedArmsAssaultsEnabled", true);
+            Scribe_Values.Look(ref vehiclePassengerDisembarkEnabled, "vehiclePassengerDisembarkEnabled", true);
+            Scribe_Values.Look(ref landVehicleDisembarkRange, "landVehicleDisembarkRange", 28f);
+            Scribe_Values.Look(ref airborneVehicleDisembarkRange, "airborneVehicleDisembarkRange", 38f);
             Scribe_Values.Look(ref randomizeMarkedRaids, "randomizeMarkedRaids", false);
             Scribe_Values.Look(ref markedRaidFrequencyMultiplier, "markedRaidFrequencyMultiplier", DefaultMarkedRaidFrequencyMultiplier);
             Scribe_Values.Look(ref warbandFrequencyMultiplier, "warbandFrequencyMultiplier", 1f);
             Scribe_Values.Look(ref hordeFrequencyMultiplier, "hordeFrequencyMultiplier", 1f);
             Scribe_Values.Look(ref probeFrequencyMultiplier, "probeFrequencyMultiplier", 1f);
+            Scribe_Values.Look(ref vehicleAssaultFrequencyMultiplier, "vehicleAssaultFrequencyMultiplier", 1f);
             Scribe_Values.Look(ref firstMarkedRaidDay, "firstMarkedRaidDay", 45);
             Scribe_Values.Look(ref raidPointsMultiplier, "raidPointsMultiplier", 2f);
             Scribe_Values.Look(ref minimumRaidPoints, "minimumRaidPoints", 2000f);
@@ -489,6 +527,8 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
             Scribe_Values.Look(ref infectedStateMaintenanceIntervalTicks, "infectedStateMaintenanceIntervalTicks", 2500);
             Scribe_Values.Look(ref reanimationProcessIntervalTicks, "reanimationProcessIntervalTicks", 2500);
             Scribe_Values.Look(ref maxPendingReanimationsPerTick, "maxPendingReanimationsPerTick", 24);
+            Scribe_Values.Look(ref maxRaidInfantry, "maxRaidInfantry", 60);
+            Scribe_Values.Look(ref maxRaidVehicles, "maxRaidVehicles", 10);
             Scribe_Values.Look(ref bloodlustEnabled, "bloodlustEnabled", true);
             Scribe_Values.Look(ref bloodlustDecayRate, "bloodlustDecayRate", 1f);
             Scribe_Values.Look(ref bloodlustKillGainMultiplier, "bloodlustKillGainMultiplier", 1f);
@@ -574,6 +614,10 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
                     warbandFrequencyMultiplier = 1f;
                     hordeFrequencyMultiplier = 1f;
                     probeFrequencyMultiplier = 1f;
+                    landVehicleAssaultsEnabled = true;
+                    airborneVehicleAssaultsEnabled = true;
+                    combinedArmsAssaultsEnabled = true;
+                    vehicleAssaultFrequencyMultiplier = 1f;
                     firstMarkedRaidDay = 45;
                     raidPointsMultiplier = 2f;
                     minimumRaidPoints = 2000f;
@@ -753,6 +797,14 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
             DrawFloat(listing, "MarkedMen_Settings_hordeFrequencyMultiplier".Translate(), ref hordeFrequencyMultiplier, 0f, MaxMarkedRaidFrequencyMultiplier, "hordeFrequencyMultiplier", "MarkedMen_Settings_hordeFrequencyMultiplierDesc".Translate());
             DrawFloat(listing, "MarkedMen_Settings_probeFrequencyMultiplier".Translate(), ref probeFrequencyMultiplier, 0f, MaxMarkedRaidFrequencyMultiplier, "probeFrequencyMultiplier", "MarkedMen_Settings_probeFrequencyMultiplierDesc".Translate());
             DrawHelp(listing, "MarkedMen_Settings_EffectiveFrequencies".Translate(MultiplierText(EffectiveWarbandFrequencyMultiplier), MultiplierText(EffectiveHordeFrequencyMultiplier), MultiplierText(EffectiveProbeFrequencyMultiplier)));
+            DrawSectionHeader(listing, "MarkedMen_Settings_VehicleAssaults".Translate(), "MarkedMen_Settings_VehicleAssaultsDesc".Translate());
+            DrawCheckbox(listing, "MarkedMen_Settings_LandVehicleAssaults".Translate(), ref landVehicleAssaultsEnabled, "MarkedMen_Settings_LandVehicleAssaultsDesc".Translate());
+            DrawCheckbox(listing, "MarkedMen_Settings_AirborneVehicleAssaults".Translate(), ref airborneVehicleAssaultsEnabled, "MarkedMen_Settings_AirborneVehicleAssaultsDesc".Translate());
+            DrawCheckbox(listing, "MarkedMen_Settings_CombinedArmsAssaults".Translate(), ref combinedArmsAssaultsEnabled, "MarkedMen_Settings_CombinedArmsAssaultsDesc".Translate());
+            DrawCheckbox(listing, "Vehicle passenger disembark".Translate(), ref vehiclePassengerDisembarkEnabled, "Disembark surplus passengers when raid vehicles enter a configured combat range.".Translate());
+            DrawFloat(listing, "Land vehicle disembark range".Translate(), ref landVehicleDisembarkRange, 5f, 80f, "landVehicleDisembarkRange", "Distance to the nearest colony target before land-vehicle passengers disembark.".Translate());
+            DrawFloat(listing, "Air vehicle disembark range".Translate(), ref airborneVehicleDisembarkRange, 5f, 100f, "airborneVehicleDisembarkRange", "Distance to the nearest colony target before helicopter passengers disembark.".Translate());
+            DrawFloat(listing, "MarkedMen_Settings_vehicleAssaultFrequencyMultiplier".Translate(), ref vehicleAssaultFrequencyMultiplier, 0f, MaxMarkedRaidFrequencyMultiplier, "vehicleAssaultFrequencyMultiplier", "MarkedMen_Settings_vehicleAssaultFrequencyMultiplierDesc".Translate());
             DrawFloat(listing, "MarkedMen_Settings_raidPointsMultiplier".Translate(), ref raidPointsMultiplier, 0.05f, 1E+09f, "raidPointsMultiplier", "MarkedMen_Settings_raidPointsMultiplierDesc".Translate());
             DrawFloat(listing, "MarkedMen_Settings_minimumRaidPoints".Translate(), ref minimumRaidPoints, 0f, maximumRaidPoints, "minimumRaidPoints", "MarkedMen_Settings_minimumRaidPointsDesc".Translate());
             DrawFloat(listing, "MarkedMen_Settings_maximumRaidPoints".Translate(), ref maximumRaidPoints, minimumRaidPoints, 100000f, "maximumRaidPoints", "MarkedMen_Settings_maximumRaidPointsDesc".Translate());
@@ -873,6 +925,8 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
             DrawInt(listing, "MarkedMen_Settings_infectedStateMaintenanceIntervalTicks".Translate(), ref infectedStateMaintenanceIntervalTicks, 60, GenDate.TicksPerDay, "infectedStateMaintenanceIntervalTicks", "MarkedMen_Settings_infectedStateMaintenanceIntervalTicksDesc".Translate());
             DrawInt(listing, "MarkedMen_Settings_reanimationProcessIntervalTicks".Translate(), ref reanimationProcessIntervalTicks, 60, GenDate.TicksPerDay, "reanimationProcessIntervalTicks", "MarkedMen_Settings_reanimationProcessIntervalTicksDesc".Translate());
             DrawInt(listing, "MarkedMen_Settings_maxPendingReanimationsPerTick".Translate(), ref maxPendingReanimationsPerTick, 1, 500, "maxPendingReanimationsPerTick", "MarkedMen_Settings_maxPendingReanimationsPerTickDesc".Translate());
+            DrawInt(listing, "MarkedMen_Settings_maxRaidInfantry".Translate(), ref maxRaidInfantry, 12, 90, "maxRaidInfantry", "MarkedMen_Settings_maxRaidInfantryDesc".Translate());
+            DrawInt(listing, "MarkedMen_Settings_maxRaidVehicles".Translate(), ref maxRaidVehicles, 3, 10, "maxRaidVehicles", "MarkedMen_Settings_maxRaidVehiclesDesc".Translate());
 
             DrawSectionHeader(listing, "MarkedMen_Settings_UrbanOutbreak".Translate(), "MarkedMen_Settings_UrbanOutbreakDesc".Translate());
             DrawCheckbox(listing, "MarkedMen_Settings_UrbanOutbreaks".Translate(), ref urbanOutbreaksEnabled, "MarkedMen_Settings_UrbanOutbreaksDesc".Translate());
@@ -1069,6 +1123,7 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
                 applyPreset();
                 ClearNumericBuffers();
                 cachedContentHeight = 0f;
+                TheMarkedMenMod.WriteCurrentSettings();
             }
 
             TooltipHandler.TipRegion(rect, new TipSignal(tooltip));
@@ -1313,6 +1368,9 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
             warbandFrequencyMultiplier = Mathf.Clamp(warbandFrequencyMultiplier, 0f, MaxMarkedRaidFrequencyMultiplier);
             hordeFrequencyMultiplier = Mathf.Clamp(hordeFrequencyMultiplier, 0f, MaxMarkedRaidFrequencyMultiplier);
             probeFrequencyMultiplier = Mathf.Clamp(probeFrequencyMultiplier, 0f, MaxMarkedRaidFrequencyMultiplier);
+            vehicleAssaultFrequencyMultiplier = Mathf.Clamp(vehicleAssaultFrequencyMultiplier, 0f, MaxMarkedRaidFrequencyMultiplier);
+            landVehicleDisembarkRange = Mathf.Clamp(landVehicleDisembarkRange, 5f, 80f);
+            airborneVehicleDisembarkRange = Mathf.Clamp(airborneVehicleDisembarkRange, 5f, 100f);
             firstMarkedRaidDay = Mathf.Clamp(firstMarkedRaidDay, 1, 600);
             raidPointsMultiplier = Mathf.Max(0.05f, raidPointsMultiplier);
             minimumRaidPoints = Mathf.Clamp(minimumRaidPoints, 0f, maximumRaidPoints);
@@ -1374,6 +1432,8 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
             infectedStateMaintenanceIntervalTicks = Mathf.Clamp(infectedStateMaintenanceIntervalTicks, 60, GenDate.TicksPerDay);
             reanimationProcessIntervalTicks = Mathf.Clamp(reanimationProcessIntervalTicks, 60, GenDate.TicksPerDay);
             maxPendingReanimationsPerTick = Mathf.Clamp(maxPendingReanimationsPerTick, 1, 500);
+            maxRaidInfantry = Mathf.Clamp(maxRaidInfantry, 12, 90);
+            maxRaidVehicles = Mathf.Clamp(maxRaidVehicles, 3, 10);
             urbanInfectionDensity = Mathf.Clamp(urbanInfectionDensity, 0f, 5f);
             urbanAmbushFrequency = Mathf.Clamp(urbanAmbushFrequency, 0f, 5f);
             dormantInfestationFrequency = Mathf.Clamp(dormantInfestationFrequency, 0f, 5f);
@@ -1412,12 +1472,19 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
             warbandFrequencyMultiplier = 1f;
             hordeFrequencyMultiplier = 1f;
             probeFrequencyMultiplier = 1f;
+            vehicleAssaultFrequencyMultiplier = 1f;
+            landVehicleAssaultsEnabled = true;
+            airborneVehicleAssaultsEnabled = true;
+            combinedArmsAssaultsEnabled = true;
             firstMarkedRaidDay = 45;
             raidPointsMultiplier = 1f;
             minimumRaidPoints = 2000f;
             maximumRaidPoints = 10000f;
             raidEscalationPerRaid = DefaultRaidEscalationPerRaid;
             raidEscalationMaxBonus = DefaultRaidEscalationMaxBonus;
+            raidEscalationRandomness = 0.3f;
+            raidDifficultyWaviness = 0.2f;
+            raidEscalationSpikeProbability = 0.15f;
             ResetArrivalDefaults();
             ResetCompositionDefaults();
             bloodExposureChance = InfectionTransmissionChance;
@@ -1707,6 +1774,8 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
             infectedStateMaintenanceIntervalTicks = 2500;
             reanimationProcessIntervalTicks = 2500;
             maxPendingReanimationsPerTick = 24;
+            maxRaidInfantry = 60;
+            maxRaidVehicles = 10;
         }
     }
 
@@ -2925,7 +2994,7 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
                 return;
             }
 
-            if (TryFireRaidIncident(true))
+            if (TryFireRaidIncident(true, true))
             {
                 ScheduleNextRaid(ticks);
             }
@@ -2936,33 +3005,101 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
             }
         }
 
-        private bool TryFireRaidIncident(bool force = false)
+        private bool TryFireRaidIncident(bool force = false, bool includeVehicleAssaults = false)
         {
             if (ScenPart_MarkedMenPlayerState.IsActive)
             {
                 return false;
             }
 
-            IncidentDef raidDef = CADefOf.CrossedRaid;
             Map map = FindRaidTargetMap();
             Faction crossed = EnsureCrossedFaction();
-            if (raidDef == null || map == null || crossed == null)
+            if (map == null || crossed == null)
             {
                 return false;
             }
 
-            IncidentParms parms = StorytellerUtility.DefaultParmsNow(raidDef.category, map);
-            parms.target = map;
-            parms.faction = crossed;
-            parms.points = CalculateStorytellerRaidPoints(map, raidDef, parms.points);
-            parms.pawnGroupKind = PawnGroupKindDefOf.Combat;
-            parms.canKidnap = false;
-            parms.canSteal = false;
-            parms.canTimeoutOrFlee = false;
-            parms.forced = true;
-            ApplyMarkedRaidArrivalPattern(parms);
+            List<(IncidentDef incident, float weight)> candidates = new List<(IncidentDef, float)>();
+            AddScheduledRaidCandidate(candidates, CADefOf.CrossedRaid, 3f);
 
-            return (force || raidDef.Worker.CanFireNow(parms)) && raidDef.Worker.TryExecute(parms);
+            if (includeVehicleAssaults && TheMarkedMenVehicleFrameworkCompatibility.IsVehicleFrameworkLoaded)
+            {
+                float vehicleWeight = TheMarkedMenSettings.VehicleAssaultFrequencyMultiplier;
+                if (TheMarkedMenSettings.LandVehicleAssaultsEnabled)
+                {
+                    AddScheduledRaidCandidate(candidates, CADefOf.CrossedLandAssault, vehicleWeight);
+                }
+                if (TheMarkedMenSettings.AirborneVehicleAssaultsEnabled)
+                {
+                    AddScheduledRaidCandidate(candidates, CADefOf.CrossedAirborneAssault, 0.75f * vehicleWeight);
+                }
+                if (TheMarkedMenSettings.CombinedArmsAssaultsEnabled)
+                {
+                    AddScheduledRaidCandidate(candidates, CADefOf.CrossedCombinedArmsAssault, 0.65f * vehicleWeight);
+                }
+            }
+
+            while (candidates.Count > 0)
+            {
+                IncidentDef incident = TakeWeightedRaidCandidate(candidates);
+                IncidentParms parms = StorytellerUtility.DefaultParmsNow(incident.category, map);
+                parms.target = map;
+                parms.faction = crossed;
+                parms.points = CalculateStorytellerRaidPoints(map, incident, parms.points);
+                parms.pawnGroupKind = PawnGroupKindDefOf.Combat;
+                parms.canKidnap = false;
+                parms.canSteal = false;
+                parms.canTimeoutOrFlee = false;
+                parms.forced = true;
+                ApplyMarkedRaidArrivalPattern(parms);
+
+                bool canFire = incident.Worker.CanFireNow(parms);
+                if ((!force || incident != CADefOf.CrossedRaid) && !canFire)
+                {
+                    continue;
+                }
+
+                if (incident.Worker.TryExecute(parms))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private static void AddScheduledRaidCandidate(
+            List<(IncidentDef incident, float weight)> candidates,
+            IncidentDef incident,
+            float weight)
+        {
+            if (incident != null && incident.Worker != null && weight > 0f)
+            {
+                candidates.Add((incident, weight));
+            }
+        }
+
+        private static IncidentDef TakeWeightedRaidCandidate(List<(IncidentDef incident, float weight)> candidates)
+        {
+            float totalWeight = 0f;
+            for (int i = 0; i < candidates.Count; i++)
+            {
+                totalWeight += candidates[i].weight;
+            }
+
+            float roll = Rand.Range(0f, totalWeight);
+            for (int i = 0; i < candidates.Count; i++)
+            {
+                roll -= candidates[i].weight;
+                if (roll < 0f || i == candidates.Count - 1)
+                {
+                    IncidentDef selected = candidates[i].incident;
+                    candidates.RemoveAt(i);
+                    return selected;
+                }
+            }
+
+            return null;
         }
 
         private void ScheduleNextRaid(int fromTick)
@@ -3195,7 +3332,10 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
             }
 
             parms.raidStrategy = RaidStrategyDefOf.ImmediateAttack;
-            parms.raidArrivalMode = ChooseMarkedRaidArrivalMode(parms);
+            if (!parms.forced || parms.raidArrivalMode == null)
+            {
+                parms.raidArrivalMode = ChooseMarkedRaidArrivalMode(parms);
+            }
         }
 
         /// <summary>
@@ -3537,7 +3677,7 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
             parms.canTimeoutOrFlee = false;
             TheMarkedMenGameComponent.ApplyMarkedRaidArrivalPattern(parms);
 
-            int count = CalculateRaidCount(parms.points);
+            int count = CalculateRaidCount(parms.points, parms.target as Map);
             List<Pawn> pawns = GenerateRaidPawns(count, parms.points, crossed);
             if (pawns.Count == 0)
             {
@@ -3560,6 +3700,7 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
                 return false;
             }
 
+            TheMarkedMenVehicleFrameworkCompatibility.TryAddGroundVehiclesToRaid(crossed, pawns, parms);
             parms.pawnCount = pawns.Count;
             CrossedUtility.ApplyGeneratedRaidKindTuning(pawns);
 
@@ -3568,12 +3709,17 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
             LordJob lordJob = CrossedRaidTactics.CreateAssaultLordJob(crossed, parms.points, pawns);
             CrossedLordCleanupUtility.DetachFromAnyLord(pawns);
             LordMaker.MakeNewLord(crossed, lordJob, map, pawns);
-            SendRaidLetter(pawns, parms);
+            SendRaidLetter(def, pawns, parms);
             component?.NotifyRaidLaunched(parms.points, pawns, map);
             return true;
         }
 
-        private static int CalculateRaidCount(float points)
+        internal static int CalculateRaidCount(float points)
+        {
+            return CalculateRaidCount(points, null);
+        }
+
+        internal static int CalculateRaidCount(float points, Map map)
         {
             // Points already include the storyteller, difficulty, escalation, and
             // player multipliers. Roughly one infected per 90 points lands near
@@ -3585,12 +3731,31 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
                 MinRaidCount,
                 MaxRaidCount);
             int variance = Mathf.Clamp(Mathf.RoundToInt(expected * 0.16f), 1, 8);
+            int configuredMaximum = Mathf.Clamp(TheMarkedMenMod.Settings?.maxRaidInfantry ?? 60, MinRaidCount, MaxRaidCount);
+            int activeHostile = 0;
+            if (map != null)
+            {
+                foreach (Pawn pawn in map.mapPawns.AllPawnsSpawned)
+                {
+                    if (pawn != null && pawn.HostileTo(Faction.OfPlayer) && !pawn.Dead && !pawn.Downed)
+                    {
+                        activeHostile++;
+                    }
+                }
+            }
+
+            if (activeHostile > configuredMaximum / 2)
+            {
+                configuredMaximum = Mathf.Max(MinRaidCount, configuredMaximum - ((activeHostile - configuredMaximum / 2) / 2));
+            }
+            int lowerBound = Mathf.Max(MinRaidCount, Mathf.Min(configuredMaximum, expected - variance));
+            int upperBound = Mathf.Min(configuredMaximum, expected + variance);
             return Rand.RangeInclusive(
-                Mathf.Max(MinRaidCount, expected - variance),
-                Mathf.Min(MaxRaidCount, expected + variance));
+                lowerBound,
+                Mathf.Max(lowerBound, upperBound));
         }
 
-        private static List<Pawn> GenerateRaidPawns(int count, float points, Faction faction)
+        internal static List<Pawn> GenerateRaidPawns(int count, float points, Faction faction)
         {
             List<Pawn> pawns = new List<Pawn>(count);
             CrossedRaidComposition composition = new CrossedRaidComposition(CrossedRaidCompositionRole.Warband, points);
@@ -3630,20 +3795,20 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
             return pawns;
         }
 
-        private void SendRaidLetter(List<Pawn> pawns, IncidentParms parms)
+        internal static void SendRaidLetter(IncidentDef incidentDef, List<Pawn> pawns, IncidentParms parms)
         {
             if (pawns == null || pawns.Count == 0)
             {
                 return;
             }
 
-            string label = CrossedRaidAlertUtility.BuildRaidLetterLabel(def.letterLabel, null, parms.points);
-            string text = CrossedRaidAlertUtility.BuildRaidLetterText(def.letterText, pawns, parms, false);
+            string label = CrossedRaidAlertUtility.BuildRaidLetterLabel(incidentDef.letterLabel, null, parms.points);
+            string text = CrossedRaidAlertUtility.BuildRaidLetterText(incidentDef.letterText, pawns, parms, false);
             if (label == null || text == null)
             {
                 return;
             }
-            LetterDef letterDef = def.letterDef ?? LetterDefOf.ThreatBig;
+            LetterDef letterDef = incidentDef.letterDef ?? LetterDefOf.ThreatBig;
             Find.LetterStack.ReceiveLetter(label, text, letterDef, pawns[0]);
         }
 
@@ -3724,6 +3889,7 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
                 return false;
             }
 
+            TheMarkedMenVehicleFrameworkCompatibility.TryAddGroundVehiclesToRaid(crossed, pawns, parms);
             parms.pawnCount = pawns.Count;
             CrossedLordCleanupUtility.DetachFromAnyLord(pawns);
             LordMaker.MakeNewLord(crossed, CrossedRaidTactics.CreateAssaultLordJob(crossed, parms.points, pawns), map, pawns);

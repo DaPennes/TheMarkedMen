@@ -59,6 +59,24 @@ namespace TheMarkedMen
             Report(Component?.DebugFireHordeNow() ?? false, "DevMode: Started a Marked Men horde event now.", "DevMode: Could not start horde. Load a player home map with free colonists.");
         }
 
+        [DebugAction(DebugCategory, "Fire Marked Men land assault", allowedGameStates = AllowedGameStates.PlayingOnMap, actionType = DebugActionType.Action, displayPriority = 965)]
+        public static void FireLandVehicleAssault()
+        {
+            FireVehicleAssault("CA_CrossedLandAssault", "land assault", true, false);
+        }
+
+        [DebugAction(DebugCategory, "Fire Marked Men airborne assault", allowedGameStates = AllowedGameStates.PlayingOnMap, actionType = DebugActionType.Action, displayPriority = 964)]
+        public static void FireAirborneVehicleAssault()
+        {
+            FireVehicleAssault("CA_CrossedAirborneAssault", "airborne assault", false, true);
+        }
+
+        [DebugAction(DebugCategory, "Fire Marked Men combined-arms assault", allowedGameStates = AllowedGameStates.PlayingOnMap, actionType = DebugActionType.Action, displayPriority = 963)]
+        public static void FireCombinedArmsAssault()
+        {
+            FireVehicleAssault("CA_CrossedCombinedArmsAssault", "combined-arms assault", true, true);
+        }
+
         [DebugAction(DebugCategory, "Init urban outbreak on this map", allowedGameStates = AllowedGameStates.PlayingOnMap, actionType = DebugActionType.Action, displayPriority = 960)]
         public static void InitUrbanOutbreak()
         {
@@ -198,6 +216,77 @@ namespace TheMarkedMen
         }
 
         private static TheMarkedMenGameComponent Component => Current.Game?.GetComponent<TheMarkedMenGameComponent>();
+
+        private static void FireVehicleAssault(string incidentDefName, string assaultName, bool requireLandVehicle, bool includeAircraft)
+        {
+            if (!TheMarkedMenSettings.DebugActionsEnabled)
+            {
+                Report(false, null, "DevMode: The Marked Men debug actions are disabled in mod settings.");
+                return;
+            }
+
+            if (!TheMarkedMenVehicleFrameworkCompatibility.IsVehicleFrameworkLoaded)
+            {
+                Report(false, null, "DevMode: Vehicle Framework is not loaded; vehicle assaults cannot be tested.");
+                return;
+            }
+
+            Map map = Find.CurrentMap;
+            if (map == null || !map.IsPlayerHome || map.mapPawns == null || !map.mapPawns.AnyFreeColonistSpawned)
+            {
+                Report(false, null, "DevMode: Load a player home map with free colonists before testing a vehicle assault.");
+                return;
+            }
+
+            IncidentDef incident = DefDatabase<IncidentDef>.GetNamedSilentFail(incidentDefName);
+            Faction faction = CrossedUtility.Component?.EnsureCrossedFaction();
+            if (incident?.Worker == null || faction == null)
+            {
+                Report(false, null, "DevMode: Vehicle assault incident or Marked Men faction is unavailable. Check the game log and incident XML.");
+                return;
+            }
+
+            const float DebugRaidPoints = 20000f;
+            IncidentParms parms = new IncidentParms
+            {
+                target = map,
+                faction = faction,
+                points = Mathf.Max(incident.minThreatPoints, DebugRaidPoints),
+                pawnGroupKind = PawnGroupKindDefOf.Combat,
+                forced = true,
+                canKidnap = false,
+                canSteal = false,
+                canTimeoutOrFlee = false
+            };
+            TheMarkedMenGameComponent.ApplyMarkedRaidArrivalPattern(parms);
+
+            if (requireLandVehicle
+                && !TheMarkedMenVehicleFrameworkCompatibility.HasEligibleRaidVehicle(
+                    faction,
+                    parms.points,
+                    parms.raidArrivalMode))
+            {
+                Report(false, null, "DevMode: No eligible land vehicle for this assault. Check the faction vehicle-raider extension, vehicle settings, tech level, and arrival-mode restrictions.");
+                return;
+            }
+
+            if (includeAircraft
+                && !TheMarkedMenVehicleFrameworkCompatibility.HasEligibleAirborneRaidVehicle(
+                    faction,
+                    parms.points,
+                    incident.defName == "CA_CrossedCombinedArmsAssault" ? 0.5f : 1f,
+                    parms.raidArrivalMode))
+            {
+                Report(false, null, "DevMode: No eligible aircraft for this assault. Check aircraft raider settings, aircraft launcher components, tech level, and arrival-mode restrictions.");
+                return;
+            }
+
+            bool success = incident.Worker.TryExecute(parms);
+            Report(
+                success,
+                "DevMode: Marked Men " + assaultName + " triggered. Check the map and log to confirm vehicle deployment.",
+                "DevMode: Marked Men " + assaultName + " failed during execution. Check the game log for the Vehicle Framework or raid-worker error.");
+        }
 
         private static void Report(bool success, string successText, string failureText)
         {

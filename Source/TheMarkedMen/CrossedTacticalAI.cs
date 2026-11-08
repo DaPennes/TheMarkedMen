@@ -137,6 +137,17 @@ namespace TheMarkedMen
                 }
             }
 
+            if (pawn.kindDef == CADefOf.CrossedSoldier
+                && pawn.IsHashIntervalTick(TheMarkedMenSettings.TacticalRetargetIntervalTicks))
+            {
+                Pawn allyThreat = FindThreatAttackingProtectedAlly(pawn);
+                if (allyThreat != null && allyThreat != currentPawnTarget
+                    && TryAssignAttackJob(pawn, allyThreat, true))
+                {
+                    return true;
+                }
+            }
+
             if (!IsCommander(pawn) && FindNearbyCommander(pawn, out Pawn commander))
             {
                 Thing commandTarget = GetCurrentCommandTarget(commander);
@@ -870,6 +881,51 @@ namespace TheMarkedMen
                 && building.Faction == Faction.OfPlayer;
         }
 
+        private static Pawn FindThreatAttackingProtectedAlly(Pawn soldier)
+        {
+            IReadOnlyList<Pawn> candidates = soldier.Map?.mapPawns?.AllPawnsSpawned;
+            if (candidates == null)
+            {
+                return null;
+            }
+
+            Pawn bestThreat = null;
+            float bestScore = float.MinValue;
+            for (int i = 0; i < candidates.Count; i++)
+            {
+                Pawn threat = candidates[i];
+                if (!IsValidNonInfectedPawnTarget(threat, soldier)
+                    || !IsAttackJob(threat.CurJob?.def)
+                    || soldier.Position.DistanceToSquared(threat.Position) > MaxTacticalTargetDistanceSquared)
+                {
+                    continue;
+                }
+
+                Pawn ally = GetCurrentJobTarget(threat) as Pawn;
+                if (ally == null
+                    || ally.Faction != soldier.Faction
+                    || ally.Dead
+                    || ally.Downed
+                    || (ally.kindDef != CADefOf.CrossedShooter && !IsCommander(ally))
+                    || ally.Position.DistanceToSquared(soldier.Position) > 400f
+                    || ally.Position.DistanceToSquared(threat.Position) > 144f)
+                {
+                    continue;
+                }
+
+                float score = 1000f
+                    - Mathf.Sqrt(soldier.Position.DistanceToSquared(threat.Position))
+                    - Mathf.Sqrt(ally.Position.DistanceToSquared(threat.Position)) * 0.5f;
+                if (score > bestScore)
+                {
+                    bestThreat = threat;
+                    bestScore = score;
+                }
+            }
+
+            return bestThreat;
+        }
+
         private static float GetCommanderRadius(Pawn commander)
         {
             if (commander.kindDef == CADefOf.MarkedMan) return 70f;
@@ -1156,7 +1212,9 @@ namespace TheMarkedMen
 
             if (IsIsolatedTarget(searcher, target))
             {
-                score += 35f;
+                score += searcher.kindDef == CADefOf.CrossedHunter ? 180f
+                    : searcher.kindDef == CADefOf.CrossedScout ? 80f
+                    : 35f;
             }
 
             if (target.Faction == Faction.OfPlayer || target.HostFaction == Faction.OfPlayer || target.IsColonistPlayerControlled)
@@ -1167,7 +1225,9 @@ namespace TheMarkedMen
 
             if (IsFleeingFrom(target, searcher))
             {
-                score += searcher.kindDef == CADefOf.CrossedHunter ? 250f : 35f;
+                score += searcher.kindDef == CADefOf.CrossedHunter ? 250f
+                    : searcher.kindDef == CADefOf.CrossedScout ? 110f
+                    : 35f;
             }
 
             if (searcher.kindDef == CADefOf.MarkedMan)
@@ -1311,6 +1371,11 @@ namespace TheMarkedMen
 
         internal static bool IsCommittedBreacher(Pawn pawn)
         {
+            if (pawn?.kindDef == CADefOf.MarkedMan)
+            {
+                return false;
+            }
+
             PawnDuty duty = pawn?.mindState?.duty;
             if (duty?.def == null)
             {
@@ -1657,6 +1722,22 @@ namespace TheMarkedMen
             if (TheMarkedMenSettings.DoorTargetingEnabled && ContainsAny(defName, DoorDefNames))
             {
                 score += 30f;
+            }
+
+            if (searcher.kindDef == CADefOf.CrossedScout)
+            {
+                if (ContainsAny(defName, InfrastructureDefNames) || ContainsAny(defName, MedicalDefNames))
+                {
+                    score += 150f;
+                }
+                else if (ContainsAny(defName, FoodDefNames))
+                {
+                    score += 110f;
+                }
+                else if (ContainsAny(defName, DefensiveDefNames))
+                {
+                    score -= 20f;
+                }
             }
 
             if (score <= 0f)

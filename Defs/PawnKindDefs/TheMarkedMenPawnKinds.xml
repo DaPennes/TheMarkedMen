@@ -337,7 +337,7 @@
        Marked Man
        Role:  Legendary apex infected, endgame boss
        Threat: Endgame
-       Look:  Cataphract-level armor, shield belt, instantly recognizable
+       Look:  Cataphract-level armor, instantly recognizable
        ============================================================ -->
   <PawnKindDef ParentName="CA_CrossedBase">
     <defName>CA_MarkedMan</defName>
@@ -354,9 +354,6 @@
       <li>SpacerMilitary</li>
       <li>IndustrialMilitaryAdvanced</li>
     </apparelTags>
-    <apparelRequired>
-      <li>Apparel_ShieldBelt</li>
-    </apparelRequired>
     <combatEnhancingDrugsChance>0.9</combatEnhancingDrugsChance>
     <combatEnhancingDrugsCount>2~4</combatEnhancingDrugsCount>
     <techHediffsChance>0.5</techHediffsChance>

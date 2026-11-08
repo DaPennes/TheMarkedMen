@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Patch>
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/FactionDef[defName="CA_CrossedFaction"]</xpath>
+    <value>
+      <modExtensions>
+        <li Class="Vehicles.VehicleRaiderDefModExtension">
+          <pointMultiplier>1.0</pointMultiplier>
+          <techLevelRestricted>true</techLevelRestricted>
+        </li>
+      </modExtensions>
+    </value>
+  </Operation>
+</Patch>

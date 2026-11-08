@@ -20,6 +20,63 @@
   </IncidentDef>
 
   <IncidentDef>
+    <defName>CA_CrossedLandAssault</defName>
+    <label>Marked Men Land Assault</label>
+    <targetTags>
+      <li>Map_PlayerHome</li>
+    </targetTags>
+    <workerClass>TheMarkedMen.IncidentWorker_CrossedVehicleRaid</workerClass>
+    <baseChance>0</baseChance>
+    <minRefireDays>0.5</minRefireDays>
+    <earliestDay>1</earliestDay>
+    <category>ThreatBig</category>
+    <pointsScaleable>true</pointsScaleable>
+    <minThreatPoints>3000</minThreatPoints>
+    <letterLabel>Marked Men Land Assault</letterLabel>
+    <letterText>The Marked have remembered how to bring force to bear. A land assault is advancing on the colony with infected infantry and available combat vehicles. They will press weak points in the defenses and will not kidnap, steal, time out, or retreat.</letterText>
+    <letterDef>ThreatBig</letterDef>
+    <canOccurOnAllPlanetLayers>true</canOccurOnAllPlanetLayers>
+  </IncidentDef>
+
+  <IncidentDef>
+    <defName>CA_CrossedAirborneAssault</defName>
+    <label>Marked Men Airborne Assault</label>
+    <targetTags>
+      <li>Map_PlayerHome</li>
+    </targetTags>
+    <workerClass>TheMarkedMen.IncidentWorker_CrossedAirborneAssault</workerClass>
+    <baseChance>0</baseChance>
+    <minRefireDays>0.5</minRefireDays>
+    <earliestDay>1</earliestDay>
+    <category>ThreatBig</category>
+    <pointsScaleable>true</pointsScaleable>
+    <minThreatPoints>3000</minThreatPoints>
+    <letterLabel>Marked Men Airborne Assault</letterLabel>
+    <letterText>The Marked have adapted their assault to the sky. An infected aircrew is bringing a combat aircraft down through a controlled landing to put armed infected inside the perimeter. The landing will target open ground where possible; the attackers will not retreat.</letterText>
+    <letterDef>ThreatBig</letterDef>
+    <canOccurOnAllPlanetLayers>true</canOccurOnAllPlanetLayers>
+  </IncidentDef>
+
+  <IncidentDef>
+    <defName>CA_CrossedCombinedArmsAssault</defName>
+    <label>Marked Men Combined Arms Assault</label>
+    <targetTags>
+      <li>Map_PlayerHome</li>
+    </targetTags>
+    <workerClass>TheMarkedMen.IncidentWorker_CrossedCombinedArmsAssault</workerClass>
+    <baseChance>0</baseChance>
+    <minRefireDays>0.5</minRefireDays>
+    <earliestDay>1</earliestDay>
+    <category>ThreatBig</category>
+    <pointsScaleable>true</pointsScaleable>
+    <minThreatPoints>5000</minThreatPoints>
+    <letterLabel>Marked Men Combined Arms Assault</letterLabel>
+    <letterText>The Marked are attacking as a coordinated force: infected infantry and ground vehicles are pressing the perimeter while an armed aircraft descends into open ground. Their surviving memories have made them capable of adapting tactics, not merely following the crowd. They will not retreat.</letterText>
+    <letterDef>ThreatBig</letterDef>
+    <canOccurOnAllPlanetLayers>true</canOccurOnAllPlanetLayers>
+  </IncidentDef>
+
+  <IncidentDef>
     <defName>CA_CrossedProbe</defName>
     <label>Marked Men probe</label>
     <targetTags>

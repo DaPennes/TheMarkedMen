@@ -364,10 +364,11 @@ namespace TheMarkedMen
         public static int GetRaidAssaultVehicleCount(float points)
         {
             float normalizedPoints = Mathf.Clamp(points, 3000f, 30000f);
+            int configuredMaximum = Mathf.Clamp(TheMarkedMenMod.Settings?.maxRaidVehicles ?? 10, 3, 10);
             return Mathf.Clamp(
                 3 + Mathf.FloorToInt((normalizedPoints - 3000f) * 7f / 27000f),
                 3,
-                10);
+                configuredMaximum);
         }
 
         public static void ApplyVehicleCombatBehavior(Pawn vehicle)

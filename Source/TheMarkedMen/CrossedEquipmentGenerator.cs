@@ -85,6 +85,13 @@ namespace TheMarkedMen
             "Neolithic",
         };
 
+        private static readonly List<string> NeolithicTags = new()
+        {
+            "Neolithic",
+        };
+
+        private static readonly HashSet<string> MissingApparelWarnings = new();
+
         private static readonly List<string> SpacerTags = new()
         {
             "SpacerMilitary",
@@ -178,7 +185,11 @@ namespace TheMarkedMen
 
             StripDisallowedApparel(pawn);
 
-            if (pawn.kindDef != CADefOf.CrossedCivilian)
+            if (pawn.kindDef == CADefOf.CrossedSoldier)
+            {
+                EnsureSoldierApparel(pawn, tier);
+            }
+            else if (pawn.kindDef != CADefOf.CrossedCivilian)
             {
                 EnsureSignatureApparel(pawn, tier, pawn.kindDef);
             }
@@ -186,6 +197,44 @@ namespace TheMarkedMen
             EquipWeapon(pawn, tier);
 
             AdjustQuality(pawn, tier);
+        }
+
+        private static void EnsureSoldierApparel(Pawn pawn, int tier)
+        {
+            for (int i = pawn.apparel.WornApparel.Count - 1; i >= 0; i--)
+            {
+                Apparel apparel = pawn.apparel.WornApparel[i];
+                pawn.apparel.Remove(apparel);
+                apparel.Destroy(DestroyMode.Vanish);
+            }
+
+            ThingDef militaryUniform = DefDatabase<ThingDef>.GetNamedSilentFail("VAE_Apparel_MilitaryUniform");
+            if (militaryUniform != null)
+            {
+                EquipApparel(pawn, militaryUniform, tier);
+            }
+            else
+            {
+                EquipNamedApparel(pawn, "Apparel_CollarShirt", tier);
+                EquipNamedApparel(pawn, "Apparel_Pants", tier);
+                EquipNamedApparel(pawn, "Apparel_FlakPants", tier);
+            }
+
+            EquipNamedApparel(pawn, "Apparel_FlakVest", tier);
+            EquipNamedApparel(pawn, "Apparel_AdvancedHelmet", tier);
+        }
+
+        private static void EquipNamedApparel(Pawn pawn, string defName, int tier)
+        {
+            ThingDef def = DefDatabase<ThingDef>.GetNamedSilentFail(defName);
+            if (def != null)
+            {
+                EquipApparel(pawn, def, tier);
+            }
+            else if (MissingApparelWarnings.Add(defName))
+            {
+                Log.Error("[The Marked Men] Required vanilla soldier apparel def not found: " + defName);
+            }
         }
 
         private static void EnsureSignatureApparel(Pawn pawn, int tier, PawnKindDef kind)
@@ -363,6 +412,13 @@ namespace TheMarkedMen
                 ThingDef def = ap.def;
 
                 if (def.apparel == null) continue;
+
+                if (pawn.kindDef == CADefOf.CrossedCivilian && !HasAnyTag(def, NeolithicTags))
+                {
+                    pawn.apparel.Remove(ap);
+                    ap.Destroy(DestroyMode.Vanish);
+                    continue;
+                }
 
                 if (isInfected && !CanWearApparel(pawn, def))
                 {

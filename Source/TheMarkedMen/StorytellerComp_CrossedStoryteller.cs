@@ -56,13 +56,45 @@ namespace TheMarkedMen
                 yield break;
             }
 
-            IncidentDef incident = PickRandomMarkedIncident();
             Faction crossed = CrossedUtility.Component?.EnsureCrossedFaction();
-            if (incident == null || crossed == null)
+            if (crossed == null)
             {
                 yield break;
             }
 
+            IncidentDef incident = PickRandomMarkedIncident();
+            if (incident == null)
+            {
+                yield break;
+            }
+
+            IncidentParms parms = BuildIncidentParms(map, incident, crossed);
+            if (!incident.Worker.CanFireNow(parms))
+            {
+                if (!IsVehicleAssaultIncident(incident))
+                {
+                    yield break;
+                }
+
+                incident = PickRandomMarkedIncident(includeVehicleAssaults: false);
+                if (incident == null)
+                {
+                    yield break;
+                }
+
+                parms = BuildIncidentParms(map, incident, crossed);
+                if (!incident.Worker.CanFireNow(parms))
+                {
+                    yield break;
+                }
+            }
+
+            lastIncidentTick = ticks;
+            yield return new FiringIncident(incident, this, parms);
+        }
+
+        private IncidentParms BuildIncidentParms(Map map, IncidentDef incident, Faction crossed)
+        {
             IncidentParms parms = StorytellerUtility.DefaultParmsNow(incident.category, map);
             parms.target = map;
             parms.faction = crossed;
@@ -73,25 +105,50 @@ namespace TheMarkedMen
             parms.canTimeoutOrFlee = false;
             parms.forced = false;
             TheMarkedMenGameComponent.ApplyMarkedRaidArrivalPattern(parms);
-
-            if (!incident.Worker.CanFireNow(parms))
-            {
-                yield break;
-            }
-
-            lastIncidentTick = ticks;
-            yield return new FiringIncident(incident, this, parms);
+            return parms;
         }
 
-        private IncidentDef PickRandomMarkedIncident()
+        private IncidentDef PickRandomMarkedIncident(bool includeVehicleAssaults = true)
         {
             IncidentDef selected = null;
             float totalWeight = 0f;
             AddIncidentCandidate(ref selected, ref totalWeight, CADefOf.CrossedProbe, TheMarkedMenSettings.ProbesEnabled ? 4.5f : 0f);
             AddIncidentCandidate(ref selected, ref totalWeight, CADefOf.CrossedRaid, TheMarkedMenSettings.WarbandsEnabled ? 3.0f : 0f);
+            if (includeVehicleAssaults
+                && TheMarkedMenVehicleFrameworkCompatibility.IsVehicleFrameworkLoaded)
+            {
+                AddIncidentCandidate(
+                    ref selected,
+                    ref totalWeight,
+                    CADefOf.CrossedLandAssault,
+                    TheMarkedMenSettings.LandVehicleAssaultsEnabled
+                        ? TheMarkedMenSettings.VehicleAssaultFrequencyMultiplier
+                        : 0f);
+                AddIncidentCandidate(
+                    ref selected,
+                    ref totalWeight,
+                    CADefOf.CrossedAirborneAssault,
+                    TheMarkedMenSettings.AirborneVehicleAssaultsEnabled
+                        ? 0.75f * TheMarkedMenSettings.VehicleAssaultFrequencyMultiplier
+                        : 0f);
+                AddIncidentCandidate(
+                    ref selected,
+                    ref totalWeight,
+                    CADefOf.CrossedCombinedArmsAssault,
+                    TheMarkedMenSettings.CombinedArmsAssaultsEnabled
+                        ? 0.65f * TheMarkedMenSettings.VehicleAssaultFrequencyMultiplier
+                        : 0f);
+            }
             AddIncidentCandidate(ref selected, ref totalWeight, CADefOf.CrossedHorde, TheMarkedMenSettings.HordesEnabled ? 1.75f : 0f);
             AddIncidentCandidate(ref selected, ref totalWeight, DefDatabase<IncidentDef>.GetNamedSilentFail("CA_CrossedDownedSurvivor"), 1.15f);
             return selected;
+        }
+
+        private static bool IsVehicleAssaultIncident(IncidentDef incident)
+        {
+            return incident == CADefOf.CrossedLandAssault
+                || incident == CADefOf.CrossedAirborneAssault
+                || incident == CADefOf.CrossedCombinedArmsAssault;
         }
 
         private static void AddIncidentCandidate(ref IncidentDef selected, ref float totalWeight, IncidentDef incident, float weight)

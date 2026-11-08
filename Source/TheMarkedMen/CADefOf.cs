@@ -37,6 +37,9 @@ namespace TheMarkedMen
         private static TattooDef crossedFaceTattooStage3;
         private static TattooDef crossedFaceTattooStage4;
         private static IncidentDef crossedRaid;
+        private static IncidentDef crossedLandAssault;
+        private static IncidentDef crossedAirborneAssault;
+        private static IncidentDef crossedCombinedArmsAssault;
         private static IncidentDef crossedHorde;
         private static IncidentDef crossedProbe;
         private static IncidentDef crossedCaravanAmbush;
@@ -117,6 +120,9 @@ namespace TheMarkedMen
         public static TattooDef CrossedFaceTattooStage3 => crossedFaceTattooStage3 ?? (crossedFaceTattooStage3 = DefDatabase<TattooDef>.GetNamedSilentFail("CA_Face_CrossedRashStage3"));
         public static TattooDef CrossedFaceTattooStage4 => crossedFaceTattooStage4 ?? (crossedFaceTattooStage4 = DefDatabase<TattooDef>.GetNamedSilentFail("CA_Face_CrossedRashStage4"));
         public static IncidentDef CrossedRaid => crossedRaid ?? (crossedRaid = DefDatabase<IncidentDef>.GetNamedSilentFail("CA_CrossedRaid"));
+        public static IncidentDef CrossedLandAssault => crossedLandAssault ?? (crossedLandAssault = DefDatabase<IncidentDef>.GetNamedSilentFail("CA_CrossedLandAssault"));
+        public static IncidentDef CrossedAirborneAssault => crossedAirborneAssault ?? (crossedAirborneAssault = DefDatabase<IncidentDef>.GetNamedSilentFail("CA_CrossedAirborneAssault"));
+        public static IncidentDef CrossedCombinedArmsAssault => crossedCombinedArmsAssault ?? (crossedCombinedArmsAssault = DefDatabase<IncidentDef>.GetNamedSilentFail("CA_CrossedCombinedArmsAssault"));
         public static IncidentDef CrossedHorde => crossedHorde ?? (crossedHorde = DefDatabase<IncidentDef>.GetNamedSilentFail("CA_CrossedHorde"));
         public static IncidentDef CrossedProbe => crossedProbe ?? (crossedProbe = DefDatabase<IncidentDef>.GetNamedSilentFail("CA_CrossedProbe"));
         public static IncidentDef CrossedCaravanAmbush => crossedCaravanAmbush ?? (crossedCaravanAmbush = DefDatabase<IncidentDef>.GetNamedSilentFail("CA_CrossedCaravanAmbush"));

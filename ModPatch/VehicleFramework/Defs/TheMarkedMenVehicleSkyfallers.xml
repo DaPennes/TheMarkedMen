@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+  <ThingDef ParentName="VehicleSkyfallerBase">
+    <defName>CA_VF_AircraftIncoming</defName>
+    <label>incoming aircraft</label>
+    <thingClass>Vehicles.VehicleSkyfaller_Arriving</thingClass>
+    <skyfaller>
+      <movementType>Decelerate</movementType>
+      <ticksToImpactRange>
+        <min>180</min>
+        <max>300</max>
+      </ticksToImpactRange>
+    </skyfaller>
+  </ThingDef>
+</Defs>
