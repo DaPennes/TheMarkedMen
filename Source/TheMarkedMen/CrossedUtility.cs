@@ -300,6 +300,12 @@ namespace TheMarkedMen
 			return pawn?.health?.hediffSet != null && immunity != null && pawn.health.hediffSet.HasHediff(immunity);
 		}
 
+		public static bool HasMarkedVirusImmunityGene(Pawn pawn)
+		{
+			GeneDef immunityGene = CADefOf.MarkedVirusImmunityGene;
+			return pawn?.genes != null && immunityGene != null && pawn.genes.HasActiveGene(immunityGene);
+		}
+
 		public static bool IsValidInfectionTargetByFaction(Pawn pawn, TheMarkedMenSettings settings)
 		{
 			if (pawn.IsPrisoner)
@@ -322,7 +328,8 @@ namespace TheMarkedMen
 
 		public static bool IsFullyProtectedFromCrossVirusExposure(Pawn pawn)
 		{
-			return HasMarkedVillageFounderImmunity(pawn)
+			return HasMarkedVirusImmunityGene(pawn)
+				|| HasMarkedVillageFounderImmunity(pawn)
 				|| HasCrossVirusImmunity(pawn) && !HasStarterLineageResistance(pawn)
 				|| HasSealedMarkedVirusExposureProtection(pawn);
 		}
@@ -542,6 +549,11 @@ namespace TheMarkedMen
 				return false;
 			}
 
+			if (HasMarkedVirusImmunityGene(pawn))
+			{
+				return false;
+			}
+
 			EnsureStarterLineageResistance(pawn);
 			if (HasMarkedVillageFounderImmunity(pawn))
 			{
@@ -621,7 +633,15 @@ namespace TheMarkedMen
 
 		public static MarkedVirusApparelProtection GetMarkedVirusExposureProtection(Pawn pawn)
 		{
-			return GetMarkedVirusApparelProtection(pawn);
+			MarkedVirusApparelProtection apparelProtection = GetMarkedVirusApparelProtection(pawn);
+			GeneDef resistanceGene = CADefOf.MarkedVirusResistanceGene;
+			if (pawn?.genes == null || resistanceGene == null || !pawn.genes.HasActiveGene(resistanceGene))
+			{
+				return apparelProtection;
+			}
+
+			float combinedResistance = 1f - (1f - apparelProtection.resistance) * 0.25f;
+			return new MarkedVirusApparelProtection(combinedResistance, apparelProtection.sealedAgainstMarkedVirus, apparelProtection.blocksMarkedVirusExposure);
 		}
 
 		public static MarkedVirusApparelProtection GetMarkedVirusApparelProtection(Pawn pawn)
@@ -1078,6 +1098,7 @@ namespace TheMarkedMen
 				pawn.SetFaction(faction, null);
 			}
 
+			RemoveMarkedVirusHediffFromFullyTurnedPawn(pawn);
 			pawn.guest?.SetGuestStatus(null);
 			pawn.mindState?.mentalStateHandler?.Reset();
 			EnsureFearlessCrossedState(pawn);
@@ -1501,6 +1522,7 @@ namespace TheMarkedMen
 		Hediff hediff = HediffMaker.MakeHediff(markedTurned, pawn);
 		pawn.health.AddHediff(hediff);
 	}
+	RemoveMarkedVirusHediffFromFullyTurnedPawn(pawn);
 
 	if (ScenPart_MarkedMenPlayerState.IsActive)
 	{
@@ -1557,7 +1579,7 @@ namespace TheMarkedMen
 
 public static void RemoveMarkedVirusHediffFromFullyTurnedPawn(Pawn pawn)
 		{
-			HediffDef virus = IsCrossedFactionPawn(pawn) ? CADefOf.CrossVirus : null;
+	HediffDef virus = IsCrossedFactionPawn(pawn) || IsMarkedTurnedPawn(pawn) ? CADefOf.CrossVirus : null;
 			Hediff existing = virus == null ? null : pawn?.health?.hediffSet?.GetFirstHediffOfDef(virus);
 			if (existing != null)
 			{
@@ -1616,6 +1638,7 @@ public static void RemoveMarkedVirusHediffFromFullyTurnedPawn(Pawn pawn)
 			// Handle CA_MarkedTurned victims (virus-transformed original-kind pawns)
 			if (IsMarkedTurnedPawn(pawn))
 			{
+				RemoveMarkedVirusHediffFromFullyTurnedPawn(pawn);
 				EnsureFearlessCrossedState(pawn);
 				ApplyInfectedTattoo(pawn);
 				CrossedContagionUtility.TryContagionPulse(pawn);

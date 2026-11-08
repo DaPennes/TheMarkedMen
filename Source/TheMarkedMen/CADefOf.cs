@@ -48,6 +48,8 @@ namespace TheMarkedMen
         private static HediffDef killAnticipation;
         private static NeedDef markedBloodlustNeed;
         private static GeneDef markedBloodlustGene;
+        private static GeneDef markedVirusResistanceGene;
+        private static GeneDef markedVirusImmunityGene;
         private static ThoughtDef freshKillSatisfaction;
         private static ThoughtDef bloodthirstyCraving;
         private static ThoughtDef overwhelmingBloodlust;
@@ -122,6 +124,8 @@ namespace TheMarkedMen
         public static IncidentDef UrbanSurvivor => urbanSurvivor ?? (urbanSurvivor = DefDatabase<IncidentDef>.GetNamedSilentFail("CA_UrbanSurvivor"));
         public static XenotypeDef MarkedOne => markedOne ?? (markedOne = DefDatabase<XenotypeDef>.GetNamedSilentFail("CA_MarkedOne"));
         public static StatDef MarkedVirusResistance => markedVirusResistance ?? (markedVirusResistance = DefDatabase<StatDef>.GetNamedSilentFail("CA_MarkedVirusResistance"));
+        public static GeneDef MarkedVirusResistanceGene => markedVirusResistanceGene ?? (markedVirusResistanceGene = DefDatabase<GeneDef>.GetNamedSilentFail("CA_MarkedVirusResistanceGene"));
+        public static GeneDef MarkedVirusImmunityGene => markedVirusImmunityGene ?? (markedVirusImmunityGene = DefDatabase<GeneDef>.GetNamedSilentFail("CA_CrossVirusResistance"));
         public static HediffDef KillAnticipation => killAnticipation ?? (killAnticipation = DefDatabase<HediffDef>.GetNamedSilentFail("CA_KillAnticipation"));
         public static NeedDef MarkedBloodlustNeed => markedBloodlustNeed ?? (markedBloodlustNeed = DefDatabase<NeedDef>.GetNamedSilentFail("CA_MarkedBloodlustNeed"));
         public static GeneDef MarkedBloodlustGene => markedBloodlustGene ?? (markedBloodlustGene = DefDatabase<GeneDef>.GetNamedSilentFail("CA_MarkedBloodlustNeed"));

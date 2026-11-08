@@ -63,12 +63,12 @@ namespace TheMarkedMen
                 string pawnPercent = Mathf.RoundToInt(Mathf.Clamp01(pawnProtection.resistance) * 100f).ToString() + "%";
                 if (pawnProtection.blocksMarkedVirusExposure)
                 {
-                    return "Marked Virus resistance: " + pawnPercent + "\n\nFully sealed protective gear blocks direct Marked Virus exposure. This is separate from toxic environment resistance.";
+                    return "Marked Virus resistance: " + pawnPercent + "\n\nMarked Virus resistance from genes and apparel reduces exposure risk. Fully sealed protective gear blocks direct exposure. This is separate from toxic environment resistance.";
                 }
 
                 return pawnProtection.sealedAgainstMarkedVirus
-                    ? "Marked Virus resistance: " + pawnPercent + "\n\nBest worn Marked Virus protection is sealed protective gear. The Marked Virus uses this value separately from toxic environment resistance."
-                    : "Marked Virus resistance: " + pawnPercent + "\n\nBest worn Marked Virus protection reduces exposure risk. The Marked Virus uses this value separately from toxic environment resistance.";
+                    ? "Marked Virus resistance: " + pawnPercent + "\n\nMarked Virus resistance from genes and apparel reduces exposure risk. Sealed protective gear treats breakthrough infections as sealed-protection breakthroughs. This is separate from toxic environment resistance."
+                    : "Marked Virus resistance: " + pawnPercent + "\n\nMarked Virus resistance from genes and apparel reduces exposure risk. This is separate from toxic environment resistance.";
             }
 
             ThingDef apparelDef = ApparelDefFor(req);

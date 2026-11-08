@@ -3,7 +3,7 @@
   <GeneDef MayRequire="Ludeon.RimWorld.Biotech">
     <defName>CA_CrossVirusResistance</defName>
     <label>Marked Virus Immunity</label>
-    <description>Unusual immune markers make this person more resistant to the Marked Virus and other blood-borne infections.</description>
+    <description>Complete immunity to the Marked Virus. This gene prevents infection from all Marked Virus exposure and improves immunity gain.</description>
     <iconPath>UI/Genes/Marked Immune Gene/Marked Immune Gene</iconPath>
     <displayCategory>Miscellaneous</displayCategory>
     <biostatCpx>2</biostatCpx>
@@ -11,6 +11,16 @@
     <statOffsets>
       <ImmunityGainSpeed>0.18</ImmunityGainSpeed>
     </statOffsets>
+  </GeneDef>
+
+  <GeneDef MayRequire="Ludeon.RimWorld.Biotech">
+    <defName>CA_MarkedVirusResistanceGene</defName>
+    <label>Marked Virus Resistance</label>
+    <description>Unusual immune markers reduce the chance of contracting the Marked Virus by 75% after direct exposure.</description>
+    <iconPath>UI/Genes/Marked Immune Gene/Marked Immune Gene</iconPath>
+    <displayCategory>Miscellaneous</displayCategory>
+    <biostatCpx>2</biostatCpx>
+    <biostatMet>-1</biostatMet>
   </GeneDef>
 
   <GeneDef MayRequire="Ludeon.RimWorld.Biotech">

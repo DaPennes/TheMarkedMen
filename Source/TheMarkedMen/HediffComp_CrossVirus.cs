@@ -104,11 +104,11 @@ namespace TheMarkedMen
         public override void CompPostPostAdd(DamageInfo? dinfo)
         {
             Pawn pawn = parent?.pawn;
-            if (CrossedUtility.IsFullyTurnedMarkedPawn(pawn))
+            if (CrossedUtility.IsFullyTurnedMarkedPawn(pawn) || CrossedUtility.IsMarkedTurnedPawn(pawn))
             {
                 transformed = true;
                 incubationResolved = true;
-                parent.Severity = Mathf.Max(parent.Severity, Props.transformedSeverity);
+                CrossedUtility.RemoveMarkedVirusHediffFromFullyTurnedPawn(pawn);
                 return;
             }
 
@@ -148,11 +148,11 @@ namespace TheMarkedMen
 
             EnsureProgressionTimers(ticks);
 
-            if (CrossedUtility.IsFullyTurnedMarkedPawn(pawn))
+            if (CrossedUtility.IsFullyTurnedMarkedPawn(pawn) || CrossedUtility.IsMarkedTurnedPawn(pawn))
             {
                 transformed = true;
                 incubationResolved = true;
-                parent.Severity = Mathf.Max(parent.Severity, Props.transformedSeverity);
+                CrossedUtility.RemoveMarkedVirusHediffFromFullyTurnedPawn(pawn);
                 return;
             }
 
