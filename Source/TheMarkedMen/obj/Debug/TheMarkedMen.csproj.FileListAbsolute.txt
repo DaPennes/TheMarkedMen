@@ -33,3 +33,4 @@ C:\Users\edria\AppData\Local\Temp\opencode\TheMarkedMenBuild3\TheMarkedMen.dll
 C:\Users\edria\AppData\Local\Temp\opencode\TheMarkedMenBuild3\TheMarkedMen.pdb
 C:\Users\edria\AppData\Local\Temp\opencode\TheMarkedMenBuildFinal\TheMarkedMen.dll
 C:\Users\edria\AppData\Local\Temp\opencode\TheMarkedMenBuildFinal\TheMarkedMen.pdb
+C:\Program Files (x86)\Steam\steamapps\common\RimWorld\Mods\The Marked Men\Source\TheMarkedMen\obj\Debug\TheMarkedMen.sourcelink.json
