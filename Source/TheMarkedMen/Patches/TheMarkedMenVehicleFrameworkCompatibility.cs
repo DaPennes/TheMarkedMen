@@ -44,8 +44,6 @@ namespace TheMarkedMen
         private const string VehiclePawnTypeFullName = "Vehicles.VehiclePawn";
         private const string VehicleRaidHelperTypeFullName = "Vehicles.RaidInjectionHelper";
         private const string VehicleRaidExtensionTypeFullName = "Vehicles.VehicleRaiderDefModExtension";
-        private const string MosquitoVehicleDefName = "VVE_Mosquito";
-        private const string LouieVehicleDefName = "VVE_Louie";
         private const int MinimumGroundRaidPawns = 3;
         public const int MinimumVehicleCrewReserve = MinimumGroundRaidPawns;
 
@@ -62,7 +60,6 @@ namespace TheMarkedMen
         private static FieldInfo airborneVehicleNpcPropertiesField;
         private static List<MarkedRaidVehicleOption> landRaidVehicleOptions;
         private static List<MarkedRaidVehicleOption> airRaidVehicleOptions;
-        private static string vehicleFrameworkPackageId;
         private static bool vehiclePathingApiFailureLogged;
         private static bool vehicleDisembarkApiFailureLogged;
         private static bool vehicleCrewRoleApiFailureLogged;
@@ -251,11 +248,7 @@ namespace TheMarkedMen
                 Convert.ToString(ReadVehicleMember(vehicleDef, "type")),
                 "Air",
                 StringComparison.Ordinal);
-            bool enabledByDefault = airborne
-                ? string.Equals(defName, MosquitoVehicleDefName, StringComparison.Ordinal)
-                    || string.Equals(defName, LouieVehicleDefName, StringComparison.Ordinal)
-                : !string.IsNullOrEmpty(packageId)
-                    && string.Equals(packageId, GetVehicleFrameworkPackageId(), StringComparison.OrdinalIgnoreCase);
+            bool enabledByDefault = HasVehicleCategory(vehicleDef, "Combat");
 
             return new MarkedRaidVehicleOption
             {
@@ -267,33 +260,73 @@ namespace TheMarkedMen
             };
         }
 
-        private static string GetVehicleFrameworkPackageId()
+        private static bool HasVehicleCategory(object vehicleDef, string categoryName)
         {
-            if (!string.IsNullOrEmpty(vehicleFrameworkPackageId))
+            object categoryValue = ReadVehicleMember(vehicleDef, "vehicleCategory");
+            if (categoryValue == null || !categoryValue.GetType().IsEnum)
             {
-                return vehicleFrameworkPackageId;
+                return false;
             }
 
-            Assembly assembly = GetVehicleFrameworkAssembly();
-            IEnumerable mods = LoadedModManager.RunningModsListForReading;
-            if (assembly != null && mods != null)
-            {
-                foreach (object mod in mods)
-                {
-                    object assemblies = ReadVehicleMember(mod, "assemblies");
-                    IEnumerable loadedAssemblies = ReadVehicleMember(assemblies, "loadedAssemblies") as IEnumerable;
-                    if (loadedAssemblies == null || !loadedAssemblies.Cast<object>()
-                        .Any(candidate => candidate is Assembly loadedAssembly && ReferenceEquals(loadedAssembly, assembly)))
-                    {
-                        continue;
-                    }
+            object categoryFlag = Enum.Parse(categoryValue.GetType(), categoryName);
+            int vehicleCategory = Convert.ToInt32(categoryValue);
+            int flagValue = Convert.ToInt32(categoryFlag);
+            return (vehicleCategory & flagValue) == flagValue;
+        }
 
-                    vehicleFrameworkPackageId = Convert.ToString(ReadVehicleMember(mod, "PackageId"));
-                    break;
+        private static List<object> GetEnabledRaidVehicleCategories(Type categoryType)
+        {
+            List<object> categories = new List<object>();
+            if (categoryType == null || !categoryType.IsEnum)
+            {
+                return categories;
+            }
+
+            TheMarkedMenSettings settings = TheMarkedMenMod.Settings;
+            if (settings == null || settings.raidVehicleCombatCategoryEnabled)
+            {
+                categories.Add(Enum.Parse(categoryType, "Combat"));
+            }
+            if (settings?.raidVehicleTransportCategoryEnabled == true)
+            {
+                categories.Add(Enum.Parse(categoryType, "Transport"));
+            }
+            if (settings?.raidVehicleTraderCategoryEnabled == true)
+            {
+                categories.Add(Enum.Parse(categoryType, "Trader"));
+            }
+            if (settings?.raidVehicleWorkCategoryEnabled == true)
+            {
+                categories.Add(Enum.Parse(categoryType, "Work"));
+            }
+
+            return categories;
+        }
+
+        private static bool HasAnyEnabledVehicleCategory(object vehicleDef, List<object> enabledCategories)
+        {
+            if (enabledCategories == null || enabledCategories.Count == 0)
+            {
+                return false;
+            }
+
+            object categoryValue = ReadVehicleMember(vehicleDef, "vehicleCategory");
+            if (categoryValue == null)
+            {
+                return false;
+            }
+
+            int vehicleCategory = Convert.ToInt32(categoryValue);
+            for (int i = 0; i < enabledCategories.Count; i++)
+            {
+                int flagValue = Convert.ToInt32(enabledCategories[i]);
+                if ((vehicleCategory & flagValue) == flagValue)
+                {
+                    return true;
                 }
             }
 
-            return vehicleFrameworkPackageId ?? "smashphil.vehicleframework";
+            return false;
         }
 
         private static object ReadVehicleMember(object instance, string name)
@@ -1188,7 +1221,8 @@ namespace TheMarkedMen
                 {
                     Type extensionType = assembly.GetType(VehicleRaidExtensionTypeFullName);
                     Type vehicleDefType = assembly.GetType(VehicleDefTypeFullName);
-                    if (extensionType == null || vehicleDefType == null)
+                    Type categoryType = assembly.GetType("Vehicles.VehicleCategory");
+                    if (extensionType == null || vehicleDefType == null || categoryType == null)
                     {
                         LogRaidLookupFailure("Vehicle Framework aircraft raid types could not be found.");
                         return eligible;
@@ -1217,6 +1251,12 @@ namespace TheMarkedMen
                         return eligible;
                     }
 
+                    List<object> enabledCategories = GetEnabledRaidVehicleCategories(categoryType);
+                    if (enabledCategories.Count == 0)
+                    {
+                        return eligible;
+                    }
+
                     PawnsArrivalModeDef resolvedArrivalMode = arrivalMode ?? PawnsArrivalModeDefOf.EdgeWalkInGroups;
                     int factionTechLevel = Convert.ToInt32(faction.def.techLevel);
                     Type npcPropertiesType = null;
@@ -1226,6 +1266,11 @@ namespace TheMarkedMen
                     for (int i = 0; i < airborneVehicleDefs.Count; i++)
                     {
                         object vehicleDef = airborneVehicleDefs[i];
+                        if (!HasAnyEnabledVehicleCategory(vehicleDef, enabledCategories))
+                        {
+                            continue;
+                        }
+
                         if (Convert.ToSingle(airborneVehicleCombatPowerField.GetValue(vehicleDef)) > vehicleBudget)
                         {
                             continue;
@@ -1797,18 +1842,39 @@ namespace TheMarkedMen
                     return eligible;
                 }
 
-                object combatCategory = Enum.Parse(categoryType, "Combat");
+                List<object> enabledCategories = GetEnabledRaidVehicleCategories(categoryType);
+                if (enabledCategories.Count == 0)
+                {
+                    return eligible;
+                }
+
                 PawnsArrivalModeDef resolvedArrivalMode = arrivalMode ?? PawnsArrivalModeDefOf.EdgeWalkInGroups;
                 foreach (object vehicleDef in definitions)
                 {
-                    if (validVehicle.Invoke(null, new object[]
+                    if (!HasAnyEnabledVehicleCategory(vehicleDef, enabledCategories))
+                    {
+                        continue;
+                    }
+
+                    bool validForRaid = false;
+                    for (int i = 0; i < enabledCategories.Count; i++)
+                    {
+                        object category = enabledCategories[i];
+                        if (validVehicle.Invoke(null, new object[]
                         {
                             vehicleDef,
-                            combatCategory,
+                            category,
                             resolvedArrivalMode,
                             faction,
                             vehicleBudget
                         }) is bool valid && valid)
+                        {
+                            validForRaid = true;
+                            break;
+                        }
+                    }
+
+                    if (validForRaid)
                     {
                         if (selectionGroup.HasValue
                             && !IsRaidVehicleSelected(

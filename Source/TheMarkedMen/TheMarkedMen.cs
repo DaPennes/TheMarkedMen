@@ -46,7 +46,7 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
 
     public sealed class TheMarkedMenSettings : ModSettings
     {
-        private const int CurrentSettingsVersion = 19;
+        private const int CurrentSettingsVersion = 20;
         public const float InfectionTransmissionChance = 0.45f;
         public const float DefaultMarkedRaidFrequencyMultiplier = 2f;
         public const float MinMarkedRaidFrequencyMultiplier = 0f;
@@ -97,6 +97,10 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
         public bool landVehicleAssaultsEnabled = true;
         public bool airborneVehicleAssaultsEnabled = true;
         public bool combinedArmsAssaultsEnabled = true;
+        public bool raidVehicleCombatCategoryEnabled = true;
+        public bool raidVehicleTransportCategoryEnabled;
+        public bool raidVehicleTraderCategoryEnabled;
+        public bool raidVehicleWorkCategoryEnabled;
         public bool vehiclePassengerDisembarkEnabled = true;
         public float landVehicleDisembarkRange = 28f;
         public float airborneVehicleDisembarkRange = 38f;
@@ -563,6 +567,10 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
             Scribe_Values.Look(ref landVehicleAssaultsEnabled, "landVehicleAssaultsEnabled", true);
             Scribe_Values.Look(ref airborneVehicleAssaultsEnabled, "airborneVehicleAssaultsEnabled", true);
             Scribe_Values.Look(ref combinedArmsAssaultsEnabled, "combinedArmsAssaultsEnabled", true);
+            Scribe_Values.Look(ref raidVehicleCombatCategoryEnabled, "raidVehicleCombatCategoryEnabled", true);
+            Scribe_Values.Look(ref raidVehicleTransportCategoryEnabled, "raidVehicleTransportCategoryEnabled", false);
+            Scribe_Values.Look(ref raidVehicleTraderCategoryEnabled, "raidVehicleTraderCategoryEnabled", false);
+            Scribe_Values.Look(ref raidVehicleWorkCategoryEnabled, "raidVehicleWorkCategoryEnabled", false);
             Scribe_Values.Look(ref vehiclePassengerDisembarkEnabled, "vehiclePassengerDisembarkEnabled", true);
             Scribe_Values.Look(ref landVehicleDisembarkRange, "landVehicleDisembarkRange", 28f);
             Scribe_Values.Look(ref airborneVehicleDisembarkRange, "airborneVehicleDisembarkRange", 38f);
@@ -872,6 +880,14 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
                     }
                 }
 
+                if (loadedSettingsVersion < 20)
+                {
+                    raidVehicleCombatCategoryEnabled = true;
+                    raidVehicleTransportCategoryEnabled = false;
+                    raidVehicleTraderCategoryEnabled = false;
+                    raidVehicleWorkCategoryEnabled = false;
+                }
+
                 settingsVersion = CurrentSettingsVersion;
             }
 
@@ -954,6 +970,7 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
             DrawCheckbox(listing, "MarkedMen_Settings_LandVehicleAssaults".Translate(), ref landVehicleAssaultsEnabled, "MarkedMen_Settings_LandVehicleAssaultsDesc".Translate());
             DrawCheckbox(listing, "MarkedMen_Settings_AirborneVehicleAssaults".Translate(), ref airborneVehicleAssaultsEnabled, "MarkedMen_Settings_AirborneVehicleAssaultsDesc".Translate());
             DrawCheckbox(listing, "MarkedMen_Settings_CombinedArmsAssaults".Translate(), ref combinedArmsAssaultsEnabled, "MarkedMen_Settings_CombinedArmsAssaultsDesc".Translate());
+            DrawRaidVehicleCategorySettings(listing);
             DrawCheckbox(listing, "Vehicle passenger disembark".Translate(), ref vehiclePassengerDisembarkEnabled, "Disembark surplus passengers when raid vehicles enter a configured combat range.".Translate());
             DrawFloat(listing, "Land vehicle disembark range".Translate(), ref landVehicleDisembarkRange, 5f, 80f, "landVehicleDisembarkRange", "Distance to the nearest colony target before land-vehicle passengers disembark.".Translate());
             DrawFloat(listing, "Air vehicle disembark range".Translate(), ref airborneVehicleDisembarkRange, 5f, 100f, "airborneVehicleDisembarkRange", "Distance to the nearest colony target before helicopter passengers disembark.".Translate());
@@ -1336,6 +1353,40 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
             }
         }
 
+        private void DrawRaidVehicleCategorySettings(Listing_Standard listing)
+        {
+            if (!currentSectionOpen)
+            {
+                return;
+            }
+
+            DrawHelp(listing, "MarkedMen_Settings_VehicleCategoriesDesc".Translate());
+            DrawCheckbox(
+                listing,
+                "MarkedMen_Settings_VehicleCategoryCombat".Translate(),
+                ref raidVehicleCombatCategoryEnabled,
+                "MarkedMen_Settings_VehicleCategoriesDesc".Translate(),
+                false);
+            DrawCheckbox(
+                listing,
+                "MarkedMen_Settings_VehicleCategoryTransport".Translate(),
+                ref raidVehicleTransportCategoryEnabled,
+                "MarkedMen_Settings_VehicleCategoriesDesc".Translate(),
+                false);
+            DrawCheckbox(
+                listing,
+                "MarkedMen_Settings_VehicleCategoryTrader".Translate(),
+                ref raidVehicleTraderCategoryEnabled,
+                "MarkedMen_Settings_VehicleCategoriesDesc".Translate(),
+                false);
+            DrawCheckbox(
+                listing,
+                "MarkedMen_Settings_VehicleCategoryWork".Translate(),
+                ref raidVehicleWorkCategoryEnabled,
+                "MarkedMen_Settings_VehicleCategoriesDesc".Translate(),
+                false);
+        }
+
         private void DrawVehicleSelectionButtons(
             Listing_Standard listing,
             RaidVehicleSelectionGroup selectionGroup,
@@ -1498,7 +1549,12 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
             listing.Gap(2f);
         }
 
-        private void DrawCheckbox(Listing_Standard listing, string label, ref bool value, string help)
+        private void DrawCheckbox(
+            Listing_Standard listing,
+            string label,
+            ref bool value,
+            string help,
+            bool drawHelpText = true)
         {
             if (!currentSectionOpen)
             {
@@ -1514,7 +1570,10 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
                 NoteManualChange();
             }
 
-            DrawHelp(listing, help);
+            if (drawHelpText)
+            {
+                DrawHelp(listing, help);
+            }
         }
 
         private void DrawFloat(Listing_Standard listing, string label, ref float value, float min, float max, string key, string help)

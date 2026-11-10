@@ -188,9 +188,24 @@ namespace TheMarkedMen
             }
 
             if (IsTacticalRangedMoveJob(pawn.CurJob, currentPawnTarget)
-                && IsValidNonInfectedPawnTarget(currentPawnTarget, pawn)
-                && !NeedsRangedPosition(pawn, currentPawnTarget))
+                && IsValidNonInfectedPawnTarget(currentPawnTarget, pawn))
             {
+                if (NeedsRangedPosition(pawn, currentPawnTarget))
+                {
+                    return false;
+                }
+
+                Verb currentVerb = GetRangedVerb(pawn);
+                bool canAttackFromCurrentPosition = currentVerb != null
+                    ? currentVerb.CanHitTargetFrom(pawn.Position, currentPawnTarget)
+                    : pawn.Position.DistanceToSquared(currentPawnTarget.Position) <= 16f
+                        && pawn.CanReach(currentPawnTarget, PathEndMode.Touch, Danger.Deadly, true, true);
+                if (canAttackFromCurrentPosition
+                    && TryAssignAttackJob(pawn, currentPawnTarget, true))
+                {
+                    return true;
+                }
+
                 return false;
             }
 
@@ -735,11 +750,25 @@ namespace TheMarkedMen
                 return false;
             }
 
-            Pawn unledTarget = FindVisibleNonInfectedTarget(pawn);
+            Job currentJob = pawn.CurJob;
+            Pawn currentTarget = GetCurrentJobTarget(pawn) as Pawn;
+            bool continuingCurrentTarget = IsValidNonInfectedPawnTarget(currentTarget, pawn)
+                && (IsAttackJob(currentJob?.def)
+                    || currentJob?.def == JobDefOf.Goto && currentJob.targetB.Thing == currentTarget);
+            Pawn unledTarget = continuingCurrentTarget
+                ? currentTarget
+                : FindVisibleNonInfectedTarget(pawn);
             if (unledTarget != null)
             {
-                if (pawn.CurJob?.targetA.Pawn == unledTarget && IsAttackJob(pawn.CurJob.def))
+                if (continuingCurrentTarget)
                 {
+                    if (currentJob.def == JobDefOf.Goto
+                        && pawn.Position.DistanceToSquared(unledTarget.Position) <= 16f
+                        && pawn.CanReach(unledTarget, PathEndMode.Touch, Danger.Deadly, true, true))
+                    {
+                        return TryAssignAttackJob(pawn, unledTarget, true);
+                    }
+
                     return false;
                 }
 
@@ -1318,11 +1347,14 @@ namespace TheMarkedMen
 
         private static bool IsValidNonInfectedPawnTarget(Pawn target, Pawn searcher)
         {
-            return target != null
+            return searcher != null
+                && searcher.Faction != null
+                && target != null
                 && target != searcher
                 && target.Spawned
                 && !target.Dead
                 && target.Map == searcher.Map
+                && searcher.HostileTo(target)
                 && target.RaceProps != null
                 && target.RaceProps.Humanlike
                 && !CrossedUtility.IsFullyTurnedMarkedPawn(target);
