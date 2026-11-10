@@ -185,26 +185,25 @@ namespace TheMarkedMen
                 return Enumerable.Empty<object>();
             }
 
-            FieldInfo typeField = AccessTools.Field(vehicleDefType, "type");
-            FieldInfo enabledField = AccessTools.Field(vehicleDefType, "enabled");
-            FieldInfo npcPropertiesField = AccessTools.Field(vehicleDefType, "npcProperties");
             List<object> result = new List<object>();
             foreach (object vehicleDef in definitions)
             {
-                if (!string.Equals(
-                    Convert.ToString(typeField?.GetValue(vehicleDef)),
-                    "Ground",
-                    StringComparison.Ordinal))
+                if (vehicleDef == null
+                    || string.Equals(
+                        Convert.ToString(ReadVehicleMember(vehicleDef, "type")),
+                        "Air",
+                        StringComparison.OrdinalIgnoreCase))
                 {
                     continue;
                 }
 
-                if (enabledField != null && (Convert.ToInt32(enabledField.GetValue(vehicleDef)) & 2) == 0)
+                object enabled = ReadVehicleMember(vehicleDef, "enabled");
+                if (enabled != null && (Convert.ToInt32(enabled) & 2) == 0)
                 {
                     continue;
                 }
 
-                if (npcPropertiesField != null && npcPropertiesField.GetValue(vehicleDef) == null)
+                if (ReadVehicleMember(vehicleDef, "npcProperties") == null)
                 {
                     continue;
                 }
