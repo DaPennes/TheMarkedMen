@@ -36,7 +36,7 @@
     <hostileToFactionlessHumanlikes>true</hostileToFactionlessHumanlikes>
     <autoFlee>false</autoFlee>
     <canStageAttacks>true</canStageAttacks>
-    <canUseAvoidGrid>false</canUseAvoidGrid>
+    <canUseAvoidGrid>true</canUseAvoidGrid>
     <canRequestTraders>false</canRequestTraders>
     <canRequestMilitaryAid>false</canRequestMilitaryAid>
     <canRequestOrbitalTrader>false</canRequestOrbitalTrader>

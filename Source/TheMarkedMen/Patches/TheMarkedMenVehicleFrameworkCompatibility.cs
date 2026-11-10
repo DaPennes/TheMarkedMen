@@ -124,7 +124,7 @@ namespace TheMarkedMen
             RaidVehicleSelectionGroup selectionGroup = RaidVehicleSelectionGroup.Land)
         {
             Assembly assembly = GetVehicleFrameworkAssembly();
-            if (assembly == null || faction?.def?.modExtensions == null || points < 3000f)
+            if (assembly == null || faction?.def?.modExtensions == null || points <= 250f)
             {
                 return false;
             }
@@ -388,9 +388,10 @@ namespace TheMarkedMen
 
             try
             {
-                if (drafted.GetValue(ignition, null) is bool isDrafted && isDrafted)
+                if (drafted.GetValue(ignition, null) is bool isDrafted && !isDrafted)
                 {
-                    drafted.SetValue(ignition, false, null);
+                    // Vehicle Framework's ignition-off setter fails its path and interrupts its current job.
+                    drafted.SetValue(ignition, true, null);
                 }
             }
             catch (Exception ex)
@@ -713,10 +714,15 @@ namespace TheMarkedMen
         public static int GetRaidAssaultVehicleCount(float points)
         {
             float normalizedPoints = Mathf.Clamp(points, 3000f, 30000f);
-            int configuredMaximum = Mathf.Clamp(TheMarkedMenMod.Settings?.maxRaidVehicles ?? 10, 3, 10);
+            if (points <= 250f)
+            {
+                return 0;
+            }
+
+            int configuredMaximum = Mathf.Clamp(TheMarkedMenMod.Settings?.maxRaidVehicles ?? 10, 1, 10);
             return Mathf.Clamp(
-                3 + Mathf.FloorToInt((normalizedPoints - 3000f) * 7f / 27000f),
-                3,
+                1 + Mathf.FloorToInt((normalizedPoints - 3000f) * 9f / 27000f),
+                1,
                 configuredMaximum);
         }
 
@@ -835,7 +841,11 @@ namespace TheMarkedMen
                         && found
                         && arguments[2] is IntVec3 standable)
                     {
-                        return standable;
+                        if (standable.InBounds(vehicle.Map)
+                            && vehicle.CanReach(standable, PathEndMode.OnCell, Danger.Deadly))
+                        {
+                            return standable;
+                        }
                     }
                 }
                 catch (Exception ex)
@@ -1212,7 +1222,7 @@ namespace TheMarkedMen
             {
                 List<object> eligible = new List<object>();
                 Assembly assembly = GetVehicleFrameworkAssembly();
-                if (assembly == null || faction?.def?.modExtensions == null || points < 3000f)
+                if (assembly == null || faction?.def?.modExtensions == null || points <= 250f)
                 {
                     return eligible;
                 }
@@ -1912,26 +1922,7 @@ namespace TheMarkedMen
 
         private static int GetGroundRaidVehicleCount(float points)
         {
-            float count;
-            if (points <= 1000f)
-            {
-                count = 0f;
-            }
-            else if (points <= 3000f)
-            {
-                count = (points - 1000f) / 2000f;
-            }
-            else if (points <= 5000f)
-            {
-                count = 1f + (points - 3000f) / 2000f;
-            }
-            else
-            {
-                count = 2f + (points - 5000f) * 3f / 15000f;
-            }
-
-            int baseCount = Mathf.Max(0, Mathf.FloorToInt(count));
-            return baseCount > 0 ? Mathf.Min(10, baseCount + 1) : 0;
+            return GetRaidAssaultVehicleCount(points);
         }
 
         private static bool CanCrewRaidVehicle(Pawn pawn)
@@ -2270,9 +2261,6 @@ namespace TheMarkedMen
                     passenger.jobs?.EndCurrentJob(JobCondition.InterruptForced);
                     passenger.mindState?.duty = new PawnDuty(DutyDefOf.AssaultColony);
                     EnsureRaidPassengerAssaultLord(passenger, vehicle);
-                    passenger.jobs?.StartJob(
-                        JobMaker.MakeJob(JobDefOf.Goto, nearestEnemy.Position),
-                        JobCondition.InterruptForced);
                 }
             }
 

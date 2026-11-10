@@ -9,7 +9,6 @@ namespace TheMarkedMen
 {
     public static class CrossedLordCleanupUtility
     {
-        private const int CleanupIntervalTicks = 250;
         private const string WaitDownedJobDefName = "Wait_Downed";
 
         public static List<Pawn> CollectValidSpawnedLordPawns(IEnumerable<Pawn> pawns, Map map, Faction faction)
@@ -38,33 +37,34 @@ namespace TheMarkedMen
                 return;
             }
 
-            int ticks = Find.TickManager?.TicksGame ?? 0;
-            int hash = lord.GetHashCode() & int.MaxValue;
-            if ((ticks + hash) % TheMarkedMenSettings.LordCleanupIntervalTicks != 0)
-            {
-                return;
-            }
-
             if (!IsCrossedLord(lord))
             {
                 return;
             }
 
+            int ticks = Find.TickManager?.TicksGame ?? 0;
+            int hash = lord.GetHashCode() & int.MaxValue;
+            bool fullCleanupDue = (ticks + hash) % TheMarkedMenSettings.LordCleanupIntervalTicks == 0;
             Map map = lord.Map;
             Faction faction = lord.faction;
             for (int i = lord.ownedPawns.Count - 1; i >= 0; i--)
             {
                 Pawn pawn = lord.ownedPawns[i];
-                if (!IsValidSpawnedLordPawn(pawn, map, faction))
+                if (pawn == null)
                 {
-                    if (pawn == null)
-                    {
-                        lord.ownedPawns.RemoveAt(i);
-                    }
-                    else
-                    {
-                        lord.RemovePawn(pawn);
-                    }
+                    lord.ownedPawns.RemoveAt(i);
+                    continue;
+                }
+
+                if (!pawn.Spawned || pawn.Destroyed || pawn.Dead || pawn.Map != map)
+                {
+                    lord.RemovePawn(pawn);
+                    continue;
+                }
+
+                if (fullCleanupDue && !IsValidSpawnedLordPawn(pawn, map, faction))
+                {
+                    lord.RemovePawn(pawn);
                 }
             }
         }

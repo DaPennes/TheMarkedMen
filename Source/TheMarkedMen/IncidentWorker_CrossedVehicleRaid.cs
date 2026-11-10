@@ -83,14 +83,19 @@ namespace TheMarkedMen
             }
 
             int remainingCapacity = CrossedRaidTactics.GetRemainingRaidPawnCapacity(map);
+            int minimumVehicleCount = SpawnAirSupport ? 2 : 1;
+            int configuredMaximumVehicleCount = Mathf.Clamp(TheMarkedMenMod.Settings?.maxRaidVehicles ?? 10, 1, 10);
             int requestedVehicleCount = Mathf.Min(
-                TheMarkedMenVehicleFrameworkCompatibility.GetRaidAssaultVehicleCount(raidPoints),
-                Mathf.Max(0, remainingCapacity - 3));
-            const int minimumVehicleCount = 3;
+                configuredMaximumVehicleCount,
+                Mathf.Min(
+                    Mathf.Max(
+                        minimumVehicleCount,
+                        TheMarkedMenVehicleFrameworkCompatibility.GetRaidAssaultVehicleCount(raidPoints)),
+                    Mathf.Max(0, remainingCapacity - 3)));
             int infantryLimit = Mathf.Clamp(TheMarkedMenMod.Settings?.maxRaidInfantry ?? 60, 12, 90);
             int totalVehicleCount = requestedVehicleCount;
             int maximumInfantryCount = 0;
-            while (totalVehicleCount >= 3)
+            while (totalVehicleCount >= minimumVehicleCount)
             {
                 int estimatedGroundVehicleCount = SpawnAirSupport
                     ? (totalVehicleCount + 1) / 2
@@ -174,7 +179,7 @@ namespace TheMarkedMen
             }
 
             int groundVehicleCount = CountVehiclePawns(spawnedPawns);
-            int minimumGroundVehicles = SpawnAirSupport ? 2 : 3;
+            const int minimumGroundVehicles = 1;
             if (!groundVehicleDeploymentSucceeded || groundVehicleCount < minimumGroundVehicles)
             {
                 Log.Warning("[The Marked Men] Vehicle assault deployed only " + groundVehicleCount
@@ -206,11 +211,11 @@ namespace TheMarkedMen
                     return false;
                 }
 
-                if (groundVehicleCount + deployedAircraft.Count < 3)
+                if (groundVehicleCount + deployedAircraft.Count < 2)
                 {
                     Log.Warning("[The Marked Men] Combined-arms assault could deploy only "
                         + (groundVehicleCount + deployedAircraft.Count)
-                        + " vehicles; at least three are required.");
+                        + " vehicles; one ground vehicle and one aircraft are required.");
                     for (int i = 0; i < deployedAircraft.Count; i++)
                     {
                         TheMarkedMenVehicleFrameworkCompatibility.AbortAirborneRaidVehicle(deployedAircraft[i]);

@@ -1121,7 +1121,7 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
             DrawInt(listing, "MarkedMen_Settings_reanimationProcessIntervalTicks".Translate(), ref reanimationProcessIntervalTicks, 60, GenDate.TicksPerDay, "reanimationProcessIntervalTicks", "MarkedMen_Settings_reanimationProcessIntervalTicksDesc".Translate());
             DrawInt(listing, "MarkedMen_Settings_maxPendingReanimationsPerTick".Translate(), ref maxPendingReanimationsPerTick, 1, 500, "maxPendingReanimationsPerTick", "MarkedMen_Settings_maxPendingReanimationsPerTickDesc".Translate());
             DrawInt(listing, "MarkedMen_Settings_maxRaidInfantry".Translate(), ref maxRaidInfantry, 12, 90, "maxRaidInfantry", "MarkedMen_Settings_maxRaidInfantryDesc".Translate());
-            DrawInt(listing, "MarkedMen_Settings_maxRaidVehicles".Translate(), ref maxRaidVehicles, 3, 10, "maxRaidVehicles", "MarkedMen_Settings_maxRaidVehiclesDesc".Translate());
+            DrawInt(listing, "MarkedMen_Settings_maxRaidVehicles".Translate(), ref maxRaidVehicles, 1, 10, "maxRaidVehicles", "MarkedMen_Settings_maxRaidVehiclesDesc".Translate());
             DrawInt(listing, "MarkedMen_Settings_maxActiveRaidPawns".Translate(), ref maxActiveRaidPawns, 12, 180, "maxActiveRaidPawns", "MarkedMen_Settings_maxActiveRaidPawnsDesc".Translate());
 
             DrawSectionHeader(listing, "MarkedMen_Settings_UrbanOutbreak".Translate(), "MarkedMen_Settings_UrbanOutbreakDesc".Translate());
@@ -1778,7 +1778,7 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
             reanimationProcessIntervalTicks = Mathf.Clamp(reanimationProcessIntervalTicks, 60, GenDate.TicksPerDay);
             maxPendingReanimationsPerTick = Mathf.Clamp(maxPendingReanimationsPerTick, 1, 500);
             maxRaidInfantry = Mathf.Clamp(maxRaidInfantry, 12, 90);
-            maxRaidVehicles = Mathf.Clamp(maxRaidVehicles, 3, 10);
+            maxRaidVehicles = Mathf.Clamp(maxRaidVehicles, 1, 10);
             maxActiveRaidPawns = Mathf.Clamp(maxActiveRaidPawns, 12, 180);
             urbanInfectionDensity = Mathf.Clamp(urbanInfectionDensity, 0f, 5f);
             urbanAmbushFrequency = Mathf.Clamp(urbanAmbushFrequency, 0f, 5f);

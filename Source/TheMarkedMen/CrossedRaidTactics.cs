@@ -188,6 +188,27 @@ namespace TheMarkedMen
                 }
             }
         }
+
+        public override void LordToilTick()
+        {
+            base.LordToilTick();
+            if ((lord?.ticksInToil ?? 0) % 30 != 0 || lord?.ownedPawns == null)
+            {
+                return;
+            }
+
+            for (int i = 0; i < lord.ownedPawns.Count; i++)
+            {
+                Pawn pawn = lord.ownedPawns[i];
+                if (pawn?.mindState != null
+                    && !pawn.Dead
+                    && !pawn.Downed
+                    && pawn.mindState.duty == null)
+                {
+                    pawn.mindState.duty = new PawnDuty(DutyDefOf.AssaultColony);
+                }
+            }
+        }
     }
 
     public sealed class LordJob_CrossedVehicleAssault : LordJob
@@ -275,6 +296,13 @@ namespace TheMarkedMen
                 Pawn vehicle = lord.ownedPawns[i];
                 if (!TheMarkedMenVehicleFrameworkCompatibility.IsVehiclePawn(vehicle))
                 {
+                    if (vehicle?.mindState != null
+                        && !vehicle.Dead
+                        && !vehicle.Downed
+                        && vehicle.mindState.duty == null)
+                    {
+                        vehicle.mindState.duty = new PawnDuty(DutyDefOf.AssaultColony);
+                    }
                     continue;
                 }
 

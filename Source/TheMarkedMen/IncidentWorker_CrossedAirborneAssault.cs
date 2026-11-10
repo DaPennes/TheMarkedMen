@@ -89,7 +89,7 @@ namespace TheMarkedMen
                 pawns,
                 1f,
                 requestedAircraftCount,
-                3,
+                1,
                 out List<Pawn> aircraft,
                 out string deploymentFailure,
                 parms.raidArrivalMode,
