@@ -274,6 +274,11 @@ namespace TheMarkedMen
                         if (tryAddPawn.Invoke(vehicle, new object[] { pawn }) is bool added && added)
                         {
                             availableRaidPawns.RemoveAt(pawnIndex);
+                            if (hasEnoughOperators?.GetValue(vehicle, null) is bool operatorsReady
+                                && operatorsReady)
+                            {
+                                break;
+                            }
                         }
                         else
                         {
@@ -341,23 +346,93 @@ namespace TheMarkedMen
             if (faction == null
                 || map == null
                 || raidPawns == null
-                || raidPawns.Count <= MinimumGroundRaidPawns + 1
-                || GetGroundRaidVehicleCount(parms.points) == 0
-                || !HasEligibleRaidVehicle(faction, parms.points, parms.raidArrivalMode))
+                || !IsVehicleFrameworkLoaded)
             {
                 return;
             }
 
+            float vehiclePoints = Mathf.Max(parms.points, 3000f);
+            int requestedVehicleCount = GetRaidAssaultVehicleCount(vehiclePoints);
+            if (!HasEligibleRaidVehicle(faction, vehiclePoints, parms.raidArrivalMode))
+            {
+                Log.Warning("[The Marked Men] Could not add vehicles to the scheduled warband/horde: no eligible ground vehicle is available at the minimum vehicle budget.");
+                return;
+            }
+
             KeepMarkedOneOnFoot(raidPawns, map);
+            EnsureRaidVehicleCrewPool(faction, raidPawns, map, requestedVehicleCount * 2 + MinimumGroundRaidPawns);
             if (!TrySpawnGroundRaidVehicles(
                 faction,
-                parms.points,
+                vehiclePoints,
                 raidPawns,
                 parms,
-                out _,
-                out string failureReason))
+                out List<Pawn> vehicles,
+                out string failureReason,
+                requestedVehicleCount,
+                MinimumGroundRaidPawns))
             {
                 Log.Warning("[The Marked Men] Could not add ground vehicles to this raid (" + failureReason + ").");
+                return;
+            }
+
+            Log.Message("[The Marked Men] Added " + vehicles.Count
+                + " ground vehicle(s) to the scheduled raid.");
+        }
+
+        private static void EnsureRaidVehicleCrewPool(
+            Faction faction,
+            List<Pawn> raidPawns,
+            Map map,
+            int minimumCrewCount)
+        {
+            int missingCrew = minimumCrewCount - CountAvailableVehicleCrewPawns(raidPawns);
+            if (missingCrew <= 0)
+            {
+                return;
+            }
+
+            PawnKindDef crewKind = CADefOf.CrossedSoldier
+                ?? CADefOf.CrossedRaider
+                ?? CADefOf.CrossedCivilian;
+            if (crewKind == null)
+            {
+                Log.Warning("[The Marked Men] Could not generate additional infected vehicle crew: no suitable pawn kind is defined.");
+                return;
+            }
+
+            IntVec3 anchor = raidPawns.FirstOrFallback(pawn => pawn != null && pawn.Spawned && !IsVehiclePawn(pawn))?.Position
+                ?? map.Center;
+            for (int i = 0; i < missingCrew; i++)
+            {
+                Pawn crew = PawnGenerator.GeneratePawn(crewKind, faction, map.Tile);
+                if (crew == null)
+                {
+                    Log.Warning("[The Marked Men] Vehicle raid crew generation returned no pawn for " + crewKind.defName + ".");
+                    continue;
+                }
+
+                CrossedUtility.ApplyClassHediffs(crew);
+                CrossedUtility.ApplyInfectedTattoo(crew);
+                if (!CellFinder.TryFindRandomCellNear(anchor, map, 8, cell =>
+                    cell.InBounds(map)
+                    && cell.Walkable(map)
+                    && cell.GetFirstPawn(map) == null, out IntVec3 spawnCell))
+                {
+                    crew.Destroy(DestroyMode.Vanish);
+                    Log.Warning("[The Marked Men] Could not find a safe spawn cell for additional vehicle raid crew.");
+                    continue;
+                }
+
+                GenSpawn.Spawn(crew, spawnCell, map);
+                if (crew.Spawned && crew.Map == map)
+                {
+                    raidPawns.Add(crew);
+                }
+                else
+                {
+                    crew.Destroy(DestroyMode.Vanish);
+                    Log.Warning("[The Marked Men] Additional vehicle raid crew did not spawn on the target map.");
+                }
             }
         }
 
