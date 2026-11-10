@@ -65,8 +65,6 @@ namespace TheMarkedMen
         private static bool vehicleCrewRoleApiFailureLogged;
         private static bool vehicleControlApiFailureLogged;
         private static bool vehicleOrderApiFailureLogged;
-        private static bool vehicleBoundaryApiFailureLogged;
-        private static bool vehicleBoundaryWarningLogged;
 
         private const int VehicleAssaultWaypointDistance = 35;
 
@@ -794,9 +792,28 @@ namespace TheMarkedMen
 
             IntVec3 destination = __result.targetA.Cell;
             if (!destination.IsValid
-                || !destination.InBounds(pawn.Map)
-                || pawn.Position.DistanceToSquared(destination)
-                    <= VehicleAssaultWaypointDistance * VehicleAssaultWaypointDistance)
+                || !destination.InBounds(pawn.Map))
+            {
+                __result = null;
+                return;
+            }
+
+            if (!IsSafeVehiclePathCell(pawn, destination))
+            {
+                if (TryFindReachableVehicleCell(pawn, destination, 8f, out IntVec3 safeDestination))
+                {
+                    destination = safeDestination;
+                    __result.targetA = new LocalTargetInfo(safeDestination);
+                }
+                else
+                {
+                    __result = null;
+                    return;
+                }
+            }
+
+            if (pawn.Position.DistanceToSquared(destination)
+                <= VehicleAssaultWaypointDistance * VehicleAssaultWaypointDistance)
             {
                 return;
             }
@@ -823,57 +840,6 @@ namespace TheMarkedMen
             }
         }
 
-        public static bool Patch_VehiclePathFollowerTryEnterNextPathCell(object __instance)
-        {
-            Pawn vehicle = ReadVehicleMember(__instance, "vehicle") as Pawn;
-            if (!IsMarkedMenRaidVehicle(vehicle) || vehicle.Map == null)
-            {
-                return true;
-            }
-
-            if (ReadVehicleMember(__instance, "nextCell") is not IntVec3 nextCell
-                || IsSafeVehiclePathCell(vehicle, nextCell))
-            {
-                return true;
-            }
-
-            MethodInfo patherFailed = AccessTools.Method(__instance.GetType(), "PatherFailed");
-            if (patherFailed == null)
-            {
-                if (!vehicleBoundaryApiFailureLogged)
-                {
-                    Log.Error("[The Marked Men] Vehicle Framework's path-failure method could not be found; blocked an unsafe vehicle movement step.");
-                    vehicleBoundaryApiFailureLogged = true;
-                }
-
-                return false;
-            }
-
-            try
-            {
-                patherFailed.Invoke(__instance, null);
-            }
-            catch (Exception ex)
-            {
-                if (!vehicleBoundaryApiFailureLogged)
-                {
-                    Log.Error("[The Marked Men] Could not stop a vehicle path that leaves map bounds: " + ex);
-                    vehicleBoundaryApiFailureLogged = true;
-                }
-
-                return false;
-            }
-
-            if (!vehicleBoundaryWarningLogged)
-            {
-                Log.Warning("[The Marked Men] Stopped a vehicle path step outside its safe map bounds at "
-                    + nextCell + " for " + vehicle.LabelShort + ".");
-                vehicleBoundaryWarningLogged = true;
-            }
-
-            return false;
-        }
-
         private static bool IsSafeVehiclePathCell(Pawn vehicle, IntVec3 cell)
         {
             Map map = vehicle?.Map;
@@ -882,20 +848,10 @@ namespace TheMarkedMen
                 return false;
             }
 
-            object sizeValue = ReadVehicleMember(vehicle.def, "size");
-            if (sizeValue is not Vector2 vehicleSize)
-            {
-                vehicleSize = Vector2.one;
-                if (!vehicleBoundaryApiFailureLogged)
-                {
-                    Log.Warning("[The Marked Men] Could not read a vehicle's footprint; using a one-cell safety margin for raid pathing.");
-                    vehicleBoundaryApiFailureLogged = true;
-                }
-            }
-
+            IntVec2 vehicleSize = vehicle.def.size;
             int margin = Mathf.Max(
                 1,
-                Mathf.CeilToInt(Mathf.Max(vehicleSize.x, vehicleSize.y) * 0.5f));
+                Mathf.CeilToInt(Mathf.Max(vehicleSize.x, vehicleSize.z) * 0.5f));
             return cell.x >= margin
                 && cell.x < map.Size.x - margin
                 && cell.z >= margin
@@ -986,7 +942,7 @@ namespace TheMarkedMen
                 if (findNearestStandableCell.Invoke(null, arguments) is bool found
                     && found
                     && arguments[2] is IntVec3 candidate
-                    && candidate.InBounds(vehicle.Map)
+                    && IsSafeVehiclePathCell(vehicle, candidate)
                     && vehicle.CanReach(candidate, PathEndMode.OnCell, Danger.Deadly))
                 {
                     reachableCell = candidate;
@@ -1064,6 +1020,12 @@ namespace TheMarkedMen
             }
 
             IntVec3 spawnCell = candidates[Rand.Range(0, candidates.Count)];
+            if (!IsVehicleFootprintValid(vehicle, map, spawnCell, rotation, blocked, nonStandable))
+            {
+                failureReason = "Vehicle Framework could not find a clear in-bounds footprint for the ground vehicle.";
+                return false;
+            }
+
             GenSpawn.Spawn(vehicle, spawnCell, map, rotation);
             if (!vehicle.Spawned || vehicle.Map != map)
             {
@@ -1084,20 +1046,63 @@ namespace TheMarkedMen
             IntVec3 cell,
             List<IntVec3> candidates)
         {
-            if (!cell.InBounds(map) || cell.GetRoof(map) != null || cell.GetFirstPawn(map) != null)
-            {
-                return;
-            }
-
-            if (blocked.Invoke(null, new object[] { vehicle, map, cell, rotation }) is not bool isBlocked
-                || isBlocked
-                || nonStandable.Invoke(null, new object[] { vehicle, map, cell, rotation }) is not bool isNotStandable
-                || isNotStandable)
+            if (!cell.InBounds(map)
+                || !IsVehicleFootprintValid(vehicle, map, cell, rotation, blocked, nonStandable))
             {
                 return;
             }
 
             candidates.Add(cell);
+        }
+
+        private static bool IsVehicleFootprintValid(
+            Pawn vehicle,
+            Map map,
+            IntVec3 cell,
+            Rot4 rotation,
+            MethodInfo blocked,
+            MethodInfo nonStandable)
+        {
+            if (vehicle?.def == null || map == null || !cell.InBounds(map))
+            {
+                return false;
+            }
+
+            if (blocked == null || nonStandable == null)
+            {
+                return false;
+            }
+
+            Rot4[] rotations = vehicle.def.randomizeRotationOnSpawn
+                ? new[] { Rot4.North, Rot4.East, Rot4.South, Rot4.West }
+                : new[] { rotation };
+            for (int i = 0; i < rotations.Length; i++)
+            {
+                Rot4 candidateRotation = rotations[i];
+                CellRect occupiedRect = GenAdj.OccupiedRect(cell, candidateRotation, vehicle.def.Size);
+                if (!occupiedRect.InBounds(map))
+                {
+                    return false;
+                }
+
+                foreach (IntVec3 occupiedCell in occupiedRect)
+                {
+                    if (occupiedCell.GetRoof(map) != null || occupiedCell.GetFirstPawn(map) != null)
+                    {
+                        return false;
+                    }
+                }
+
+                if (blocked.Invoke(null, new object[] { vehicle, map, cell, candidateRotation }) is not bool isBlocked
+                    || isBlocked
+                    || nonStandable.Invoke(null, new object[] { vehicle, map, cell, candidateRotation }) is not bool isNotStandable
+                    || isNotStandable)
+                {
+                    return false;
+                }
+            }
+
+            return true;
         }
 
             public static bool HasEligibleAirborneRaidVehicle(
@@ -1674,6 +1679,13 @@ namespace TheMarkedMen
                 }
 
                 IntVec3 landingCell = landingCells[Rand.Range(0, landingCells.Count)];
+                if (!IsVehicleFootprintValid(vehicle, map, landingCell, rotation, blocked, nonStandable))
+                {
+                    skyfaller.Destroy(DestroyMode.Vanish);
+                    failureReason = "The aircraft's landing footprint was no longer clear and in bounds.";
+                    return false;
+                }
+
                 FieldInfo inFlightField = AccessTools.Field(launcherType, "inFlight");
                 object previousInFlight = inFlightField?.GetValue(launcher);
                 inFlightField?.SetValue(launcher, true);
@@ -1728,15 +1740,7 @@ namespace TheMarkedMen
                 List<Pawn> colonists = map.mapPawns.FreeColonistsSpawned;
                 foreach (IntVec3 cell in GenRadial.RadialCellsAround(map.Center, radius, true))
                 {
-                    if (!cell.InBounds(map) || cell.GetRoof(map) != null)
-                    {
-                        continue;
-                    }
-
-                    if (blocked.Invoke(null, new object[] { vehicle, map, cell, rotation }) is not bool isBlocked
-                        || isBlocked
-                        || nonStandable.Invoke(null, new object[] { vehicle, map, cell, rotation }) is not bool isNotStandable
-                        || isNotStandable)
+                    if (!IsVehicleFootprintValid(vehicle, map, cell, rotation, blocked, nonStandable))
                     {
                         continue;
                     }
@@ -2855,27 +2859,6 @@ namespace TheMarkedMen
                 {
                     LogVehiclePathingApiFailure(
                         "Vehicle Framework's nearest-hostile job giver could not be patched; long vehicle assault routes may still exhaust pathfinding.");
-                }
-
-                Type vehiclePathFollowerType = GetVehicleFrameworkAssembly()
-                    ?.GetType("Vehicles.VehiclePathFollower");
-                MethodInfo tryEnterNextPathCell = vehiclePathFollowerType == null
-                    ? null
-                    : AccessTools.Method(vehiclePathFollowerType, "TryEnterNextPathCell");
-                MethodInfo pathBoundaryPrefix = AccessTools.Method(
-                    typeof(TheMarkedMenVehicleFrameworkCompatibility),
-                    nameof(Patch_VehiclePathFollowerTryEnterNextPathCell));
-                if (tryEnterNextPathCell != null && pathBoundaryPrefix != null)
-                {
-                    harmony.Patch(
-                        tryEnterNextPathCell,
-                        prefix: new HarmonyMethod(pathBoundaryPrefix));
-                    Log.Message("[The Marked Men] Added map-boundary checks to raid vehicle movement.");
-                }
-                else
-                {
-                    LogVehiclePathingApiFailure(
-                        "Vehicle Framework's path follower step could not be patched; raid vehicles may still attempt invalid edge cells.");
                 }
 
                 // Patch vehicle TakeDamage to track infected occupants
