@@ -313,6 +313,65 @@ namespace TheMarkedMen
             return pawn != null && pawn.GetType().FullName == VehiclePawnTypeFullName;
         }
 
+        public static int CountInboundMarkedMenAircraft(Map map)
+        {
+            Assembly assembly = GetVehicleFrameworkAssembly();
+            if (assembly == null)
+            {
+                return 0;
+            }
+
+            Type arrivingSkyfallerType = assembly.GetType("Vehicles.VehicleSkyfaller_Arriving");
+            if (arrivingSkyfallerType == null)
+            {
+                LogRaidLookupFailure("Vehicle Framework's arriving aircraft skyfaller type could not be found while checking raid capacity.");
+                return 0;
+            }
+
+            FieldInfo vehicleField = AccessTools.Field(arrivingSkyfallerType, "vehicle");
+            if (vehicleField == null)
+            {
+                LogRaidLookupFailure("Vehicle Framework's arriving aircraft skyfaller vehicle field could not be found while checking raid capacity.");
+                return 0;
+            }
+
+            List<Thing> allThings = map?.listerThings?.AllThings;
+            if (allThings == null)
+            {
+                return 0;
+            }
+
+            int count = 0;
+            for (int i = 0; i < allThings.Count; i++)
+            {
+                Thing thing = allThings[i];
+                if (!arrivingSkyfallerType.IsInstanceOfType(thing))
+                {
+                    continue;
+                }
+
+                Pawn vehicle = vehicleField.GetValue(thing) as Pawn;
+                if (vehicle == null
+                    || vehicle.Destroyed
+                    || vehicle.Spawned
+                    || vehicle.Faction?.def != CADefOf.CrossedFaction)
+                {
+                    continue;
+                }
+
+                count++;
+                foreach (Pawn passenger in GetVehiclePassengers(vehicle))
+                {
+                    if (passenger != null && !passenger.Destroyed && !passenger.Dead)
+                    {
+                        count++;
+                    }
+                }
+            }
+
+            return count;
+        }
+
         public static void KeepMarkedOneOnFoot(List<Pawn> raidPawns, Map map)
         {
             if (raidPawns == null || map == null)

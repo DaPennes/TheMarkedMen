@@ -320,6 +320,51 @@ namespace TheMarkedMen
         public const int MaxSiegeTicks = 8000;
         public const float BreacherThresholdPoints = 700f;
 
+        public static int GetRemainingRaidPawnCapacity(Map map)
+        {
+            int configuredMaximum = Mathf.Clamp(
+                TheMarkedMenMod.Settings?.maxActiveRaidPawns ?? 80,
+                12,
+                180);
+            if (map?.mapPawns == null)
+            {
+                return configuredMaximum;
+            }
+
+            int activeCrossedPawns = 0;
+            IReadOnlyList<Pawn> spawnedPawns = map.mapPawns.AllPawnsSpawned;
+            for (int i = 0; i < spawnedPawns.Count; i++)
+            {
+                Pawn pawn = spawnedPawns[i];
+                if (pawn != null
+                    && !pawn.Destroyed
+                    && !pawn.Dead
+                    && pawn.Faction?.def == CADefOf.CrossedFaction
+                    && pawn.HostileTo(Faction.OfPlayer))
+                {
+                    activeCrossedPawns++;
+                    if (TheMarkedMenVehicleFrameworkCompatibility.IsVehiclePawn(pawn))
+                    {
+                        foreach (Pawn passenger in TheMarkedMenVehicleFrameworkCompatibility.GetVehiclePassengers(pawn))
+                        {
+                            if (passenger != null
+                                && !passenger.Spawned
+                                && !passenger.Destroyed
+                                && !passenger.Dead
+                                && passenger.Faction?.def == CADefOf.CrossedFaction
+                                && passenger.HostileTo(Faction.OfPlayer))
+                            {
+                                activeCrossedPawns++;
+                            }
+                        }
+                    }
+                }
+            }
+
+            int inboundAircraft = TheMarkedMenVehicleFrameworkCompatibility.CountInboundMarkedMenAircraft(map);
+            return Mathf.Max(0, configuredMaximum - activeCrossedPawns - inboundAircraft);
+        }
+
         public static LordJob CreateAssaultLordJob(Faction faction, float points, IReadOnlyList<Pawn> pawns = null)
         {
             // The staged siege needs at least one pawn who can actually cut through

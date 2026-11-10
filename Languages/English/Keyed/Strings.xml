@@ -183,7 +183,7 @@
   <MarkedMen_Settings_vehicleAssaultFrequencyMultiplier>Vehicle assault frequency multiplier</MarkedMen_Settings_vehicleAssaultFrequencyMultiplier>
   <MarkedMen_Settings_vehicleAssaultFrequencyMultiplierDesc>Scales the chance of each enabled vehicle assault relative to other Marked Men incidents. Set to 0 to disable all vehicle assaults.</MarkedMen_Settings_vehicleAssaultFrequencyMultiplierDesc>
   <MarkedMen_Settings_raidPointsMultiplier>Raid strength multiplier</MarkedMen_Settings_raidPointsMultiplier>
-  <MarkedMen_Settings_raidPointsMultiplierDesc>Scales incident points after the minimum point floor is applied.</MarkedMen_Settings_raidPointsMultiplierDesc>
+  <MarkedMen_Settings_raidPointsMultiplierDesc>Applies once to the storyteller's current threat-point estimate (which tracks colony wealth and difficulty), after escalation and the minimum floor. Final pawn counts remain limited by the per-raid and active-raider caps.</MarkedMen_Settings_raidPointsMultiplierDesc>
   <MarkedMen_Settings_minimumRaidPoints>Minimum raid points</MarkedMen_Settings_minimumRaidPoints>
   <MarkedMen_Settings_minimumRaidPointsDesc>Point floor for generated Marked Men attacks. Higher values make even early raids larger.</MarkedMen_Settings_minimumRaidPointsDesc>
   <MarkedMen_Settings_maximumRaidPoints>Maximum raid points</MarkedMen_Settings_maximumRaidPoints>
@@ -366,6 +366,12 @@
   <MarkedMen_Settings_reanimationProcessIntervalTicksDesc>How often queued corpse transformations are processed.</MarkedMen_Settings_reanimationProcessIntervalTicksDesc>
   <MarkedMen_Settings_maxPendingReanimationsPerTick>Max transformations processed per tick</MarkedMen_Settings_maxPendingReanimationsPerTick>
   <MarkedMen_Settings_maxPendingReanimationsPerTickDesc>Limits burst work when many infected corpses are waiting to transform.</MarkedMen_Settings_maxPendingReanimationsPerTickDesc>
+  <MarkedMen_Settings_maxRaidInfantry>Maximum infantry per raid</MarkedMen_Settings_maxRaidInfantry>
+  <MarkedMen_Settings_maxRaidInfantryDesc>Caps infantry in an individual raid. The active-raider limit below also applies across overlapping attacks.</MarkedMen_Settings_maxRaidInfantryDesc>
+  <MarkedMen_Settings_maxRaidVehicles>Maximum vehicles per raid</MarkedMen_Settings_maxRaidVehicles>
+  <MarkedMen_Settings_maxRaidVehiclesDesc>Caps vehicles requested by an individual vehicle assault.</MarkedMen_Settings_maxRaidVehiclesDesc>
+  <MarkedMen_Settings_maxActiveRaidPawns>Maximum active Marked Men raiders per map</MarkedMen_Settings_maxActiveRaidPawns>
+  <MarkedMen_Settings_maxActiveRaidPawnsDesc>Hard workload ceiling across overlapping Marked Men waves, including vehicles, onboard crew, and inbound aircraft. New attacks shrink to available capacity instead of stacking more raiders. Lower values improve performance.</MarkedMen_Settings_maxActiveRaidPawnsDesc>
   <MarkedMen_Settings_UrbanOutbreak>Ancient Urban Ruins Outbreak</MarkedMen_Settings_UrbanOutbreak>
   <MarkedMen_Settings_UrbanOutbreakDesc>Controls Marked Virus outbreaks in Ancient Urban Ruins cities. Only applies when the Ancient Urban Ruins mod is active.</MarkedMen_Settings_UrbanOutbreakDesc>
   <MarkedMen_Settings_UrbanOutbreaks>Enable urban outbreaks</MarkedMen_Settings_UrbanOutbreaks>

@@ -56,8 +56,20 @@ namespace TheMarkedMen
             parms.canTimeoutOrFlee = false;
             TheMarkedMenGameComponent.ApplyMarkedRaidArrivalPattern(parms);
 
+            int requestedAircraftCount = Mathf.Min(
+                TheMarkedMenVehicleFrameworkCompatibility.GetRaidAssaultVehicleCount(parms.points),
+                Mathf.Max(0, CrossedRaidTactics.GetRemainingRaidPawnCapacity(map) - 6));
+            int infantryCount = IncidentWorker_CrossedRaid.CalculateRaidCount(
+                parms.points * 0.35f,
+                map,
+                requestedAircraftCount);
+            if (requestedAircraftCount <= 0 || infantryCount <= 0)
+            {
+                return ExecuteFallbackRaid(parms, originalPoints, new List<Pawn>(), "the map's active-raider budget is full");
+            }
+
             List<Pawn> pawns = IncidentWorker_CrossedRaid.GenerateRaidPawns(
-                IncidentWorker_CrossedRaid.CalculateRaidCount(parms.points * 0.35f, map),
+                infantryCount,
                 parms.points,
                 crossed);
             if (pawns.Count == 0)
@@ -70,7 +82,6 @@ namespace TheMarkedMen
                 IncidentWorker_CrossedVehicleRaid.EnsureRaidPawnState(pawns[i]);
             }
 
-            int requestedAircraftCount = TheMarkedMenVehicleFrameworkCompatibility.GetRaidAssaultVehicleCount(parms.points);
             if (!TheMarkedMenVehicleFrameworkCompatibility.TrySpawnAirborneRaidVehicles(
                 crossed,
                 parms.points,

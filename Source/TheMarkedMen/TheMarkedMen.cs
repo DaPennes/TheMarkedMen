@@ -46,7 +46,7 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
 
     public sealed class TheMarkedMenSettings : ModSettings
     {
-        private const int CurrentSettingsVersion = 18;
+        private const int CurrentSettingsVersion = 19;
         public const float InfectionTransmissionChance = 0.45f;
         public const float DefaultMarkedRaidFrequencyMultiplier = 2f;
         public const float MinMarkedRaidFrequencyMultiplier = 0f;
@@ -214,6 +214,7 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
         public int maxPendingReanimationsPerTick = 24;
         public int maxRaidInfantry = 60;
         public int maxRaidVehicles = 10;
+        public int maxActiveRaidPawns = 80;
 
         public bool bloodlustEnabled = true;
         public float bloodlustDecayRate = 1f;
@@ -673,6 +674,7 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
             Scribe_Values.Look(ref maxPendingReanimationsPerTick, "maxPendingReanimationsPerTick", 24);
             Scribe_Values.Look(ref maxRaidInfantry, "maxRaidInfantry", 60);
             Scribe_Values.Look(ref maxRaidVehicles, "maxRaidVehicles", 10);
+            Scribe_Values.Look(ref maxActiveRaidPawns, "maxActiveRaidPawns", 80);
             Scribe_Values.Look(ref bloodlustEnabled, "bloodlustEnabled", true);
             Scribe_Values.Look(ref bloodlustDecayRate, "bloodlustDecayRate", 1f);
             Scribe_Values.Look(ref bloodlustKillGainMultiplier, "bloodlustKillGainMultiplier", 1f);
@@ -1103,6 +1105,7 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
             DrawInt(listing, "MarkedMen_Settings_maxPendingReanimationsPerTick".Translate(), ref maxPendingReanimationsPerTick, 1, 500, "maxPendingReanimationsPerTick", "MarkedMen_Settings_maxPendingReanimationsPerTickDesc".Translate());
             DrawInt(listing, "MarkedMen_Settings_maxRaidInfantry".Translate(), ref maxRaidInfantry, 12, 90, "maxRaidInfantry", "MarkedMen_Settings_maxRaidInfantryDesc".Translate());
             DrawInt(listing, "MarkedMen_Settings_maxRaidVehicles".Translate(), ref maxRaidVehicles, 3, 10, "maxRaidVehicles", "MarkedMen_Settings_maxRaidVehiclesDesc".Translate());
+            DrawInt(listing, "MarkedMen_Settings_maxActiveRaidPawns".Translate(), ref maxActiveRaidPawns, 12, 180, "maxActiveRaidPawns", "MarkedMen_Settings_maxActiveRaidPawnsDesc".Translate());
 
             DrawSectionHeader(listing, "MarkedMen_Settings_UrbanOutbreak".Translate(), "MarkedMen_Settings_UrbanOutbreakDesc".Translate());
             DrawCheckbox(listing, "MarkedMen_Settings_UrbanOutbreaks".Translate(), ref urbanOutbreaksEnabled, "MarkedMen_Settings_UrbanOutbreaksDesc".Translate());
@@ -1158,7 +1161,13 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
                 return Mathf.Max(120f, points);
             }
 
-            return Mathf.Clamp(Mathf.Max(points, settings.minimumRaidPoints) * settings.raidPointsMultiplier, 0f, settings.maximumRaidPoints);
+            float maximum = Mathf.Max(0f, settings.maximumRaidPoints);
+            float minimum = Mathf.Clamp(settings.minimumRaidPoints, 0f, maximum);
+            float multiplier = Mathf.Max(0.05f, settings.raidPointsMultiplier);
+            float sourcePoints = float.IsNaN(points) || float.IsInfinity(points)
+                ? minimum
+                : Mathf.Max(points, minimum);
+            return Mathf.Clamp(sourcePoints * multiplier, minimum, maximum);
         }
 
         public static float CurrentTerminalTransformationChance(HediffCompProperties_CrossVirus props)
@@ -1711,6 +1720,7 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
             maxPendingReanimationsPerTick = Mathf.Clamp(maxPendingReanimationsPerTick, 1, 500);
             maxRaidInfantry = Mathf.Clamp(maxRaidInfantry, 12, 90);
             maxRaidVehicles = Mathf.Clamp(maxRaidVehicles, 3, 10);
+            maxActiveRaidPawns = Mathf.Clamp(maxActiveRaidPawns, 12, 180);
             urbanInfectionDensity = Mathf.Clamp(urbanInfectionDensity, 0f, 5f);
             urbanAmbushFrequency = Mathf.Clamp(urbanAmbushFrequency, 0f, 5f);
             dormantInfestationFrequency = Mathf.Clamp(dormantInfestationFrequency, 0f, 5f);
@@ -2053,6 +2063,7 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
             maxPendingReanimationsPerTick = 24;
             maxRaidInfantry = 60;
             maxRaidVehicles = 10;
+            maxActiveRaidPawns = 80;
         }
     }
 
@@ -3421,11 +3432,16 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
 
         private static float CalculateStorytellerRaidPoints(Map map, IncidentDef raidDef, float existingPoints)
         {
-            float minimum = Mathf.Max(raidDef == null ? 120f : raidDef.minThreatPoints, TheMarkedMenMod.Settings?.minimumRaidPoints ?? 120f);
+            return GetStorytellerRaidPointBaseline(map, raidDef, existingPoints);
+        }
+
+        internal static float GetStorytellerRaidPointBaseline(Map map, IncidentDef incident, float existingPoints)
+        {
+            float minimum = Mathf.Max(
+                incident == null ? 120f : incident.minThreatPoints,
+                TheMarkedMenMod.Settings?.minimumRaidPoints ?? 120f);
             float storytellerPoints = map == null ? minimum : StorytellerUtility.DefaultThreatPointsNow(map);
-            float points = Mathf.Max(existingPoints, storytellerPoints, minimum);
-            float pressure = Mathf.InverseLerp(5000f, 50000f, points);
-            return Mathf.Max(minimum, points * Mathf.Lerp(0.9f, 1.12f, pressure));
+            return Mathf.Max(existingPoints, storytellerPoints, minimum);
         }
 
         private void TryFireScheduledHorde(int ticks)
@@ -3850,11 +3866,7 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
 
         private static float CalculateStorytellerHordePoints(Map map, IncidentDef hordeDef, float existingPoints)
         {
-            float minimum = Mathf.Max(hordeDef == null ? 120f : hordeDef.minThreatPoints, TheMarkedMenMod.Settings?.minimumRaidPoints ?? 120f);
-            float storytellerPoints = map == null ? minimum : StorytellerUtility.DefaultThreatPointsNow(map);
-            float points = Mathf.Max(existingPoints, storytellerPoints, minimum);
-            float pressure = Mathf.InverseLerp(5000f, 50000f, points);
-            return Mathf.Max(minimum, points * Mathf.Lerp(0.95f, 1.18f, pressure));
+            return GetStorytellerRaidPointBaseline(map, hordeDef, existingPoints);
         }
 
         private static float CurrentThreatScale()
@@ -3960,6 +3972,11 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
             TheMarkedMenGameComponent.ApplyMarkedRaidArrivalPattern(parms);
 
             int count = CalculateRaidCount(parms.points, parms.target as Map);
+            if (count <= 0)
+            {
+                return false;
+            }
+
             List<Pawn> pawns = GenerateRaidPawns(count, parms.points, crossed);
             if (pawns.Count == 0)
             {
@@ -4000,7 +4017,7 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
             return CalculateRaidCount(points, null);
         }
 
-        internal static int CalculateRaidCount(float points, Map map)
+        internal static int CalculateRaidCount(float points, Map map, int reservedPawnSlots = 0)
         {
             // Points already include the storyteller, difficulty, escalation, and
             // player multipliers. Roughly one infected per 90 points lands near
@@ -4012,23 +4029,19 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
                 MinRaidCount,
                 MaxRaidCount);
             int variance = Mathf.Clamp(Mathf.RoundToInt(expected * 0.16f), 1, 8);
-            int configuredMaximum = Mathf.Clamp(TheMarkedMenMod.Settings?.maxRaidInfantry ?? 60, MinRaidCount, MaxRaidCount);
-            int activeHostile = 0;
-            if (map != null)
+            int configuredMaximum = Mathf.Clamp(
+                TheMarkedMenMod.Settings?.maxRaidInfantry ?? 60,
+                MinRaidCount,
+                MaxRaidCount);
+            int availableCapacity = Mathf.Max(
+                0,
+                CrossedRaidTactics.GetRemainingRaidPawnCapacity(map) - Mathf.Max(0, reservedPawnSlots));
+            configuredMaximum = Mathf.Min(configuredMaximum, availableCapacity);
+            if (configuredMaximum < MinRaidCount)
             {
-                foreach (Pawn pawn in map.mapPawns.AllPawnsSpawned)
-                {
-                    if (pawn != null && pawn.HostileTo(Faction.OfPlayer) && !pawn.Dead && !pawn.Downed)
-                    {
-                        activeHostile++;
-                    }
-                }
+                return 0;
             }
 
-            if (activeHostile > configuredMaximum / 2)
-            {
-                configuredMaximum = Mathf.Max(MinRaidCount, configuredMaximum - ((activeHostile - configuredMaximum / 2) / 2));
-            }
             int lowerBound = Mathf.Max(MinRaidCount, Mathf.Min(configuredMaximum, expected - variance));
             int upperBound = Mathf.Min(configuredMaximum, expected + variance);
             return Rand.RangeInclusive(
@@ -4145,9 +4158,14 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
             parms.canSteal = false;
             parms.canTimeoutOrFlee = false;
             TheMarkedMenGameComponent.ApplyMarkedRaidArrivalPattern(parms);
-            parms.points = CalculateIncidentHordePoints(map, parms.points, def.minThreatPoints);
+            parms.points = CalculateIncidentHordePoints(map, parms.points, def);
 
             int count = CalculateHordeCount(parms.points, parms.pawnCount, map);
+            if (count <= 0)
+            {
+                return false;
+            }
+
             List<Pawn> pawns = GenerateHordePawns(count, parms.points, crossed, map);
             if (pawns.Count == 0)
             {
@@ -4187,7 +4205,9 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
             maxCount = Mathf.Clamp(maxCount, minCount, 100);
             if (requestedCount > 0)
             {
-                return Mathf.Clamp(requestedCount, minCount, maxCount);
+                return Mathf.Min(
+                    Mathf.Clamp(requestedCount, minCount, maxCount),
+                    CrossedRaidTactics.GetRemainingRaidPawnCapacity(map));
             }
 
             float normalizedThreat = Mathf.InverseLerp(5000f, 50000f, points);
@@ -4197,15 +4217,15 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
             int threatFloor = Mathf.RoundToInt(Mathf.Lerp(minCount, Mathf.Min(maxCount, 10f), normalizedThreat));
             expected = Mathf.Clamp(Mathf.Max(expected, threatFloor), minCount, maxCount);
             int variance = Mathf.Clamp(Mathf.RoundToInt(expected * 0.18f), 1, 5);
-            return Rand.RangeInclusive(Mathf.Max(minCount, expected - variance), Mathf.Min(maxCount, expected + variance));
+            int count = Rand.RangeInclusive(Mathf.Max(minCount, expected - variance), Mathf.Min(maxCount, expected + variance));
+            return Mathf.Min(count, CrossedRaidTactics.GetRemainingRaidPawnCapacity(map));
         }
 
-        private static float CalculateIncidentHordePoints(Map map, float existingPoints, float minThreatPoints)
+        private static float CalculateIncidentHordePoints(Map map, float existingPoints, IncidentDef incident)
         {
-            float storytellerPoints = map == null ? minThreatPoints : StorytellerUtility.DefaultThreatPointsNow(map);
-            float points = Mathf.Max(existingPoints, storytellerPoints, minThreatPoints);
+            float points = TheMarkedMenGameComponent.GetStorytellerRaidPointBaseline(map, incident, existingPoints);
             float pressure = Mathf.InverseLerp(5000f, 50000f, points);
-            return TheMarkedMenSettings.ApplyRaidPointSettings(Mathf.Max(minThreatPoints, points * Mathf.Lerp(0.95f, 1.18f, pressure)));
+            return TheMarkedMenSettings.ApplyRaidPointSettings(points * Mathf.Lerp(0.95f, 1.18f, pressure));
         }
 
         private static float CurrentThreatScale()
@@ -4227,7 +4247,8 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
                 pawns.Add(leader);
             }
 
-            for (int i = 0; i < count; i++)
+            int additionalPawns = leader == null ? count : Mathf.Max(0, count - 1);
+            for (int i = 0; i < additionalPawns; i++)
             {
                 PawnKindDef kind = composition.Pick();
                 if (kind == null)
@@ -4321,6 +4342,12 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
             parms.points = CalculateProbePoints(map, parms.points, def.minThreatPoints);
 
             int count = CalculateProbeCount(parms.points, parms.pawnCount);
+            count = Mathf.Min(count, CrossedRaidTactics.GetRemainingRaidPawnCapacity(map));
+            if (count <= 0)
+            {
+                return false;
+            }
+
             List<Pawn> pawns = GenerateProbePawns(count, parms.points, crossed, map);
             if (pawns.Count == 0)
             {

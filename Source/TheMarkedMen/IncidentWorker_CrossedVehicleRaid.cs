@@ -82,7 +82,40 @@ namespace TheMarkedMen
                 return false;
             }
 
-            parms.points = Mathf.Max(120f, raidPoints * 0.42f);
+            int remainingCapacity = CrossedRaidTactics.GetRemainingRaidPawnCapacity(map);
+            int requestedVehicleCount = Mathf.Min(
+                TheMarkedMenVehicleFrameworkCompatibility.GetRaidAssaultVehicleCount(raidPoints),
+                Mathf.Max(0, remainingCapacity - 3));
+            const int minimumVehicleCount = 3;
+            int infantryLimit = Mathf.Clamp(TheMarkedMenMod.Settings?.maxRaidInfantry ?? 60, 12, 90);
+            int totalVehicleCount = requestedVehicleCount;
+            int maximumInfantryCount = 0;
+            while (totalVehicleCount >= 3)
+            {
+                int estimatedGroundVehicleCount = SpawnAirSupport
+                    ? (totalVehicleCount + 1) / 2
+                    : totalVehicleCount;
+                int aircraftCount = SpawnAirSupport
+                    ? totalVehicleCount - estimatedGroundVehicleCount
+                    : 0;
+                maximumInfantryCount = Mathf.Min(infantryLimit, remainingCapacity - totalVehicleCount);
+                int minimumCrewCount = 3 + estimatedGroundVehicleCount * 2 + aircraftCount * 3;
+                if (maximumInfantryCount >= minimumCrewCount)
+                {
+                    break;
+                }
+
+                totalVehicleCount--;
+            }
+
+            if (totalVehicleCount < minimumVehicleCount || maximumInfantryCount < 3)
+            {
+                return false;
+            }
+
+            parms.points = Mathf.Max(
+                120f,
+                Mathf.Min(raidPoints * 0.42f, maximumInfantryCount * 90f));
             bool baseRaidLaunched;
             try
             {
@@ -109,8 +142,14 @@ namespace TheMarkedMen
             }
 
             TheMarkedMenVehicleFrameworkCompatibility.KeepMarkedOneOnFoot(spawnedPawns, map);
+            if (!TrimRaidPawnsToLimit(spawnedPawns, maximumInfantryCount))
+            {
+                Log.Warning("[The Marked Men] Vehicle assault exceeded the remaining active-pawn budget and was cancelled.");
+                CleanupRaidPawns(spawnedPawns);
+                return false;
+            }
+
             CrossedLordCleanupUtility.DetachFromAnyLord(spawnedPawns);
-            int totalVehicleCount = TheMarkedMenVehicleFrameworkCompatibility.GetRaidAssaultVehicleCount(raidPoints);
             int requestedGroundVehicleCount = SpawnAirSupport
                 ? (totalVehicleCount + 1) / 2
                 : totalVehicleCount;
@@ -234,6 +273,38 @@ namespace TheMarkedMen
 
             component?.NotifyRaidLaunched(raidPoints, lordPawns, map);
             return true;
+        }
+
+        private static bool TrimRaidPawnsToLimit(List<Pawn> pawns, int maximumCount)
+        {
+            if (pawns == null)
+            {
+                return false;
+            }
+
+            if (pawns.Count <= maximumCount)
+            {
+                return true;
+            }
+
+            for (int i = pawns.Count - 1; i >= 0 && pawns.Count > maximumCount; i--)
+            {
+                Pawn pawn = pawns[i];
+                if (pawn?.kindDef == CADefOf.MarkedMan
+                    || TheMarkedMenVehicleFrameworkCompatibility.IsVehiclePawn(pawn))
+                {
+                    continue;
+                }
+
+                pawns.RemoveAt(i);
+                if (pawn != null && !pawn.Destroyed)
+                {
+                    CrossedLordCleanupUtility.DetachFromAnyLord(new[] { pawn });
+                    pawn.Destroy(DestroyMode.Vanish);
+                }
+            }
+
+            return pawns.Count <= maximumCount;
         }
 
         private static int CountVehiclePawns(List<Pawn> pawns)
