@@ -63,6 +63,9 @@ namespace TheMarkedMen
         private static List<MarkedRaidVehicleOption> landRaidVehicleOptions;
         private static List<MarkedRaidVehicleOption> airRaidVehicleOptions;
         private static string vehicleFrameworkPackageId;
+        private static bool vehiclePathingApiFailureLogged;
+        private static bool vehicleDisembarkApiFailureLogged;
+        private static bool vehicleCrewRoleApiFailureLogged;
 
         static TheMarkedMenVehicleFrameworkCompatibility()
         {
@@ -313,6 +316,15 @@ namespace TheMarkedMen
             return pawn != null && pawn.GetType().FullName == VehiclePawnTypeFullName;
         }
 
+        private static bool IsMarkedMenRaidVehicle(Pawn vehicle)
+        {
+            Lord lord = vehicle?.GetLord();
+            return IsVehiclePawn(vehicle)
+                && vehicle.Faction?.def == CADefOf.CrossedFaction
+                && lord?.faction?.def == CADefOf.CrossedFaction
+                && lord.LordJob is LordJob_CrossedVehicleAssault;
+        }
+
         public static int CountInboundMarkedMenAircraft(Map map)
         {
             Assembly assembly = GetVehicleFrameworkAssembly();
@@ -508,7 +520,8 @@ namespace TheMarkedMen
 
                     MethodInfo tryAddPawn = AccessTools.Method(vehicle.GetType(), "TryAddPawn", new[] { typeof(Pawn) });
                     PropertyInfo seatsAvailable = AccessTools.Property(vehicle.GetType(), "SeatsAvailable");
-                    if (tryAddPawn == null || seatsAvailable == null)
+                    PropertyInfo hasEnoughOperators = AccessTools.Property(vehicle.GetType(), "HasEnoughOperators");
+                    if (tryAddPawn == null || seatsAvailable == null || hasEnoughOperators == null)
                     {
                         lastFailure = "Vehicle Framework crew boarding APIs could not be found";
                         vehicle.Destroy(DestroyMode.Vanish);
@@ -516,8 +529,20 @@ namespace TheMarkedMen
                         continue;
                     }
 
+                    AssignVehicleHandlingCrew(
+                        vehicle,
+                        availableRaidPawns,
+                        originalSpawnPositions,
+                        minimumCrewPawnsRemaining,
+                        "Movement");
+                    AssignVehicleHandlingCrew(
+                        vehicle,
+                        availableRaidPawns,
+                        originalSpawnPositions,
+                        minimumCrewPawnsRemaining,
+                        "Turret");
+
                     int pawnIndex = 0;
-                    PropertyInfo hasEnoughOperators = AccessTools.Property(vehicle.GetType(), "HasEnoughOperators");
                     while (CountAvailableVehicleCrewPawns(availableRaidPawns) > minimumCrewPawnsRemaining
                         && Convert.ToInt32(seatsAvailable.GetValue(vehicle, null)) > 0
                         && pawnIndex < availableRaidPawns.Count)
@@ -537,11 +562,6 @@ namespace TheMarkedMen
                         if (tryAddPawn.Invoke(vehicle, new object[] { pawn }) is bool added && added)
                         {
                             availableRaidPawns.RemoveAt(pawnIndex);
-                            if (hasEnoughOperators?.GetValue(vehicle, null) is bool operatorsReady
-                                && operatorsReady)
-                            {
-                                break;
-                            }
                         }
                         else
                         {
@@ -558,7 +578,8 @@ namespace TheMarkedMen
                     }
 
                     if (!hasCrew
-                        || (hasEnoughOperators?.GetValue(vehicle, null) is bool operatorsSatisfied && !operatorsSatisfied))
+                        || hasEnoughOperators.GetValue(vehicle, null) is not bool operatorsSatisfied
+                        || !operatorsSatisfied)
                     {
                         lastFailure = "the vehicle could not be crewed while preserving "
                             + minimumCrewPawnsRemaining + " infantry pawns";
@@ -617,11 +638,9 @@ namespace TheMarkedMen
         {
             Lord vehicleLord = vehicle?.GetLord();
             if (vehicle == null || !vehicle.Spawned || vehicle.Dead
-                || vehicle.Map == null || !IsVehiclePawn(vehicle)
+                || vehicle.Map == null || !IsMarkedMenRaidVehicle(vehicle)
                 || vehicle.mindState == null
-                || vehicle.Faction?.def != CADefOf.CrossedFaction
-                || vehicleLord?.faction?.def != CADefOf.CrossedFaction
-                || !(vehicleLord?.LordJob is LordJob_CrossedVehicleAssault))
+                || vehicleLord?.LordJob is not LordJob_CrossedVehicleAssault)
             {
                 return;
             }
@@ -653,7 +672,7 @@ namespace TheMarkedMen
 
             float preferredRange = GetVehiclePreferredCombatRange(vehicle);
             float enemyDistance = Mathf.Sqrt(enemyDistanceSquared);
-            if (enemyDistance < preferredRange * 0.72f)
+            if (preferredRange > 0f && enemyDistance < preferredRange * 0.72f)
             {
                 IntVec3 retreatCell = GetVehicleStandoffCell(vehicle, enemy, preferredRange);
                 vehicle.mindState.duty = retreatCell.IsValid
@@ -668,37 +687,24 @@ namespace TheMarkedMen
 
         private static float GetVehiclePreferredCombatRange(Pawn vehicle)
         {
-            string identity = ((vehicle.def?.defName ?? string.Empty) + " "
-                + (vehicle.def?.label ?? string.Empty)).ToLowerInvariant();
-
-            if (identity.Contains("rocket") || identity.Contains("missile")
-                || identity.Contains("artillery") || identity.Contains("mortar"))
+            object turretComp = ReadMember(vehicle, "CompVehicleTurrets");
+            object turrets = ReadMember(turretComp, "Turrets");
+            bool hasTurrets = turrets is IEnumerable turretList && turretList.Cast<object>().Any(turret => turret != null);
+            if (turretComp == null || !hasTurrets
+                || !TryConvertFloat(ReadMember(turretComp, "MaxRange"), out float maxRange)
+                || maxRange <= 0f)
             {
-                return 36f;
-            }
-            if (string.Equals(
-                Convert.ToString(ReadVehicleMember(vehicle.def, "type")),
-                "Air",
-                StringComparison.OrdinalIgnoreCase))
-            {
-                return 28f;
-            }
-            if (identity.Contains("helicopter") || identity.Contains("mosquito")
-                || identity.Contains("louie") || identity.Contains("hover"))
-            {
-                return 28f;
-            }
-            if (identity.Contains("tank") || identity.Contains("apc")
-                || identity.Contains("cannon") || identity.Contains("gun"))
-            {
-                return 22f;
-            }
-            if (identity.Contains("car") || identity.Contains("truck"))
-            {
-                return 16f;
+                return 0f;
             }
 
-            return 24f;
+            float minimumRange = TryConvertFloat(ReadMember(turretComp, "MinRange"), out float minRange)
+                ? minRange
+                : 0f;
+            float optimalRange = TryConvertFloat(ReadMember(turretComp, "OptimalDistance"), out float optimal)
+                && optimal > 0f
+                    ? optimal
+                    : maxRange * 0.8f;
+            return Mathf.Clamp(optimalRange, minimumRange, maxRange);
         }
 
         private static IntVec3 GetVehicleStandoffCell(Pawn vehicle, Pawn enemy, float preferredRange)
@@ -709,16 +715,63 @@ namespace TheMarkedMen
                 away = new Vector3(Rand.Range(-1f, 1f), 0f, Rand.Range(-1f, 1f)).normalized;
             }
 
-            IntVec3 proposed = vehicle.Position + new IntVec3(
-                Mathf.RoundToInt(away.x * preferredRange * 0.55f),
-                0,
-                Mathf.RoundToInt(away.z * preferredRange * 0.55f));
-            if (proposed.InBounds(vehicle.Map) && proposed.Walkable(vehicle.Map))
+            Assembly assembly = GetVehicleFrameworkAssembly();
+            Type helperType = assembly?.GetType("Vehicles.PathingHelper");
+            Type vehicleType = assembly?.GetType(VehiclePawnTypeFullName);
+            MethodInfo findNearestStandableCell = helperType == null || vehicleType == null
+                ? null
+                : AccessTools.Method(helperType, "TryFindNearestStandableCell", new[]
+                {
+                    vehicleType,
+                    typeof(IntVec3),
+                    typeof(IntVec3).MakeByRefType(),
+                    typeof(float)
+                });
+            if (findNearestStandableCell == null)
             {
-                return proposed;
+                LogVehiclePathingApiFailure("Vehicle Framework's vehicle reachability helper could not be found.");
+                return IntVec3.Invalid;
+            }
+
+            float desiredDistance = preferredRange * 0.8f;
+            float baseAngle = Mathf.Atan2(away.z, away.x);
+            for (int i = 0; i < 5; i++)
+            {
+                float angle = baseAngle + (i == 0 ? 0f : ((i % 2 == 1 ? 1f : -1f) * ((i + 1) / 2) * 0.35f));
+                IntVec3 proposed = enemy.Position + new IntVec3(
+                    Mathf.RoundToInt(Mathf.Cos(angle) * desiredDistance),
+                    0,
+                    Mathf.RoundToInt(Mathf.Sin(angle) * desiredDistance));
+                object[] arguments = { vehicle, proposed, IntVec3.Invalid, 2f };
+                try
+                {
+                    if (findNearestStandableCell.Invoke(null, arguments) is bool found
+                        && found
+                        && arguments[2] is IntVec3 standable)
+                    {
+                        return standable;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    LogVehiclePathingApiFailure(
+                        "Vehicle Framework could not find a reachable assault position: " + ex.Message);
+                    return IntVec3.Invalid;
+                }
             }
 
             return IntVec3.Invalid;
+        }
+
+        private static void LogVehiclePathingApiFailure(string reason)
+        {
+            if (vehiclePathingApiFailureLogged)
+            {
+                return;
+            }
+
+            vehiclePathingApiFailureLogged = true;
+            Log.Warning("[The Marked Men] " + reason + " The vehicle will continue using its normal assault duty.");
         }
 
         private static bool TrySpawnGroundRaidVehicle(Pawn vehicle, Map map, out string failureReason)
@@ -968,15 +1021,28 @@ namespace TheMarkedMen
 
                         MethodInfo tryAddPawn = AccessTools.Method(vehicle.GetType(), "TryAddPawn", new[] { typeof(Pawn) });
                         PropertyInfo seatsAvailable = AccessTools.Property(vehicle.GetType(), "SeatsAvailable");
-                        if (tryAddPawn == null || seatsAvailable == null)
+                        PropertyInfo hasEnoughOperators = AccessTools.Property(vehicle.GetType(), "HasEnoughOperators");
+                        if (tryAddPawn == null || seatsAvailable == null || hasEnoughOperators == null)
                         {
                             lastFailure = "Vehicle Framework crew boarding APIs could not be found";
                             vehicle.Destroy(DestroyMode.Vanish);
                             continue;
                         }
 
+                        AssignVehicleHandlingCrew(
+                            vehicle,
+                            availableRaidPawns,
+                            originalSpawnPositions,
+                            MinimumGroundRaidPawns,
+                            "Movement");
+                        AssignVehicleHandlingCrew(
+                            vehicle,
+                            availableRaidPawns,
+                            originalSpawnPositions,
+                            MinimumGroundRaidPawns,
+                            "Turret");
+
                         int pawnIndex = 0;
-                        PropertyInfo hasEnoughOperators = AccessTools.Property(vehicle.GetType(), "HasEnoughOperators");
                         while (CountAvailableVehicleCrewPawns(availableRaidPawns) > MinimumGroundRaidPawns
                             && Convert.ToInt32(seatsAvailable.GetValue(vehicle, null)) > 0
                             && pawnIndex < availableRaidPawns.Count)
@@ -1755,6 +1821,183 @@ namespace TheMarkedMen
                 && pawn.kindDef != CADefOf.MarkedMan;
         }
 
+        private static void AssignVehicleHandlingCrew(
+            Pawn vehicle,
+            List<Pawn> availableRaidPawns,
+            Dictionary<Pawn, IntVec3> originalSpawnPositions,
+            int minimumCrewPawnsRemaining,
+            string handlingTypeName)
+        {
+            Type handlerType = GetVehicleFrameworkAssembly()?.GetType("Vehicles.VehicleRoleHandler");
+            if (handlerType == null)
+            {
+                LogVehicleCrewRoleApiFailure();
+                return;
+            }
+
+            MethodInfo addPawnToHandler = AccessTools.Method(
+                vehicle.GetType(),
+                "TryAddPawn",
+                new[] { typeof(Pawn), handlerType });
+            PropertyInfo seatsAvailable = AccessTools.Property(vehicle.GetType(), "SeatsAvailable");
+            if (addPawnToHandler == null || seatsAvailable == null)
+            {
+                LogVehicleCrewRoleApiFailure();
+                return;
+            }
+
+            foreach (object handler in GetVehicleHandlers(vehicle))
+            {
+                if (handler == null || !VehicleHandlerHasHandlingType(handler, handlingTypeName))
+                {
+                    continue;
+                }
+
+                MethodInfo canOperateRole = AccessTools.Method(handler.GetType(), "CanOperateRole", new[] { typeof(Pawn) });
+                if (canOperateRole == null)
+                {
+                    LogVehicleCrewRoleApiFailure();
+                    continue;
+                }
+
+                while (ReadMember(handler, "RoleFulfilled") is bool roleFulfilled
+                    && !roleFulfilled
+                    && CountAvailableVehicleCrewPawns(availableRaidPawns) > minimumCrewPawnsRemaining
+                    && Convert.ToInt32(seatsAvailable.GetValue(vehicle, null)) > 0)
+                {
+                    Pawn candidate = FindBestVehicleCrewPawn(
+                        handler,
+                        canOperateRole,
+                        availableRaidPawns,
+                        handlingTypeName);
+                    if (candidate == null)
+                    {
+                        break;
+                    }
+
+                    if (candidate.Spawned)
+                    {
+                        originalSpawnPositions[candidate] = candidate.Position;
+                    }
+
+                    if (addPawnToHandler.Invoke(vehicle, new object[] { candidate, handler }) is bool added && added)
+                    {
+                        availableRaidPawns.Remove(candidate);
+                    }
+                    else
+                    {
+                        originalSpawnPositions.Remove(candidate);
+                        break;
+                    }
+                }
+            }
+        }
+
+        private static Pawn FindBestVehicleCrewPawn(
+            object handler,
+            MethodInfo canOperateRole,
+            List<Pawn> availableRaidPawns,
+            string handlingTypeName)
+        {
+            Pawn bestPawn = null;
+            int bestPriority = int.MinValue;
+            for (int i = 0; i < availableRaidPawns.Count; i++)
+            {
+                Pawn pawn = availableRaidPawns[i];
+                if (!CanCrewRaidVehicle(pawn)
+                    || canOperateRole.Invoke(handler, new object[] { pawn }) is not bool canOperate
+                    || !canOperate)
+                {
+                    continue;
+                }
+
+                int priority = GetVehicleCrewPriority(pawn, handlingTypeName);
+                if (priority > bestPriority)
+                {
+                    bestPawn = pawn;
+                    bestPriority = priority;
+                }
+            }
+
+            return bestPawn;
+        }
+
+        private static int GetVehicleCrewPriority(Pawn pawn, string handlingTypeName)
+        {
+            string kind = (pawn.kindDef?.defName ?? string.Empty).ToLowerInvariant();
+            if (string.Equals(handlingTypeName, "Movement", StringComparison.Ordinal))
+            {
+                if (kind.Contains("warlord") || kind.Contains("alpha"))
+                {
+                    return 5;
+                }
+                if (kind.Contains("soldier") || kind.Contains("raider"))
+                {
+                    return 4;
+                }
+                if (kind.Contains("scout") || kind.Contains("hunter"))
+                {
+                    return 3;
+                }
+                return 1;
+            }
+
+            if (kind.Contains("shooter") || kind.Contains("soldier"))
+            {
+                return 5;
+            }
+            if (kind.Contains("raider") || kind.Contains("warlord") || kind.Contains("alpha"))
+            {
+                return 4;
+            }
+            return 1;
+        }
+
+        private static bool VehicleHandlerHasHandlingType(object handler, string handlingTypeName)
+        {
+            object role = ReadMember(handler, "role", "Role");
+            string handlingTypes = Convert.ToString(ReadMember(role, "HandlingTypes", "handlingTypes"));
+            if (string.IsNullOrEmpty(handlingTypes))
+            {
+                return false;
+            }
+
+            return handlingTypes.Split(',').Any(type =>
+                string.Equals(type.Trim(), handlingTypeName, StringComparison.OrdinalIgnoreCase));
+        }
+
+        private static IEnumerable<object> GetVehicleHandlers(Pawn vehicle)
+        {
+            object handlers = ReadMember(vehicle, "handlers", "Handlers");
+            if (handlers is IDictionary handlerDictionary)
+            {
+                foreach (DictionaryEntry entry in handlerDictionary)
+                {
+                    yield return entry.Value;
+                }
+                yield break;
+            }
+
+            if (handlers is IEnumerable handlerCollection)
+            {
+                foreach (object handler in handlerCollection)
+                {
+                    yield return handler;
+                }
+            }
+        }
+
+        private static void LogVehicleCrewRoleApiFailure()
+        {
+            if (vehicleCrewRoleApiFailureLogged)
+            {
+                return;
+            }
+
+            vehicleCrewRoleApiFailureLogged = true;
+            Log.Warning("[The Marked Men] Vehicle Framework's role-aware crew APIs could not be found; using its standard boarding order.");
+        }
+
         private static int CountAvailableVehicleCrewPawns(List<Pawn> pawns)
         {
             int count = 0;
@@ -1821,6 +2064,17 @@ namespace TheMarkedMen
                     return;
                 }
 
+                object vehiclePather = ReadMember(vehicle, "vehiclePather", "VehiclePather");
+                if (vehiclePather == null || ReadMember(vehiclePather, "Moving") is not bool vehicleMoving)
+                {
+                    LogVehicleDisembarkApiFailure();
+                    return;
+                }
+                if (vehicleMoving)
+                {
+                    return;
+                }
+
                 bool airborne = vehicle.AllComps != null && vehicle.AllComps.Any(comp =>
                     comp?.GetType().Name.IndexOf("Flying", StringComparison.OrdinalIgnoreCase) >= 0
                     || comp?.GetType().Name.IndexOf("Air", StringComparison.OrdinalIgnoreCase) >= 0);
@@ -1859,8 +2113,9 @@ namespace TheMarkedMen
 
                 MethodInfo removePawn = AccessTools.Method(vehicle.GetType(), "RemovePawn", new[] { typeof(Pawn) });
                 PropertyInfo hasEnoughOperators = AccessTools.Property(vehicle.GetType(), "HasEnoughOperators");
-                if (removePawn == null)
+                if (removePawn == null || hasEnoughOperators == null)
                 {
+                    LogVehicleDisembarkApiFailure();
                     return;
                 }
 
@@ -1879,7 +2134,7 @@ namespace TheMarkedMen
 
                     object removed = removePawn.Invoke(vehicle, new object[] { passenger });
                     bool removedSuccessfully = removed is bool removedResult && removedResult;
-                    bool enoughOperators = hasEnoughOperators?.GetValue(vehicle, null) is not bool hasOperators || hasOperators;
+                    bool enoughOperators = hasEnoughOperators.GetValue(vehicle, null) is bool hasOperators && hasOperators;
                     if (!removedSuccessfully || !enoughOperators)
                     {
                         if (removedSuccessfully)
@@ -1961,34 +2216,17 @@ namespace TheMarkedMen
                     return false;
                 }
 
-                object handlers = ReadMember(vehicle, "handlers", "Handlers", "vehicleHandlers", "VehicleHandlers");
-                IDictionary handlerDictionary = handlers as IDictionary;
-                IEnumerable handlerValues = handlerDictionary != null
-                    ? handlerDictionary.Values
-                    : handlers as IEnumerable;
-                if (handlerValues == null)
-                {
-                    return false;
-                }
-
-                foreach (object handler in handlerValues)
+                foreach (object handler in GetVehicleHandlers(vehicle))
                 {
                     if (handler == null || !HandlerOccupiesPawn(handler, pawn))
                     {
                         continue;
                     }
 
-                    string role = DescribeRequiredCrewRole(handler, vehicle);
-                    if (role.ToLowerInvariant().IndexOf("passenger", StringComparison.OrdinalIgnoreCase) >= 0)
-                    {
-                        continue;
-                    }
-                    string requiredRole = role.ToLowerInvariant();
-                    if (requiredRole.Contains("driver")
-                        || requiredRole.Contains("pilot")
-                        || requiredRole.Contains("operator")
-                        || requiredRole.Contains("gunner")
-                        || requiredRole.Contains("turret"))
+                    object role = ReadMember(handler, "role", "Role");
+                    string handlingTypes = Convert.ToString(ReadMember(role, "HandlingTypes", "handlingTypes"));
+                    if (!string.IsNullOrEmpty(handlingTypes)
+                        && !string.Equals(handlingTypes.Trim(), "None", StringComparison.OrdinalIgnoreCase))
                     {
                         return true;
                     }
@@ -1997,118 +2235,28 @@ namespace TheMarkedMen
                 return false;
             }
 
-            private static bool HandlerOccupiesPawn(object handler, Pawn pawn)
+            private static void LogVehicleDisembarkApiFailure()
             {
-                object occupants = ReadMember(handler, "occupants", "Occupants", "occupiedPawns", "OccupiedPawns", "pawn", "Pawn", "occupiedBy", "OccupiedBy");
-                if (occupants == pawn)
+                if (vehicleDisembarkApiFailureLogged)
                 {
-                    return true;
+                    return;
                 }
 
-                IEnumerable occupantsEnumerable = occupants as IEnumerable;
-                if (occupantsEnumerable != null)
+                vehicleDisembarkApiFailureLogged = true;
+                Log.Warning("[The Marked Men] Vehicle Framework's crew or movement APIs could not be read; raid passengers will remain aboard.");
+            }
+
+            private static bool HandlerOccupiesPawn(object handler, Pawn pawn)
+            {
+                object occupants = ReadMember(handler, "thingOwner", "ThingOwner");
+                if (occupants is IEnumerable occupantList)
                 {
-                    foreach (object occupant in occupantsEnumerable)
+                    foreach (object occupant in occupantList)
                     {
                         if (occupant == pawn)
                         {
                             return true;
                         }
-                    }
-                }
-
-                if (ContainsPawnReference(handler, pawn, new HashSet<object>(), 0))
-                {
-                    return true;
-                }
-
-                return false;
-            }
-
-            private static string DescribeRequiredCrewRole(object handler, Pawn vehicle)
-            {
-                string role = Convert.ToString(
-                    ReadMember(handler, "handlingType", "HandlingType", "role", "Role", "roleType", "RoleType"))
-                    ?? string.Empty;
-                role += " " + handler.GetType().Name + " " + GetHandlerRoleText(handler);
-
-                object handlers = ReadMember(vehicle, "handlers", "Handlers", "vehicleHandlers", "VehicleHandlers");
-                if (handlers != null)
-                {
-                    role += " " + handlers.GetType().Name;
-                }
-
-                return role;
-            }
-
-            private static string GetHandlerRoleText(object handler)
-            {
-                string result = string.Empty;
-                Type type = handler.GetType();
-                foreach (FieldInfo field in type.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic))
-                {
-                    result += " " + field.Name;
-                    if (field.FieldType.IsEnum || field.FieldType == typeof(string))
-                    {
-                        try
-                        {
-                            result += " " + Convert.ToString(field.GetValue(handler));
-                        }
-                        catch
-                        {
-                        }
-                    }
-                }
-                return result;
-            }
-
-            private static bool ContainsPawnReference(object value, Pawn pawn, HashSet<object> visited, int depth)
-            {
-                if (value == null || depth > 5)
-                {
-                    return false;
-                }
-
-                if (value == pawn)
-                {
-                    return true;
-                }
-
-                if (!value.GetType().IsValueType)
-                {
-                    if (!visited.Add(value))
-                    {
-                        return false;
-                    }
-                }
-
-                if (value is IEnumerable enumerable && !(value is string))
-                {
-                    foreach (object item in enumerable)
-                    {
-                        if (ContainsPawnReference(item, pawn, visited, depth + 1))
-                        {
-                            return true;
-                        }
-                    }
-                }
-
-                foreach (FieldInfo field in value.GetType().GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic))
-                {
-                    if (field.FieldType.IsPrimitive || field.FieldType == typeof(string))
-                    {
-                        continue;
-                    }
-
-                    try
-                    {
-                        if (ContainsPawnReference(field.GetValue(value), pawn, visited, depth + 1))
-                        {
-                            return true;
-                        }
-                    }
-                    catch
-                    {
                     }
                 }
 
@@ -2499,39 +2647,10 @@ namespace TheMarkedMen
         // Harmony patch methods
         public static void Patch_VehicleGetGizmos(dynamic __instance, ref IEnumerable<Gizmo> __result)
         {
-            try
+            Pawn vehicle = __instance as Pawn;
+            if (IsMarkedMenRaidVehicle(vehicle))
             {
-                Thing vehicleThing = __instance as Thing;
-                if (vehicleThing == null)
-                {
-                    return;
-                }
-
-                if (IsVehiclePawn(__instance as Pawn)
-                    && vehicleThing.Faction != null
-                    && vehicleThing.Faction != Faction.OfPlayer)
-                {
-                    __result = FilterPlayerVehicleCommands(__result);
-                }
-
-                // Add ambush timer if vehicle is associated with caravan
-                var passengers = GetVehiclePassengers(__instance);
-                bool hasPassengers = passengers != null && passengers.Count > 0;
-
-                if (hasPassengers)
-                {
-                    // Check if any passenger is marked for ambush tracking
-                    // This would integrate with caravan ambush system
-                    TheMarkedMenGameComponent component = CrossedUtility.Component;
-                    if (component != null)
-                    {
-                        // Vehicle-based caravan tracking would go here
-                    }
-                }
-            }
-            catch
-            {
-                // Silently fail - don't break vehicle functionality
+                __result = FilterPlayerVehicleCommands(__result);
             }
         }
 
