@@ -66,6 +66,8 @@ namespace TheMarkedMen
         private static bool vehicleControlApiFailureLogged;
         private static bool vehicleOrderApiFailureLogged;
 
+        private const int VehicleAssaultWaypointDistance = 35;
+
         static TheMarkedMenVehicleFrameworkCompatibility()
         {
             TryInitializeVehicleFrameworkSupport();
@@ -777,6 +779,48 @@ namespace TheMarkedMen
             }
         }
 
+        public static void Patch_VehicleGotoNearestHostile(Pawn pawn, ref Job __result)
+        {
+            if (pawn == null
+                || !IsVehiclePawn(pawn)
+                || pawn.GetLord()?.LordJob is not LordJob_CrossedVehicleAssault
+                || __result?.def != JobDefOf.Goto
+                || pawn.Map == null)
+            {
+                return;
+            }
+
+            IntVec3 destination = __result.targetA.Cell;
+            if (!destination.IsValid
+                || !destination.InBounds(pawn.Map)
+                || pawn.Position.DistanceToSquared(destination)
+                    <= VehicleAssaultWaypointDistance * VehicleAssaultWaypointDistance)
+            {
+                return;
+            }
+
+            int deltaX = destination.x - pawn.Position.x;
+            int deltaZ = destination.z - pawn.Position.z;
+            float distance = Mathf.Sqrt(deltaX * deltaX + deltaZ * deltaZ);
+            if (distance <= 0f)
+            {
+                return;
+            }
+
+            IntVec3 waypoint = pawn.Position + new IntVec3(
+                Mathf.RoundToInt(deltaX * VehicleAssaultWaypointDistance / distance),
+                0,
+                Mathf.RoundToInt(deltaZ * VehicleAssaultWaypointDistance / distance));
+            if (TryFindReachableVehicleCell(pawn, waypoint, 8f, out IntVec3 reachableWaypoint))
+            {
+                __result.targetA = new LocalTargetInfo(reachableWaypoint);
+            }
+            else
+            {
+                __result = null;
+            }
+        }
+
         private static float GetVehiclePreferredCombatRange(Pawn vehicle)
         {
             object turretComp = ReadMember(vehicle, "CompVehicleTurrets");
@@ -807,6 +851,36 @@ namespace TheMarkedMen
                 away = new Vector3(Rand.Range(-1f, 1f), 0f, Rand.Range(-1f, 1f)).normalized;
             }
 
+            float desiredDistance = preferredRange * 0.8f;
+            float baseAngle = Mathf.Atan2(away.z, away.x);
+            for (int i = 0; i < 5; i++)
+            {
+                float angle = baseAngle + (i == 0 ? 0f : ((i % 2 == 1 ? 1f : -1f) * ((i + 1) / 2) * 0.35f));
+                IntVec3 proposed = enemy.Position + new IntVec3(
+                    Mathf.RoundToInt(Mathf.Cos(angle) * desiredDistance),
+                    0,
+                    Mathf.RoundToInt(Mathf.Sin(angle) * desiredDistance));
+                if (TryFindReachableVehicleCell(vehicle, proposed, 2f, out IntVec3 standable))
+                {
+                    return standable;
+                }
+            }
+
+            return IntVec3.Invalid;
+        }
+
+        private static bool TryFindReachableVehicleCell(
+            Pawn vehicle,
+            IntVec3 requestedCell,
+            float radius,
+            out IntVec3 reachableCell)
+        {
+            reachableCell = IntVec3.Invalid;
+            if (vehicle == null || !vehicle.Spawned || vehicle.Map == null)
+            {
+                return false;
+            }
+
             Assembly assembly = GetVehicleFrameworkAssembly();
             Type helperType = assembly?.GetType("Vehicles.PathingHelper");
             Type vehicleType = assembly?.GetType(VehiclePawnTypeFullName);
@@ -822,41 +896,30 @@ namespace TheMarkedMen
             if (findNearestStandableCell == null)
             {
                 LogVehiclePathingApiFailure("Vehicle Framework's vehicle reachability helper could not be found.");
-                return IntVec3.Invalid;
+                return false;
             }
 
-            float desiredDistance = preferredRange * 0.8f;
-            float baseAngle = Mathf.Atan2(away.z, away.x);
-            for (int i = 0; i < 5; i++)
+            object[] arguments = { vehicle, requestedCell, IntVec3.Invalid, radius };
+            try
             {
-                float angle = baseAngle + (i == 0 ? 0f : ((i % 2 == 1 ? 1f : -1f) * ((i + 1) / 2) * 0.35f));
-                IntVec3 proposed = enemy.Position + new IntVec3(
-                    Mathf.RoundToInt(Mathf.Cos(angle) * desiredDistance),
-                    0,
-                    Mathf.RoundToInt(Mathf.Sin(angle) * desiredDistance));
-                object[] arguments = { vehicle, proposed, IntVec3.Invalid, 2f };
-                try
+                if (findNearestStandableCell.Invoke(null, arguments) is bool found
+                    && found
+                    && arguments[2] is IntVec3 candidate
+                    && candidate.InBounds(vehicle.Map)
+                    && vehicle.CanReach(candidate, PathEndMode.OnCell, Danger.Deadly))
                 {
-                    if (findNearestStandableCell.Invoke(null, arguments) is bool found
-                        && found
-                        && arguments[2] is IntVec3 standable)
-                    {
-                        if (standable.InBounds(vehicle.Map)
-                            && vehicle.CanReach(standable, PathEndMode.OnCell, Danger.Deadly))
-                        {
-                            return standable;
-                        }
-                    }
+                    reachableCell = candidate;
+                    return true;
                 }
-                catch (Exception ex)
-                {
-                    LogVehiclePathingApiFailure(
-                        "Vehicle Framework could not find a reachable assault position: " + ex.Message);
-                    return IntVec3.Invalid;
-                }
-            }
 
-            return IntVec3.Invalid;
+                return false;
+            }
+            catch (Exception ex)
+            {
+                LogVehiclePathingApiFailure(
+                    "Vehicle Framework could not find a reachable assault position: " + ex.Message);
+                return false;
+            }
         }
 
         private static void LogVehiclePathingApiFailure(string reason)
@@ -2681,6 +2744,36 @@ namespace TheMarkedMen
                 {
                     LogVehicleOrderApiFailure(
                         "Vehicle Framework's direct vehicle-order validation method could not be found; raid vehicles may accept player move orders.");
+                }
+
+                Type gotoNearestHostileType = GetVehicleFrameworkAssembly()
+                    ?.GetType("Vehicles.JobGiver_GotoNearestHostile");
+                MethodInfo gotoNearestHostileJob = gotoNearestHostileType?
+                    .GetMethods(AccessTools.all)
+                    .FirstOrDefault(method =>
+                    {
+                        if (method.Name != "TryGiveJob")
+                        {
+                            return false;
+                        }
+
+                        ParameterInfo[] parameters = method.GetParameters();
+                        return parameters.Length == 1 && parameters[0].ParameterType == typeof(Pawn);
+                    });
+                MethodInfo gotoNearestHostilePostfix = AccessTools.Method(
+                    typeof(TheMarkedMenVehicleFrameworkCompatibility),
+                    nameof(Patch_VehicleGotoNearestHostile));
+                if (gotoNearestHostileJob != null && gotoNearestHostilePostfix != null)
+                {
+                    harmony.Patch(
+                        gotoNearestHostileJob,
+                        postfix: new HarmonyMethod(gotoNearestHostilePostfix));
+                    Log.Message("[The Marked Men] Added staged pathing for long vehicle assault moves.");
+                }
+                else
+                {
+                    LogVehiclePathingApiFailure(
+                        "Vehicle Framework's nearest-hostile job giver could not be patched; long vehicle assault routes may still exhaust pathfinding.");
                 }
 
                 // Patch vehicle TakeDamage to track infected occupants
