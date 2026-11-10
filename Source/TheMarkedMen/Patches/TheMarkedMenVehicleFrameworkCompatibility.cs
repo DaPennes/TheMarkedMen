@@ -1213,7 +1213,7 @@ namespace TheMarkedMen
             Rot4 rotation = Rot4.Random;
             List<IntVec3> candidates = new List<IntVec3>();
             int minimumDepth = GetVehiclePathSafetyMargin(vehicle);
-            int maxDepth = Mathf.Min(minimumDepth + 4, (Mathf.Min(map.Size.x, map.Size.z) - 1) / 2);
+            int maxDepth = (Mathf.Min(map.Size.x, map.Size.z) - 1) / 2;
             for (int depth = minimumDepth; depth <= maxDepth; depth++)
             {
                 int minX = depth;
