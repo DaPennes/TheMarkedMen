@@ -793,6 +793,13 @@ namespace TheMarkedMen
                 return;
             }
 
+            if (!IsSafeVehiclePathCell(pawn, pawn.Position))
+            {
+                TryRecoverUnsafeRaidVehiclePosition(pawn);
+                __result = null;
+                return;
+            }
+
             IntVec3 destination = __result.targetA.Cell;
             if (!destination.IsValid
                 || !destination.InBounds(pawn.Map))
@@ -841,6 +848,59 @@ namespace TheMarkedMen
             {
                 __result = null;
             }
+        }
+
+        public static bool Patch_VehicleTurretTargetRequirements(
+            object __0,
+            IntVec3 __1,
+            LocalTargetInfo __2,
+            ref IntVec3 __3)
+        {
+            __3 = __2.Cell;
+            if (__0 == null)
+            {
+                return false;
+            }
+
+            Pawn vehicle = ReadMember(__0, "vehicle") as Pawn;
+            if (vehicle == null)
+            {
+                return false;
+            }
+
+            object turretDef = ReadMember(__0, "def");
+            if (turretDef == null)
+            {
+                return false;
+            }
+
+            if (!IsMarkedMenFactionVehicle(vehicle))
+            {
+                return true;
+            }
+
+            Map map = vehicle.Map;
+            ThingDef projectileDef = ReadMember(__0, "ProjectileDef") as ThingDef;
+            if (!vehicle.Spawned
+                || map == null
+                || projectileDef?.projectile == null
+                || !__1.InBounds(map)
+                || !__2.Cell.InBounds(map))
+            {
+                return false;
+            }
+
+            if (__2.HasThing
+                && (__2.Thing == null
+                    || !__2.Thing.Spawned
+                    || __2.Thing.Destroyed
+                    || __2.Thing.Map != map
+                    || __2.Thing.def == null))
+            {
+                return false;
+            }
+
+            return true;
         }
 
         private static IEnumerable<CodeInstruction> Patch_VehicleFailureMessage(
@@ -932,14 +992,93 @@ namespace TheMarkedMen
                 return false;
             }
 
-            IntVec2 vehicleSize = vehicle.def.size;
-            int margin = Mathf.Max(
-                1,
-                Mathf.CeilToInt(Mathf.Max(vehicleSize.x, vehicleSize.z) * 0.5f));
-            return cell.x >= margin
-                && cell.x < map.Size.x - margin
-                && cell.z >= margin
-                && cell.z < map.Size.z - margin;
+            int margin = GetVehiclePathSafetyMargin(vehicle);
+            if (cell.x < margin
+                || cell.x >= map.Size.x - margin
+                || cell.z < margin
+                || cell.z >= map.Size.z - margin)
+            {
+                return false;
+            }
+
+            Rot4[] rotations = { Rot4.North, Rot4.East, Rot4.South, Rot4.West };
+            for (int i = 0; i < rotations.Length; i++)
+            {
+                if (!GenAdj.OccupiedRect(cell, rotations[i], vehicle.def.Size).InBounds(map))
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        private static int GetVehiclePathSafetyMargin(Pawn vehicle)
+        {
+            IntVec2 vehicleSize = vehicle?.def?.size ?? IntVec2.One;
+            return Mathf.Max(8, Mathf.Max(vehicleSize.x, vehicleSize.z) + 2);
+        }
+
+        private static bool TryRecoverUnsafeRaidVehiclePosition(Pawn vehicle)
+        {
+            Map map = vehicle?.Map;
+            if (!IsMarkedMenRaidVehicle(vehicle)
+                || !vehicle.Spawned
+                || map == null
+                || !GenAdj.OccupiedRect(vehicle).InBounds(map))
+            {
+                return false;
+            }
+
+            Assembly assembly = GetVehicleFrameworkAssembly();
+            Type mapHelperType = assembly?.GetType("Vehicles.MapHelper");
+            MethodInfo blocked = mapHelperType == null
+                ? null
+                : AccessTools.Method(mapHelperType, "ImpassableOrVehicleBlocked");
+            MethodInfo nonStandable = mapHelperType == null
+                ? null
+                : AccessTools.Method(mapHelperType, "NonStandableOrVehicleBlocked");
+            if (blocked == null || nonStandable == null)
+            {
+                return false;
+            }
+
+            IntVec3 safeCell = IntVec3.Invalid;
+            foreach (IntVec3 candidate in GenRadial.RadialCellsAround(vehicle.Position, 32f, true))
+            {
+                if (IsVehicleFootprintValid(vehicle, map, candidate, vehicle.Rotation, blocked, nonStandable))
+                {
+                    safeCell = candidate;
+                    break;
+                }
+            }
+
+            if (!safeCell.IsValid)
+            {
+                return false;
+            }
+
+            Rot4 originalRotation = vehicle.Rotation;
+            vehicle.jobs?.EndCurrentJob(JobCondition.InterruptForced);
+            try
+            {
+                vehicle.DeSpawn();
+                GenSpawn.Spawn(vehicle, safeCell, map, originalRotation);
+            }
+            catch (Exception ex)
+            {
+                Log.Error("[The Marked Men] Could not reposition an edge-spawned raid vehicle: " + ex);
+                return false;
+            }
+
+            if (!vehicle.Spawned || vehicle.Map != map || !IsSafeVehiclePathCell(vehicle, vehicle.Position))
+            {
+                Log.Error("[The Marked Men] Edge-spawned raid vehicle did not enter its validated safe cell.");
+                return false;
+            }
+
+            MaintainMarkedMenVehicleControl(vehicle);
+            return true;
         }
 
         private static float GetVehiclePreferredCombatRange(Pawn vehicle)
@@ -1073,8 +1212,9 @@ namespace TheMarkedMen
 
             Rot4 rotation = Rot4.Random;
             List<IntVec3> candidates = new List<IntVec3>();
-            int maxDepth = Mathf.Min(8, Mathf.Min(map.Size.x, map.Size.z) / 4);
-            for (int depth = 1; depth <= maxDepth; depth++)
+            int minimumDepth = GetVehiclePathSafetyMargin(vehicle);
+            int maxDepth = Mathf.Min(minimumDepth + 4, (Mathf.Min(map.Size.x, map.Size.z) - 1) / 2);
+            for (int depth = minimumDepth; depth <= maxDepth; depth++)
             {
                 int minX = depth;
                 int maxX = map.Size.x - 1 - depth;
@@ -1148,6 +1288,11 @@ namespace TheMarkedMen
             MethodInfo nonStandable)
         {
             if (vehicle?.def == null || map == null || !cell.InBounds(map))
+            {
+                return false;
+            }
+
+            if (!IsSafeVehiclePathCell(vehicle, cell))
             {
                 return false;
             }
@@ -2943,6 +3088,38 @@ namespace TheMarkedMen
                 {
                     LogVehiclePathingApiFailure(
                         "Vehicle Framework's nearest-hostile job giver could not be patched; long vehicle assault routes may still exhaust pathfinding.");
+                }
+
+                Type targetingHelperType = GetVehicleFrameworkAssembly()
+                    ?.GetType("Vehicles.TargetingHelper");
+                Type vehicleTurretType = GetVehicleFrameworkAssembly()
+                    ?.GetType("Vehicles.VehicleTurret");
+                MethodInfo turretTargetRequirements = targetingHelperType == null || vehicleTurretType == null
+                    ? null
+                    : AccessTools.Method(
+                        targetingHelperType,
+                        "TargetMeetsRequirements",
+                        new[]
+                        {
+                            vehicleTurretType,
+                            typeof(IntVec3),
+                            typeof(LocalTargetInfo),
+                            typeof(IntVec3).MakeByRefType()
+                        });
+                MethodInfo validateTurretTarget = AccessTools.Method(
+                    typeof(TheMarkedMenVehicleFrameworkCompatibility),
+                    nameof(Patch_VehicleTurretTargetRequirements));
+                if (turretTargetRequirements != null && validateTurretTarget != null)
+                {
+                    harmony.Patch(
+                        turretTargetRequirements,
+                        prefix: new HarmonyMethod(validateTurretTarget));
+                    Log.Message("[The Marked Men] Guarded invalid turret target scans for raid vehicles.");
+                }
+                else
+                {
+                    LogVehiclePathingApiFailure(
+                        "Vehicle Framework's turret target validation method could not be patched; invalid raid vehicle turrets may still fail target scans.");
                 }
 
                 Type vehiclePathFollowerType = GetVehicleFrameworkAssembly()
