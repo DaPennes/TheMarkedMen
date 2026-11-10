@@ -2,7 +2,10 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
+using System.Reflection.Emit;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using HarmonyLib;
 using RimWorld;
 using UnityEngine;
@@ -837,6 +840,87 @@ namespace TheMarkedMen
             else
             {
                 __result = null;
+            }
+        }
+
+        private static IEnumerable<CodeInstruction> Patch_VehicleFailureMessage(
+            IEnumerable<CodeInstruction> instructions)
+        {
+            MethodInfo messageMethod = AccessTools.Method(
+                typeof(Messages),
+                nameof(Messages.Message),
+                new[] { typeof(TaggedString), typeof(MessageTypeDef), typeof(bool) });
+            MethodInfo filteredMessageMethod = AccessTools.Method(
+                typeof(TheMarkedMenVehicleFrameworkCompatibility),
+                nameof(Patch_VehicleFailureMessageForFaction));
+            if (messageMethod == null || filteredMessageMethod == null)
+            {
+                throw new InvalidOperationException("Vehicle Framework path-failure message methods could not be resolved.");
+            }
+
+            bool replacedMessage = false;
+            foreach (CodeInstruction instruction in instructions)
+            {
+                if (instruction.Calls(messageMethod))
+                {
+                    replacedMessage = true;
+                    yield return new CodeInstruction(OpCodes.Ldarg_0);
+                    yield return new CodeInstruction(OpCodes.Call, filteredMessageMethod);
+                }
+                else
+                {
+                    yield return instruction;
+                }
+            }
+
+            if (!replacedMessage)
+            {
+                throw new InvalidOperationException("Vehicle Framework's path-failure message call was not found.");
+            }
+        }
+
+        private static void Patch_VehicleFailureMessageForFaction(
+            TaggedString text,
+            MessageTypeDef messageType,
+            bool historical,
+            object pathFollower)
+        {
+            Pawn vehicle = ReadMember(pathFollower, "vehicle") as Pawn;
+            if (IsMarkedMenFactionVehicle(vehicle))
+            {
+                return;
+            }
+
+            Messages.Message(text, messageType, historical);
+        }
+
+        public static bool Patch_VehiclePathTaskManagerRun(
+            Action action,
+            CancellationToken token,
+            ref Task __result)
+        {
+            Pawn vehicle = ReadMember(action?.Target, "vehicle") as Pawn;
+            if (!IsMarkedMenFactionVehicle(vehicle))
+            {
+                return true;
+            }
+
+            __result = RunMarkedMenVehiclePathTask(action, token);
+            return false;
+        }
+
+        private static async Task RunMarkedMenVehiclePathTask(Action action, CancellationToken token)
+        {
+            try
+            {
+                await Task.Run(action, token).ConfigureAwait(false);
+            }
+            catch (OperationCanceledException)
+            {
+            }
+            catch (Exception ex)
+            {
+                Log.Error("[The Marked Men] Vehicle Framework raid vehicle path task failed: " + ex);
             }
         }
 
@@ -2859,6 +2943,67 @@ namespace TheMarkedMen
                 {
                     LogVehiclePathingApiFailure(
                         "Vehicle Framework's nearest-hostile job giver could not be patched; long vehicle assault routes may still exhaust pathfinding.");
+                }
+
+                Type vehiclePathFollowerType = GetVehicleFrameworkAssembly()
+                    ?.GetType("Vehicles.VehiclePathFollower");
+                MethodInfo generateVehiclePath = vehiclePathFollowerType == null
+                    ? null
+                    : AccessTools.Method(vehiclePathFollowerType, "GeneratePath");
+                Type vehicleIgnitionControllerType = GetVehicleFrameworkAssembly()
+                    ?.GetType("Vehicles.VehicleIgnitionController");
+                MethodInfo canDraftVehicle = vehicleIgnitionControllerType == null
+                    ? null
+                    : AccessTools.Method(vehicleIgnitionControllerType, "CanDraft");
+                MethodInfo filterVehicleFailureMessage = AccessTools.Method(
+                    typeof(TheMarkedMenVehicleFrameworkCompatibility),
+                    nameof(Patch_VehicleFailureMessage));
+                Type taskManagerType = AppDomain.CurrentDomain.GetAssemblies()
+                    .FirstOrDefault(assembly => assembly.GetName().Name == "SmashTools")
+                    ?.GetType("SmashTools.TaskManager");
+                MethodInfo runVehiclePathTask = taskManagerType == null
+                    ? null
+                    : AccessTools.Method(
+                        taskManagerType,
+                        "Run",
+                        new[] { typeof(Action), typeof(CancellationToken) });
+                MethodInfo filterVehiclePathTask = AccessTools.Method(
+                    typeof(TheMarkedMenVehicleFrameworkCompatibility),
+                    nameof(Patch_VehiclePathTaskManagerRun));
+                if (generateVehiclePath != null && filterVehicleFailureMessage != null)
+                {
+                    harmony.Patch(
+                        generateVehiclePath,
+                        transpiler: new HarmonyMethod(filterVehicleFailureMessage));
+                }
+                else
+                {
+                    LogVehiclePathingApiFailure(
+                        "Vehicle Framework's path-generation message could not be patched; raid vehicles may still report path failures.");
+                }
+
+                if (canDraftVehicle != null && filterVehicleFailureMessage != null)
+                {
+                    harmony.Patch(
+                        canDraftVehicle,
+                        transpiler: new HarmonyMethod(filterVehicleFailureMessage));
+                }
+                else
+                {
+                    LogVehiclePathingApiFailure(
+                        "Vehicle Framework's fuel-related draft message could not be patched; raid vehicles may still report fuel warnings.");
+                }
+
+                if (runVehiclePathTask != null && filterVehiclePathTask != null)
+                {
+                    harmony.Patch(
+                        runVehiclePathTask,
+                        prefix: new HarmonyMethod(filterVehiclePathTask));
+                }
+                else
+                {
+                    LogVehiclePathingApiFailure(
+                        "Vehicle Framework's path task manager could not be patched; raid vehicles may still report expected path cancellations.");
                 }
 
                 // Patch vehicle TakeDamage to track infected occupants
