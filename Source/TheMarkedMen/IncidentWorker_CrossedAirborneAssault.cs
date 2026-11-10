@@ -57,7 +57,9 @@ namespace TheMarkedMen
             TheMarkedMenGameComponent.ApplyMarkedRaidArrivalPattern(parms);
 
             int requestedAircraftCount = Mathf.Min(
-                TheMarkedMenVehicleFrameworkCompatibility.GetRaidAssaultVehicleCount(parms.points),
+                Mathf.Min(
+                    TheMarkedMenVehicleFrameworkCompatibility.GetRaidAssaultVehicleCount(parms.points),
+                    TheMarkedMenVehicleFrameworkCompatibility.GetMaximumRaidVehicleCount()),
                 Mathf.Max(0, CrossedRaidTactics.GetRemainingRaidPawnCapacity(map) - 6));
             int infantryCount = IncidentWorker_CrossedRaid.CalculateRaidCount(
                 parms.points * 0.35f,

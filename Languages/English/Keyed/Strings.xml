@@ -374,7 +374,7 @@
   <MarkedMen_Settings_maxRaidInfantry>Maximum infantry per raid</MarkedMen_Settings_maxRaidInfantry>
   <MarkedMen_Settings_maxRaidInfantryDesc>Caps infantry in an individual raid. The active-raider limit below also applies across overlapping attacks.</MarkedMen_Settings_maxRaidInfantryDesc>
   <MarkedMen_Settings_maxRaidVehicles>Maximum vehicles per raid</MarkedMen_Settings_maxRaidVehicles>
-  <MarkedMen_Settings_maxRaidVehiclesDesc>Caps vehicles requested by an individual vehicle assault.</MarkedMen_Settings_maxRaidVehiclesDesc>
+  <MarkedMen_Settings_maxRaidVehiclesDesc>Limits each vehicle raid to no more than three vehicles.</MarkedMen_Settings_maxRaidVehiclesDesc>
   <MarkedMen_Settings_maxActiveRaidPawns>Maximum active Marked Men raiders per map</MarkedMen_Settings_maxActiveRaidPawns>
   <MarkedMen_Settings_maxActiveRaidPawnsDesc>Hard workload ceiling across overlapping Marked Men waves, including vehicles, onboard crew, and inbound aircraft. New attacks shrink to available capacity instead of stacking more raiders. Lower values improve performance.</MarkedMen_Settings_maxActiveRaidPawnsDesc>
   <MarkedMen_Settings_UrbanOutbreak>Ancient Urban Ruins Outbreak</MarkedMen_Settings_UrbanOutbreak>

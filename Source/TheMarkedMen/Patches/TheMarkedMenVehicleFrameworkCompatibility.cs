@@ -48,6 +48,7 @@ namespace TheMarkedMen
         private const string VehicleRaidHelperTypeFullName = "Vehicles.RaidInjectionHelper";
         private const string VehicleRaidExtensionTypeFullName = "Vehicles.VehicleRaiderDefModExtension";
         private const int MinimumGroundRaidPawns = 3;
+        private const int MaximumVehiclesPerRaid = 3;
         public const int MinimumVehicleCrewReserve = MinimumGroundRaidPawns;
 
         private static bool isVehicleFrameworkActive;
@@ -58,7 +59,6 @@ namespace TheMarkedMen
         private static MethodInfo getPassengersMethod;
         private static bool airborneVehicleDefsCached;
         private static List<object> airborneVehicleDefs;
-        private static FieldInfo airborneVehicleCombatPowerField;
         private static FieldInfo airborneVehicleTechLevelField;
         private static FieldInfo airborneVehicleNpcPropertiesField;
         private static List<MarkedRaidVehicleOption> landRaidVehicleOptions;
@@ -129,7 +129,7 @@ namespace TheMarkedMen
             RaidVehicleSelectionGroup selectionGroup = RaidVehicleSelectionGroup.Land)
         {
             Assembly assembly = GetVehicleFrameworkAssembly();
-            if (assembly == null || faction?.def?.modExtensions == null || points <= 250f)
+            if (assembly == null || faction?.def?.modExtensions == null)
             {
                 return false;
             }
@@ -547,8 +547,9 @@ namespace TheMarkedMen
                 GetVehicleFrameworkAssembly(),
                 selectionGroup);
             int requestedVehicleCount = requestedVehicleCountOverride >= 0
-                ? Mathf.Clamp(requestedVehicleCountOverride, 0, 10)
+                ? Mathf.Clamp(requestedVehicleCountOverride, 0, GetMaximumRaidVehicleCount())
                 : GetGroundRaidVehicleCount(points);
+            requestedVehicleCount = Mathf.Min(requestedVehicleCount, GetMaximumRaidVehicleCount());
             minimumCrewPawnsRemaining = Mathf.Max(MinimumGroundRaidPawns, minimumCrewPawnsRemaining);
             int existingVehicleCount = 0;
             for (int i = 0; i < availableRaidPawns.Count; i++)
@@ -719,16 +720,18 @@ namespace TheMarkedMen
         public static int GetRaidAssaultVehicleCount(float points)
         {
             float normalizedPoints = Mathf.Clamp(points, 3000f, 30000f);
-            if (points <= 250f)
-            {
-                return 0;
-            }
-
-            int configuredMaximum = Mathf.Clamp(TheMarkedMenMod.Settings?.maxRaidVehicles ?? 10, 1, 10);
+            int configuredMaximum = Mathf.Clamp(TheMarkedMenMod.Settings?.maxRaidVehicles ?? MaximumVehiclesPerRaid, 1, MaximumVehiclesPerRaid);
             return Mathf.Clamp(
                 1 + Mathf.FloorToInt((normalizedPoints - 3000f) * 9f / 27000f),
                 1,
-                configuredMaximum);
+                Mathf.Min(configuredMaximum, MaximumVehiclesPerRaid));
+        }
+
+        public static int GetMaximumRaidVehicleCount()
+        {
+            return Mathf.Min(
+                Mathf.Clamp(TheMarkedMenMod.Settings?.maxRaidVehicles ?? MaximumVehiclesPerRaid, 1, MaximumVehiclesPerRaid),
+                MaximumVehiclesPerRaid);
         }
 
         public static void ApplyVehicleCombatBehavior(Pawn vehicle)
@@ -1367,7 +1370,25 @@ namespace TheMarkedMen
             {
                 spawnedVehicles = new List<Pawn>();
                 failureReason = null;
-                requestedVehicleCount = Mathf.Clamp(requestedVehicleCount, 1, 10);
+                if (map == null || availableRaidPawns == null)
+                {
+                    failureReason = "The target map or raid pawn list was missing.";
+                    return false;
+                }
+
+                int existingVehicleCount = availableRaidPawns?.Count(IsVehiclePawn) ?? 0;
+                int availableCrewCount = CountAvailableVehicleCrewPawns(availableRaidPawns);
+                int safeNewVehicleLimit = Mathf.Min(
+                    GetMaximumRaidVehicleCount() - existingVehicleCount,
+                    availableCrewCount / MinimumGroundRaidPawns,
+                    map == null ? 0 : CrossedRaidTactics.GetRemainingRaidPawnCapacity(map));
+                requestedVehicleCount = Mathf.Min(requestedVehicleCount, safeNewVehicleLimit);
+                if (requestedVehicleCount <= 0)
+                {
+                    failureReason = "No aircraft can be deployed within the configured vehicle, crew, and active-pawn limits.";
+                    return false;
+                }
+
                 minimumVehicleCount = Mathf.Clamp(minimumVehicleCount, 1, requestedVehicleCount);
                 HashSet<IntVec3> reservedLandingCells = new HashSet<IntVec3>();
 
@@ -1603,7 +1624,7 @@ namespace TheMarkedMen
             {
                 List<object> eligible = new List<object>();
                 Assembly assembly = GetVehicleFrameworkAssembly();
-                if (assembly == null || faction?.def?.modExtensions == null || points <= 250f)
+                if (assembly == null || faction?.def?.modExtensions == null)
                 {
                     return eligible;
                 }
@@ -1623,16 +1644,6 @@ namespace TheMarkedMen
                     if (extension == null)
                     {
                         LogRaidLookupFailure("The Marked Men faction is missing its optional vehicle-raider extension.");
-                        return eligible;
-                    }
-
-                    FieldInfo pointMultiplierField = extensionType.GetField("pointMultiplier");
-                    float pointMultiplier = pointMultiplierField == null
-                        ? 1f
-                        : Convert.ToSingle(pointMultiplierField.GetValue(extension));
-                    float vehicleBudget = pointMultiplier * (points - 250f) / 2f * Mathf.Max(0f, budgetMultiplier);
-                    if (vehicleBudget <= 0f)
-                    {
                         return eligible;
                     }
 
@@ -1658,11 +1669,6 @@ namespace TheMarkedMen
                     {
                         object vehicleDef = airborneVehicleDefs[i];
                         if (!HasAnyEnabledVehicleCategory(vehicleDef, enabledCategories))
-                        {
-                            continue;
-                        }
-
-                        if (Convert.ToSingle(airborneVehicleCombatPowerField.GetValue(vehicleDef)) > vehicleBudget)
                         {
                             continue;
                         }
@@ -1739,12 +1745,11 @@ namespace TheMarkedMen
                 FieldInfo typeField = AccessTools.Field(vehicleDefType, "type");
                 FieldInfo categoryField = AccessTools.Field(vehicleDefType, "vehicleCategory");
                 FieldInfo enabledField = AccessTools.Field(vehicleDefType, "enabled");
-                FieldInfo combatPowerField = AccessTools.Field(vehicleDefType, "combatPower");
                 FieldInfo techLevelField = AccessTools.Field(vehicleDefType, "techLevel");
                 FieldInfo npcPropertiesField = AccessTools.Field(vehicleDefType, "npcProperties");
                 FieldInfo componentsField = AccessTools.Field(vehicleDefType, "comps");
                 if (definitions == null || typeField == null || categoryField == null
-                    || enabledField == null || combatPowerField == null
+                    || enabledField == null
                     || npcPropertiesField == null || componentsField == null)
                 {
                     return false;
@@ -1766,7 +1771,6 @@ namespace TheMarkedMen
                 }
 
                 airborneVehicleDefs = eligibleDefs;
-                airborneVehicleCombatPowerField = combatPowerField;
                 airborneVehicleTechLevelField = techLevelField;
                 airborneVehicleNpcPropertiesField = npcPropertiesField;
                 airborneVehicleDefsCached = true;
@@ -2212,15 +2216,7 @@ namespace TheMarkedMen
                     return eligible;
                 }
 
-                FieldInfo pointMultiplierField = extensionType.GetField("pointMultiplier");
-                float pointMultiplier = pointMultiplierField == null
-                    ? 1f
-                    : Convert.ToSingle(pointMultiplierField.GetValue(extension));
-                float vehicleBudget = pointMultiplier * (points - 250f) / 2f;
-                if (vehicleBudget <= 0f)
-                {
-                    return eligible;
-                }
+                float vehicleBudget = float.MaxValue;
 
                 Type databaseType = typeof(DefDatabase<>).MakeGenericType(vehicleDefType);
                 PropertyInfo definitionsProperty = databaseType.GetProperty("AllDefsListForReading");
@@ -2492,6 +2488,11 @@ namespace TheMarkedMen
 
         private static int CountAvailableVehicleCrewPawns(List<Pawn> pawns)
         {
+            if (pawns == null)
+            {
+                return 0;
+            }
+
             int count = 0;
             for (int i = 0; i < pawns.Count; i++)
             {

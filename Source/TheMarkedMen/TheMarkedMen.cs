@@ -217,7 +217,7 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
         public int reanimationProcessIntervalTicks = 2500;
         public int maxPendingReanimationsPerTick = 24;
         public int maxRaidInfantry = 60;
-        public int maxRaidVehicles = 10;
+        public int maxRaidVehicles = 3;
         public int maxActiveRaidPawns = 80;
 
         public bool bloodlustEnabled = true;
@@ -681,7 +681,7 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
             Scribe_Values.Look(ref reanimationProcessIntervalTicks, "reanimationProcessIntervalTicks", 2500);
             Scribe_Values.Look(ref maxPendingReanimationsPerTick, "maxPendingReanimationsPerTick", 24);
             Scribe_Values.Look(ref maxRaidInfantry, "maxRaidInfantry", 60);
-            Scribe_Values.Look(ref maxRaidVehicles, "maxRaidVehicles", 10);
+            Scribe_Values.Look(ref maxRaidVehicles, "maxRaidVehicles", 3);
             Scribe_Values.Look(ref maxActiveRaidPawns, "maxActiveRaidPawns", 80);
             Scribe_Values.Look(ref bloodlustEnabled, "bloodlustEnabled", true);
             Scribe_Values.Look(ref bloodlustDecayRate, "bloodlustDecayRate", 1f);
@@ -1121,7 +1121,7 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
             DrawInt(listing, "MarkedMen_Settings_reanimationProcessIntervalTicks".Translate(), ref reanimationProcessIntervalTicks, 60, GenDate.TicksPerDay, "reanimationProcessIntervalTicks", "MarkedMen_Settings_reanimationProcessIntervalTicksDesc".Translate());
             DrawInt(listing, "MarkedMen_Settings_maxPendingReanimationsPerTick".Translate(), ref maxPendingReanimationsPerTick, 1, 500, "maxPendingReanimationsPerTick", "MarkedMen_Settings_maxPendingReanimationsPerTickDesc".Translate());
             DrawInt(listing, "MarkedMen_Settings_maxRaidInfantry".Translate(), ref maxRaidInfantry, 12, 90, "maxRaidInfantry", "MarkedMen_Settings_maxRaidInfantryDesc".Translate());
-            DrawInt(listing, "MarkedMen_Settings_maxRaidVehicles".Translate(), ref maxRaidVehicles, 1, 10, "maxRaidVehicles", "MarkedMen_Settings_maxRaidVehiclesDesc".Translate());
+            DrawInt(listing, "MarkedMen_Settings_maxRaidVehicles".Translate(), ref maxRaidVehicles, 1, 3, "maxRaidVehicles", "MarkedMen_Settings_maxRaidVehiclesDesc".Translate());
             DrawInt(listing, "MarkedMen_Settings_maxActiveRaidPawns".Translate(), ref maxActiveRaidPawns, 12, 180, "maxActiveRaidPawns", "MarkedMen_Settings_maxActiveRaidPawnsDesc".Translate());
 
             DrawSectionHeader(listing, "MarkedMen_Settings_UrbanOutbreak".Translate(), "MarkedMen_Settings_UrbanOutbreakDesc".Translate());
@@ -1778,7 +1778,7 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
             reanimationProcessIntervalTicks = Mathf.Clamp(reanimationProcessIntervalTicks, 60, GenDate.TicksPerDay);
             maxPendingReanimationsPerTick = Mathf.Clamp(maxPendingReanimationsPerTick, 1, 500);
             maxRaidInfantry = Mathf.Clamp(maxRaidInfantry, 12, 90);
-            maxRaidVehicles = Mathf.Clamp(maxRaidVehicles, 1, 10);
+            maxRaidVehicles = Mathf.Clamp(maxRaidVehicles, 1, 3);
             maxActiveRaidPawns = Mathf.Clamp(maxActiveRaidPawns, 12, 180);
             urbanInfectionDensity = Mathf.Clamp(urbanInfectionDensity, 0f, 5f);
             urbanAmbushFrequency = Mathf.Clamp(urbanAmbushFrequency, 0f, 5f);
@@ -2121,7 +2121,7 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
             reanimationProcessIntervalTicks = 2500;
             maxPendingReanimationsPerTick = 24;
             maxRaidInfantry = 60;
-            maxRaidVehicles = 10;
+            maxRaidVehicles = 3;
             maxActiveRaidPawns = 80;
         }
     }

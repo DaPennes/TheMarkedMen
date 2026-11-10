@@ -246,7 +246,7 @@ namespace TheMarkedMen
                 return;
             }
 
-            const float DebugRaidPoints = 1000000f;
+            const float DebugRaidPoints = 20000f;
             IncidentParms parms = new IncidentParms
             {
                 target = map,

@@ -84,7 +84,7 @@ namespace TheMarkedMen
 
             int remainingCapacity = CrossedRaidTactics.GetRemainingRaidPawnCapacity(map);
             int minimumVehicleCount = SpawnAirSupport ? 2 : 1;
-            int configuredMaximumVehicleCount = Mathf.Clamp(TheMarkedMenMod.Settings?.maxRaidVehicles ?? 10, 1, 10);
+            int configuredMaximumVehicleCount = TheMarkedMenVehicleFrameworkCompatibility.GetMaximumRaidVehicleCount();
             int requestedVehicleCount = Mathf.Min(
                 configuredMaximumVehicleCount,
                 Mathf.Min(
