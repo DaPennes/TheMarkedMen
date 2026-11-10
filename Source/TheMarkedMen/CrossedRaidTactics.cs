@@ -273,8 +273,13 @@ namespace TheMarkedMen
             for (int i = 0; i < lord.ownedPawns.Count; i++)
             {
                 Pawn vehicle = lord.ownedPawns[i];
-                if (!TheMarkedMenVehicleFrameworkCompatibility.IsVehiclePawn(vehicle)
-                    || vehicle?.Faction?.def != CADefOf.CrossedFaction)
+                if (!TheMarkedMenVehicleFrameworkCompatibility.IsVehiclePawn(vehicle))
+                {
+                    continue;
+                }
+
+                TheMarkedMenVehicleFrameworkCompatibility.MaintainMarkedMenVehicleControl(vehicle);
+                if (vehicle?.Faction?.def != CADefOf.CrossedFaction)
                 {
                     continue;
                 }

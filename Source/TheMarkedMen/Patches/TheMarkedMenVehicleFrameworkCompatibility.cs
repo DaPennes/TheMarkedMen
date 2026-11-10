@@ -66,6 +66,8 @@ namespace TheMarkedMen
         private static bool vehiclePathingApiFailureLogged;
         private static bool vehicleDisembarkApiFailureLogged;
         private static bool vehicleCrewRoleApiFailureLogged;
+        private static bool vehicleControlApiFailureLogged;
+        private static bool vehicleOrderApiFailureLogged;
 
         static TheMarkedMenVehicleFrameworkCompatibility()
         {
@@ -320,9 +322,60 @@ namespace TheMarkedMen
         {
             Lord lord = vehicle?.GetLord();
             return IsVehiclePawn(vehicle)
-                && vehicle.Faction?.def == CADefOf.CrossedFaction
+                && IsMarkedMenFactionVehicle(vehicle)
                 && lord?.faction?.def == CADefOf.CrossedFaction
                 && lord.LordJob is LordJob_CrossedVehicleAssault;
+        }
+
+        private static bool IsMarkedMenFactionVehicle(Pawn vehicle)
+        {
+            return IsVehiclePawn(vehicle)
+                && vehicle.Faction?.def == CADefOf.CrossedFaction;
+        }
+
+        public static void MaintainMarkedMenVehicleControl(Pawn vehicle)
+        {
+            Lord lord = vehicle?.GetLord();
+            if (!IsVehiclePawn(vehicle)
+                || lord?.faction?.def != CADefOf.CrossedFaction
+                || !(lord.LordJob is LordJob_CrossedVehicleAssault))
+            {
+                return;
+            }
+
+            EnsureRaidVehicleFaction(vehicle, lord.faction);
+            object ignition = ReadVehicleMember(vehicle, "ignition");
+            PropertyInfo drafted = ignition == null ? null : AccessTools.Property(ignition.GetType(), "Drafted");
+            if (drafted?.CanRead != true || drafted.CanWrite != true)
+            {
+                LogVehicleControlApiFailure(
+                    "Vehicle Framework's ignition draft state could not be controlled; player movement orders are still blocked.");
+                return;
+            }
+
+            try
+            {
+                if (drafted.GetValue(ignition, null) is bool isDrafted && isDrafted)
+                {
+                    drafted.SetValue(ignition, false, null);
+                }
+            }
+            catch (Exception ex)
+            {
+                LogVehicleControlApiFailure(
+                    "Vehicle Framework rejected the AI-control state update: " + ex.Message);
+            }
+        }
+
+        private static void LogVehicleControlApiFailure(string reason)
+        {
+            if (vehicleControlApiFailureLogged)
+            {
+                return;
+            }
+
+            vehicleControlApiFailureLogged = true;
+            Log.Warning("[The Marked Men] " + reason);
         }
 
         public static int CountInboundMarkedMenAircraft(Map map)
@@ -1674,6 +1727,7 @@ namespace TheMarkedMen
                 if (existingLord?.faction == faction
                     && existingLord.LordJob is LordJob_CrossedVehicleAssault)
                 {
+                    MaintainMarkedMenVehicleControl(vehicle);
                     ApplyVehicleCombatBehavior(vehicle);
                     return true;
                 }
@@ -1684,6 +1738,7 @@ namespace TheMarkedMen
                     new LordJob_CrossedVehicleAssault(faction),
                     vehicle.Map,
                     new[] { vehicle });
+                MaintainMarkedMenVehicleControl(vehicle);
                 ApplyVehicleCombatBehavior(vehicle);
                 Log.Message("[The Marked Men] Assigned vehicle " + vehicle.def.defName
                     + " to The Marked Men vehicle assault AI.");
@@ -2546,6 +2601,34 @@ namespace TheMarkedMen
                     Log.Message("[The Marked Men] Patched Vehicle.GetGizmos for ambush timer integration.");
                 }
 
+                Type orderProviderType = GetVehicleFrameworkAssembly()
+                    ?.GetType("Vehicles.FloatMenuOptionProvider_OrderVehicle");
+                MethodInfo selectedVehicleValid = orderProviderType?
+                    .GetMethods(AccessTools.all)
+                    .FirstOrDefault(method =>
+                    {
+                        if (method.Name != "SelectedVehicleValid")
+                        {
+                            return false;
+                        }
+
+                        ParameterInfo[] parameters = method.GetParameters();
+                        return parameters.Length == 2 && parameters[0].ParameterType == vehicleType;
+                    });
+                MethodInfo orderValidityPrefix = AccessTools.Method(
+                    typeof(TheMarkedMenVehicleFrameworkCompatibility),
+                    nameof(Patch_VehicleOrderValidity));
+                if (selectedVehicleValid != null && orderValidityPrefix != null)
+                {
+                    harmony.Patch(selectedVehicleValid, prefix: new HarmonyMethod(orderValidityPrefix));
+                    Log.Message("[The Marked Men] Blocked direct player move orders for Crossed faction vehicles.");
+                }
+                else
+                {
+                    LogVehicleOrderApiFailure(
+                        "Vehicle Framework's direct vehicle-order validation method could not be found; raid vehicles may accept player move orders.");
+                }
+
                 // Patch vehicle TakeDamage to track infected occupants
                 MethodInfo takeDamageMethod = AccessTools.Method(
                     vehicleType,
@@ -2648,10 +2731,32 @@ namespace TheMarkedMen
         public static void Patch_VehicleGetGizmos(dynamic __instance, ref IEnumerable<Gizmo> __result)
         {
             Pawn vehicle = __instance as Pawn;
-            if (IsMarkedMenRaidVehicle(vehicle))
+            if (IsMarkedMenFactionVehicle(vehicle))
             {
                 __result = FilterPlayerVehicleCommands(__result);
             }
+        }
+
+        public static bool Patch_VehicleOrderValidity(object __0, ref bool __result)
+        {
+            if (IsMarkedMenFactionVehicle(__0 as Pawn))
+            {
+                __result = false;
+                return false;
+            }
+
+            return true;
+        }
+
+        private static void LogVehicleOrderApiFailure(string reason)
+        {
+            if (vehicleOrderApiFailureLogged)
+            {
+                return;
+            }
+
+            vehicleOrderApiFailureLogged = true;
+            Log.Warning("[The Marked Men] " + reason);
         }
 
         private static IEnumerable<Gizmo> FilterPlayerVehicleCommands(IEnumerable<Gizmo> gizmos)
