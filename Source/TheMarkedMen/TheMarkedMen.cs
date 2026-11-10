@@ -46,7 +46,7 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
 
     public sealed class TheMarkedMenSettings : ModSettings
     {
-        private const int CurrentSettingsVersion = 17;
+        private const int CurrentSettingsVersion = 18;
         public const float InfectionTransmissionChance = 0.45f;
         public const float DefaultMarkedRaidFrequencyMultiplier = 2f;
         public const float MinMarkedRaidFrequencyMultiplier = 0f;
@@ -101,6 +101,11 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
         public float landVehicleDisembarkRange = 28f;
         public float airborneVehicleDisembarkRange = 38f;
         public float vehicleEmergencyDamageThreshold = 35f;
+        public List<string> landRaidVehicleDefNames = new List<string>();
+        public List<string> airRaidVehicleDefNames = new List<string>();
+        public List<string> combinedLandRaidVehicleDefNames = new List<string>();
+        public List<string> combinedAirRaidVehicleDefNames = new List<string>();
+        public bool raidVehicleSelectionsConfigured;
         public bool randomizeMarkedRaids;
         public float markedRaidFrequencyMultiplier = DefaultMarkedRaidFrequencyMultiplier;
         public float warbandFrequencyMultiplier = 1f;
@@ -309,6 +314,138 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
 
         public static bool DebugActionsEnabled => TheMarkedMenMod.Settings?.debugActionsEnabled != false;
 
+        public bool IsRaidVehicleSelected(string defName, RaidVehicleSelectionGroup group, bool airborne)
+        {
+            if (!raidVehicleSelectionsConfigured)
+            {
+                return TheMarkedMenVehicleFrameworkCompatibility
+                    .IsRaidVehicleOptionEnabledByDefault(defName, airborne);
+            }
+
+            return GetRaidVehicleSelectionList(group).Contains(defName);
+        }
+
+        public void SetRaidVehicleSelected(string defName, RaidVehicleSelectionGroup group, bool selected)
+        {
+            InitializeRaidVehicleSelections();
+            List<string> selection = GetRaidVehicleSelectionList(group);
+            if (selected)
+            {
+                if (!selection.Contains(defName))
+                {
+                    selection.Add(defName);
+                }
+            }
+            else
+            {
+                selection.Remove(defName);
+            }
+        }
+
+        public void SetRaidVehicleSelectionForGroup(
+            RaidVehicleSelectionGroup group,
+            List<MarkedRaidVehicleOption> options,
+            bool selected)
+        {
+            InitializeRaidVehicleSelections();
+            List<string> selection = GetRaidVehicleSelectionList(group);
+            selection.Clear();
+            if (!selected || options == null)
+            {
+                return;
+            }
+
+            for (int i = 0; i < options.Count; i++)
+            {
+                if (!string.IsNullOrEmpty(options[i]?.DefName))
+                {
+                    selection.Add(options[i].DefName);
+                }
+            }
+        }
+
+        public void ResetRaidVehicleSelectionGroup(
+            RaidVehicleSelectionGroup group,
+            List<MarkedRaidVehicleOption> options)
+        {
+            InitializeRaidVehicleSelections();
+            List<string> selection = GetRaidVehicleSelectionList(group);
+            selection.Clear();
+            if (options == null)
+            {
+                return;
+            }
+
+            for (int i = 0; i < options.Count; i++)
+            {
+                MarkedRaidVehicleOption option = options[i];
+                if (option?.EnabledByDefault == true && !string.IsNullOrEmpty(option.DefName))
+                {
+                    selection.Add(option.DefName);
+                }
+            }
+        }
+
+        public void ResetRaidVehicleSelections()
+        {
+            raidVehicleSelectionsConfigured = false;
+            landRaidVehicleDefNames.Clear();
+            airRaidVehicleDefNames.Clear();
+            combinedLandRaidVehicleDefNames.Clear();
+            combinedAirRaidVehicleDefNames.Clear();
+        }
+
+        private void InitializeRaidVehicleSelections()
+        {
+            if (raidVehicleSelectionsConfigured)
+            {
+                return;
+            }
+
+            landRaidVehicleDefNames = DefaultRaidVehicleNames(
+                TheMarkedMenVehicleFrameworkCompatibility.GetRaidVehicleOptions(false));
+            combinedLandRaidVehicleDefNames = new List<string>(landRaidVehicleDefNames);
+            airRaidVehicleDefNames = DefaultRaidVehicleNames(
+                TheMarkedMenVehicleFrameworkCompatibility.GetRaidVehicleOptions(true));
+            combinedAirRaidVehicleDefNames = new List<string>(airRaidVehicleDefNames);
+            raidVehicleSelectionsConfigured = true;
+        }
+
+        private static List<string> DefaultRaidVehicleNames(List<MarkedRaidVehicleOption> options)
+        {
+            List<string> defaults = new List<string>();
+            if (options == null)
+            {
+                return defaults;
+            }
+
+            for (int i = 0; i < options.Count; i++)
+            {
+                MarkedRaidVehicleOption option = options[i];
+                if (option?.EnabledByDefault == true && !string.IsNullOrEmpty(option.DefName))
+                {
+                    defaults.Add(option.DefName);
+                }
+            }
+
+            return defaults;
+        }
+
+        private List<string> GetRaidVehicleSelectionList(RaidVehicleSelectionGroup group)
+        {
+            switch (group)
+            {
+                case RaidVehicleSelectionGroup.Air:
+                    return airRaidVehicleDefNames ??= new List<string>();
+                case RaidVehicleSelectionGroup.CombinedLand:
+                    return combinedLandRaidVehicleDefNames ??= new List<string>();
+                case RaidVehicleSelectionGroup.CombinedAir:
+                    return combinedAirRaidVehicleDefNames ??= new List<string>();
+                default:
+                    return landRaidVehicleDefNames ??= new List<string>();
+            }
+        }
+
         public static int FirstMarkedRaidDay => Mathf.Clamp(TheMarkedMenMod.Settings?.firstMarkedRaidDay ?? 45, 1, 600);
 
         public static int FirstMarkedRaidTick => FirstMarkedRaidDay * GenDate.TicksPerDay;
@@ -429,6 +566,11 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
             Scribe_Values.Look(ref landVehicleDisembarkRange, "landVehicleDisembarkRange", 28f);
             Scribe_Values.Look(ref airborneVehicleDisembarkRange, "airborneVehicleDisembarkRange", 38f);
             Scribe_Values.Look(ref vehicleEmergencyDamageThreshold, "vehicleEmergencyDamageThreshold", 35f);
+            Scribe_Collections.Look(ref landRaidVehicleDefNames, "landRaidVehicleDefNames", LookMode.Value);
+            Scribe_Collections.Look(ref airRaidVehicleDefNames, "airRaidVehicleDefNames", LookMode.Value);
+            Scribe_Collections.Look(ref combinedLandRaidVehicleDefNames, "combinedLandRaidVehicleDefNames", LookMode.Value);
+            Scribe_Collections.Look(ref combinedAirRaidVehicleDefNames, "combinedAirRaidVehicleDefNames", LookMode.Value);
+            Scribe_Values.Look(ref raidVehicleSelectionsConfigured, "raidVehicleSelectionsConfigured", false);
             Scribe_Values.Look(ref randomizeMarkedRaids, "randomizeMarkedRaids", false);
             Scribe_Values.Look(ref markedRaidFrequencyMultiplier, "markedRaidFrequencyMultiplier", DefaultMarkedRaidFrequencyMultiplier);
             Scribe_Values.Look(ref warbandFrequencyMultiplier, "warbandFrequencyMultiplier", 1f);
@@ -577,6 +719,13 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
             if (sectionOpenStates == null)
             {
                 sectionOpenStates = new Dictionary<string, bool>();
+            }
+            if (Scribe.mode == LoadSaveMode.PostLoadInit)
+            {
+                landRaidVehicleDefNames ??= new List<string>();
+                airRaidVehicleDefNames ??= new List<string>();
+                combinedLandRaidVehicleDefNames ??= new List<string>();
+                combinedAirRaidVehicleDefNames ??= new List<string>();
             }
             if (Scribe.mode == LoadSaveMode.PostLoadInit && loadedSettingsVersion < CurrentSettingsVersion)
             {
@@ -808,6 +957,30 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
             DrawFloat(listing, "Air vehicle disembark range".Translate(), ref airborneVehicleDisembarkRange, 5f, 100f, "airborneVehicleDisembarkRange", "Distance to the nearest colony target before helicopter passengers disembark.".Translate());
             DrawFloat(listing, "Vehicle emergency damage threshold".Translate(), ref vehicleEmergencyDamageThreshold, 5f, 90f, "vehicleEmergencyDamageThreshold", "Passenger evacuation threshold based on remaining vehicle hit points; crew remains aboard.".Translate());
             DrawFloat(listing, "MarkedMen_Settings_vehicleAssaultFrequencyMultiplier".Translate(), ref vehicleAssaultFrequencyMultiplier, 0f, MaxMarkedRaidFrequencyMultiplier, "vehicleAssaultFrequencyMultiplier", "MarkedMen_Settings_vehicleAssaultFrequencyMultiplierDesc".Translate());
+            DrawRaidVehicleSelectionSection(
+                listing,
+                "MarkedMen_Settings_LandRaidVehicles",
+                "MarkedMen_Settings_LandRaidVehiclesDesc",
+                RaidVehicleSelectionGroup.Land,
+                false);
+            DrawRaidVehicleSelectionSection(
+                listing,
+                "MarkedMen_Settings_AirRaidVehicles",
+                "MarkedMen_Settings_AirRaidVehiclesDesc",
+                RaidVehicleSelectionGroup.Air,
+                true);
+            DrawRaidVehicleSelectionSection(
+                listing,
+                "MarkedMen_Settings_CombinedLandRaidVehicles",
+                "MarkedMen_Settings_CombinedLandRaidVehiclesDesc",
+                RaidVehicleSelectionGroup.CombinedLand,
+                false);
+            DrawRaidVehicleSelectionSection(
+                listing,
+                "MarkedMen_Settings_CombinedAirRaidVehicles",
+                "MarkedMen_Settings_CombinedAirRaidVehiclesDesc",
+                RaidVehicleSelectionGroup.CombinedAir,
+                true);
             DrawFloat(listing, "MarkedMen_Settings_raidPointsMultiplier".Translate(), ref raidPointsMultiplier, 0.05f, 1E+09f, "raidPointsMultiplier", "MarkedMen_Settings_raidPointsMultiplierDesc".Translate());
             DrawFloat(listing, "MarkedMen_Settings_minimumRaidPoints".Translate(), ref minimumRaidPoints, 0f, maximumRaidPoints, "minimumRaidPoints", "MarkedMen_Settings_minimumRaidPointsDesc".Translate());
             DrawFloat(listing, "MarkedMen_Settings_maximumRaidPoints".Translate(), ref maximumRaidPoints, minimumRaidPoints, 100000f, "maximumRaidPoints", "MarkedMen_Settings_maximumRaidPointsDesc".Translate());
@@ -1091,6 +1264,106 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
             if (Rand.Value * totalWeight <= weight)
             {
                 selected = kind;
+            }
+        }
+
+        private void DrawRaidVehicleSelectionSection(
+            Listing_Standard listing,
+            string titleKey,
+            string descriptionKey,
+            RaidVehicleSelectionGroup selectionGroup,
+            bool airborne)
+        {
+            DrawSectionHeader(listing, titleKey.Translate(), descriptionKey.Translate());
+            if (!currentSectionOpen)
+            {
+                return;
+            }
+
+            if (!TheMarkedMenVehicleFrameworkCompatibility.IsVehicleFrameworkLoaded)
+            {
+                DrawHelp(listing, "MarkedMen_Settings_VehicleFrameworkNotLoaded".Translate());
+                return;
+            }
+
+            List<MarkedRaidVehicleOption> options =
+                TheMarkedMenVehicleFrameworkCompatibility.GetRaidVehicleOptions(airborne);
+            if (options.Count == 0)
+            {
+                DrawHelp(listing, "MarkedMen_Settings_NoRaidVehicles".Translate());
+                return;
+            }
+
+            DrawVehicleSelectionButtons(listing, selectionGroup, options);
+            for (int i = 0; i < options.Count; i++)
+            {
+                MarkedRaidVehicleOption option = options[i];
+                if (option == null || string.IsNullOrEmpty(option.DefName))
+                {
+                    continue;
+                }
+
+                bool selected = IsRaidVehicleSelected(option.DefName, selectionGroup, airborne);
+                bool previous = selected;
+                string modName = string.IsNullOrEmpty(option.ModName)
+                    ? "MarkedMen_Settings_UnknownVehicleMod".Translate()
+                    : option.ModName;
+                Rect row = listing.GetRect(OptionRowHeight, 1f);
+                Widgets.CheckboxLabeled(row, option.Label + " (" + modName + ")", ref selected);
+                TooltipHandler.TipRegion(
+                    row,
+                    new TipSignal("MarkedMen_Settings_VehicleOptionTooltip".Translate(
+                        option.DefName,
+                        modName,
+                        option.EnabledByDefault
+                            ? "MarkedMen_Settings_VehicleDefaultEnabled".Translate()
+                            : "MarkedMen_Settings_VehicleDefaultDisabled".Translate())));
+                if (previous != selected)
+                {
+                    SetRaidVehicleSelected(option.DefName, selectionGroup, selected);
+                    NoteManualChange();
+                    TheMarkedMenMod.WriteCurrentSettings();
+                }
+            }
+        }
+
+        private void DrawVehicleSelectionButtons(
+            Listing_Standard listing,
+            RaidVehicleSelectionGroup selectionGroup,
+            List<MarkedRaidVehicleOption> options)
+        {
+            const float gap = 4f;
+            Rect row = listing.GetRect(OptionRowHeight, 1f);
+            float buttonWidth = (row.width - gap * 2f) / 3f;
+            Rect defaultsRect = new Rect(row.x, row.y, buttonWidth, row.height);
+            Rect allRect = new Rect(defaultsRect.xMax + gap, row.y, buttonWidth, row.height);
+            Rect noneRect = new Rect(allRect.xMax + gap, row.y, buttonWidth, row.height);
+            bool changed = false;
+            if (Widgets.ButtonText(defaultsRect, "MarkedMen_Settings_VehicleUseDefaults".Translate()))
+            {
+                ResetRaidVehicleSelectionGroup(selectionGroup, options);
+                changed = true;
+            }
+            TooltipHandler.TipRegion(defaultsRect, "MarkedMen_Settings_VehicleUseDefaultsDesc".Translate());
+
+            if (Widgets.ButtonText(allRect, "MarkedMen_Settings_VehicleSelectAll".Translate()))
+            {
+                SetRaidVehicleSelectionForGroup(selectionGroup, options, true);
+                changed = true;
+            }
+            TooltipHandler.TipRegion(allRect, "MarkedMen_Settings_VehicleSelectAllDesc".Translate());
+
+            if (Widgets.ButtonText(noneRect, "MarkedMen_Settings_VehicleSelectNone".Translate()))
+            {
+                SetRaidVehicleSelectionForGroup(selectionGroup, options, false);
+                changed = true;
+            }
+            TooltipHandler.TipRegion(noneRect, "MarkedMen_Settings_VehicleSelectNoneDesc".Translate());
+
+            if (changed)
+            {
+                NoteManualChange();
+                TheMarkedMenMod.WriteCurrentSettings();
             }
         }
 
@@ -3063,12 +3336,7 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
                     continue;
                 }
 
-                bool countdownWarband = includeVehicleAssaults && incident == CADefOf.CrossedRaid;
-                bool incidentExecuted = countdownWarband
-                    ? TheMarkedMenVehicleFrameworkCompatibility.ExecuteCountdownWarbandOrHordeWithoutVehicles(
-                        () => incident.Worker.TryExecute(parms))
-                    : incident.Worker.TryExecute(parms);
-                if (incidentExecuted)
+                if (incident.Worker.TryExecute(parms))
                 {
                     return true;
                 }
@@ -3192,7 +3460,7 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
                 return;
             }
 
-            if (TryFireHordeIncident(true, true))
+            if (TryFireHordeIncident(true))
             {
                 ScheduleNextHorde(ticks);
             }
@@ -3202,7 +3470,7 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
             }
         }
 
-        private bool TryFireHordeIncident(bool force = false, bool scheduledCountdown = false)
+        private bool TryFireHordeIncident(bool force = false)
         {
             if (ScenPart_MarkedMenPlayerState.IsActive)
             {
@@ -3233,10 +3501,7 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
                 return false;
             }
 
-            return scheduledCountdown
-                ? TheMarkedMenVehicleFrameworkCompatibility.ExecuteCountdownWarbandOrHordeWithoutVehicles(
-                    () => hordeDef.Worker.TryExecute(parms))
-                : hordeDef.Worker.TryExecute(parms);
+            return hordeDef.Worker.TryExecute(parms);
         }
 
         private bool TryFireProbeIncident(bool force = false)
@@ -3717,10 +3982,6 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
                 return false;
             }
 
-            if (!TheMarkedMenVehicleFrameworkCompatibility.SuppressGroundVehiclesForCountdownRaid)
-            {
-                TheMarkedMenVehicleFrameworkCompatibility.TryAddGroundVehiclesToRaid(crossed, pawns, parms);
-            }
             parms.pawnCount = pawns.Count;
             CrossedUtility.ApplyGeneratedRaidKindTuning(pawns);
 
@@ -3909,10 +4170,6 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
                 return false;
             }
 
-            if (!TheMarkedMenVehicleFrameworkCompatibility.SuppressGroundVehiclesForCountdownRaid)
-            {
-                TheMarkedMenVehicleFrameworkCompatibility.TryAddGroundVehiclesToRaid(crossed, pawns, parms);
-            }
             parms.pawnCount = pawns.Count;
             CrossedLordCleanupUtility.DetachFromAnyLord(pawns);
             LordMaker.MakeNewLord(crossed, CrossedRaidTactics.CreateAssaultLordJob(crossed, parms.points, pawns), map, pawns);

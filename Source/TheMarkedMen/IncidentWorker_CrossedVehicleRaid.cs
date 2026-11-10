@@ -19,13 +19,15 @@ namespace TheMarkedMen
                 && TheMarkedMenVehicleFrameworkCompatibility.HasEligibleRaidVehicle(
                     faction,
                     parms?.points ?? 0f,
-                    parms?.raidArrivalMode)
+                    parms?.raidArrivalMode,
+                    SpawnAirSupport ? RaidVehicleSelectionGroup.CombinedLand : RaidVehicleSelectionGroup.Land)
                 && (!SpawnAirSupport
                     || TheMarkedMenVehicleFrameworkCompatibility.HasEligibleAirborneRaidVehicle(
                         faction,
                         parms?.points ?? 0f,
                         0.5f,
-                        parms?.raidArrivalMode));
+                        parms?.raidArrivalMode,
+                        RaidVehicleSelectionGroup.CombinedAir));
         }
 
         protected override string GetLetterLabel(IncidentParms parms)
@@ -66,13 +68,15 @@ namespace TheMarkedMen
             if (!TheMarkedMenVehicleFrameworkCompatibility.HasEligibleRaidVehicle(
                 crossed,
                 raidPoints,
-                parms.raidArrivalMode)
+                parms.raidArrivalMode,
+                SpawnAirSupport ? RaidVehicleSelectionGroup.CombinedLand : RaidVehicleSelectionGroup.Land)
                 || (SpawnAirSupport
                     && !TheMarkedMenVehicleFrameworkCompatibility.HasEligibleAirborneRaidVehicle(
                         crossed,
                         raidPoints,
                         0.5f,
-                        parms.raidArrivalMode))
+                        parms.raidArrivalMode,
+                        RaidVehicleSelectionGroup.CombinedAir))
                 )
             {
                 return false;
@@ -122,7 +126,8 @@ namespace TheMarkedMen
                 out _,
                 out string vehicleDeploymentFailure,
                 requestedGroundVehicleCount,
-                TheMarkedMenVehicleFrameworkCompatibility.MinimumVehicleCrewReserve + reservedAirCrew);
+                TheMarkedMenVehicleFrameworkCompatibility.MinimumVehicleCrewReserve + reservedAirCrew,
+                SpawnAirSupport ? RaidVehicleSelectionGroup.CombinedLand : RaidVehicleSelectionGroup.Land);
             if (!groundVehicleDeploymentSucceeded)
             {
                 Log.Warning("[The Marked Men] Land assault could not deploy its ground vehicles ("
@@ -152,7 +157,8 @@ namespace TheMarkedMen
                     1,
                     out deployedAircraft,
                     out string deploymentFailure,
-                    parms.raidArrivalMode);
+                    parms.raidArrivalMode,
+                    RaidVehicleSelectionGroup.CombinedAir);
                 if (!airVehicleDeploymentSucceeded)
                 {
                     Log.Warning("[The Marked Men] Combined-arms assault could not deploy its aircraft ("

@@ -12,6 +12,23 @@ using Verse.AI.Group;
 
 namespace TheMarkedMen
 {
+    public enum RaidVehicleSelectionGroup
+    {
+        Land,
+        Air,
+        CombinedLand,
+        CombinedAir
+    }
+
+    public sealed class MarkedRaidVehicleOption
+    {
+        public string DefName { get; set; }
+        public string Label { get; set; }
+        public string ModName { get; set; }
+        public bool IsAirborne { get; set; }
+        public bool EnabledByDefault { get; set; }
+    }
+
     /// <summary>
     /// Compatibility layer for Vehicle Framework mod.
     /// Allows infected to interact with vehicles and vehicle-based caravans.
@@ -38,12 +55,14 @@ namespace TheMarkedMen
         private static bool raidLookupFailureLogged;
         private static MethodInfo getPawnCapacityMethod;
         private static MethodInfo getPassengersMethod;
-        private static bool suppressGroundVehiclesForCountdownRaid;
         private static bool airborneVehicleDefsCached;
         private static List<object> airborneVehicleDefs;
         private static FieldInfo airborneVehicleCombatPowerField;
         private static FieldInfo airborneVehicleTechLevelField;
         private static FieldInfo airborneVehicleNpcPropertiesField;
+        private static List<MarkedRaidVehicleOption> landRaidVehicleOptions;
+        private static List<MarkedRaidVehicleOption> airRaidVehicleOptions;
+        private static string vehicleFrameworkPackageId;
 
         static TheMarkedMenVehicleFrameworkCompatibility()
         {
@@ -96,23 +115,11 @@ namespace TheMarkedMen
 
         public static Type VehicleType => vehicleType;
 
-        public static bool SuppressGroundVehiclesForCountdownRaid => suppressGroundVehiclesForCountdownRaid;
-
-        public static bool ExecuteCountdownWarbandOrHordeWithoutVehicles(Func<bool> execute)
-        {
-            bool previousValue = suppressGroundVehiclesForCountdownRaid;
-            suppressGroundVehiclesForCountdownRaid = true;
-            try
-            {
-                return execute();
-            }
-            finally
-            {
-                suppressGroundVehiclesForCountdownRaid = previousValue;
-            }
-        }
-
-        public static bool HasEligibleRaidVehicle(Faction faction, float points, PawnsArrivalModeDef arrivalMode)
+        public static bool HasEligibleRaidVehicle(
+            Faction faction,
+            float points,
+            PawnsArrivalModeDef arrivalMode,
+            RaidVehicleSelectionGroup selectionGroup = RaidVehicleSelectionGroup.Land)
         {
             Assembly assembly = GetVehicleFrameworkAssembly();
             if (assembly == null || faction?.def?.modExtensions == null || points < 3000f)
@@ -120,7 +127,186 @@ namespace TheMarkedMen
                 return false;
             }
 
-            return GetEligibleRaidVehicleDefs(faction, points, arrivalMode, assembly).Count > 0;
+            return GetEligibleRaidVehicleDefs(faction, points, arrivalMode, assembly, selectionGroup).Count > 0;
+        }
+
+        public static List<MarkedRaidVehicleOption> GetRaidVehicleOptions(bool airborne)
+        {
+            if (!IsVehicleFrameworkLoaded)
+            {
+                return new List<MarkedRaidVehicleOption>();
+            }
+
+            if (airborne)
+            {
+                if (airRaidVehicleOptions == null)
+                {
+                    Type vehicleDefType = GetVehicleFrameworkAssembly()?.GetType(VehicleDefTypeFullName);
+                    if (vehicleDefType != null && CacheAirborneVehicleDefs(vehicleDefType))
+                    {
+                        airRaidVehicleOptions = airborneVehicleDefs
+                            .Select(CreateRaidVehicleOption)
+                            .OrderBy(option => option.ModName, StringComparer.CurrentCultureIgnoreCase)
+                            .ThenBy(option => option.Label, StringComparer.CurrentCultureIgnoreCase)
+                            .ToList();
+                    }
+                }
+
+                return airRaidVehicleOptions == null
+                    ? new List<MarkedRaidVehicleOption>()
+                    : new List<MarkedRaidVehicleOption>(airRaidVehicleOptions);
+            }
+
+            if (landRaidVehicleOptions == null)
+            {
+                Type vehicleDefType = GetVehicleFrameworkAssembly()?.GetType(VehicleDefTypeFullName);
+                if (vehicleDefType != null)
+                {
+                    landRaidVehicleOptions = GetAllLandRaidVehicleDefs(vehicleDefType)
+                        .Select(CreateRaidVehicleOption)
+                        .OrderBy(option => option.ModName, StringComparer.CurrentCultureIgnoreCase)
+                        .ThenBy(option => option.Label, StringComparer.CurrentCultureIgnoreCase)
+                        .ToList();
+                }
+            }
+
+            return landRaidVehicleOptions == null
+                ? new List<MarkedRaidVehicleOption>()
+                : new List<MarkedRaidVehicleOption>(landRaidVehicleOptions);
+        }
+
+        private static IEnumerable<object> GetAllLandRaidVehicleDefs(Type vehicleDefType)
+        {
+            Type databaseType = typeof(DefDatabase<>).MakeGenericType(vehicleDefType);
+            IEnumerable definitions = AccessTools.Property(databaseType, "AllDefsListForReading")
+                ?.GetValue(null, null) as IEnumerable;
+            if (definitions == null)
+            {
+                return Enumerable.Empty<object>();
+            }
+
+            FieldInfo typeField = AccessTools.Field(vehicleDefType, "type");
+            FieldInfo enabledField = AccessTools.Field(vehicleDefType, "enabled");
+            FieldInfo npcPropertiesField = AccessTools.Field(vehicleDefType, "npcProperties");
+            List<object> result = new List<object>();
+            foreach (object vehicleDef in definitions)
+            {
+                if (!string.Equals(
+                    Convert.ToString(typeField?.GetValue(vehicleDef)),
+                    "Ground",
+                    StringComparison.Ordinal))
+                {
+                    continue;
+                }
+
+                if (enabledField != null && (Convert.ToInt32(enabledField.GetValue(vehicleDef)) & 2) == 0)
+                {
+                    continue;
+                }
+
+                if (npcPropertiesField != null && npcPropertiesField.GetValue(vehicleDef) == null)
+                {
+                    continue;
+                }
+
+                result.Add(vehicleDef);
+            }
+
+            return result;
+        }
+
+        public static bool IsRaidVehicleOptionEnabledByDefault(string defName, bool airborne)
+        {
+            if (string.IsNullOrEmpty(defName))
+            {
+                return false;
+            }
+
+            List<MarkedRaidVehicleOption> options = airborne
+                ? airRaidVehicleOptions
+                : landRaidVehicleOptions;
+            if (options == null)
+            {
+                GetRaidVehicleOptions(airborne);
+                options = airborne ? airRaidVehicleOptions : landRaidVehicleOptions;
+            }
+
+            MarkedRaidVehicleOption option = options?.FirstOrDefault(candidate =>
+                string.Equals(candidate.DefName, defName, StringComparison.Ordinal));
+            return option?.EnabledByDefault == true;
+        }
+
+        private static MarkedRaidVehicleOption CreateRaidVehicleOption(object vehicleDef)
+        {
+            string defName = Convert.ToString(ReadVehicleMember(vehicleDef, "defName"));
+            string label = Convert.ToString(ReadVehicleMember(vehicleDef, "label"));
+            object contentPack = ReadVehicleMember(vehicleDef, "modContentPack");
+            string packageId = Convert.ToString(ReadVehicleMember(contentPack, "PackageId"));
+            string modName = Convert.ToString(ReadVehicleMember(contentPack, "Name"));
+            bool airborne = string.Equals(
+                Convert.ToString(ReadVehicleMember(vehicleDef, "type")),
+                "Air",
+                StringComparison.Ordinal);
+            bool enabledByDefault = airborne
+                ? string.Equals(defName, MosquitoVehicleDefName, StringComparison.Ordinal)
+                    || string.Equals(defName, LouieVehicleDefName, StringComparison.Ordinal)
+                : !string.IsNullOrEmpty(packageId)
+                    && string.Equals(packageId, GetVehicleFrameworkPackageId(), StringComparison.OrdinalIgnoreCase);
+
+            return new MarkedRaidVehicleOption
+            {
+                DefName = defName,
+                Label = string.IsNullOrEmpty(label) ? defName : label,
+                ModName = string.IsNullOrEmpty(modName) ? packageId : modName,
+                IsAirborne = airborne,
+                EnabledByDefault = enabledByDefault
+            };
+        }
+
+        private static string GetVehicleFrameworkPackageId()
+        {
+            if (!string.IsNullOrEmpty(vehicleFrameworkPackageId))
+            {
+                return vehicleFrameworkPackageId;
+            }
+
+            Assembly assembly = GetVehicleFrameworkAssembly();
+            IEnumerable mods = LoadedModManager.RunningModsListForReading;
+            if (assembly != null && mods != null)
+            {
+                foreach (object mod in mods)
+                {
+                    object assemblies = ReadVehicleMember(mod, "assemblies");
+                    IEnumerable loadedAssemblies = ReadVehicleMember(assemblies, "loadedAssemblies") as IEnumerable;
+                    if (loadedAssemblies == null || !loadedAssemblies.Cast<object>()
+                        .Any(candidate => candidate is Assembly loadedAssembly && ReferenceEquals(loadedAssembly, assembly)))
+                    {
+                        continue;
+                    }
+
+                    vehicleFrameworkPackageId = Convert.ToString(ReadVehicleMember(mod, "PackageId"));
+                    break;
+                }
+            }
+
+            return vehicleFrameworkPackageId ?? "smashphil.vehicleframework";
+        }
+
+        private static object ReadVehicleMember(object instance, string name)
+        {
+            if (instance == null || string.IsNullOrEmpty(name))
+            {
+                return null;
+            }
+
+            FieldInfo field = AccessTools.Field(instance.GetType(), name);
+            if (field != null)
+            {
+                return field.GetValue(instance);
+            }
+
+            PropertyInfo property = AccessTools.Property(instance.GetType(), name);
+            return property?.GetValue(instance, null);
         }
 
         public static bool IsVehiclePawn(Pawn pawn)
@@ -180,7 +366,8 @@ namespace TheMarkedMen
             out List<Pawn> spawnedVehicles,
             out string failureReason,
             int requestedVehicleCountOverride = -1,
-            int minimumCrewPawnsRemaining = MinimumGroundRaidPawns)
+            int minimumCrewPawnsRemaining = MinimumGroundRaidPawns,
+            RaidVehicleSelectionGroup selectionGroup = RaidVehicleSelectionGroup.Land)
         {
             spawnedVehicles = new List<Pawn>();
             failureReason = null;
@@ -195,7 +382,8 @@ namespace TheMarkedMen
                 faction,
                 points,
                 parms.raidArrivalMode,
-                GetVehicleFrameworkAssembly());
+                GetVehicleFrameworkAssembly(),
+                selectionGroup);
             int requestedVehicleCount = requestedVehicleCountOverride >= 0
                 ? Mathf.Clamp(requestedVehicleCountOverride, 0, 10)
                 : GetGroundRaidVehicleCount(points);
@@ -357,102 +545,6 @@ namespace TheMarkedMen
             return false;
         }
 
-        public static void TryAddGroundVehiclesToRaid(Faction faction, List<Pawn> raidPawns, IncidentParms parms)
-        {
-            Map map = parms?.target as Map;
-            if (faction == null
-                || map == null
-                || raidPawns == null
-                || !IsVehicleFrameworkLoaded)
-            {
-                return;
-            }
-
-            float vehiclePoints = Mathf.Max(parms.points, 3000f);
-            int requestedVehicleCount = GetRaidAssaultVehicleCount(vehiclePoints);
-            if (!HasEligibleRaidVehicle(faction, vehiclePoints, parms.raidArrivalMode))
-            {
-                Log.Warning("[The Marked Men] Could not add vehicles to the scheduled warband/horde: no eligible ground vehicle is available at the minimum vehicle budget.");
-                return;
-            }
-
-            KeepMarkedOneOnFoot(raidPawns, map);
-            EnsureRaidVehicleCrewPool(faction, raidPawns, map, requestedVehicleCount * 2 + MinimumGroundRaidPawns);
-            if (!TrySpawnGroundRaidVehicles(
-                faction,
-                vehiclePoints,
-                raidPawns,
-                parms,
-                out List<Pawn> vehicles,
-                out string failureReason,
-                requestedVehicleCount,
-                MinimumGroundRaidPawns))
-            {
-                Log.Warning("[The Marked Men] Could not add ground vehicles to this raid (" + failureReason + ").");
-                return;
-            }
-
-            Log.Message("[The Marked Men] Added " + vehicles.Count
-                + " ground vehicle(s) to the scheduled raid.");
-        }
-
-        private static void EnsureRaidVehicleCrewPool(
-            Faction faction,
-            List<Pawn> raidPawns,
-            Map map,
-            int minimumCrewCount)
-        {
-            int missingCrew = minimumCrewCount - CountAvailableVehicleCrewPawns(raidPawns);
-            if (missingCrew <= 0)
-            {
-                return;
-            }
-
-            PawnKindDef crewKind = CADefOf.CrossedSoldier
-                ?? CADefOf.CrossedRaider
-                ?? CADefOf.CrossedCivilian;
-            if (crewKind == null)
-            {
-                Log.Warning("[The Marked Men] Could not generate additional infected vehicle crew: no suitable pawn kind is defined.");
-                return;
-            }
-
-            IntVec3 anchor = raidPawns.FirstOrFallback(pawn => pawn != null && pawn.Spawned && !IsVehiclePawn(pawn))?.Position
-                ?? map.Center;
-            for (int i = 0; i < missingCrew; i++)
-            {
-                Pawn crew = PawnGenerator.GeneratePawn(crewKind, faction, map.Tile);
-                if (crew == null)
-                {
-                    Log.Warning("[The Marked Men] Vehicle raid crew generation returned no pawn for " + crewKind.defName + ".");
-                    continue;
-                }
-
-                CrossedUtility.ApplyClassHediffs(crew);
-                CrossedUtility.ApplyInfectedTattoo(crew);
-                if (!CellFinder.TryFindRandomCellNear(anchor, map, 8, cell =>
-                    cell.InBounds(map)
-                    && cell.Walkable(map)
-                    && cell.GetFirstPawn(map) == null, out IntVec3 spawnCell))
-                {
-                    crew.Destroy(DestroyMode.Vanish);
-                    Log.Warning("[The Marked Men] Could not find a safe spawn cell for additional vehicle raid crew.");
-                    continue;
-                }
-
-                GenSpawn.Spawn(crew, spawnCell, map);
-                if (crew.Spawned && crew.Map == map)
-                {
-                    raidPawns.Add(crew);
-                }
-                else
-                {
-                    crew.Destroy(DestroyMode.Vanish);
-                    Log.Warning("[The Marked Men] Additional vehicle raid crew did not spawn on the target map.");
-                }
-            }
-        }
-
         public static int GetRaidAssaultVehicleCount(float points)
         {
             float normalizedPoints = Mathf.Clamp(points, 3000f, 30000f);
@@ -465,9 +557,13 @@ namespace TheMarkedMen
 
         public static void ApplyVehicleCombatBehavior(Pawn vehicle)
         {
+            Lord vehicleLord = vehicle?.GetLord();
             if (vehicle == null || !vehicle.Spawned || vehicle.Dead
                 || vehicle.Map == null || !IsVehiclePawn(vehicle)
-                || vehicle.mindState == null)
+                || vehicle.mindState == null
+                || vehicle.Faction?.def != CADefOf.CrossedFaction
+                || vehicleLord?.faction?.def != CADefOf.CrossedFaction
+                || !(vehicleLord?.LordJob is LordJob_CrossedVehicleAssault))
             {
                 return;
             }
@@ -521,6 +617,13 @@ namespace TheMarkedMen
                 || identity.Contains("artillery") || identity.Contains("mortar"))
             {
                 return 36f;
+            }
+            if (string.Equals(
+                Convert.ToString(ReadVehicleMember(vehicle.def, "type")),
+                "Air",
+                StringComparison.OrdinalIgnoreCase))
+            {
+                return 28f;
             }
             if (identity.Contains("helicopter") || identity.Contains("mosquito")
                 || identity.Contains("louie") || identity.Contains("hover"))
@@ -650,9 +753,15 @@ namespace TheMarkedMen
                 Faction faction,
                 float points,
                 float budgetMultiplier = 1f,
-                PawnsArrivalModeDef arrivalMode = null)
+                PawnsArrivalModeDef arrivalMode = null,
+                RaidVehicleSelectionGroup selectionGroup = RaidVehicleSelectionGroup.Air)
             {
-                return GetEligibleAirborneRaidVehicleDefs(faction, points, budgetMultiplier, arrivalMode).Count > 0;
+                return GetEligibleAirborneRaidVehicleDefs(
+                    faction,
+                    points,
+                    budgetMultiplier,
+                    arrivalMode,
+                    selectionGroup).Count > 0;
             }
 
             public static bool TrySpawnAirborneRaidVehicles(
@@ -665,7 +774,8 @@ namespace TheMarkedMen
                 int minimumVehicleCount,
                 out List<Pawn> spawnedVehicles,
                 out string failureReason,
-                PawnsArrivalModeDef arrivalMode = null)
+                PawnsArrivalModeDef arrivalMode = null,
+                RaidVehicleSelectionGroup selectionGroup = RaidVehicleSelectionGroup.Air)
             {
                 spawnedVehicles = new List<Pawn>();
                 failureReason = null;
@@ -684,7 +794,8 @@ namespace TheMarkedMen
                         out Pawn vehicle,
                         out string deploymentFailure,
                         arrivalMode,
-                        reservedLandingCells))
+                        reservedLandingCells,
+                        selectionGroup))
                     {
                         failureReason = deploymentFailure;
                         break;
@@ -727,7 +838,8 @@ namespace TheMarkedMen
                 out Pawn spawnedVehicle,
                 out string failureReason,
                 PawnsArrivalModeDef arrivalMode = null,
-                HashSet<IntVec3> reservedLandingCells = null)
+                HashSet<IntVec3> reservedLandingCells = null,
+                RaidVehicleSelectionGroup selectionGroup = RaidVehicleSelectionGroup.Air)
             {
                 spawnedVehicle = null;
                 failureReason = "Airborne vehicle deployment failed for an unknown reason.";
@@ -741,7 +853,8 @@ namespace TheMarkedMen
                     faction,
                     points,
                     budgetMultiplier,
-                    arrivalMode);
+                    arrivalMode,
+                    selectionGroup);
                 if (eligibleDefs.Count == 0)
                 {
                     failureReason = "No aircraft matched the faction's raid settings, points budget, crew-launch support, or arrival restrictions.";
@@ -884,7 +997,8 @@ namespace TheMarkedMen
                 Faction faction,
                 float points,
                 float budgetMultiplier,
-                PawnsArrivalModeDef arrivalMode)
+                PawnsArrivalModeDef arrivalMode,
+                RaidVehicleSelectionGroup? selectionGroup)
             {
                 List<object> eligible = new List<object>();
                 Assembly assembly = GetVehicleFrameworkAssembly();
@@ -979,6 +1093,15 @@ namespace TheMarkedMen
                             }
                         }
 
+                        if (selectionGroup.HasValue
+                            && !IsRaidVehicleSelected(
+                                Convert.ToString(AccessTools.Field(vehicleDef.GetType(), "defName")?.GetValue(vehicleDef)),
+                                selectionGroup.Value,
+                                true))
+                        {
+                            continue;
+                        }
+
                         eligible.Add(vehicleDef);
                     }
                 }
@@ -1018,7 +1141,6 @@ namespace TheMarkedMen
                 foreach (object vehicleDef in definitions)
                 {
                     if (!string.Equals(Convert.ToString(typeField.GetValue(vehicleDef)), "Air", StringComparison.Ordinal)
-                        || !IsSupportedAirborneRaidVehicle(vehicleDef)
                         || (Convert.ToInt32(categoryField.GetValue(vehicleDef)) & 5) == 0
                         || (Convert.ToInt32(enabledField.GetValue(vehicleDef)) & 2) == 0
                         || npcPropertiesField.GetValue(vehicleDef) == null
@@ -1036,13 +1158,6 @@ namespace TheMarkedMen
                 airborneVehicleNpcPropertiesField = npcPropertiesField;
                 airborneVehicleDefsCached = true;
                 return true;
-            }
-
-            private static bool IsSupportedAirborneRaidVehicle(object vehicleDef)
-            {
-                string defName = Convert.ToString(AccessTools.Field(vehicleDef.GetType(), "defName")?.GetValue(vehicleDef));
-                return string.Equals(defName, MosquitoVehicleDefName, StringComparison.Ordinal)
-                    || string.Equals(defName, LouieVehicleDefName, StringComparison.Ordinal);
             }
 
             private static bool HasVehicleHoverComponent(object components)
@@ -1421,16 +1536,31 @@ namespace TheMarkedMen
 
             public static bool TryAssignMarkedMenVehicleLord(Pawn vehicle, Faction faction)
             {
-                if (vehicle == null || !vehicle.Spawned || faction == null || vehicle.Map == null)
+                if (vehicle == null
+                    || !vehicle.Spawned
+                    || faction?.def != CADefOf.CrossedFaction
+                    || vehicle.Map == null
+                    || !IsVehiclePawn(vehicle))
                 {
                     return false;
                 }
-                
+
+                EnsureRaidVehicleFaction(vehicle, faction);
+                Lord existingLord = vehicle.GetLord();
+                if (existingLord?.faction == faction
+                    && existingLord.LordJob is LordJob_CrossedVehicleAssault)
+                {
+                    ApplyVehicleCombatBehavior(vehicle);
+                    return true;
+                }
+
+                CrossedLordCleanupUtility.DetachFromAnyLord(new[] { vehicle });
                 LordMaker.MakeNewLord(
                     faction,
                     new LordJob_CrossedVehicleAssault(faction),
                     vehicle.Map,
                     new[] { vehicle });
+                ApplyVehicleCombatBehavior(vehicle);
                 Log.Message("[The Marked Men] Assigned vehicle " + vehicle.def.defName
                     + " to The Marked Men vehicle assault AI.");
                 return true;
@@ -1440,7 +1570,8 @@ namespace TheMarkedMen
             Faction faction,
             float points,
             PawnsArrivalModeDef arrivalMode,
-            Assembly assembly)
+            Assembly assembly,
+            RaidVehicleSelectionGroup? selectionGroup)
         {
             List<object> eligible = new List<object>();
             if (assembly == null || faction?.def?.modExtensions == null)
@@ -1500,6 +1631,15 @@ namespace TheMarkedMen
                             vehicleBudget
                         }) is bool valid && valid)
                     {
+                        if (selectionGroup.HasValue
+                            && !IsRaidVehicleSelected(
+                                Convert.ToString(AccessTools.Field(vehicleDef.GetType(), "defName")?.GetValue(vehicleDef)),
+                                selectionGroup.Value,
+                                false))
+                        {
+                            continue;
+                        }
+
                         eligible.Add(vehicleDef);
                     }
                 }
@@ -1510,6 +1650,19 @@ namespace TheMarkedMen
             }
 
             return eligible;
+        }
+
+        private static bool IsRaidVehicleSelected(
+            string defName,
+            RaidVehicleSelectionGroup selectionGroup,
+            bool airborne)
+        {
+            if (string.IsNullOrEmpty(defName))
+            {
+                return false;
+            }
+
+            return TheMarkedMenMod.Settings?.IsRaidVehicleSelected(defName, selectionGroup, airborne) ?? true;
         }
 
         private static int GetGroundRaidVehicleCount(float points)

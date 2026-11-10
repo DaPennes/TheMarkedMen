@@ -18,7 +18,8 @@ namespace TheMarkedMen
                     faction,
                     parms?.points ?? 0f,
                     1f,
-                    parms?.raidArrivalMode);
+                    parms?.raidArrivalMode,
+                    RaidVehicleSelectionGroup.Air);
         }
 
         protected override string GetLetterLabel(IncidentParms parms)
@@ -80,7 +81,8 @@ namespace TheMarkedMen
                 3,
                 out List<Pawn> aircraft,
                 out string deploymentFailure,
-                parms.raidArrivalMode))
+                parms.raidArrivalMode,
+                RaidVehicleSelectionGroup.Air))
             {
                 return ExecuteFallbackRaid(parms, originalPoints, pawns, deploymentFailure);
             }

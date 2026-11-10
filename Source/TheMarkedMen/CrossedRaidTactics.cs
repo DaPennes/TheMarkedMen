@@ -263,12 +263,7 @@ namespace TheMarkedMen
         {
             base.LordToilTick();
             if ((lord?.ticksInToil ?? 0) % 30 != 0
-                || TheMarkedMenMod.Settings?.vehiclePassengerDisembarkEnabled != true)
-            {
-                return;
-            }
-
-            if (lord?.ownedPawns == null)
+                || lord?.ownedPawns == null)
             {
                 return;
             }
@@ -278,8 +273,17 @@ namespace TheMarkedMen
             for (int i = 0; i < lord.ownedPawns.Count; i++)
             {
                 Pawn vehicle = lord.ownedPawns[i];
-                TheMarkedMenVehicleFrameworkCompatibility.TryDisembarkRaidPassengers(vehicle, landRange, airRange);
+                if (!TheMarkedMenVehicleFrameworkCompatibility.IsVehiclePawn(vehicle)
+                    || vehicle?.Faction?.def != CADefOf.CrossedFaction)
+                {
+                    continue;
+                }
+
                 TheMarkedMenVehicleFrameworkCompatibility.ApplyVehicleCombatBehavior(vehicle);
+                if (TheMarkedMenMod.Settings?.vehiclePassengerDisembarkEnabled == true)
+                {
+                    TheMarkedMenVehicleFrameworkCompatibility.TryDisembarkRaidPassengers(vehicle, landRange, airRange);
+                }
             }
         }
     }

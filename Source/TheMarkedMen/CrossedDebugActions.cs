@@ -259,12 +259,20 @@ namespace TheMarkedMen
                 canTimeoutOrFlee = false
             };
             TheMarkedMenGameComponent.ApplyMarkedRaidArrivalPattern(parms);
+            bool combinedArms = incident.defName == "CA_CrossedCombinedArmsAssault";
+            RaidVehicleSelectionGroup groundSelection = combinedArms
+                ? RaidVehicleSelectionGroup.CombinedLand
+                : RaidVehicleSelectionGroup.Land;
+            RaidVehicleSelectionGroup airSelection = combinedArms
+                ? RaidVehicleSelectionGroup.CombinedAir
+                : RaidVehicleSelectionGroup.Air;
 
             if (requireLandVehicle
                 && !TheMarkedMenVehicleFrameworkCompatibility.HasEligibleRaidVehicle(
                     faction,
                     parms.points,
-                    parms.raidArrivalMode))
+                    parms.raidArrivalMode,
+                    groundSelection))
             {
                 Report(false, null, "DevMode: No eligible land vehicle for this assault. Check the faction vehicle-raider extension, vehicle settings, tech level, and arrival-mode restrictions.");
                 return;
@@ -275,7 +283,8 @@ namespace TheMarkedMen
                     faction,
                     parms.points,
                     incident.defName == "CA_CrossedCombinedArmsAssault" ? 0.5f : 1f,
-                    parms.raidArrivalMode))
+                    parms.raidArrivalMode,
+                    airSelection))
             {
                 Report(false, null, "DevMode: No eligible aircraft for this assault. Check aircraft raider settings, aircraft launcher components, tech level, and arrival-mode restrictions.");
                 return;

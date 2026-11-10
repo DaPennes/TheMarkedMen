@@ -51,7 +51,7 @@ The Marked Virus spreads through close contact, infected blood exposure, and sup
 
 The faction does not behave like shambling undead. The Marked Men use weapons, pursue weak targets, coordinate through scouts, warbands, hordes, ambushes, and storyteller pressure, and punish wounded or isolated colonists.
 
-When Vehicle Framework is installed, eligible ground combat vehicles and aircraft can join separate Marked Men land, airborne, and combined-arms assaults. Aircraft arrive using Vehicle Framework's landing sequence; Vehicle Framework - Local Flight Systems is optional and only provides short-range repositioning for aircraft already on the map.
+When Vehicle Framework is installed, eligible ground combat vehicles and aircraft can join separate Marked Men land, airborne, and combined-arms assaults. Standard Warband and Horde raids remain infantry-only. Mod Options provides independent vehicle selections for land, air, and combined-arms raids; additional mod vehicles are opt-in. Dedicated vehicle assaults use Marked Men-owned vehicle AI for movement and combat. Aircraft arrive using Vehicle Framework's landing sequence; Vehicle Framework - Local Flight Systems is optional and only provides short-range repositioning for aircraft already on the map.
 
 The Marked One storyteller is a brutal outbreak-focused alternative to Randy Random: unpredictable, faster, harder, and deliberately short on recovery windows. Use the mod options to tune infection rules, raid frequency, raid strength, pawn mix, AI behavior, performance intervals, urban ruin outbreaks, and optional compatibility bridges through collapsible categories with hover tooltips.
 

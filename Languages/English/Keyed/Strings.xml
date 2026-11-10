@@ -154,6 +154,26 @@
   <MarkedMen_Settings_EffectiveFrequencies>Effective frequencies: warbands {0}, hordes {1}, probes {2}.</MarkedMen_Settings_EffectiveFrequencies>
   <MarkedMen_Settings_VehicleAssaults>Vehicle assaults</MarkedMen_Settings_VehicleAssaults>
   <MarkedMen_Settings_VehicleAssaultsDesc>Configure the Marked Men vehicle raid types. These assaults require Vehicle Framework and eligible vehicles in the Marked Men faction.</MarkedMen_Settings_VehicleAssaultsDesc>
+  <MarkedMen_Settings_LandRaidVehicles>Land assault vehicle selection</MarkedMen_Settings_LandRaidVehicles>
+  <MarkedMen_Settings_LandRaidVehiclesDesc>Choose which installed ground vehicles may appear in land assaults. Vehicle definitions from optional vehicle mods are disabled by default; the Vehicle Framework's own vehicles remain enabled by default.</MarkedMen_Settings_LandRaidVehiclesDesc>
+  <MarkedMen_Settings_AirRaidVehicles>Air assault vehicle selection</MarkedMen_Settings_AirRaidVehicles>
+  <MarkedMen_Settings_AirRaidVehiclesDesc>Choose which installed aircraft may appear in airborne assaults. The currently supported Mosquito and Louie aircraft are enabled by default; other mod aircraft are disabled by default.</MarkedMen_Settings_AirRaidVehiclesDesc>
+  <MarkedMen_Settings_CombinedLandRaidVehicles>Combined-arms ground vehicle selection</MarkedMen_Settings_CombinedLandRaidVehicles>
+  <MarkedMen_Settings_CombinedLandRaidVehiclesDesc>Choose ground vehicles specifically for combined-arms assaults. This selection is independent of the land-only assault selection.</MarkedMen_Settings_CombinedLandRaidVehiclesDesc>
+  <MarkedMen_Settings_CombinedAirRaidVehicles>Combined-arms aircraft selection</MarkedMen_Settings_CombinedAirRaidVehicles>
+  <MarkedMen_Settings_CombinedAirRaidVehiclesDesc>Choose aircraft specifically for combined-arms assaults. This selection is independent of the airborne-only assault selection.</MarkedMen_Settings_CombinedAirRaidVehiclesDesc>
+  <MarkedMen_Settings_VehicleFrameworkNotLoaded>Vehicle Framework is not loaded, so no vehicle definitions can be selected.</MarkedMen_Settings_VehicleFrameworkNotLoaded>
+  <MarkedMen_Settings_NoRaidVehicles>No compatible raid vehicles from loaded mods were found for this category.</MarkedMen_Settings_NoRaidVehicles>
+  <MarkedMen_Settings_UnknownVehicleMod>Unknown vehicle mod</MarkedMen_Settings_UnknownVehicleMod>
+  <MarkedMen_Settings_VehicleOptionTooltip>Vehicle def: {0}\nProvided by: {1}\n{2}</MarkedMen_Settings_VehicleOptionTooltip>
+  <MarkedMen_Settings_VehicleDefaultEnabled>Enabled by default.</MarkedMen_Settings_VehicleDefaultEnabled>
+  <MarkedMen_Settings_VehicleDefaultDisabled>Disabled by default; enable it to include this modded vehicle.</MarkedMen_Settings_VehicleDefaultDisabled>
+  <MarkedMen_Settings_VehicleUseDefaults>Defaults</MarkedMen_Settings_VehicleUseDefaults>
+  <MarkedMen_Settings_VehicleUseDefaultsDesc>Restore the default vehicle choices for this raid type.</MarkedMen_Settings_VehicleUseDefaultsDesc>
+  <MarkedMen_Settings_VehicleSelectAll>Select all</MarkedMen_Settings_VehicleSelectAll>
+  <MarkedMen_Settings_VehicleSelectAllDesc>Allow every compatible vehicle currently listed for this raid type.</MarkedMen_Settings_VehicleSelectAllDesc>
+  <MarkedMen_Settings_VehicleSelectNone>Select none</MarkedMen_Settings_VehicleSelectNone>
+  <MarkedMen_Settings_VehicleSelectNoneDesc>Disable every vehicle for this raid type. The dedicated raid will not launch unless at least one compatible vehicle is enabled.</MarkedMen_Settings_VehicleSelectNoneDesc>
   <MarkedMen_Settings_LandVehicleAssaults>Enable land vehicle assaults</MarkedMen_Settings_LandVehicleAssaults>
   <MarkedMen_Settings_LandVehicleAssaultsDesc>Allow scheduled Marked Men raids to use ground vehicles.</MarkedMen_Settings_LandVehicleAssaultsDesc>
   <MarkedMen_Settings_AirborneVehicleAssaults>Enable airborne assaults</MarkedMen_Settings_AirborneVehicleAssaults>
