@@ -3063,7 +3063,12 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
                     continue;
                 }
 
-                if (incident.Worker.TryExecute(parms))
+                bool countdownWarband = includeVehicleAssaults && incident == CADefOf.CrossedRaid;
+                bool incidentExecuted = countdownWarband
+                    ? TheMarkedMenVehicleFrameworkCompatibility.ExecuteCountdownWarbandOrHordeWithoutVehicles(
+                        () => incident.Worker.TryExecute(parms))
+                    : incident.Worker.TryExecute(parms);
+                if (incidentExecuted)
                 {
                     return true;
                 }
@@ -3187,7 +3192,7 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
                 return;
             }
 
-            if (TryFireHordeIncident(true))
+            if (TryFireHordeIncident(true, true))
             {
                 ScheduleNextHorde(ticks);
             }
@@ -3197,7 +3202,7 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
             }
         }
 
-        private bool TryFireHordeIncident(bool force = false)
+        private bool TryFireHordeIncident(bool force = false, bool scheduledCountdown = false)
         {
             if (ScenPart_MarkedMenPlayerState.IsActive)
             {
@@ -3223,7 +3228,15 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
             parms.forced = false;
             ApplyMarkedRaidArrivalPattern(parms);
 
-            return (force || hordeDef.Worker.CanFireNow(parms)) && hordeDef.Worker.TryExecute(parms);
+            if (!force && !hordeDef.Worker.CanFireNow(parms))
+            {
+                return false;
+            }
+
+            return scheduledCountdown
+                ? TheMarkedMenVehicleFrameworkCompatibility.ExecuteCountdownWarbandOrHordeWithoutVehicles(
+                    () => hordeDef.Worker.TryExecute(parms))
+                : hordeDef.Worker.TryExecute(parms);
         }
 
         private bool TryFireProbeIncident(bool force = false)
@@ -3704,7 +3717,10 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
                 return false;
             }
 
-            TheMarkedMenVehicleFrameworkCompatibility.TryAddGroundVehiclesToRaid(crossed, pawns, parms);
+            if (!TheMarkedMenVehicleFrameworkCompatibility.SuppressGroundVehiclesForCountdownRaid)
+            {
+                TheMarkedMenVehicleFrameworkCompatibility.TryAddGroundVehiclesToRaid(crossed, pawns, parms);
+            }
             parms.pawnCount = pawns.Count;
             CrossedUtility.ApplyGeneratedRaidKindTuning(pawns);
 
@@ -3893,7 +3909,10 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
                 return false;
             }
 
-            TheMarkedMenVehicleFrameworkCompatibility.TryAddGroundVehiclesToRaid(crossed, pawns, parms);
+            if (!TheMarkedMenVehicleFrameworkCompatibility.SuppressGroundVehiclesForCountdownRaid)
+            {
+                TheMarkedMenVehicleFrameworkCompatibility.TryAddGroundVehiclesToRaid(crossed, pawns, parms);
+            }
             parms.pawnCount = pawns.Count;
             CrossedLordCleanupUtility.DetachFromAnyLord(pawns);
             LordMaker.MakeNewLord(crossed, CrossedRaidTactics.CreateAssaultLordJob(crossed, parms.points, pawns), map, pawns);

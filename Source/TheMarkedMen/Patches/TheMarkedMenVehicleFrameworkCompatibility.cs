@@ -38,6 +38,7 @@ namespace TheMarkedMen
         private static bool raidLookupFailureLogged;
         private static MethodInfo getPawnCapacityMethod;
         private static MethodInfo getPassengersMethod;
+        private static bool suppressGroundVehiclesForCountdownRaid;
         private static bool airborneVehicleDefsCached;
         private static List<object> airborneVehicleDefs;
         private static FieldInfo airborneVehicleCombatPowerField;
@@ -94,6 +95,22 @@ namespace TheMarkedMen
         public static bool IsVehicleFrameworkLoaded => GetVehicleFrameworkAssembly() != null;
 
         public static Type VehicleType => vehicleType;
+
+        public static bool SuppressGroundVehiclesForCountdownRaid => suppressGroundVehiclesForCountdownRaid;
+
+        public static bool ExecuteCountdownWarbandOrHordeWithoutVehicles(Func<bool> execute)
+        {
+            bool previousValue = suppressGroundVehiclesForCountdownRaid;
+            suppressGroundVehiclesForCountdownRaid = true;
+            try
+            {
+                return execute();
+            }
+            finally
+            {
+                suppressGroundVehiclesForCountdownRaid = previousValue;
+            }
+        }
 
         public static bool HasEligibleRaidVehicle(Faction faction, float points, PawnsArrivalModeDef arrivalMode)
         {
