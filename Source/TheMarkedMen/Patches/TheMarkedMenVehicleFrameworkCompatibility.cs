@@ -65,6 +65,8 @@ namespace TheMarkedMen
         private static bool vehicleCrewRoleApiFailureLogged;
         private static bool vehicleControlApiFailureLogged;
         private static bool vehicleOrderApiFailureLogged;
+        private static bool vehicleBoundaryApiFailureLogged;
+        private static bool vehicleBoundaryWarningLogged;
 
         private const int VehicleAssaultWaypointDistance = 35;
 
@@ -819,6 +821,85 @@ namespace TheMarkedMen
             {
                 __result = null;
             }
+        }
+
+        public static bool Patch_VehiclePathFollowerTryEnterNextPathCell(object __instance)
+        {
+            Pawn vehicle = ReadVehicleMember(__instance, "vehicle") as Pawn;
+            if (!IsMarkedMenRaidVehicle(vehicle) || vehicle.Map == null)
+            {
+                return true;
+            }
+
+            if (ReadVehicleMember(__instance, "nextCell") is not IntVec3 nextCell
+                || IsSafeVehiclePathCell(vehicle, nextCell))
+            {
+                return true;
+            }
+
+            MethodInfo patherFailed = AccessTools.Method(__instance.GetType(), "PatherFailed");
+            if (patherFailed == null)
+            {
+                if (!vehicleBoundaryApiFailureLogged)
+                {
+                    Log.Error("[The Marked Men] Vehicle Framework's path-failure method could not be found; blocked an unsafe vehicle movement step.");
+                    vehicleBoundaryApiFailureLogged = true;
+                }
+
+                return false;
+            }
+
+            try
+            {
+                patherFailed.Invoke(__instance, null);
+            }
+            catch (Exception ex)
+            {
+                if (!vehicleBoundaryApiFailureLogged)
+                {
+                    Log.Error("[The Marked Men] Could not stop a vehicle path that leaves map bounds: " + ex);
+                    vehicleBoundaryApiFailureLogged = true;
+                }
+
+                return false;
+            }
+
+            if (!vehicleBoundaryWarningLogged)
+            {
+                Log.Warning("[The Marked Men] Stopped a vehicle path step outside its safe map bounds at "
+                    + nextCell + " for " + vehicle.LabelShort + ".");
+                vehicleBoundaryWarningLogged = true;
+            }
+
+            return false;
+        }
+
+        private static bool IsSafeVehiclePathCell(Pawn vehicle, IntVec3 cell)
+        {
+            Map map = vehicle?.Map;
+            if (map == null || !cell.InBounds(map))
+            {
+                return false;
+            }
+
+            object sizeValue = ReadVehicleMember(vehicle.def, "size");
+            if (sizeValue is not Vector2 vehicleSize)
+            {
+                vehicleSize = Vector2.one;
+                if (!vehicleBoundaryApiFailureLogged)
+                {
+                    Log.Warning("[The Marked Men] Could not read a vehicle's footprint; using a one-cell safety margin for raid pathing.");
+                    vehicleBoundaryApiFailureLogged = true;
+                }
+            }
+
+            int margin = Mathf.Max(
+                1,
+                Mathf.CeilToInt(Mathf.Max(vehicleSize.x, vehicleSize.y) * 0.5f));
+            return cell.x >= margin
+                && cell.x < map.Size.x - margin
+                && cell.z >= margin
+                && cell.z < map.Size.z - margin;
         }
 
         private static float GetVehiclePreferredCombatRange(Pawn vehicle)
@@ -2774,6 +2855,27 @@ namespace TheMarkedMen
                 {
                     LogVehiclePathingApiFailure(
                         "Vehicle Framework's nearest-hostile job giver could not be patched; long vehicle assault routes may still exhaust pathfinding.");
+                }
+
+                Type vehiclePathFollowerType = GetVehicleFrameworkAssembly()
+                    ?.GetType("Vehicles.VehiclePathFollower");
+                MethodInfo tryEnterNextPathCell = vehiclePathFollowerType == null
+                    ? null
+                    : AccessTools.Method(vehiclePathFollowerType, "TryEnterNextPathCell");
+                MethodInfo pathBoundaryPrefix = AccessTools.Method(
+                    typeof(TheMarkedMenVehicleFrameworkCompatibility),
+                    nameof(Patch_VehiclePathFollowerTryEnterNextPathCell));
+                if (tryEnterNextPathCell != null && pathBoundaryPrefix != null)
+                {
+                    harmony.Patch(
+                        tryEnterNextPathCell,
+                        prefix: new HarmonyMethod(pathBoundaryPrefix));
+                    Log.Message("[The Marked Men] Added map-boundary checks to raid vehicle movement.");
+                }
+                else
+                {
+                    LogVehiclePathingApiFailure(
+                        "Vehicle Framework's path follower step could not be patched; raid vehicles may still attempt invalid edge cells.");
                 }
 
                 // Patch vehicle TakeDamage to track infected occupants
