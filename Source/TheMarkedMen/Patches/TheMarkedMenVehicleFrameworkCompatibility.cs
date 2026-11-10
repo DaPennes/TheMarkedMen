@@ -1250,7 +1250,17 @@ namespace TheMarkedMen
                 return false;
             }
 
-            GenSpawn.Spawn(vehicle, spawnCell, map, rotation);
+            bool randomizeRotationOnSpawn = vehicle.def.randomizeRotationOnSpawn;
+            vehicle.def.randomizeRotationOnSpawn = false;
+            try
+            {
+                GenSpawn.Spawn(vehicle, spawnCell, map, rotation);
+            }
+            finally
+            {
+                vehicle.def.randomizeRotationOnSpawn = randomizeRotationOnSpawn;
+            }
+
             if (!vehicle.Spawned || vehicle.Map != map)
             {
                 failureReason = "Vehicle Framework did not spawn the ground vehicle on the target map.";
@@ -1302,33 +1312,26 @@ namespace TheMarkedMen
                 return false;
             }
 
-            Rot4[] rotations = vehicle.def.randomizeRotationOnSpawn
-                ? new[] { Rot4.North, Rot4.East, Rot4.South, Rot4.West }
-                : new[] { rotation };
-            for (int i = 0; i < rotations.Length; i++)
+            CellRect occupiedRect = GenAdj.OccupiedRect(cell, rotation, vehicle.def.Size);
+            if (!occupiedRect.InBounds(map))
             {
-                Rot4 candidateRotation = rotations[i];
-                CellRect occupiedRect = GenAdj.OccupiedRect(cell, candidateRotation, vehicle.def.Size);
-                if (!occupiedRect.InBounds(map))
+                return false;
+            }
+
+            foreach (IntVec3 occupiedCell in occupiedRect)
+            {
+                if (occupiedCell.GetRoof(map) != null || occupiedCell.GetFirstPawn(map) != null)
                 {
                     return false;
                 }
+            }
 
-                foreach (IntVec3 occupiedCell in occupiedRect)
-                {
-                    if (occupiedCell.GetRoof(map) != null || occupiedCell.GetFirstPawn(map) != null)
-                    {
-                        return false;
-                    }
-                }
-
-                if (blocked.Invoke(null, new object[] { vehicle, map, cell, candidateRotation }) is not bool isBlocked
-                    || isBlocked
-                    || nonStandable.Invoke(null, new object[] { vehicle, map, cell, candidateRotation }) is not bool isNotStandable
-                    || isNotStandable)
-                {
-                    return false;
-                }
+            if (blocked.Invoke(null, new object[] { vehicle, map, cell, rotation }) is not bool isBlocked
+                || isBlocked
+                || nonStandable.Invoke(null, new object[] { vehicle, map, cell, rotation }) is not bool isNotStandable
+                || isNotStandable)
+            {
+                return false;
             }
 
             return true;
