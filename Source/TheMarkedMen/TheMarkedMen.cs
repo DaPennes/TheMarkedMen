@@ -217,8 +217,11 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
         public int reanimationProcessIntervalTicks = 2500;
         public int maxPendingReanimationsPerTick = 24;
         public int maxRaidInfantry = 60;
-        public int maxRaidVehicles = 3;
+        public int maxRaidVehicles = 2;
         public int maxActiveRaidPawns = 80;
+        // New performance settings
+        public int minRaidVehicles = 1;
+        public int maxAllowedRaidVehicles = 5;
 
         public bool bloodlustEnabled = true;
         public float bloodlustDecayRate = 1f;
@@ -408,15 +411,15 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
             }
 
             landRaidVehicleDefNames = DefaultRaidVehicleNames(
-                TheMarkedMenVehicleFrameworkCompatibility.GetRaidVehicleOptions(false));
+                TheMarkedMenVehicleFrameworkCompatibility.GetRaidVehicleOptions(false), false);
             combinedLandRaidVehicleDefNames = new List<string>(landRaidVehicleDefNames);
             airRaidVehicleDefNames = DefaultRaidVehicleNames(
-                TheMarkedMenVehicleFrameworkCompatibility.GetRaidVehicleOptions(true));
+                TheMarkedMenVehicleFrameworkCompatibility.GetRaidVehicleOptions(true), true);
             combinedAirRaidVehicleDefNames = new List<string>(airRaidVehicleDefNames);
             raidVehicleSelectionsConfigured = true;
         }
 
-        private static List<string> DefaultRaidVehicleNames(List<MarkedRaidVehicleOption> options)
+        private static List<string> DefaultRaidVehicleNames(List<MarkedRaidVehicleOption> options, bool airborne = false)
         {
             List<string> defaults = new List<string>();
             if (options == null)
@@ -424,12 +427,16 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
                 return defaults;
             }
 
+            // Add vehicles in order: combat/military first, then others
+            // This ensures military vehicles are selected by default for performance-friendly raids
+            HashSet<string> added = new HashSet<string>();
             for (int i = 0; i < options.Count; i++)
             {
                 MarkedRaidVehicleOption option = options[i];
-                if (option?.EnabledByDefault == true && !string.IsNullOrEmpty(option.DefName))
+                if (option?.EnabledByDefault == true && !string.IsNullOrEmpty(option.DefName) && !added.Contains(option.DefName))
                 {
                     defaults.Add(option.DefName);
+                    added.Add(option.DefName);
                 }
             }
 
@@ -615,6 +622,8 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
             Scribe_Values.Look(ref minimumProbeSize, "minimumProbeSize", 2);
             Scribe_Values.Look(ref maximumProbeSize, "maximumProbeSize", 4);
             Scribe_Values.Look(ref maximumAlphasPerRaid, "maximumAlphasPerRaid", 2);
+            Scribe_Values.Look(ref minRaidVehicles, "minRaidVehicles", 1);
+            Scribe_Values.Look(ref maxAllowedRaidVehicles, "maxAllowedRaidVehicles", 5);
             Scribe_Values.Look(ref bloodExposureChance, "bloodExposureChance", InfectionTransmissionChance);
             Scribe_Values.Look(ref rjwExposureChance, "rjwExposureChance", InfectionTransmissionChance);
             Scribe_Values.Look(ref infectedAssaultExposureChance, "infectedAssaultExposureChance", InfectionTransmissionChance);
@@ -1112,7 +1121,8 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
             DrawFloat(listing, "MarkedMen_Settings_caravanAmbushPrepTimeInHours".Translate(), ref caravanAmbushPrepTimeInHours, 0f, 24f, "caravanAmbushPrepTimeInHours", "MarkedMen_Settings_caravanAmbushPrepTimeInHoursDesc".Translate());
 
             DrawSectionHeader(listing, "MarkedMen_Settings_Performance".Translate(), "MarkedMen_Settings_PerformanceDesc".Translate());
-            DrawInt(listing, "MarkedMen_Settings_contagionPulseIntervalTicks".Translate(), ref contagionPulseIntervalTicks, 60, GenDate.TicksPerDay, "contagionPulseIntervalTicks", "MarkedMen_Settings_contagionPulseIntervalTicksDesc".Translate());
+            DrawInt(listing, "MarkedMen_Settings_minRaidVehicles".Translate(), ref minRaidVehicles, 1, 5, "minRaidVehicles", "Determines the minimum number of vehicles generated during vehicle raids. Default: 1. Set between 1-5. Cannot exceed maxAllowedRaidVehicles.".Translate());
+            DrawInt(listing, "MarkedMen_Settings_maxAllowedRaidVehicles".Translate(), ref maxAllowedRaidVehicles, 1, 5, "maxAllowedRaidVehicles", "Determines the absolute maximum number of vehicles allowed across all raid configurations. Default: 5. Setting this too low may limit vehicle presence. Cannot be set below minRaidVehicles.".Translate());
             DrawInt(listing, "MarkedMen_Settings_maxContagionTargetsPerPulse".Translate(), ref maxContagionTargetsPerPulse, 0, 50, "maxContagionTargetsPerPulse", "MarkedMen_Settings_maxContagionTargetsPerPulseDesc".Translate());
             DrawInt(listing, "MarkedMen_Settings_tacticalRetargetIntervalTicks".Translate(), ref tacticalRetargetIntervalTicks, 1, 2500, "tacticalRetargetIntervalTicks", "MarkedMen_Settings_tacticalRetargetIntervalTicksDesc".Translate());
             DrawInt(listing, "MarkedMen_Settings_infightingCheckIntervalTicks".Translate(), ref infightingCheckIntervalTicks, 60, GenDate.TicksPerDay, "infightingCheckIntervalTicks", "MarkedMen_Settings_infightingCheckIntervalTicksDesc".Translate());
@@ -1121,7 +1131,7 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
             DrawInt(listing, "MarkedMen_Settings_reanimationProcessIntervalTicks".Translate(), ref reanimationProcessIntervalTicks, 60, GenDate.TicksPerDay, "reanimationProcessIntervalTicks", "MarkedMen_Settings_reanimationProcessIntervalTicksDesc".Translate());
             DrawInt(listing, "MarkedMen_Settings_maxPendingReanimationsPerTick".Translate(), ref maxPendingReanimationsPerTick, 1, 500, "maxPendingReanimationsPerTick", "MarkedMen_Settings_maxPendingReanimationsPerTickDesc".Translate());
             DrawInt(listing, "MarkedMen_Settings_maxRaidInfantry".Translate(), ref maxRaidInfantry, 12, 90, "maxRaidInfantry", "MarkedMen_Settings_maxRaidInfantryDesc".Translate());
-            DrawInt(listing, "MarkedMen_Settings_maxRaidVehicles".Translate(), ref maxRaidVehicles, 1, 3, "maxRaidVehicles", "MarkedMen_Settings_maxRaidVehiclesDesc".Translate());
+            DrawInt(listing, "MarkedMen_Settings_maxRaidVehicles".Translate(), ref maxRaidVehicles, 1, 5, "maxRaidVehicles", "Determines the actual maximum number of vehicles spawned during vehicle raids. Default: 2. Can be set between 1-5. Clamped against minRaidVehicles and maxAllowedRaidVehicles. Higher values increase vehicle presence but may impact TPS during large raids.".Translate());
             DrawInt(listing, "MarkedMen_Settings_maxActiveRaidPawns".Translate(), ref maxActiveRaidPawns, 12, 180, "maxActiveRaidPawns", "MarkedMen_Settings_maxActiveRaidPawnsDesc".Translate());
 
             DrawSectionHeader(listing, "MarkedMen_Settings_UrbanOutbreak".Translate(), "MarkedMen_Settings_UrbanOutbreakDesc".Translate());
@@ -1202,6 +1212,12 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
             }
 
             return Mathf.Clamp01(settings.terminalTransformationWeight / total);
+        }
+
+        // Validate and clamp maxRaidVehicles on settings load
+        public static int ClampMaxRaidVehicles(int value)
+        {
+            return Mathf.Clamp(value, 1, 5);
         }
 
         public static int AdjustInfectionTicks(int ticks)
@@ -1778,8 +1794,25 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
             reanimationProcessIntervalTicks = Mathf.Clamp(reanimationProcessIntervalTicks, 60, GenDate.TicksPerDay);
             maxPendingReanimationsPerTick = Mathf.Clamp(maxPendingReanimationsPerTick, 1, 500);
             maxRaidInfantry = Mathf.Clamp(maxRaidInfantry, 12, 90);
-            maxRaidVehicles = Mathf.Clamp(maxRaidVehicles, 1, 3);
+            maxRaidVehicles = Mathf.Clamp(maxRaidVehicles, 1, 5);
             maxActiveRaidPawns = Mathf.Clamp(maxActiveRaidPawns, 12, 180);
+            minRaidVehicles = Mathf.Clamp(minRaidVehicles, 1, 5);
+            maxAllowedRaidVehicles = Mathf.Clamp(maxAllowedRaidVehicles, 1, 5);
+            // Ensure minRaidVehicles doesn't exceed maxAllowedRaidVehicles
+            if (minRaidVehicles > maxAllowedRaidVehicles)
+            {
+                minRaidVehicles = maxAllowedRaidVehicles;
+            }
+            // Ensure maxRaidVehicles is at least minRaidVehicles
+            if (maxRaidVehicles < minRaidVehicles)
+            {
+                maxRaidVehicles = minRaidVehicles;
+            }
+            // Ensure maxAllowedRaidVehicles is at least maxRaidVehicles
+            if (maxAllowedRaidVehicles < maxRaidVehicles)
+            {
+                maxAllowedRaidVehicles = maxRaidVehicles;
+            }
             urbanInfectionDensity = Mathf.Clamp(urbanInfectionDensity, 0f, 5f);
             urbanAmbushFrequency = Mathf.Clamp(urbanAmbushFrequency, 0f, 5f);
             dormantInfestationFrequency = Mathf.Clamp(dormantInfestationFrequency, 0f, 5f);
@@ -1831,6 +1864,7 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
             raidEscalationRandomness = 0.3f;
             raidDifficultyWaviness = 0.2f;
             raidEscalationSpikeProbability = 0.15f;
+            maxRaidVehicles = 2;
             ResetArrivalDefaults();
             ResetCompositionDefaults();
             bloodExposureChance = InfectionTransmissionChance;
@@ -1859,6 +1893,7 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
             markedPanicEnabled = true;
             markedPanicRadius = 12f;
             markedPanicDurationTicks = 18000;
+            maxRaidVehicles = 2;
             ResetStoryDefaults();
             ResetPerformanceDefaults();
             if (updatePreset)
@@ -1917,6 +1952,9 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
             markedManWeightMultiplier = 0.2f;
             maximumAlphasPerRaid = 1;
             socialTerrorStrength = 0.5f;
+            minRaidVehicles = 1;
+            maxRaidVehicles = 1;
+            maxAllowedRaidVehicles = 1;
             ClampSettings();
             ClearNumericBuffers();
         }
@@ -1945,6 +1983,9 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
             markedManWeightMultiplier = 0.4f;
             maximumAlphasPerRaid = 1;
             socialTerrorStrength = 0.75f;
+            minRaidVehicles = 1;
+            maxRaidVehicles = 2;
+            maxAllowedRaidVehicles = 5;
             ClampSettings();
             ClearNumericBuffers();
         }
@@ -2001,6 +2042,9 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
             reanimationDelayTicks = 600;
             starterLineageBreakthroughChance = 0.08f;
             socialTerrorStrength = 1.5f;
+            minRaidVehicles = 3;
+            maxRaidVehicles = 5;
+            maxAllowedRaidVehicles = 5;
             ClampSettings();
             ClearNumericBuffers();
         }
@@ -2052,6 +2096,9 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
             meleeWeaponInfectionChance = 0.8f;
             markedMenInfectionChance = 1f;
             markedMenGuaranteedInfection = true;
+            minRaidVehicles = 5;
+            maxRaidVehicles = 5;
+            maxAllowedRaidVehicles = 5;
             closeContactExposureChance = 0.9f;
             infectionProgressionSpeedMultiplier = 2.2f;
             immunitySurvivalChance = 0.005f;
@@ -2121,7 +2168,7 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
             reanimationProcessIntervalTicks = 2500;
             maxPendingReanimationsPerTick = 24;
             maxRaidInfantry = 60;
-            maxRaidVehicles = 3;
+            maxRaidVehicles = 2;
             maxActiveRaidPawns = 80;
         }
     }
