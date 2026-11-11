@@ -353,7 +353,9 @@ namespace TheMarkedMen
 
         public static bool IsVehiclePawn(Pawn pawn)
         {
-            return pawn != null && pawn.GetType().FullName == VehiclePawnTypeFullName;
+            return pawn != null
+                && vehicleType != null
+                && vehicleType.IsInstanceOfType(pawn);
         }
 
         private static bool IsMarkedMenRaidVehicle(Pawn vehicle)
@@ -795,7 +797,7 @@ namespace TheMarkedMen
                 return;
             }
 
-            if (!IsSafeVehiclePathCell(pawn, pawn.Position))
+            if (!IsSafeVehiclePathCell(pawn, pawn.Map, pawn.Position))
             {
                 TryRecoverUnsafeRaidVehiclePosition(pawn);
                 __result = null;
@@ -831,7 +833,7 @@ namespace TheMarkedMen
                 destination = fallbackJob.targetA.Cell;
             }
 
-            if (!IsSafeVehiclePathCell(pawn, destination))
+            if (!IsSafeVehiclePathCell(pawn, pawn.Map, destination))
             {
                 if (TryFindReachableVehicleCell(pawn, destination, 8f, out IntVec3 safeDestination))
                 {
@@ -1112,9 +1114,10 @@ namespace TheMarkedMen
             }
         }
 
-        private static bool IsSafeVehiclePathCell(Pawn vehicle, IntVec3 cell)
+        private static bool IsSafeVehiclePathCell(Pawn vehicle, Map map, IntVec3 cell)
         {
-            Map map = vehicle?.Map;
+            // Placement is validated before the vehicle is spawned, when vehicle.Map is still null.
+            map = map ?? vehicle?.Map;
             if (map == null || !cell.InBounds(map))
             {
                 return false;
@@ -1199,7 +1202,7 @@ namespace TheMarkedMen
                 return false;
             }
 
-            if (!vehicle.Spawned || vehicle.Map != map || !IsSafeVehiclePathCell(vehicle, vehicle.Position))
+            if (!vehicle.Spawned || vehicle.Map != map || !IsSafeVehiclePathCell(vehicle, map, vehicle.Position))
             {
                 Log.Error("[The Marked Men] Edge-spawned raid vehicle did not enter its validated safe cell.");
                 return false;
@@ -1293,7 +1296,7 @@ namespace TheMarkedMen
                 if (findNearestStandableCell.Invoke(null, arguments) is bool found
                     && found
                     && arguments[2] is IntVec3 candidate
-                    && IsSafeVehiclePathCell(vehicle, candidate)
+                    && IsSafeVehiclePathCell(vehicle, vehicle.Map, candidate)
                     && vehicle.CanReach(candidate, PathEndMode.OnCell, Danger.Deadly))
                 {
                     reachableCell = candidate;
@@ -1337,6 +1340,8 @@ namespace TheMarkedMen
                 failureReason = "Vehicle Framework's ground-vehicle placement APIs are unavailable.";
                 return false;
             }
+
+            EnsureVehicleTerrainGrids(vehicle, map);
 
             Rot4 rotation = Rot4.Random;
             List<IntVec3> candidates = new List<IntVec3>();
@@ -1457,7 +1462,7 @@ namespace TheMarkedMen
                 return false;
             }
 
-            if (!IsSafeVehiclePathCell(vehicle, cell))
+            if (!IsSafeVehiclePathCell(vehicle, map, cell))
             {
                 return false;
             }
@@ -1512,6 +1517,57 @@ namespace TheMarkedMen
             // (Aircraft require open sky, which is enforced by requireOpenSky parameter)
 
             return true;
+        }
+
+        private static void EnsureVehicleTerrainGrids(Pawn vehicle, Map map)
+        {
+            if (vehicle?.def == null || map == null)
+            {
+                return;
+            }
+
+            try
+            {
+                Assembly assembly = GetVehicleFrameworkAssembly();
+                Type pathingSystemType = assembly?.GetType("Vehicles.VehiclePathingSystem");
+                Type vehicleDefType = assembly?.GetType(VehicleDefTypeFullName);
+                if (pathingSystemType == null || vehicleDefType == null)
+                {
+                    return;
+                }
+
+                PropertyInfo pathDataIndexer = pathingSystemType.GetProperty(
+                    "Item",
+                    BindingFlags.Public | BindingFlags.Instance,
+                    null,
+                    null,
+                    new[] { vehicleDefType },
+                    null);
+                object vehicleDef = ReadVehicleMember(vehicle, "VehicleDef");
+                object pathingSystem = map.GetComponent(pathingSystemType);
+                if (pathDataIndexer == null || vehicleDef == null || pathingSystem == null)
+                {
+                    return;
+                }
+
+                object pathData = pathDataIndexer.GetValue(pathingSystem, new[] { vehicleDef });
+                object pathGrid = ReadVehicleMember(pathData, "VehiclePathGrid");
+                MethodInfo recalculate = pathGrid == null
+                    ? null
+                    : AccessTools.Method(pathGrid.GetType(), "RecalculateAllPerceivedPathCosts", Type.EmptyTypes);
+                if (recalculate == null
+                    || (ReadVehicleMember(pathGrid, "Enabled") is bool enabled && enabled))
+                {
+                    return;
+                }
+
+                recalculate.Invoke(pathGrid, null);
+            }
+            catch (Exception ex)
+            {
+                Log.Warning("[The Marked Men] Could not prepare Vehicle Framework terrain data for raid vehicle placement: "
+                    + ex.Message);
+            }
         }
 
             public static bool HasEligibleAirborneRaidVehicle(
@@ -2730,8 +2786,7 @@ namespace TheMarkedMen
 
         public static IEnumerable<Pawn> GetVehiclePassengers(Pawn pawn)
         {
-            if (pawn == null || !IsVehicleFrameworkLoaded
-                || pawn.GetType().FullName != VehiclePawnTypeFullName)
+            if (pawn == null || !IsVehicleFrameworkLoaded || !IsVehiclePawn(pawn))
             {
                 yield break;
             }
