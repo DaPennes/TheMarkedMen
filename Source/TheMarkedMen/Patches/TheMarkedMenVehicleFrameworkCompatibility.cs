@@ -790,7 +790,6 @@ namespace TheMarkedMen
             if (pawn == null
                 || !IsVehiclePawn(pawn)
                 || pawn.GetLord()?.LordJob is not LordJob_CrossedVehicleAssault
-                || __result?.def != JobDefOf.Goto
                 || pawn.Map == null)
             {
                 return;
@@ -803,12 +802,33 @@ namespace TheMarkedMen
                 return;
             }
 
+            if (__result == null)
+            {
+                if (!TryGiveVehicleAssaultFallbackJob(pawn, out Job fallbackJob))
+                {
+                    return;
+                }
+
+                __result = fallbackJob;
+            }
+
+            if (__result.def != JobDefOf.Goto)
+            {
+                return;
+            }
+
             IntVec3 destination = __result.targetA.Cell;
             if (!destination.IsValid
                 || !destination.InBounds(pawn.Map))
             {
-                __result = null;
-                return;
+                if (!TryGiveVehicleAssaultFallbackJob(pawn, out Job fallbackJob))
+                {
+                    __result = null;
+                    return;
+                }
+
+                __result = fallbackJob;
+                destination = fallbackJob.targetA.Cell;
             }
 
             if (!IsSafeVehiclePathCell(pawn, destination))
@@ -820,8 +840,14 @@ namespace TheMarkedMen
                 }
                 else
                 {
-                    __result = null;
-                    return;
+                    if (!TryGiveVehicleAssaultFallbackJob(pawn, out Job fallbackJob))
+                    {
+                        __result = null;
+                        return;
+                    }
+
+                    __result = fallbackJob;
+                    destination = fallbackJob.targetA.Cell;
                 }
             }
 
@@ -847,10 +873,101 @@ namespace TheMarkedMen
             {
                 __result.targetA = new LocalTargetInfo(reachableWaypoint);
             }
-            else
+        }
+
+        private static bool TryGiveVehicleAssaultFallbackJob(Pawn vehicle, out Job job)
+        {
+            job = null;
+            Map map = vehicle?.Map;
+            if (map?.mapPawns == null)
             {
-                __result = null;
+                return false;
             }
+
+            IntVec3 destination = IntVec3.Invalid;
+            float closestDistanceSquared = float.MaxValue;
+            IReadOnlyList<Pawn> spawnedPawns = map.mapPawns.AllPawnsSpawned;
+            for (int i = 0; i < spawnedPawns.Count; i++)
+            {
+                Pawn candidate = spawnedPawns[i];
+                if (candidate == null
+                    || candidate == vehicle
+                    || candidate.Dead
+                    || candidate.Downed
+                    || !candidate.HostileTo(vehicle))
+                {
+                    continue;
+                }
+
+                float distanceSquared = candidate.Position.DistanceToSquared(vehicle.Position);
+                if (distanceSquared >= closestDistanceSquared
+                    || !TryFindReachableVehicleCell(vehicle, candidate.Position, 10f, out IntVec3 reachableCell))
+                {
+                    continue;
+                }
+
+                destination = reachableCell;
+                closestDistanceSquared = distanceSquared;
+            }
+
+            if (!destination.IsValid)
+            {
+                float preferredRange = Mathf.Max(12f, GetVehiclePreferredCombatRange(vehicle));
+                float desiredEscortDistance = Mathf.Max(10f, preferredRange * 0.65f);
+                float desiredEscortDistanceSquared = desiredEscortDistance * desiredEscortDistance;
+                closestDistanceSquared = float.MaxValue;
+                for (int i = 0; i < spawnedPawns.Count; i++)
+                {
+                    Pawn candidate = spawnedPawns[i];
+                    if (candidate == null
+                        || candidate == vehicle
+                        || candidate.Dead
+                        || candidate.Downed
+                        || candidate.Faction != vehicle.Faction
+                        || IsVehiclePawn(candidate)
+                        || candidate.GetLord()?.LordJob is LordJob_CrossedVehicleAssault)
+                    {
+                        continue;
+                    }
+
+                    float distanceSquared = candidate.Position.DistanceToSquared(vehicle.Position);
+                    if (distanceSquared <= desiredEscortDistanceSquared
+                        || distanceSquared >= closestDistanceSquared)
+                    {
+                        continue;
+                    }
+
+                    Vector3 directionFromInfantry = (vehicle.DrawPos - candidate.DrawPos).normalized;
+                    if (directionFromInfantry.sqrMagnitude < 0.01f)
+                    {
+                        continue;
+                    }
+
+                    IntVec3 requestedCell = candidate.Position + new IntVec3(
+                        Mathf.RoundToInt(directionFromInfantry.x * desiredEscortDistance),
+                        0,
+                        Mathf.RoundToInt(directionFromInfantry.z * desiredEscortDistance));
+                    if (!TryFindReachableVehicleCell(vehicle, requestedCell, 8f, out IntVec3 reachableCell))
+                    {
+                        continue;
+                    }
+
+                    destination = reachableCell;
+                    closestDistanceSquared = distanceSquared;
+                }
+            }
+
+            if (!destination.IsValid)
+            {
+                return false;
+            }
+
+            job = JobMaker.MakeJob(JobDefOf.Goto, new LocalTargetInfo(destination));
+            job.locomotionUrgency = LocomotionUrgency.Walk;
+            job.checkOverrideOnExpire = true;
+            job.expiryInterval = 360;
+            job.collideWithPawns = true;
+            return true;
         }
 
         public static bool Patch_VehicleTurretTargetRequirements(
