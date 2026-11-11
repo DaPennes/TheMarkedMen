@@ -151,7 +151,23 @@ namespace TheMarkedMen
             }
 
             TheMarkedMenVehicleFrameworkCompatibility.KeepMarkedOneOnFoot(spawnedPawns, map);
-            if (!TrimRaidPawnsToLimit(spawnedPawns, maximumInfantryCount))
+
+// Defer vehicle graphic initialization to main thread to avoid Unity threading violations
+// Vehicle Framework's Graphic_Vehicle.Init() may be called during parallel operations
+LongEventHandler.ExecuteWhenFinished(() =>
+{
+    // Re-validate and re-initialize vehicle graphics after all other operations complete
+    foreach (Pawn vehicle in spawnedPawns)
+    {
+        if (TheMarkedMenVehicleFrameworkCompatibility.IsVehiclePawn(vehicle) && vehicle.Spawned)
+        {
+            // Trigger vehicle graphic refresh
+            vehicle.GenerateDevGizmo();
+        }
+    }
+});
+
+if (!TrimRaidPawnsToLimit(spawnedPawns, maximumInfantryCount))
             {
                 Log.Warning("[The Marked Men] Vehicle assault exceeded the remaining active-pawn budget and was cancelled.");
                 CleanupRaidPawns(spawnedPawns);

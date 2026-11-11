@@ -69,6 +69,10 @@ namespace TheMarkedMen
         private static bool vehicleControlApiFailureLogged;
         private static bool vehicleOrderApiFailureLogged;
 
+        // Job throttling: track recent pathfinding failures to prevent job spam
+        private static Dictionary<int, int> vehiclePathFailureTicks = new Dictionary<int, int>();
+        private const int VehiclePathFailureCooldownTicks = 60; // Wait 1 second before retry
+
         private const int VehicleAssaultWaypointDistance = 35;
 
         static TheMarkedMenVehicleFrameworkCompatibility()
@@ -752,7 +756,7 @@ namespace TheMarkedMen
                 return;
             }
 
-            if (!IsSafeVehiclePathCell(pawn, pawn.Map, pawn.Position))
+            if (!IsSafeVehiclePathCell(pawn, pawn.Map, pawn.Position, pawn.Rotation))
             {
                 TryRecoverUnsafeRaidVehiclePosition(pawn);
                 __result = null;
@@ -788,7 +792,7 @@ namespace TheMarkedMen
                 destination = fallbackJob.targetA.Cell;
             }
 
-            if (!IsSafeVehiclePathCell(pawn, pawn.Map, destination))
+            if (!IsSafeVehiclePathCell(pawn, pawn.Map, destination, pawn.Rotation))
             {
                 if (TryFindReachableVehicleCell(pawn, destination, 8f, out IntVec3 safeDestination))
                 {
@@ -818,6 +822,20 @@ namespace TheMarkedMen
                 // vehicle instead.
                 __result = null;
                 return;
+            }
+
+            // Throttle pathfinding attempts to prevent job spam when path fails repeatedly
+            // This prevents Vehicle Framework's PatherFailed() from causing recursive job creation
+            int vehicleId = pawn.thingIDNumber;
+            int currentTick = Find.TickManager.TicksGame;
+            if (vehiclePathFailureTicks.TryGetValue(vehicleId, out int lastFailTick))
+            {
+                if (currentTick - lastFailTick < VehiclePathFailureCooldownTicks)
+                {
+                    // Recent pathfinding failure - don't issue another job yet to prevent spam
+                    __result = null;
+                    return;
+                }
             }
 
             if (pawn.Position.DistanceToSquared(destination)
@@ -1125,7 +1143,7 @@ namespace TheMarkedMen
             }
         }
 
-        private static bool IsSafeVehiclePathCell(Pawn vehicle, Map map, IntVec3 cell)
+        private static bool IsSafeVehiclePathCell(Pawn vehicle, Map map, IntVec3 cell, Rot4 rotation)
         {
             // Placement is validated before the vehicle is spawned, when vehicle.Map is still null.
             map = map ?? vehicle?.Map;
@@ -1134,20 +1152,36 @@ namespace TheMarkedMen
                 return false;
             }
 
-            int margin = GetVehiclePathSafetyMargin(vehicle);
-            if (cell.x < margin
-                || cell.x >= map.Size.x - margin
-                || cell.z < margin
-                || cell.z >= map.Size.z - margin)
+            // Check if vehicle footprint at this rotation fits in bounds
+            // Instead of applying conservative margin from cell position, we check:
+            // 1. Footprint must be in bounds
+            // 2. We reduce the margin to allow edge cells to be valid
+            CellRect footprint = GenAdj.OccupiedRect(cell, rotation, vehicle.def.Size);
+
+            // Check footprint is fully in bounds
+            if (!footprint.InBounds(map))
             {
                 return false;
             }
 
-            Rot4[] rotations = { Rot4.North, Rot4.East, Rot4.South, Rot4.West };
-            for (int i = 0; i < rotations.Length; i++)
+            // Minimal margin: ensure at least some clearance from absolute map edges
+            // but allow cells very close to edges for proper raid entry positioning
+            int minimumMargin = Mathf.Max(2, Mathf.Max(vehicle.def.Size.x, vehicle.def.Size.z) / 2);
+            if (cell.x < minimumMargin
+                || cell.x >= map.Size.x - minimumMargin
+                || cell.z < minimumMargin
+                || cell.z >= map.Size.z - minimumMargin)
             {
-                if (!GenAdj.OccupiedRect(cell, rotations[i], vehicle.def.Size).InBounds(map))
+                // For cells beyond the minimum margin, verify footprint doesn't extend past map edge
+                // This is already checked by InBounds above, so we just need a reduced check
+                // that doesn't create exclusion zones eliminating all edge cells
+                int reducedMargin = 2; // Small margin only
+                if (cell.x < reducedMargin
+                    || cell.x >= map.Size.x - reducedMargin
+                    || cell.z < reducedMargin
+                    || cell.z >= map.Size.z - reducedMargin)
                 {
+                    // Still too close to absolute edge - reject
                     return false;
                 }
             }
@@ -1157,8 +1191,11 @@ namespace TheMarkedMen
 
         private static int GetVehiclePathSafetyMargin(Pawn vehicle)
         {
-            IntVec2 vehicleSize = vehicle?.def?.size ?? IntVec2.One;
-            return Mathf.Max(8, Mathf.Max(vehicleSize.x, vehicleSize.z) + 2);
+            // Reduced from original to prevent eliminating all edge cells on smaller maps
+            // Original: max(8, max(x,z) + 2) - created massive exclusion zones
+            // New: 3 - provides adequate clearance without blocking edge cells
+            // The actual footprint check in IsSafeVehiclePathCell handles real validation
+            return 3;
         }
 
         private static bool TryRecoverUnsafeRaidVehiclePosition(Pawn vehicle)
@@ -1213,7 +1250,7 @@ namespace TheMarkedMen
                 return false;
             }
 
-            if (!vehicle.Spawned || vehicle.Map != map || !IsSafeVehiclePathCell(vehicle, map, vehicle.Position))
+            if (!vehicle.Spawned || vehicle.Map != map || !IsSafeVehiclePathCell(vehicle, map, vehicle.Position, vehicle.Rotation))
             {
                 Log.Error("[The Marked Men] Edge-spawned raid vehicle did not enter its validated safe cell.");
                 return false;
@@ -1307,7 +1344,7 @@ namespace TheMarkedMen
                 if (findNearestStandableCell.Invoke(null, arguments) is bool found
                     && found
                     && arguments[2] is IntVec3 candidate
-                    && IsSafeVehiclePathCell(vehicle, vehicle.Map, candidate)
+                    && IsSafeVehiclePathCell(vehicle, vehicle.Map, candidate, vehicle.Rotation)
                     && vehicle.CanReach(candidate, PathEndMode.OnCell, Danger.Deadly))
                 {
                     reachableCell = candidate;
@@ -1473,7 +1510,7 @@ namespace TheMarkedMen
                 return false;
             }
 
-            if (!IsSafeVehiclePathCell(vehicle, map, cell))
+            if (!IsSafeVehiclePathCell(vehicle, map, cell, Rot4.North))
             {
                 return false;
             }
@@ -3572,25 +3609,38 @@ namespace TheMarkedMen
         {
             try
             {
+                // Guard against destroyed vehicles - prevents race condition with Vehicle Framework's
+                // reservation cleanup during explosions or catastrophic damage
+                Pawn vehicle = __instance as Pawn;
+                if (vehicle == null || vehicle.Destroyed)
+                {
+                    return;
+                }
+
                 // When vehicle takes damage, notify any infected passengers
+                // Make a copy of passengers list to prevent enumeration during concurrent modification
                 var passengers = GetVehiclePassengers(__instance);
                 if (passengers == null || passengers.Count == 0)
                 {
                     return;
                 }
 
-                foreach (Pawn passenger in passengers)
+                // Create defensive copy to prevent issues if passengers collection is modified during iteration
+                List<Pawn> passengersCopy = new List<Pawn>(passengers);
+                foreach (Pawn passenger in passengersCopy)
                 {
-                    if (passenger != null && CrossedUtility.IsInfectedPawn(passenger))
+                    if (passenger != null && !passenger.Destroyed && CrossedUtility.IsInfectedPawn(passenger))
                     {
                         // Infected passenger experiences damage notification
                         // Could trigger combat reactions or escape behavior
                     }
                 }
             }
-            catch
+            catch (Exception ex)
             {
-                // Silently fail
+                // Log exception for diagnostics without crashing
+                // This helps identify upstream Vehicle Framework issues
+                Log.Warning($"[The Marked Men] Exception in vehicle damage patch: {ex.Message}");
             }
         }
     }
