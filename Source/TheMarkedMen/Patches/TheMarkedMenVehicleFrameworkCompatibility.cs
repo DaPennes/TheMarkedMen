@@ -3085,14 +3085,33 @@ namespace TheMarkedMen
                     return;
                 }
 
-                Lord assaultLord = passenger.GetLord();
-                if (assaultLord?.LordJob is LordJob_CrossedAssault)
+                // CRITICAL: Remove passenger from any vehicle lord before disembarkation.
+                // Without this, passengers remain in the vehicle's LordToil_CrossedVehicleAssault
+                // which causes them to follow vehicle movement orders (sprinting to map edges)
+                // instead of engaging enemies. This is the root cause of passengers walking
+                // off the map instead of attacking.
+                Lord passengerLord = passenger.GetLord();
+                if (passengerLord != null)
                 {
-                    assaultLord.AddPawn(passenger);
+                    // If passenger is in a vehicle assault lord, remove them so they get
+                    // their own dedicated assault lord after disembarkation
+                    if (passengerLord.LordJob is LordJob_CrossedVehicleAssault
+                        || passengerLord.LordJob is LordJob_CrossedAssault)
+                    {
+                        passengerLord.RemovePawn(passenger);
+                    }
+                }
+
+                // Now find or create a proper CrossedAssault lord for the passenger
+                Lord existingLord = passenger.GetLord();
+                Lord assaultLord = null;
+                if (existingLord != null && existingLord.LordJob is LordJob_CrossedAssault)
+                {
+                    assaultLord = existingLord;
                 }
                 else
                 {
-                    assaultLord = null;
+                    // Search existing CrossedAssault lords for this faction
                     foreach (Lord lord in vehicle.Map.lordManager.lords)
                     {
                         if (lord?.faction == vehicle.Faction
@@ -3103,21 +3122,26 @@ namespace TheMarkedMen
                             break;
                         }
                     }
-
-                    if (assaultLord != null)
-                    {
-                        assaultLord.AddPawn(passenger);
-                    }
-                    else
-                    {
-                        LordMaker.MakeNewLord(
-                            vehicle.Faction,
-                            CrossedRaidTactics.CreateAssaultLordJob(vehicle.Faction, 0f),
-                            vehicle.Map,
-                            new[] { passenger });
-                    }
                 }
 
+                // Add passenger to existing lord, or create a new dedicated one
+                if (assaultLord != null)
+                {
+                    assaultLord.AddPawn(passenger);
+                }
+                else
+                {
+                    // Create a brand new assault lord specifically for this passenger.
+                    // Use moderate point value (300f) so it forms its own group
+                    // but doesn't hog points from the main raid.
+                    assaultLord = LordMaker.MakeNewLord(
+                        vehicle.Faction,
+                        CrossedRaidTactics.CreateAssaultLordJob(vehicle.Faction, 300f),
+                        vehicle.Map,
+                        new[] { passenger });
+                }
+
+                // Set assault colony duty for combat engagement
                 passenger.mindState.duty = new PawnDuty(DutyDefOf.AssaultColony);
             }
 
