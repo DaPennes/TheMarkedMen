@@ -738,53 +738,8 @@ namespace TheMarkedMen
 
         public static void ApplyVehicleCombatBehavior(Pawn vehicle)
         {
-            Lord vehicleLord = vehicle?.GetLord();
-            if (vehicle == null || !vehicle.Spawned || vehicle.Dead
-                || vehicle.Map == null || !IsMarkedMenRaidVehicle(vehicle)
-                || vehicle.mindState == null
-                || vehicleLord?.LordJob is not LordJob_CrossedVehicleAssault)
-            {
-                return;
-            }
-
-            Pawn enemy = null;
-            float enemyDistanceSquared = float.MaxValue;
-            IReadOnlyList<Pawn> hostilePawns = vehicle.Map.mapPawns.AllPawnsSpawned;
-            for (int i = 0; i < hostilePawns.Count; i++)
-            {
-                Pawn pawn = hostilePawns[i];
-                if (pawn == null || pawn.Dead || pawn.Downed || !pawn.HostileTo(vehicle))
-                {
-                    continue;
-                }
-
-                float distanceSquared = pawn.Position.DistanceToSquared(vehicle.Position);
-                if (distanceSquared < enemyDistanceSquared)
-                {
-                    enemyDistanceSquared = distanceSquared;
-                    enemy = pawn;
-                }
-            }
-
-            if (enemy == null)
-            {
-                vehicle.mindState.duty = new PawnDuty(DutyDefOf.AssaultColony);
-                return;
-            }
-
-            float preferredRange = GetVehiclePreferredCombatRange(vehicle);
-            float enemyDistance = Mathf.Sqrt(enemyDistanceSquared);
-            if (preferredRange > 0f && enemyDistance < preferredRange * 0.72f)
-            {
-                IntVec3 retreatCell = GetVehicleStandoffCell(vehicle, enemy, preferredRange);
-                vehicle.mindState.duty = retreatCell.IsValid
-                    ? new PawnDuty(DutyDefOf.AssaultColony, retreatCell, 5f)
-                    : new PawnDuty(DutyDefOf.AssaultColony);
-            }
-            else
-            {
-                vehicle.mindState.duty = new PawnDuty(DutyDefOf.AssaultColony);
-            }
+            // Delegate to the new VehicleCombatController for intelligent targeting and combat behavior
+            VehicleCombatController.UpdateVehicleCombatBehavior(vehicle);
         }
 
         public static void Patch_VehicleGotoNearestHostile(Pawn pawn, ref Job __result)
@@ -2720,33 +2675,8 @@ namespace TheMarkedMen
 
         private static int GetVehicleCrewPriority(Pawn pawn, string handlingTypeName)
         {
-            string kind = (pawn.kindDef?.defName ?? string.Empty).ToLowerInvariant();
-            if (string.Equals(handlingTypeName, "Movement", StringComparison.Ordinal))
-            {
-                if (kind.Contains("warlord") || kind.Contains("alpha"))
-                {
-                    return 5;
-                }
-                if (kind.Contains("soldier") || kind.Contains("raider"))
-                {
-                    return 4;
-                }
-                if (kind.Contains("scout") || kind.Contains("hunter"))
-                {
-                    return 3;
-                }
-                return 1;
-            }
-
-            if (kind.Contains("shooter") || kind.Contains("soldier"))
-            {
-                return 5;
-            }
-            if (kind.Contains("raider") || kind.Contains("warlord") || kind.Contains("alpha"))
-            {
-                return 4;
-            }
-            return 1;
+            // Delegate to the new VehicleCrewManager for intelligent priority scoring
+            return VehicleCrewManager.GetCrewRolePriority(pawn, handlingTypeName);
         }
 
         private static bool VehicleHandlerHasHandlingType(object handler, string handlingTypeName)
@@ -2858,99 +2788,100 @@ namespace TheMarkedMen
         }
 
         public static void TryDisembarkRaidPassengers(Pawn vehicle, float landRange, float airborneRange)
+        {
+            if (!IsVehiclePawn(vehicle) || !vehicle.Spawned || vehicle.Map == null || vehicle.GetLord() == null)
             {
-                if (!IsVehiclePawn(vehicle) || !vehicle.Spawned || vehicle.Map == null || vehicle.GetLord() == null)
-                {
-                    return;
-                }
+                return;
+            }
 
-                object vehiclePather = ReadMember(vehicle, "vehiclePather", "VehiclePather");
-                if (vehiclePather == null || ReadMember(vehiclePather, "Moving") is not bool vehicleMoving)
-                {
-                    LogVehicleDisembarkApiFailure();
-                    return;
-                }
-                if (vehicleMoving)
-                {
-                    return;
-                }
+            object vehiclePather = ReadMember(vehicle, "vehiclePather", "VehiclePather");
+            if (vehiclePather == null || ReadMember(vehiclePather, "Moving") is not bool vehicleMoving)
+            {
+                LogVehicleDisembarkApiFailure();
+                return;
+            }
+            if (vehicleMoving)
+            {
+                return;
+            }
 
-                bool airborne = vehicle.AllComps != null && vehicle.AllComps.Any(comp =>
-                    comp?.GetType().Name.IndexOf("Flying", StringComparison.OrdinalIgnoreCase) >= 0
-                    || comp?.GetType().Name.IndexOf("Air", StringComparison.OrdinalIgnoreCase) >= 0);
-                float range = airborne ? airborneRange : landRange;
-                Pawn nearestEnemy = vehicle.Map.mapPawns.AllPawnsSpawned
-                    .Where(pawn => pawn != null
-                        && !pawn.Dead
-                        && pawn.HostileTo(vehicle)
-                        && pawn.Position.DistanceToSquared(vehicle.Position) <= range * range)
+            bool airborne = vehicle.AllComps != null && vehicle.AllComps.Any(comp =>
+                comp?.GetType().Name.IndexOf("Flying", StringComparison.OrdinalIgnoreCase) >= 0
+                || comp?.GetType().Name.IndexOf("Air", StringComparison.OrdinalIgnoreCase) >= 0);
+            float range = airborne ? airborneRange : landRange;
+            Pawn nearestEnemy = vehicle.Map.mapPawns.AllPawnsSpawned
+                .Where(pawn => pawn != null
+                    && !pawn.Dead
+                    && pawn.HostileTo(vehicle)
+                    && pawn.Position.DistanceToSquared(vehicle.Position) <= range * range)
+                .OrderBy(pawn => pawn.Position.DistanceToSquared(vehicle.Position))
+                .FirstOrFallback();
+            bool emergencyEvacuation = IsVehicleEmergencyEvacuation(vehicle);
+            if (nearestEnemy == null && !emergencyEvacuation)
+            {
+                return;
+            }
+
+            if (nearestEnemy == null && emergencyEvacuation)
+            {
+                nearestEnemy = vehicle.Map.mapPawns.AllPawnsSpawned
+                    .Where(pawn => pawn != null && !pawn.Dead && pawn.HostileTo(vehicle))
                     .OrderBy(pawn => pawn.Position.DistanceToSquared(vehicle.Position))
                     .FirstOrFallback();
-                bool emergencyEvacuation = IsVehicleEmergencyEvacuation(vehicle);
-                if (nearestEnemy == null && !emergencyEvacuation)
-                {
-                    return;
-                }
-
-                if (nearestEnemy == null && emergencyEvacuation)
-                {
-                    nearestEnemy = vehicle.Map.mapPawns.AllPawnsSpawned
-                        .Where(pawn => pawn != null && !pawn.Dead && pawn.HostileTo(vehicle))
-                        .OrderBy(pawn => pawn.Position.DistanceToSquared(vehicle.Position))
-                        .FirstOrFallback();
-                }
-
-                if (nearestEnemy == null)
-                {
-                    return;
-                }
-
-                List<Pawn> passengers = new List<Pawn>(GetVehiclePassengers(vehicle));
-                if (passengers.Count <= 1)
-                {
-                    return;
-                }
-
-                MethodInfo removePawn = AccessTools.Method(vehicle.GetType(), "RemovePawn", new[] { typeof(Pawn) });
-                PropertyInfo hasEnoughOperators = AccessTools.Property(vehicle.GetType(), "HasEnoughOperators");
-                if (removePawn == null || hasEnoughOperators == null)
-                {
-                    LogVehicleDisembarkApiFailure();
-                    return;
-                }
-
-                for (int i = passengers.Count - 1; i >= 0; i--)
-                {
-                    Pawn passenger = passengers[i];
-                    if (IsRequiredVehicleCrew(vehicle, passenger))
-                    {
-                        continue;
-                    }
-
-                    if (!TryFindDisembarkCell(vehicle, out IntVec3 cell))
-                    {
-                        return;
-                    }
-
-                    object removed = removePawn.Invoke(vehicle, new object[] { passenger });
-                    bool removedSuccessfully = removed is bool removedResult && removedResult;
-                    bool enoughOperators = hasEnoughOperators.GetValue(vehicle, null) is bool hasOperators && hasOperators;
-                    if (!removedSuccessfully || !enoughOperators)
-                    {
-                        if (removedSuccessfully)
-                        {
-                            MethodInfo addPawn = AccessTools.Method(vehicle.GetType(), "TryAddPawn", new[] { typeof(Pawn) });
-                            addPawn?.Invoke(vehicle, new object[] { passenger });
-                        }
-                        continue;
-                    }
-
-                    GenSpawn.Spawn(passenger, cell, vehicle.Map);
-                    passenger.jobs?.EndCurrentJob(JobCondition.InterruptForced);
-                    passenger.mindState?.duty = new PawnDuty(DutyDefOf.AssaultColony);
-                    EnsureRaidPassengerAssaultLord(passenger, vehicle);
-                }
             }
+
+            if (nearestEnemy == null)
+            {
+                return;
+            }
+
+            List<Pawn> passengers = new List<Pawn>(GetVehiclePassengers(vehicle));
+            if (passengers.Count <= 1)
+            {
+                return;
+            }
+
+            MethodInfo removePawn = AccessTools.Method(vehicle.GetType(), "RemovePawn", new[] { typeof(Pawn) });
+            PropertyInfo hasEnoughOperators = AccessTools.Property(vehicle.GetType(), "HasEnoughOperators");
+            if (removePawn == null || hasEnoughOperators == null)
+            {
+                LogVehicleDisembarkApiFailure();
+                return;
+            }
+
+            for (int i = passengers.Count - 1; i >= 0; i--)
+            {
+                Pawn passenger = passengers[i];
+                if (IsRequiredVehicleCrew(vehicle, passenger))
+                {
+                    continue;
+                }
+
+                // Use tactical disembarkation controller to find appropriate deployment cell
+                if (!TacticalDisembarkationController.TryFindDisembarkCell(vehicle, passenger, nearestEnemy, out IntVec3 cell))
+                {
+                    return;
+                }
+
+                object removed = removePawn.Invoke(vehicle, new object[] { passenger });
+                bool removedSuccessfully = removed is bool removedResult && removedResult;
+                bool enoughOperators = hasEnoughOperators.GetValue(vehicle, null) is bool hasOperators && hasOperators;
+                if (!removedSuccessfully || !enoughOperators)
+                {
+                    if (removedSuccessfully)
+                    {
+                        MethodInfo addPawn = AccessTools.Method(vehicle.GetType(), "TryAddPawn", new[] { typeof(Pawn) });
+                        addPawn?.Invoke(vehicle, new object[] { passenger });
+                    }
+                    continue;
+                }
+
+                GenSpawn.Spawn(passenger, cell, vehicle.Map);
+                passenger.jobs?.EndCurrentJob(JobCondition.InterruptForced);
+                passenger.mindState?.duty = new PawnDuty(DutyDefOf.AssaultColony);
+                EnsureRaidPassengerAssaultLord(passenger, vehicle);
+            }
+        }
 
             private static bool IsVehicleEmergencyEvacuation(Pawn vehicle)
             {
@@ -3151,15 +3082,6 @@ namespace TheMarkedMen
                 }
 
                 passenger.mindState.duty = new PawnDuty(DutyDefOf.AssaultColony);
-            }
-
-            private static bool TryFindDisembarkCell(Pawn vehicle, out IntVec3 cell)
-            {
-                cell = IntVec3.Invalid;
-                return CellFinder.TryFindRandomCellNear(vehicle.Position, vehicle.Map, 4, candidate =>
-                    candidate.InBounds(vehicle.Map)
-                    && candidate.Walkable(vehicle.Map)
-                    && candidate.GetFirstPawn(vehicle.Map) == null, out cell);
             }
 
         private static void EnsureRaidVehicleFaction(Pawn vehicle, Faction faction)

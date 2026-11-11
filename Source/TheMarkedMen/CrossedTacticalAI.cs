@@ -553,6 +553,12 @@ namespace TheMarkedMen
                 return false;
             }
 
+            // Prevent job thrashing by checking if assignment is safe
+            if (!AIConflictPrevention.CanAssignJob(pawn, job))
+            {
+                return false;
+            }
+
             if (forceCurrentJob && pawn.jobs.curJob != null)
             {
                 if (!CanSafelyInterruptCurrentJob(pawn))
@@ -563,7 +569,13 @@ namespace TheMarkedMen
                 pawn.jobs.EndCurrentJob(JobCondition.InterruptForced, false, true);
             }
 
-            return pawn.jobs.TryTakeOrderedJob(job, JobTag.Misc, false);
+            bool success = pawn.jobs.TryTakeOrderedJob(job, JobTag.Misc, false);
+            if (success)
+            {
+                // Notify conflict prevention system of successful assignment
+                AIConflictPrevention.NotifyJobAssigned(pawn);
+            }
+            return success;
         }
 
         private static bool TryFindRangedCastPosition(
@@ -1281,6 +1293,83 @@ namespace TheMarkedMen
             }
 
             return score * AggressionScoreMultiplier - Mathf.Sqrt(distanceSquared) * 1.15f;
+        }
+
+        /// <summary>
+        /// Applies infected AI profile adjustments to target scoring.
+        /// Enhances decision-making based on pawn type and tactical role.
+        /// </summary>
+        private static float ApplyProfileAdjustments(Pawn searcher, Pawn target, float baseScore)
+        {
+            if (searcher == null || target == null || baseScore <= 0f)
+            {
+                return baseScore;
+            }
+
+            InfectedAIProfiles.InfectedBehaviorProfile profile = InfectedAIProfiles.GetProfile(searcher);
+            if (profile == null)
+            {
+                return baseScore;
+            }
+
+            float adjustedScore = baseScore;
+
+            // Scouts prioritize isolated targets highly
+            if (profile.Role == InfectedAIProfiles.TacticalRole.Scout)
+            {
+                if (IsIsolatedTarget(searcher, target))
+                {
+                    adjustedScore += 200f;
+                }
+            }
+
+            // Hunters focus on vulnerable targets
+            if (profile.Role == InfectedAIProfiles.TacticalRole.Striker)
+            {
+                if (target.Downed || target.health?.summaryHealth.SummaryHealthPercent < 0.5f)
+                {
+                    adjustedScore += 150f;
+                }
+            }
+
+            // Gunners (Shooters, Soldiers) prefer armed targets
+            if (profile.Role == InfectedAIProfiles.TacticalRole.Gunner)
+            {
+                if (target.equipment?.Primary != null)
+                {
+                    adjustedScore += 100f;
+                }
+            }
+
+            // Tanks prioritize defensive structure interactions
+            if (profile.Role == InfectedAIProfiles.TacticalRole.Tank)
+            {
+                if (target.equipment?.Primary != null && target.health?.summaryHealth.SummaryHealthPercent > 0.6f)
+                {
+                    adjustedScore += 80f;
+                }
+            }
+
+            // Commanders adapt to threat level
+            if (profile.Role == InfectedAIProfiles.TacticalRole.Commander)
+            {
+                int nearbyEnemies = 0;
+                for (int i = 0; i < searcher.Map.mapPawns.AllPawnsSpawned.Count; i++)
+                {
+                    Pawn other = searcher.Map.mapPawns.AllPawnsSpawned[i];
+                    if (other != null && other.HostileTo(searcher) && other.Position.DistanceTo(searcher.Position) < 40f)
+                    {
+                        nearbyEnemies++;
+                    }
+                }
+
+                if (nearbyEnemies > 3)
+                {
+                    adjustedScore += 50f; // High-priority targets when outnumbered
+                }
+            }
+
+            return adjustedScore;
         }
 
         private static bool IsFleeingFrom(Pawn target, Pawn searcher)

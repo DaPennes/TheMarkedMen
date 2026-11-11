@@ -118,9 +118,13 @@ namespace TheMarkedMen
                 return false;
             }
 
-            parms.points = Mathf.Max(
-                120f,
-                Mathf.Min(raidPoints * 0.42f, maximumInfantryCount * 90f));
+            // Allocate points primarily to infantry, independent of vehicle selection.
+            // Vehicles are selected based on available raid capacity, not point budget.
+            // This ensures vehicle presence doesn't artificially limit infantry strength.
+            float infantryPointBudget = Mathf.Max(
+                raidPoints * 0.5f,  // At least 50% of raid points for infantry
+                maximumInfantryCount * 75f);  // Or enough for scaled infantry force
+            parms.points = Mathf.Clamp(infantryPointBudget, 120f, raidPoints * 0.9f);
             bool baseRaidLaunched;
             try
             {
