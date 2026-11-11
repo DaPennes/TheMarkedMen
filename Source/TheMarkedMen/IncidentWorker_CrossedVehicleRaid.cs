@@ -183,9 +183,8 @@ namespace TheMarkedMen
             if (!groundVehicleDeploymentSucceeded || groundVehicleCount < minimumGroundVehicles)
             {
                 Log.Warning("[The Marked Men] Vehicle assault deployed only " + groundVehicleCount
-                    + " ground vehicle(s); at least " + minimumGroundVehicles + " are required.");
-                CleanupRaidPawns(spawnedPawns);
-                return false;
+                    + " ground vehicle(s); at least " + minimumGroundVehicles
+                    + " are required. Continuing with the infantry assault instead of cancelling the raid.");
             }
 
             List<Pawn> deployedAircraft = new List<Pawn>();
@@ -206,22 +205,14 @@ namespace TheMarkedMen
                 if (!airVehicleDeploymentSucceeded)
                 {
                     Log.Warning("[The Marked Men] Combined-arms assault could not deploy its aircraft ("
-                        + deploymentFailure + ").");
-                    CleanupRaidPawns(spawnedPawns);
-                    return false;
+                        + deploymentFailure + "). Continuing with the deployed ground forces and infantry.");
                 }
 
                 if (groundVehicleCount + deployedAircraft.Count < 2)
                 {
                     Log.Warning("[The Marked Men] Combined-arms assault could deploy only "
                         + (groundVehicleCount + deployedAircraft.Count)
-                        + " vehicles; one ground vehicle and one aircraft are required.");
-                    for (int i = 0; i < deployedAircraft.Count; i++)
-                    {
-                        TheMarkedMenVehicleFrameworkCompatibility.AbortAirborneRaidVehicle(deployedAircraft[i]);
-                    }
-                    CleanupRaidPawns(spawnedPawns);
-                    return false;
+                        + " vehicles instead of one ground vehicle and one aircraft. Continuing with available forces.");
                 }
             }
 

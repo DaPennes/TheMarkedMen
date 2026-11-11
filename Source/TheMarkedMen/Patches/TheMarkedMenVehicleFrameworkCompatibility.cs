@@ -1026,6 +1026,7 @@ namespace TheMarkedMen
         private static IEnumerable<CodeInstruction> Patch_VehicleFailureMessage(
             IEnumerable<CodeInstruction> instructions)
         {
+            List<CodeInstruction> originalInstructions = instructions.ToList();
             MethodInfo messageMethod = AccessTools.Method(
                 typeof(Messages),
                 nameof(Messages.Message),
@@ -1035,28 +1036,35 @@ namespace TheMarkedMen
                 nameof(Patch_VehicleFailureMessageForFaction));
             if (messageMethod == null || filteredMessageMethod == null)
             {
-                throw new InvalidOperationException("Vehicle Framework path-failure message methods could not be resolved.");
+                LogVehiclePathingApiFailure(
+                    "Vehicle Framework's path-failure message API differs from this RimWorld version; leaving its notification unchanged.");
+                return originalInstructions;
             }
 
             bool replacedMessage = false;
-            foreach (CodeInstruction instruction in instructions)
+            List<CodeInstruction> patchedInstructions = new List<CodeInstruction>(originalInstructions.Count + 2);
+            foreach (CodeInstruction instruction in originalInstructions)
             {
                 if (instruction.Calls(messageMethod))
                 {
                     replacedMessage = true;
-                    yield return new CodeInstruction(OpCodes.Ldarg_0);
-                    yield return new CodeInstruction(OpCodes.Call, filteredMessageMethod);
+                    patchedInstructions.Add(new CodeInstruction(OpCodes.Ldarg_0));
+                    patchedInstructions.Add(new CodeInstruction(OpCodes.Call, filteredMessageMethod));
                 }
                 else
                 {
-                    yield return instruction;
+                    patchedInstructions.Add(instruction);
                 }
             }
 
             if (!replacedMessage)
             {
-                throw new InvalidOperationException("Vehicle Framework's path-failure message call was not found.");
+                LogVehiclePathingApiFailure(
+                    "Vehicle Framework's path-failure message call was not found; leaving its notification unchanged.");
+                return originalInstructions;
             }
+
+            return patchedInstructions;
         }
 
         private static void Patch_VehicleFailureMessageForFaction(
@@ -1315,7 +1323,7 @@ namespace TheMarkedMen
 
         private static bool TrySpawnGroundRaidVehicle(Pawn vehicle, Map map, out string failureReason)
         {
-            failureReason = "Vehicle Framework could not find a clear map-edge cell for the ground vehicle.";
+            failureReason = "No clear, traversable ground-vehicle footprint was found.";
             Assembly assembly = GetVehicleFrameworkAssembly();
             Type mapHelperType = assembly?.GetType("Vehicles.MapHelper");
             MethodInfo blocked = mapHelperType == null
@@ -1415,7 +1423,8 @@ namespace TheMarkedMen
             IntVec3 cell,
             Rot4 rotation,
             MethodInfo blocked,
-            MethodInfo nonStandable)
+            MethodInfo nonStandable,
+            bool requireOpenSky = false)
         {
             if (vehicle?.def == null || map == null || !cell.InBounds(map))
             {
@@ -1440,7 +1449,8 @@ namespace TheMarkedMen
 
             foreach (IntVec3 occupiedCell in occupiedRect)
             {
-                if (occupiedCell.GetRoof(map) != null || occupiedCell.GetFirstPawn(map) != null)
+                if ((requireOpenSky && occupiedCell.GetRoof(map) != null)
+                    || occupiedCell.GetFirstPawn(map) != null)
                 {
                     return false;
                 }
@@ -2032,7 +2042,7 @@ namespace TheMarkedMen
                 }
 
                 IntVec3 landingCell = landingCells[Rand.Range(0, landingCells.Count)];
-                if (!IsVehicleFootprintValid(vehicle, map, landingCell, rotation, blocked, nonStandable))
+                if (!IsVehicleFootprintValid(vehicle, map, landingCell, rotation, blocked, nonStandable, true))
                 {
                     skyfaller.Destroy(DestroyMode.Vanish);
                     failureReason = "The aircraft's landing footprint was no longer clear and in bounds.";
@@ -2093,7 +2103,7 @@ namespace TheMarkedMen
                 List<Pawn> colonists = map.mapPawns.FreeColonistsSpawned;
                 foreach (IntVec3 cell in GenRadial.RadialCellsAround(map.Center, radius, true))
                 {
-                    if (!IsVehicleFootprintValid(vehicle, map, cell, rotation, blocked, nonStandable))
+                    if (!IsVehicleFootprintValid(vehicle, map, cell, rotation, blocked, nonStandable, true))
                     {
                         continue;
                     }
