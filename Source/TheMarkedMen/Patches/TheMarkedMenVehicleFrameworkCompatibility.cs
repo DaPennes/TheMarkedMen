@@ -853,6 +853,18 @@ namespace TheMarkedMen
                 }
             }
 
+            if (destination == pawn.Position)
+            {
+                // VehiclePathFollower.StartPath() calls AtDestinationPosition(), which is
+                // true when the destination is already the vehicle's cell. Returning that
+                // Goto job completes it in the same tick and RimWorld recursively starts
+                // another one, which ends in "started 10 jobs in one tick" errors.
+                // Returning no job lets Vehicle Framework's await-orders node idle the
+                // vehicle instead.
+                __result = null;
+                return;
+            }
+
             if (pawn.Position.DistanceToSquared(destination)
                 <= VehicleAssaultWaypointDistance * VehicleAssaultWaypointDistance)
             {
@@ -1029,17 +1041,24 @@ namespace TheMarkedMen
             IEnumerable<CodeInstruction> instructions)
         {
             List<CodeInstruction> originalInstructions = instructions.ToList();
-            MethodInfo messageMethod = AccessTools.Method(
-                typeof(Messages),
-                nameof(Messages.Message),
-                new[] { typeof(TaggedString), typeof(MessageTypeDef), typeof(bool) });
+            MethodInfo messageMethod = FindVehicleFailureMessageMethod(originalInstructions);
+            if (messageMethod == null)
+            {
+                // Different Vehicle Framework version or a changed message call.
+                // Leave the original notification untouched instead of failing the patch.
+                return originalInstructions;
+            }
+
+            Type textType = messageMethod.GetParameters()[0].ParameterType;
+            string helperName = textType == typeof(TaggedString)
+                ? nameof(Patch_VehicleFailureMessageForFactionTagged)
+                : nameof(Patch_VehicleFailureMessageForFaction);
             MethodInfo filteredMessageMethod = AccessTools.Method(
                 typeof(TheMarkedMenVehicleFrameworkCompatibility),
-                nameof(Patch_VehicleFailureMessageForFaction));
-            if (messageMethod == null || filteredMessageMethod == null)
+                helperName,
+                new[] { textType, typeof(MessageTypeDef), typeof(bool), typeof(object) });
+            if (filteredMessageMethod == null)
             {
-                LogVehiclePathingApiFailure(
-                    "Vehicle Framework's path-failure message API differs from this RimWorld version; leaving its notification unchanged.");
                 return originalInstructions;
             }
 
@@ -1050,7 +1069,11 @@ namespace TheMarkedMen
                 if (instruction.Calls(messageMethod))
                 {
                     replacedMessage = true;
-                    patchedInstructions.Add(new CodeInstruction(OpCodes.Ldarg_0));
+                    patchedInstructions.Add(new CodeInstruction(OpCodes.Ldarg_0)
+                    {
+                        labels = instruction.labels,
+                        blocks = instruction.blocks
+                    });
                     patchedInstructions.Add(new CodeInstruction(OpCodes.Call, filteredMessageMethod));
                 }
                 else
@@ -1059,18 +1082,36 @@ namespace TheMarkedMen
                 }
             }
 
-            if (!replacedMessage)
+            return replacedMessage ? patchedInstructions : originalInstructions;
+        }
+
+        private static MethodInfo FindVehicleFailureMessageMethod(List<CodeInstruction> instructions)
+        {
+            for (int i = 0; i < instructions.Count; i++)
             {
-                LogVehiclePathingApiFailure(
-                    "Vehicle Framework's path-failure message call was not found; leaving its notification unchanged.");
-                return originalInstructions;
+                if (instructions[i].operand is not MethodInfo method
+                    || method.DeclaringType != typeof(Messages)
+                    || method.Name != nameof(Messages.Message))
+                {
+                    continue;
+                }
+
+                ParameterInfo[] parameters = method.GetParameters();
+                if (parameters.Length == 3
+                    && (parameters[0].ParameterType == typeof(string)
+                        || parameters[0].ParameterType == typeof(TaggedString))
+                    && parameters[1].ParameterType == typeof(MessageTypeDef)
+                    && parameters[2].ParameterType == typeof(bool))
+                {
+                    return method;
+                }
             }
 
-            return patchedInstructions;
+            return null;
         }
 
         private static void Patch_VehicleFailureMessageForFaction(
-            TaggedString text,
+            string text,
             MessageTypeDef messageType,
             bool historical,
             object pathFollower)
@@ -1082,6 +1123,21 @@ namespace TheMarkedMen
             }
 
             Messages.Message(text, messageType, historical);
+        }
+
+        private static void Patch_VehicleFailureMessageForFactionTagged(
+            TaggedString text,
+            MessageTypeDef messageType,
+            bool historical,
+            object pathFollower)
+        {
+            Pawn vehicle = ReadMember(pathFollower, "vehicle") as Pawn;
+            if (IsMarkedMenFactionVehicle(vehicle))
+            {
+                return;
+            }
+
+            Messages.Message(text.RawText, messageType, historical);
         }
 
         public static bool Patch_VehiclePathTaskManagerRun(
@@ -3402,7 +3458,9 @@ namespace TheMarkedMen
                 MethodInfo filterVehiclePathTask = AccessTools.Method(
                     typeof(TheMarkedMenVehicleFrameworkCompatibility),
                     nameof(Patch_VehiclePathTaskManagerRun));
-                if (generateVehiclePath != null && filterVehicleFailureMessage != null)
+                if (generateVehiclePath != null
+                    && !generateVehiclePath.IsStatic
+                    && filterVehicleFailureMessage != null)
                 {
                     harmony.Patch(
                         generateVehiclePath,
@@ -3414,7 +3472,9 @@ namespace TheMarkedMen
                         "Vehicle Framework's path-generation message could not be patched; raid vehicles may still report path failures.");
                 }
 
-                if (canDraftVehicle != null && filterVehicleFailureMessage != null)
+                if (canDraftVehicle != null
+                    && !canDraftVehicle.IsStatic
+                    && filterVehicleFailureMessage != null)
                 {
                     harmony.Patch(
                         canDraftVehicle,
