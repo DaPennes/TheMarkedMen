@@ -1350,9 +1350,6 @@ namespace TheMarkedMen
                 int minZ = depth;
                 int maxZ = map.Size.z - 1 - depth;
 
-                // More candidate cells: add bottom-middle-left, top-middle-left, etc.
-                if (x != minX) { /* already handled */ }
-
                 for (int x = minX; x <= maxX; x++)
                 {
                     AddGroundVehicleSpawnCandidate(vehicle, map, rotation, blocked, nonStandable, new IntVec3(x, 0, minZ), candidates);
@@ -1405,17 +1402,6 @@ namespace TheMarkedMen
             {
                 failureReason = "Vehicle Framework could not find a clear in-bounds footprint for the ground vehicle.";
                 return false;
-            }
-
-            bool randomizeRotationOnSpawn = vehicle.def.randomizeRotationOnSpawn;
-            vehicle.def.randomizeRotationOnSpawn = false;
-            try
-            {
-                GenSpawn.Spawn(vehicle, spawnCell, map, rotation);
-            }
-            finally
-            {
-                vehicle.def.randomizeRotationOnSpawn = randomizeRotationOnSpawn;
             }
 
             bool randomizeRotationOnSpawn = vehicle.def.randomizeRotationOnSpawn;
@@ -2163,7 +2149,6 @@ namespace TheMarkedMen
                 float radius = Mathf.Max(1f, Mathf.Min(60f, Mathf.Min(map.Size.x, map.Size.z) * 0.5f));
                 List<Pawn> colonists = map.mapPawns.FreeColonistsSpawned;
                 int totalCandidates = 0;
-                int roofRejected = 0;
                 foreach (IntVec3 cell in GenRadial.RadialCellsAround(map.Center, radius, true))
                 {
                     if (!IsVehicleFootprintValid(vehicle, map, cell, rotation, blocked, nonStandable, true))
@@ -2180,19 +2165,9 @@ namespace TheMarkedMen
                                 break;
                             }
                         }
-                        if (hasRoof)
-                        {
-                            roofCandidates++;
-                        }
-
                         if (totalCandidates <= 10 || (totalCandidates % 50 == 0))
                         {
                             Log.Message($"[The Marked Men] Aircraft landing candidate #{totalCandidates} rejected. Roofed: {hasRoof}. Cell: {cell}");
-                        }
-
-                        if (hasRoof)
-                        {
-                            roofRejected++;
                         }
 
                         continue;
@@ -2213,25 +2188,6 @@ namespace TheMarkedMen
                     }
 
                     if (!tooCloseToColonist)
-                    {
-                        candidates.Add(cell);
-                        if (colonists.Count > 0)
-                        {
-                            float nearestColonistDistanceSquared = float.MaxValue;
-                            for (int i = 0; i < colonists.Count; i++)
-                            {
-                                nearestColonistDistanceSquared = Mathf.Min(
-                                    nearestColonistDistanceSquared,
-                                    colonists[i].Position.DistanceToSquared(cell));
-                            }
-
-                            if (nearestColonistDistanceSquared >= 225f
-                                && nearestColonistDistanceSquared <= 1225f)
-                            {
-                                assaultApproachCandidates.Add(cell);
-                            }
-                        }
-                    }
                     {
                         candidates.Add(cell);
                         if (colonists.Count > 0)
