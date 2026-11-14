@@ -2329,6 +2329,7 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
         public override void FinalizeInit()
         {
             base.FinalizeInit();
+            SaveCompatibility.OnGameInitialized();
             EnsureCrossedFaction(false);
             EnsureCrossedWorldSettlement();
             MarkedIdeologyUtility.NormalizeMarkedOneIdeology();

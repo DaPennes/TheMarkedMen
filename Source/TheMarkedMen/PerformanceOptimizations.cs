@@ -33,7 +33,10 @@ namespace TheMarkedMen
                     return null;
                 }
 
-                string cacheKey = $"{type.FullName}.{methodName}";
+                string parameterSignature = parameterTypes == null
+                    ? "*"
+                    : "(" + string.Join(",", Array.ConvertAll(parameterTypes, parameterType => parameterType?.AssemblyQualifiedName ?? "<null>")) + ")";
+                string cacheKey = $"{type.AssemblyQualifiedName}.{methodName}{parameterSignature}";
                 if (!methodCache.TryGetValue(cacheKey, out MethodInfo method))
                 {
                     method = parameterTypes != null
@@ -47,11 +50,11 @@ namespace TheMarkedMen
                 }
 
                 // Periodically clear cache to prevent indefinite growth
-                int currentTick = Find.TickManager.TicksGame;
-                if (currentTick - lastCacheClearTick > CacheClearIntervalTicks)
+                int? currentTick = Find.TickManager?.TicksGame;
+                if (currentTick.HasValue && currentTick.Value - lastCacheClearTick > CacheClearIntervalTicks)
                 {
                     ClearOldCache();
-                    lastCacheClearTick = currentTick;
+                    lastCacheClearTick = currentTick.Value;
                 }
 
                 return method;

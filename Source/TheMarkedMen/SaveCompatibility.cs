@@ -8,102 +8,36 @@ using Verse.AI.Group;
 namespace TheMarkedMen
 {
     /// <summary>
-    /// Handles save compatibility and data integrity across mod versions.
-    /// Validates loaded data, handles migrations, and prevents data corruption.
+    /// Provides save compatibility hooks and explicit integrity diagnostics.
     /// </summary>
     public static class SaveCompatibility
     {
         /// <summary>
-        /// Current mod version for compatibility tracking.
-        /// Increment when breaking changes are made.
+        /// Reinitializes transient state after a game is loaded or initialized.
+        /// Persistent raid schedule migration is handled by TheMarkedMenGameComponent.
         /// </summary>
-        private const int CurrentModVersion = 2;
-
-        /// <summary>
-        /// Minimum supported save version.
-        /// Saves older than this cannot be loaded.
-        /// </summary>
-        private const int MinimumSupportedVersion = 1;
-
-        /// <summary>
-        /// Called on mod load to validate and migrate save data.
-        /// </summary>
-        public static void ValidateAndMigrateSaveData()
+        public static void OnGameInitialized()
         {
             try
             {
-                int savedVersion = GetSavedModVersion();
-
-                if (savedVersion < MinimumSupportedVersion)
-                {
-                    Log.Warning("[The Marked Men] Save is too old and cannot be loaded. " +
-                        "Please start a new game or load a newer save.");
-                    return;
-                }
-
-                if (savedVersion < CurrentModVersion)
-                {
-                    Log.Message($"[The Marked Men] Migrating save from version {savedVersion} to {CurrentModVersion}");
-                    MigrateSaveData(savedVersion, CurrentModVersion);
-                }
-
-                ValidateSaveIntegrity();
+                AIConflictPrevention.ClearAllState();
+                PerformanceOptimizations.ReflectionCache.ClearCache();
+                PerformanceOptimizations.CacheManager.ClearCache();
             }
             catch (Exception ex)
             {
-                Log.Error($"[The Marked Men] Error validating save data: {ex}");
+                Log.Error($"[The Marked Men] Error resetting transient compatibility state: {ex}");
             }
         }
 
         /// <summary>
-        /// Gets the version of the mod from the current save.
+        /// Legacy public entry point retained for callers from other mods.
+        /// The mod's persistent data migrations run in their owning components.
         /// </summary>
-        private static int GetSavedModVersion()
+        [Obsolete("Persistent migrations run in TheMarkedMenGameComponent. Use ValidateSaveIntegrity only for explicit diagnostics.")]
+        public static void ValidateAndMigrateSaveData()
         {
-            // Check if save metadata exists
-            if (Current.Game == null)
-            {
-                return CurrentModVersion;
-            }
-
-            // Version info would be stored in save metadata
-            // For now, return current version if not found
-            return CurrentModVersion;
-        }
-
-        /// <summary>
-        /// Migrates save data from an old version to a new version.
-        /// </summary>
-        private static void MigrateSaveData(int fromVersion, int toVersion)
-        {
-            // Version 1 -> 2: Add new AI systems (backward compatible)
-            if (fromVersion < 2)
-            {
-                MigrateToVersion2();
-            }
-        }
-
-        /// <summary>
-        /// Migration steps for version 1 to version 2.
-        /// New AI systems are non-breaking additions.
-        /// </summary>
-        private static void MigrateToVersion2()
-        {
-            Log.Message("[The Marked Men] Initializing Phase 5+ AI systems for loaded save...");
-
-            // AIConflictPrevention initializes lazily on first pawn access
-            // PerformanceOptimizations uses static caches
-            // No persistent data to migrate
-
-            // Validate all existing vehicle lords are intact
-            ValidateVehicleLords();
-
-            // Clear AI caches to ensure fresh initialization
-            AIConflictPrevention.ClearAllState();
-            PerformanceOptimizations.ReflectionCache.ClearCache();
-            PerformanceOptimizations.CacheManager.ClearCache();
-
-            Log.Message("[The Marked Men] Save migration complete. New systems initialized.");
+            ValidateSaveIntegrity();
         }
 
         /// <summary>
@@ -295,58 +229,6 @@ namespace TheMarkedMen
         }
 
         /// <summary>
-        /// Validates that vehicle lords still exist and are properly configured.
-        /// </summary>
-        private static void ValidateVehicleLords()
-        {
-            if (Current.Game?.Maps == null)
-            {
-                return;
-            }
-
-            int validVehicleLords = 0;
-            int invalidVehicleLords = 0;
-
-            foreach (Map map in Current.Game.Maps)
-            {
-                if (map?.lordManager?.lords == null)
-                {
-                    continue;
-                }
-
-                foreach (Lord lord in map.lordManager.lords)
-                {
-                    if (lord == null)
-                    {
-                        continue;
-                    }
-
-                    // Check if this is a vehicle assault lord
-                    bool isVehicleLord = lord.LordJob is LordJob_CrossedVehicleAssault
-                        || (lord.LordJob != null && lord.LordJob.GetType().Name.Contains("Vehicle"));
-
-                    if (isVehicleLord)
-                    {
-                        if (lord.ownedPawns.Count > 0)
-                        {
-                            validVehicleLords++;
-                        }
-                        else
-                        {
-                            invalidVehicleLords++;
-                        }
-                    }
-                }
-            }
-
-            if (validVehicleLords > 0 || invalidVehicleLords > 0)
-            {
-                Log.Message($"[The Marked Men] Save validation: {validVehicleLords} valid vehicle lords, " +
-                    $"{invalidVehicleLords} orphaned vehicle lords");
-            }
-        }
-
-        /// <summary>
         /// Called when a map is generated to ensure all systems initialize correctly.
         /// </summary>
         public static void OnMapGenerated(Map map)
@@ -477,7 +359,7 @@ namespace TheMarkedMen
                     lordCount += map.lordManager?.lords?.Count ?? 0;
                 }
 
-                return $"[Save Compat] Maps: {mapCount}, Pawns: {pawnCount}, Lords: {lordCount}, Mod Version: {CurrentModVersion}";
+                return $"[Save Compat] Maps: {mapCount}, Pawns: {pawnCount}, Lords: {lordCount}";
             }
             catch (Exception ex)
             {
