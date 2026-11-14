@@ -8,15 +8,6 @@ C:\Program Files (x86)\Steam\steamapps\workshop\content\294100\3739467787\Source
 C:\Program Files (x86)\Steam\steamapps\workshop\content\294100\3739467787\Source\TheMarkedMen\obj\Debug\TheMarkedMen.pdb
 C:\Program Files (x86)\Steam\steamapps\workshop\content\294100\3739467787\Assemblies\TheMarkedMen.dll
 C:\Program Files (x86)\Steam\steamapps\workshop\content\294100\3739467787\Assemblies\TheMarkedMen.pdb
-C:\Program Files (x86)\Steam\steamapps\common\RimWorld\Mods\The Marked Men\Source\TheMarkedMen\obj\Debug\TheMarkedMen.csproj.AssemblyReference.cache
-C:\Program Files (x86)\Steam\steamapps\common\RimWorld\Mods\The Marked Men\Source\TheMarkedMen\obj\Debug\TheMarkedMen.GeneratedMSBuildEditorConfig.editorconfig
-C:\Program Files (x86)\Steam\steamapps\common\RimWorld\Mods\The Marked Men\Source\TheMarkedMen\obj\Debug\TheMarkedMen.AssemblyInfoInputs.cache
-C:\Program Files (x86)\Steam\steamapps\common\RimWorld\Mods\The Marked Men\Source\TheMarkedMen\obj\Debug\TheMarkedMen.AssemblyInfo.cs
-C:\Program Files (x86)\Steam\steamapps\common\RimWorld\Mods\The Marked Men\Source\TheMarkedMen\obj\Debug\TheMarkedMen.csproj.CoreCompileInputs.cache
-C:\Program Files (x86)\Steam\steamapps\common\RimWorld\Mods\The Marked Men\Assemblies\TheMarkedMen.dll
-C:\Program Files (x86)\Steam\steamapps\common\RimWorld\Mods\The Marked Men\Assemblies\TheMarkedMen.pdb
-C:\Program Files (x86)\Steam\steamapps\common\RimWorld\Mods\The Marked Men\Source\TheMarkedMen\obj\Debug\TheMarkedMen.dll
-C:\Program Files (x86)\Steam\steamapps\common\RimWorld\Mods\The Marked Men\Source\TheMarkedMen\obj\Debug\TheMarkedMen.pdb
 C:\Users\edria\AppData\Local\Temp\opencode\markedmen_build\TheMarkedMen.dll
 C:\Users\edria\AppData\Local\Temp\opencode\markedmen_build\TheMarkedMen.pdb
 C:\Users\edria\AppData\Local\Temp\opencode\markedmen_build2\TheMarkedMen.dll
@@ -33,4 +24,3 @@ C:\Users\edria\AppData\Local\Temp\opencode\TheMarkedMenBuild3\TheMarkedMen.dll
 C:\Users\edria\AppData\Local\Temp\opencode\TheMarkedMenBuild3\TheMarkedMen.pdb
 C:\Users\edria\AppData\Local\Temp\opencode\TheMarkedMenBuildFinal\TheMarkedMen.dll
 C:\Users\edria\AppData\Local\Temp\opencode\TheMarkedMenBuildFinal\TheMarkedMen.pdb
-C:\Program Files (x86)\Steam\steamapps\common\RimWorld\Mods\The Marked Men\Source\TheMarkedMen\obj\Debug\TheMarkedMen.sourcelink.json
