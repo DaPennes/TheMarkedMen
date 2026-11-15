@@ -267,10 +267,13 @@ namespace TheMarkedMen
                 ? RaidVehicleSelectionGroup.CombinedAir
                 : RaidVehicleSelectionGroup.Air;
 
+            // Use fixed debug raid points to bypass point requirements for debug menu
+            float debugPoints = DebugRaidPoints;
+
             if (requireLandVehicle
                 && !TheMarkedMenVehicleFrameworkCompatibility.HasEligibleRaidVehicle(
                     faction,
-                    parms.points,
+                    debugPoints,
                     parms.raidArrivalMode,
                     groundSelection))
             {
@@ -281,7 +284,7 @@ namespace TheMarkedMen
             if (includeAircraft
                 && !TheMarkedMenVehicleFrameworkCompatibility.HasEligibleAirborneRaidVehicle(
                     faction,
-                    parms.points,
+                    debugPoints,
                     incident.defName == "CA_CrossedCombinedArmsAssault" ? 0.5f : 1f,
                     parms.raidArrivalMode,
                     airSelection))

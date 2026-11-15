@@ -41,7 +41,105 @@ namespace TheMarkedMen
 			}
 
 			if (IsMarkedTurnedPawn(pawn))
+		
+	/// <summary>
+	/// Restores pawn's original apparel and equipment after transformation,
+	/// preserving their pre-infection gear rather than assigning new tier-based equipment.
+	/// </summary>
+	public static void RestoreOriginalEquipment(Pawn pawn, List<Apparel> originalApparel, List<ThingWithComps> originalEquipment, List<BodyPartRecord> bodyParts)
+	{
+		// Restore original worn apparel
+		if (pawn.apparel != null)
+		{
+			// Remove any apparel currently worn that shouldn't be there
+			for (int i = pawn.apparel.WornApparel.Count - 1; i >= 0; i--)
 			{
+				Apparel apparel = pawn.apparel.WornApparel[i];
+				if (apparel != null && !apparel.Destroyed)
+				{
+					bool shouldKeep = false;
+					
+					// Check if this is original apparel we want to keep
+					for (int j = 0; j < originalApparel.Count; j++)
+					{
+						if (originalApparel[j] != null && originalApparel[j].def == apparel.def)
+						{
+							shouldKeep = true;
+							break;
+						}
+					}
+					
+					if (!shouldKeep)
+					{
+						pawn.apparel.Remove(apparel);
+						apparel.Destroy(DestroyMode.Vanish);
+					}
+				}
+			}
+			
+			// Re-equip original apparel
+			for (int i = 0; i < originalApparel.Count; i++)
+			{
+				if (originalApparel[i] != null && !pawn.apparel.WornApparel.Any(a => a.def == originalApparel[i].def))
+				{
+					try
+					{
+						EquipApparel(pawn, originalApparel[i], 0); // Tier 0 preserves original
+					}
+					catch
+					{
+						// Skip if apparel can't be equipped
+					}
+				}
+			}
+		}
+		
+		// Restore original equipment
+		if (pawn.equipment != null)
+		{
+			// Remove equipment that wasn't original
+			for (int i = pawn.equipment.AllEquipmentListForReading.Count - 1; i >= 0; i--)
+			{
+				ThingWithComps eq = pawn.equipment.AllEquipmentListForReading[i];
+				if (eq != null && !eq.Destroyed)
+				{
+					bool isOriginal = false;
+					for (int j = 0; j < originalEquipment.Count; j++)
+					{
+						if (originalEquipment[j] != null && originalEquipment[j].def == eq.def)
+						{
+							isOriginal = true;
+							break;
+						}
+					}
+					
+					if (!isOriginal)
+					{
+						pawn.equipment.Remove(eq);
+						eq.Destroy(DestroyMode.Vanish);
+					}
+				}
+			}
+			
+			// Re-equip original equipment
+			for (int i = 0; i < originalEquipment.Count; i++)
+			{
+				if (originalEquipment[i] != null && pawn.equipment.Primary?.Def?.defName != originalEquipment[i].def.defName)
+				{
+					try
+					{
+						pawn.equipment.AddEquipment(originalEquipment[i]);
+					}
+					catch
+					{
+						// Skip if equipment can't be equipped
+					}
+				}
+			}
+		}
+	}
+
+	{
 				return true;
 			}
 
@@ -1102,9 +1200,16 @@ namespace TheMarkedMen
 			pawn.guest?.SetGuestStatus(null);
 			pawn.mindState?.mentalStateHandler?.Reset();
 			EnsureFearlessCrossedState(pawn);
+
+			// PRESERVE original equipment - save before transformation changes
+			List<Apparel> wornApparel = pawn.apparel?.WornApparel?.ToList() ?? new List<Apparel>();
+			List<ThingWithComps> equipment = pawn.equipment?.AllEquipmentListForReading?.ToList() ?? new List<ThingWithComps>();
+			List<BodyPartRecord> bodyParts = pawn.health?.hediffSet?.GetAllInternalParts()?.ToList() ?? new List<BodyPartRecord>();
+
 			ApplyClassHediffs(pawn);
-			CrossedEquipmentGenerator.AssignEquipment(pawn);
-			EnsureCrossedBasicClothingOnly(pawn);
+
+			// Restore original equipment instead of assigning new tier-based gear
+			RestoreOriginalEquipment(pawn, wornApparel, equipment, bodyParts);
 			if (pawn.Drawer?.renderer != null)
 			{
 				pawn.Drawer.renderer.SetAllGraphicsDirty();
@@ -1887,3 +1992,5 @@ public static void RemoveMarkedVirusHediffFromFullyTurnedPawn(Pawn pawn)
 		}
 	}
 }
+
+

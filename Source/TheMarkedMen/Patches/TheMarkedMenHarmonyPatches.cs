@@ -445,7 +445,8 @@ namespace TheMarkedMen
             if (def == null)
                 return true;
 
-            if (!CrossedEquipmentGenerator.CanWearApparel(__instance.pawn, def))
+            // Check category-based apparel compatibility settings
+            if (!CanPawnWearApparel(__instance.pawn, def))
             {
                 if (Prefs.DevMode)
                     Log.Warning($"[TheMarkedMen] Blocked {def.defName} from equipping on infected pawn {__instance.pawn.LabelShort}");
@@ -453,6 +454,187 @@ namespace TheMarkedMen
             }
 
             return true;
+        }
+
+        /// <summary>
+        /// Checks if an infected pawn can wear a given apparel based on category settings.
+        /// </summary>
+        private static bool CanPawnWearApparel(Pawn pawn, ThingDef def)
+        {
+            // If global setting allows all apparel with tags, permit it
+            if (TheMarkedMenMod.Settings.allowInfectedWearApparelWithTags)
+            {
+                // Check if apparel has any tags - if so, allow it
+                if (def.apparel?.tags != null && def.apparel.tags.Count > 0)
+                    return true;
+            }
+
+            // Check if apparel has no apparel component - cannot wear
+            if (def?.apparel == null)
+                return false;
+
+            // Get the apparel layer
+            ApparelLayerDef lastLayer = def.apparel.LastLayer;
+
+            // Check shield setting - if shields are blocked and this is a shield, deny
+            if (!TheMarkedMenMod.Settings.allowInfectedWearShields && IsShield(def))
+            {
+                // Only block for civilian infected by default logic; the setting overrides
+                if (pawn.kindDef == CADefOf.CrossedCivilian)
+                    return false;
+            }
+
+            // Check helmet setting - if helmets are blocked, deny
+            if (!TheMarkedMenMod.Settings.allowInfectedWearHelmets && lastLayer == ApparelLayerDefOf.Overhead)
+            {
+                return false;
+            }
+
+            // Check tribal apparel setting
+            if (!TheMarkedMenMod.Settings.allowInfectedWearTribalApparel)
+            {
+                // Check if apparel has Neolithic or tribal tags
+                if (HasTribalOrNeolithicTag(def))
+                    return false;
+            }
+
+            // Check neolithic apparel setting
+            if (!TheMarkedMenMod.Settings.allowInfectedWearNeolithicApparel)
+            {
+                // Check if apparel has Neolithic tags specifically
+                if (HasNeolithicTag(def))
+                    return false;
+            }
+
+            // Check military apparel setting
+            if (!TheMarkedMenMod.Settings.allowInfectedWearMilitaryApparel)
+            {
+                // Check if apparel has military-related tags
+                if (HasMilitaryTag(def))
+                    return false;
+            }
+
+            // Check scout apparel setting
+            if (!TheMarkedMenMod.Settings.allowInfectedWearScoutApparel)
+            {
+                // Check if apparel has scout-related tags
+                if (HasScoutTag(def))
+                    return false;
+            }
+
+            // Check powered armor setting
+            if (!TheMarkedMenMod.Settings.allowInfectedWearPoweredArmor)
+            {
+                // Check if apparel is powered armor
+                if (IsPoweredArmor(def))
+                    return false;
+            }
+
+            // All checks passed - pawn can wear this apparel
+            return true;
+        }
+
+        private static bool HasTribalOrNeolithicTag(ThingDef def)
+        {
+            if (def.apparel?.tags == null) return false;
+
+            for (int i = 0; i < def.apparel.tags.Count; i++)
+            {
+                string tag = def.apparel.tags[i];
+                // Check for tribal tags
+                if (tag.IndexOf("Tribal", StringComparison.OrdinalIgnoreCase) >= 0
+                    || tag.IndexOf("Tribe", StringComparison.OrdinalIgnoreCase) >= 0)
+                    return true;
+                // Check for neolithic tags
+                if (tag.IndexOf("Neolithic", StringComparison.OrdinalIgnoreCase) >= 0
+                    || tag.IndexOf("Tribal", StringComparison.OrdinalIgnoreCase) >= 0)
+                    return true;
+            }
+            return false;
+        }
+
+        private static bool HasNeolithicTag(ThingDef def)
+        {
+            if (def.apparel?.tags == null) return false;
+
+            for (int i = 0; i < def.apparel.tags.Count; i++)
+            {
+                string tag = def.apparel.tags[i];
+                if (tag.IndexOf("Neolithic", StringComparison.OrdinalIgnoreCase) >= 0
+                    || tag.IndexOf("Stone", StringComparison.OrdinalIgnoreCase) >= 0
+                    || tag.IndexOf("Bone", StringComparison.OrdinalIgnoreCase) >= 0)
+                    return true;
+            }
+            return false;
+        }
+
+        private static bool HasMilitaryTag(ThingDef def)
+        {
+            if (def.apparel?.tags == null) return false;
+
+            for (int i = 0; i < def.apparel.tags.Count; i++)
+            {
+                string tag = def.apparel.tags[i];
+                for (int j = 0; j < IndustrialMilitaryTags.Count; j++)
+                {
+                    if (string.Equals(tag, IndustrialMilitaryTags[j], StringComparison.OrdinalIgnoreCase))
+                        return true;
+                }
+            }
+            return false;
+        }
+
+        private static bool HasScoutTag(ThingDef def)
+        {
+            if (def.apparel?.tags == null) return false;
+
+            for (int i = 0; i < def.apparel.tags.Count; i++)
+            {
+                string tag = def.apparel.tags[i];
+                // Scout tags could be "Scout", "Skirmisher", etc.
+                if (tag.IndexOf("Scout", StringComparison.OrdinalIgnoreCase) >= 0
+                    || tag.IndexOf("Skirmisher", StringComparison.OrdinalIgnoreCase) >= 0)
+                    return true;
+            }
+            return false;
+        }
+
+        private static bool IsPoweredArmor(ThingDef def)
+        {
+            if (def.apparel == null) return false;
+
+            return ContainsOrdinalIgnoreCase(def.defName, "PowerArmor")
+                || ContainsOrdinalIgnoreCase(def.defName, "ArmorRecon")
+                || ContainsOrdinalIgnoreCase(def.defName, "ArmorMarine")
+                || ContainsOrdinalIgnoreCase(def.defName, "ArmorCataphract")
+                || ContainsOrdinalIgnoreCase(def.defName, "ArmorLocust")
+                || ContainsOrdinalIgnoreCase(def.defName, "ArmorPhoenix")
+                || ContainsOrdinalIgnoreCase(def.defName, "MechlordSuit")
+                || ContainsOrdinalIgnoreCase(def.defName, "ArmorAbsolver")
+                || ContainsOrdinalIgnoreCase(def.defName, "ArmorDeserter")
+                || ContainsOrdinalIgnoreCase(def.label, "power armor")
+                || ContainsOrdinalIgnoreCase(def.label, "recon armor")
+                || ContainsOrdinalIgnoreCase(def.label, "marine armor")
+                || ContainsOrdinalIgnoreCase(def.label, "cataphract armor");
+        }
+
+        public static bool CanWearApparel(Pawn pawn, ThingDef def)
+        {
+            // Original logic preserved for backward compatibility
+            if (def?.apparel == null)
+                return false;
+
+            if (IsShield(def) && pawn.kindDef == CADefOf.CrossedCivilian)
+                return false;
+
+            return true;
+        }
+
+        private static bool ContainsOrdinalIgnoreCase(string text, string value)
+        {
+            return !string.IsNullOrEmpty(text)
+                && !string.IsNullOrEmpty(value)
+                && text.IndexOf(value, StringComparison.OrdinalIgnoreCase) >= 0;
         }
     }
 

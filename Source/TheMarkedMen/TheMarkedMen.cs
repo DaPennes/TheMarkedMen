@@ -266,7 +266,18 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
         public bool prisonerDebugLogging;
         public float prisonerEscapeChance = 0.04f;
 
-        private int settingsVersion = CurrentSettingsVersion;
+// Infected apparel compatibility settings - Category Based Blocking
+// These control what apparel types infected pawns can equip
+public bool allowInfectedWearTribalApparel = true;
+public bool allowInfectedWearNeolithicApparel = true;
+public bool allowInfectedWearMilitaryApparel = true;
+public bool allowInfectedWearScoutApparel = true;
+public bool allowInfectedWearPoweredArmor = true;
+public bool allowInfectedWearShields = true; // Note: Civilian infected shields blocked by default logic, this overrides it
+public bool allowInfectedWearHelmets = true;
+public bool allowInfectedWearApparelWithTags = true; // Allow apparel with specific tags
+
+private int settingsVersion = CurrentSettingsVersion;
         private string currentPreset = OutbreakPresetName;
         private Vector2 scrollPosition;
         private readonly Dictionary<string, string> numericBuffers = new Dictionary<string, string>();
@@ -681,6 +692,14 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
             Scribe_Values.Look(ref detailedRaidLetters, "detailedRaidLetters", false);
             Scribe_Values.Look(ref incidentLogEnabled, "incidentLogEnabled", true);
             Scribe_Values.Look(ref debugActionsEnabled, "debugActionsEnabled", true);
+            Scribe_Values.Look(ref allowInfectedWearTribalApparel, "allowInfectedWearTribalApparel", true);
+            Scribe_Values.Look(ref allowInfectedWearNeolithicApparel, "allowInfectedWearNeolithicApparel", true);
+            Scribe_Values.Look(ref allowInfectedWearMilitaryApparel, "allowInfectedWearMilitaryApparel", true);
+            Scribe_Values.Look(ref allowInfectedWearScoutApparel, "allowInfectedWearScoutApparel", true);
+            Scribe_Values.Look(ref allowInfectedWearPoweredArmor, "allowInfectedWearPoweredArmor", true);
+            Scribe_Values.Look(ref allowInfectedWearShields, "allowInfectedWearShields", true);
+            Scribe_Values.Look(ref allowInfectedWearHelmets, "allowInfectedWearHelmets", true);
+            Scribe_Values.Look(ref allowInfectedWearApparelWithTags, "allowInfectedWearApparelWithTags", true);
             Scribe_Values.Look(ref contagionPulseIntervalTicks, "contagionPulseIntervalTicks", 500);
             Scribe_Values.Look(ref maxContagionTargetsPerPulse, "maxContagionTargetsPerPulse", 3);
             Scribe_Values.Look(ref tacticalRetargetIntervalTicks, "tacticalRetargetIntervalTicks", 60);
@@ -1087,6 +1106,16 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
             DrawCheckbox(listing, "MarkedMen_Settings_VacsuitBlock".Translate(), ref vacsuitBlockExposure, "MarkedMen_Settings_VacsuitBlockDesc".Translate());
             DrawCheckbox(listing, "MarkedMen_Settings_GasMasksBlock".Translate(), ref gasMasksBlockExposure, "MarkedMen_Settings_GasMasksBlockDesc".Translate());
             DrawCheckbox(listing, "MarkedMen_Settings_SealedArmorBlock".Translate(), ref sealedArmorBlockExposure, "MarkedMen_Settings_SealedArmorBlockDesc".Translate());
+
+            DrawSectionHeader(listing, "MarkedMen_Settings_InfectedApparelCompatibility".Translate(), "MarkedMen_Settings_InfectedApparelCompatibilityDesc".Translate());
+            DrawCheckbox(listing, "MarkedMen_Settings_AllowTribalApparel".Translate(), ref allowInfectedWearTribalApparel, "MarkedMen_Settings_AllowTribalApparelDesc".Translate());
+            DrawCheckbox(listing, "MarkedMen_Settings_AllowNeolithicApparel".Translate(), ref allowInfectedWearNeolithicApparel, "MarkedMen_Settings_AllowNeolithicApparelDesc".Translate());
+            DrawCheckbox(listing, "MarkedMen_Settings_AllowMilitaryApparel".Translate(), ref allowInfectedWearMilitaryApparel, "MarkedMen_Settings_AllowMilitaryApparelDesc".Translate());
+            DrawCheckbox(listing, "MarkedMen_Settings_AllowScoutApparel".Translate(), ref allowInfectedWearScoutApparel, "MarkedMen_Settings_AllowScoutApparelDesc".Translate());
+            DrawCheckbox(listing, "MarkedMen_Settings_AllowPoweredArmor".Translate(), ref allowInfectedWearPoweredArmor, "MarkedMen_Settings_AllowPoweredArmorDesc".Translate());
+            DrawCheckbox(listing, "MarkedMen_Settings_AllowShields".Translate(), ref allowInfectedWearShields, "MarkedMen_Settings_AllowShieldsDesc".Translate());
+            DrawCheckbox(listing, "MarkedMen_Settings_AllowHelmets".Translate(), ref allowInfectedWearHelmets, "MarkedMen_Settings_AllowHelmetsDesc".Translate());
+            DrawCheckbox(listing, "MarkedMen_Settings_AllowApparelWithTags".Translate(), ref allowInfectedWearApparelWithTags, "MarkedMen_Settings_AllowApparelWithTagsDesc".Translate());
 
             DrawSectionHeader(listing, "MarkedMen_Settings_InfectedAI".Translate(), "MarkedMen_Settings_InfectedAIDesc".Translate());
             DrawCheckbox(listing, "MarkedMen_Settings_TacticalRetargeting".Translate(), ref tacticalRetargetingEnabled, "MarkedMen_Settings_TacticalRetargetingDesc".Translate());

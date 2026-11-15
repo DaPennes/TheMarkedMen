@@ -31,7 +31,7 @@
   <TheMarkedMen_NeedsSyringeInInventory>{0} needs a syringe in their inventory to draw blood.</TheMarkedMen_NeedsSyringeInInventory>
   <TheMarkedMen_DrawBloodGizmoDesc>Draw blood from an infected pawn using a syringe carried in this pawn's inventory.</TheMarkedMen_DrawBloodGizmoDesc>
 
-  
+
   <MarkedMen_Settings_Title>The Marked Men - Settings</MarkedMen_Settings_Title>
   <MarkedMen_Settings_Intro>Use presets for a quick difficulty pass, or tune each section directly. Editing any field changes the active preset to Custom.</MarkedMen_Settings_Intro>
   <MarkedMen_Settings_ActivePreset>Active preset: {0}</MarkedMen_Settings_ActivePreset>
@@ -115,13 +115,13 @@
   <MarkedMen_Settings_markedTurnedPainFactor>Pain factor</MarkedMen_Settings_markedTurnedPainFactor>
   <MarkedMen_Settings_markedTurnedPainFactorDesc>Multiplier for pain experience (0 = no pain felt, 1 = normal pain, -1 = pain suppressed even if injured).</MarkedMen_Settings_markedTurnedPainFactorDesc>
 
-  <MarkedMen_Settings_AIStorytelling>AI &amp; Storytelling</MarkedMen_Settings_AIStorytelling>
+  <MarkedMen_Settings_AIStorytelling>AI & Storytelling</MarkedMen_Settings_AIStorytelling>
   <MarkedMen_Settings_AIStorytellingDesc>Controls Marked Men pressure logic, strategic AI activation thresholds, storyteller integration, raid countdown warnings, and custom story events.</MarkedMen_Settings_AIStorytellingDesc>
-  <MarkedMen_Settings_PerformanceCap>Performance &amp; Cap</MarkedMen_Settings_PerformanceCap>
+  <MarkedMen_Settings_PerformanceCap>Performance & Cap</MarkedMen_Settings_PerformanceCap>
   <MarkedMen_Settings_PerformanceCapDesc>Controls maximum simultaneous infected, cleanup intervals, reanimation processing, world pawn tracking limits, and performance optimization settings.</MarkedMen_Settings_PerformanceCapDesc>
   <MarkedMen_Settings_UrbanBiome>Urban Biome</MarkedMen_Settings_UrbanBiome>
   <MarkedMen_Settings_UrbanBiomeDesc>Controls Marked Men presence in urban maps: ambush frequency, dormant infestation density, epicenter encounters, and survivor spawn chances.</MarkedMen_Settings_UrbanBiomeDesc>
-  <MarkedMen_Settings_UINotifications>UI &amp; Notifications</MarkedMen_Settings_UINotifications>
+  <MarkedMen_Settings_UINotifications>UI & Notifications</MarkedMen_Settings_UINotifications>
   <MarkedMen_Settings_UINotificationsDesc>Controls which messages, alerts, letters, gizmos, and info cards the mod shows in the user interface.</MarkedMen_Settings_UINotificationsDesc>
   <MarkedMen_Settings_ModInfo>Mod Info</MarkedMen_Settings_ModInfo>
   <MarkedMen_Settings_Reset>Reset</MarkedMen_Settings_Reset>
@@ -211,6 +211,7 @@
   <MarkedMen_Settings_ScatteredEdgeArrivalsDesc>Allows a wider scattered edge arrival pattern.</MarkedMen_Settings_ScatteredEdgeArrivalsDesc>
   <MarkedMen_Settings_SingleEdgeArrivals>Allow single pawn edge arrivals</MarkedMen_Settings_SingleEdgeArrivals>
   <MarkedMen_Settings_SingleEdgeArrivalsDesc>Allows single-file edge entry when the incident worker selects it.</MarkedMen_Settings_SingleEdgeArrivalsDesc>
+
   <MarkedMen_Settings_minimumHordeSize>Minimum horde size</MarkedMen_Settings_minimumHordeSize>
   <MarkedMen_Settings_minimumHordeSizeDesc>Smallest horde size when a horde incident does not request a specific count.</MarkedMen_Settings_minimumHordeSizeDesc>
   <MarkedMen_Settings_maximumHordeSize>Maximum horde size</MarkedMen_Settings_maximumHordeSize>
@@ -286,252 +287,7 @@
   <MarkedMen_Settings_GasMasksBlockDesc>When enabled, gas masks, HAZMAT masks, and toxin-immune headgear provide full immunity. Disable for partial resistance only.</MarkedMen_Settings_GasMasksBlockDesc>
   <MarkedMen_Settings_SealedArmorBlock>Sealed armor blocks exposure</MarkedMen_Settings_SealedArmorBlock>
   <MarkedMen_Settings_SealedArmorBlockDesc>When enabled, HAZMAT suits, sealed undersuits, security armor, and orbital armor provide full immunity. Disable for partial resistance only.</MarkedMen_Settings_SealedArmorBlockDesc>
+  <MarkedMen_Settings_InfectedApparelCompatibility>Infected Apparel Compatibility</MarkedMen_Settings_InfectedApparelCompatibility>
+  <MarkedMen_Settings_InfectedApparelCompatibilityDesc>Controls what apparel types infected pawns can equip. Category-based blocking for unique pawn behavior.</MarkedMen_Settings_InfectedApparelCompatibilityDesc>
   <MarkedMen_Settings_InfectedAI>Infected AI</MarkedMen_Settings_InfectedAI>
-  <MarkedMen_Settings_InfectedAIDesc>Controls how aggressively Marked Men attack, retarget, breach, and terrorize nearby pawns.</MarkedMen_Settings_InfectedAIDesc>
-  <MarkedMen_Settings_TacticalRetargeting>Enable tactical retargeting</MarkedMen_Settings_TacticalRetargeting>
-  <MarkedMen_Settings_TacticalRetargetingDesc>Lets infected pawns periodically switch to better tactical targets.</MarkedMen_Settings_TacticalRetargetingDesc>
-  <MarkedMen_Settings_PriorityTargeting>Enable priority targeting</MarkedMen_Settings_PriorityTargeting>
-  <MarkedMen_Settings_PriorityTargetingDesc>Lets infected pawns prefer power, food, medical, research, and turret targets when appropriate.</MarkedMen_Settings_PriorityTargetingDesc>
-  <MarkedMen_Settings_DoorTargeting>Enable door and wall targeting</MarkedMen_Settings_DoorTargeting>
-  <MarkedMen_Settings_DoorTargetingDesc>Allows infected pawns to bash or target barriers when pursuing a colony.</MarkedMen_Settings_DoorTargetingDesc>
-  <MarkedMen_Settings_infightingChance>Marked infighting chance</MarkedMen_Settings_infightingChance>
-  <MarkedMen_Settings_infightingChanceDesc>Chance during each infighting check that infected pawns may turn on each other.</MarkedMen_Settings_infightingChanceDesc>
-  <MarkedMen_Settings_socialTerrorStrength>Panic and social terror strength</MarkedMen_Settings_socialTerrorStrength>
-  <MarkedMen_Settings_socialTerrorStrengthDesc>Scales the radius and strength of Marked Men terror effects. Set to 0 to disable these effects.</MarkedMen_Settings_socialTerrorStrengthDesc>
-  <MarkedMen_Settings_MarkedPanicEnabled>Enable marked panic</MarkedMen_Settings_MarkedPanicEnabled>
-  <MarkedMen_Settings_MarkedPanicEnabledDesc>Allows Marked Men to inflict the marked panic hediff on nearby colonists. Disable to turn the mechanic off entirely.</MarkedMen_Settings_MarkedPanicEnabledDesc>
-  <MarkedMen_Settings_markedPanicRadius>Marked panic radius</MarkedMen_Settings_markedPanicRadius>
-  <MarkedMen_Settings_markedPanicRadiusDesc>Radius in cells of the area panic spread by pack laughter and leader interactions. Still scaled by panic and social terror strength.</MarkedMen_Settings_markedPanicRadiusDesc>
-  <MarkedMen_Settings_markedPanicDurationTicks>Marked panic duration (ticks)</MarkedMen_Settings_markedPanicDurationTicks>
-  <MarkedMen_Settings_markedPanicDurationTicksDesc>How long the marked panic hediff lasts before disappearing. 2500 ticks is roughly one in-game hour; the default of 18000 is about 7 hours.</MarkedMen_Settings_markedPanicDurationTicksDesc>
-  <MarkedMen_Settings_PredatoryInstincts>Predatory Instincts</MarkedMen_Settings_PredatoryInstincts>
-  <MarkedMen_Settings_PredatoryInstinctsDesc>Controls the bloodlust, kill anticipation, and predator psychology systems for the Marked Ones.</MarkedMen_Settings_PredatoryInstinctsDesc>
-  <MarkedMen_Settings_BloodlustSystem>Enable bloodlust system</MarkedMen_Settings_BloodlustSystem>
-  <MarkedMen_Settings_BloodlustSystemDesc>When enabled, infected pawns build bloodlust over time and gain mood and combat effects based on their craving for violence.</MarkedMen_Settings_BloodlustSystemDesc>
-  <MarkedMen_Settings_bloodlustDecayRate>Bloodlust decay rate</MarkedMen_Settings_bloodlustDecayRate>
-  <MarkedMen_Settings_bloodlustDecayRateDesc>How quickly bloodlust fades when not in combat. Lower values keep pawns bloodthirsty longer.</MarkedMen_Settings_bloodlustDecayRateDesc>
-  <MarkedMen_Settings_bloodlustKillGainMultiplier>Bloodlust kill gain multiplier</MarkedMen_Settings_bloodlustKillGainMultiplier>
-  <MarkedMen_Settings_bloodlustKillGainMultiplierDesc>How much a kill or down satisfies bloodlust. Higher values mean faster satiation.</MarkedMen_Settings_bloodlustKillGainMultiplierDesc>
-  <MarkedMen_Settings_bloodlustCombatGainMultiplier>Bloodlust combat gain multiplier</MarkedMen_Settings_bloodlustCombatGainMultiplier>
-  <MarkedMen_Settings_bloodlustCombatGainMultiplierDesc>How much active combat feeds bloodlust. Set to 0 to disable combat-based bloodlust gain.</MarkedMen_Settings_bloodlustCombatGainMultiplierDesc>
-  <MarkedMen_Settings_KillAnticipation>Enable kill anticipation system</MarkedMen_Settings_KillAnticipation>
-  <MarkedMen_Settings_KillAnticipationDesc>When enabled, infected pawns gain combat bonuses from anticipating enemies nearby. Effects fade quickly when out of combat.</MarkedMen_Settings_KillAnticipationDesc>
-  <MarkedMen_Settings_anticipationGainMultiplier>Anticipation gain multiplier</MarkedMen_Settings_anticipationGainMultiplier>
-  <MarkedMen_Settings_anticipationGainMultiplierDesc>How quickly kill anticipation builds when enemies are near.</MarkedMen_Settings_anticipationGainMultiplierDesc>
-  <MarkedMen_Settings_anticipationDecayMultiplier>Anticipation decay multiplier</MarkedMen_Settings_anticipationDecayMultiplier>
-  <MarkedMen_Settings_anticipationDecayMultiplierDesc>How quickly kill anticipation fades after combat ends. Higher values fade faster.</MarkedMen_Settings_anticipationDecayMultiplierDesc>
-  <MarkedMen_Settings_MessagesAndDevTools>Messages And Dev Tools</MarkedMen_Settings_MessagesAndDevTools>
-  <MarkedMen_Settings_MessagesAndDevToolsDesc>Controls player-facing alerts, incident history, and optional debug actions.</MarkedMen_Settings_MessagesAndDevToolsDesc>
-  <MarkedMen_Settings_RaidCountdown>Show raid countdown HUD</MarkedMen_Settings_RaidCountdown>
-  <MarkedMen_Settings_RaidCountdownDesc>Shows a countdown above the time and environment HUD and enables the one-day warning letter for the next scheduled Marked Men raid.</MarkedMen_Settings_RaidCountdownDesc>
-  <MarkedMen_Settings_raidCountdownVisibleDays>Countdown visible days</MarkedMen_Settings_raidCountdownVisibleDays>
-  <MarkedMen_Settings_raidCountdownVisibleDaysDesc>How many in-game days before a scheduled raid the countdown appears.</MarkedMen_Settings_raidCountdownVisibleDaysDesc>
-  <MarkedMen_Settings_raidCountdownHighPriorityDays>High-priority countdown days</MarkedMen_Settings_raidCountdownHighPriorityDays>
-  <MarkedMen_Settings_raidCountdownHighPriorityDaysDesc>How many in-game days before a scheduled raid the countdown turns red.</MarkedMen_Settings_raidCountdownHighPriorityDaysDesc>
-  <MarkedMen_RaidCountdownHUD>Marked Men raid in {0}</MarkedMen_RaidCountdownHUD>
-  <MarkedMen_RaidCountdownHUDImminent>Marked Men raid imminent</MarkedMen_RaidCountdownHUDImminent>
-  <MarkedMen_RaidCountdownHUDTooltip>The next Marked Men raid is expected in {0}. Prepare your defenses.</MarkedMen_RaidCountdownHUDTooltip>
-  <MarkedMen_RaidCountdownHUDTooltipImminent>The Marked Men are about to attack. Prepare your defenses.</MarkedMen_RaidCountdownHUDTooltipImminent>
-  <MarkedMen_RaidWarningLetterLabel>The Marked: Incoming Threat</MarkedMen_RaidWarningLetterLabel>
-  <MarkedMen_RaidWarningLetterText>Intelligence report: The chronometer ticks down. The Marked are mobilizing for an attack on {0}.\n\nEstimated threat level: {1}\nTime until arrival: approximately {2}.\n\nPrepare your defenses. The Marked will come when they are ready.</MarkedMen_RaidWarningLetterText>
-  <MarkedMen_ThreatTier_Catastrophic>catastrophic pressure</MarkedMen_ThreatTier_Catastrophic>
-  <MarkedMen_ThreatTier_Heavy>heavy pressure</MarkedMen_ThreatTier_Heavy>
-  <MarkedMen_ThreatTier_Major>major pressure</MarkedMen_ThreatTier_Major>
-  <MarkedMen_ThreatTier_Organized>organized pressure</MarkedMen_ThreatTier_Organized>
-  <MarkedMen_ThreatTier_Probing>probing pressure</MarkedMen_ThreatTier_Probing>
-  <MarkedMen_Settings_CaravanAmbushTimer>Caravan ambush timer</MarkedMen_Settings_CaravanAmbushTimer>
-  <MarkedMen_Settings_CaravanAmbushTimerDesc>Controls the warning timer and preparation window before a Marked Men caravan ambush.</MarkedMen_Settings_CaravanAmbushTimerDesc>
-  <MarkedMen_Settings_caravanAmbushTimerVisible>Caravan ambush timer visible</MarkedMen_Settings_caravanAmbushTimerVisible>
-  <MarkedMen_Settings_caravanAmbushTimerVisibleDesc>Show ambush warning timer when traveling with caravans.</MarkedMen_Settings_caravanAmbushTimerVisibleDesc>
-  <MarkedMen_Settings_caravanAmbushTelegraphDays>Ambush telegraph days</MarkedMen_Settings_caravanAmbushTelegraphDays>
-  <MarkedMen_Settings_caravanAmbushTelegraphDaysDesc>How many in-game days before an ambush occurs that players see the warning timer.</MarkedMen_Settings_caravanAmbushTelegraphDaysDesc>
-  <MarkedMen_Settings_caravanAmbushPrepTimeInHours>Ambush preparation time (hours)</MarkedMen_Settings_caravanAmbushPrepTimeInHours>
-  <MarkedMen_Settings_caravanAmbushPrepTimeInHoursDesc>Time window between ambush warning and actual engagement, allowing players to prepare or retreat.</MarkedMen_Settings_caravanAmbushPrepTimeInHoursDesc>
-  <MarkedMen_Settings_DetailedLetters>Use detailed raid letters</MarkedMen_Settings_DetailedLetters>
-  <MarkedMen_Settings_DetailedLettersDesc>Adds richer raid letter text with pawn counts, points, arrival mode, and tactical warning details.</MarkedMen_Settings_DetailedLettersDesc>
-  <MarkedMen_Settings_IncidentLog>Record incident log entries</MarkedMen_Settings_IncidentLog>
-  <MarkedMen_Settings_IncidentLogDesc>Stores Marked Men incident history in the game component for debugging and future review.</MarkedMen_Settings_IncidentLogDesc>
-  <MarkedMen_Settings_DebugActions>Enable Dev Mode debug actions</MarkedMen_Settings_DebugActions>
-  <MarkedMen_Settings_DebugActionsDesc>Adds Dev Mode actions for starting or rescheduling Marked Men incidents while testing.</MarkedMen_Settings_DebugActionsDesc>
-  <MarkedMen_Settings_Performance>Performance</MarkedMen_Settings_Performance>
-  <MarkedMen_Settings_PerformanceDesc>Controls how often background systems run. Higher intervals reduce CPU work but make reactions less immediate.</MarkedMen_Settings_PerformanceDesc>
-  <MarkedMen_Settings_contagionPulseIntervalTicks>Ticks between contagion pulses</MarkedMen_Settings_contagionPulseIntervalTicks>
-  <MarkedMen_Settings_contagionPulseIntervalTicksDesc>How often infected pawns try nearby close-contact exposure checks.</MarkedMen_Settings_contagionPulseIntervalTicksDesc>
-  <MarkedMen_Settings_maxContagionTargetsPerPulse>Max contagion targets per pulse</MarkedMen_Settings_maxContagionTargetsPerPulse>
-  <MarkedMen_Settings_maxContagionTargetsPerPulseDesc>Maximum nearby pawns checked by each contagion pulse. Set to 0 to disable pulse-based close-contact spread.</MarkedMen_Settings_maxContagionTargetsPerPulseDesc>
-  <MarkedMen_Settings_tacticalRetargetIntervalTicks>Ticks between tactical retarget checks</MarkedMen_Settings_tacticalRetargetIntervalTicks>
-  <MarkedMen_Settings_tacticalRetargetIntervalTicksDesc>How often infected pawns can reconsider tactical targets. Higher values improve performance by reducing scans for new targets.</MarkedMen_Settings_tacticalRetargetIntervalTicksDesc>
-  <MarkedMen_Settings_infightingCheckIntervalTicks>Ticks between infighting checks</MarkedMen_Settings_infightingCheckIntervalTicks>
-  <MarkedMen_Settings_infightingCheckIntervalTicksDesc>How often infected pawns can roll for infighting behavior.</MarkedMen_Settings_infightingCheckIntervalTicksDesc>
-  <MarkedMen_Settings_lordCleanupIntervalTicks>Ticks between lord cleanup checks</MarkedMen_Settings_lordCleanupIntervalTicks>
-  <MarkedMen_Settings_lordCleanupIntervalTicksDesc>How often the mod cleans up invalid raid lord state.</MarkedMen_Settings_lordCleanupIntervalTicksDesc>
-  <MarkedMen_Settings_infectedStateMaintenanceIntervalTicks>Ticks between infected-state maintenance</MarkedMen_Settings_infectedStateMaintenanceIntervalTicks>
-  <MarkedMen_Settings_infectedStateMaintenanceIntervalTicksDesc>How often infected pawns refresh state such as faction-specific visuals.</MarkedMen_Settings_infectedStateMaintenanceIntervalTicksDesc>
-  <MarkedMen_Settings_reanimationProcessIntervalTicks>Ticks between transformation processing</MarkedMen_Settings_reanimationProcessIntervalTicks>
-  <MarkedMen_Settings_reanimationProcessIntervalTicksDesc>How often queued corpse transformations are processed.</MarkedMen_Settings_reanimationProcessIntervalTicksDesc>
-  <MarkedMen_Settings_maxPendingReanimationsPerTick>Max transformations processed per tick</MarkedMen_Settings_maxPendingReanimationsPerTick>
-  <MarkedMen_Settings_maxPendingReanimationsPerTickDesc>Limits burst work when many infected corpses are waiting to transform.</MarkedMen_Settings_maxPendingReanimationsPerTickDesc>
-  <MarkedMen_Settings_maxRaidInfantry>Maximum infantry per raid</MarkedMen_Settings_maxRaidInfantry>
-  <MarkedMen_Settings_maxRaidInfantryDesc>Caps infantry in an individual raid. The active-raider limit below also applies across overlapping attacks.</MarkedMen_Settings_maxRaidInfantryDesc>
-  <MarkedMen_Settings_maxRaidVehicles>Maximum vehicles per raid</MarkedMen_Settings_maxRaidVehicles>
-  <MarkedMen_Settings_maxRaidVehiclesDesc>Limits each vehicle raid to no more than three vehicles.</MarkedMen_Settings_maxRaidVehiclesDesc>
-  <MarkedMen_Settings_maxActiveRaidPawns>Maximum active Marked Men raiders per map</MarkedMen_Settings_maxActiveRaidPawns>
-  <MarkedMen_Settings_maxActiveRaidPawnsDesc>Hard workload ceiling across overlapping Marked Men waves, including vehicles, onboard crew, and inbound aircraft. New attacks shrink to available capacity instead of stacking more raiders. Lower values improve performance.</MarkedMen_Settings_maxActiveRaidPawnsDesc>
-  <MarkedMen_Settings_UrbanOutbreak>Ancient Urban Ruins Outbreak</MarkedMen_Settings_UrbanOutbreak>
-  <MarkedMen_Settings_UrbanOutbreakDesc>Controls Marked Virus outbreaks in Ancient Urban Ruins cities. Only applies when the Ancient Urban Ruins mod is active.</MarkedMen_Settings_UrbanOutbreakDesc>
-  <MarkedMen_Settings_UrbanOutbreaks>Enable urban outbreaks</MarkedMen_Settings_UrbanOutbreaks>
-  <MarkedMen_Settings_UrbanOutbreaksDesc>Toggles whether Ancient Urban Ruins maps become active outbreak zones with infected Marked Men roaming the ruins.</MarkedMen_Settings_UrbanOutbreaksDesc>
-  <MarkedMen_Settings_urbanInfectionDensity>Urban infection density</MarkedMen_Settings_urbanInfectionDensity>
-  <MarkedMen_Settings_urbanInfectionDensityDesc>Controls how many buildings become infected and how many Marked Men spawn per building. Higher values mean denser urban populations.</MarkedMen_Settings_urbanInfectionDensityDesc>
-  <MarkedMen_Settings_urbanAmbushFrequency>Urban ambush frequency</MarkedMen_Settings_urbanAmbushFrequency>
-  <MarkedMen_Settings_urbanAmbushFrequencyDesc>How often Marked Men ambushes occur inside the ruins. Higher values mean more frequent attacks.</MarkedMen_Settings_urbanAmbushFrequencyDesc>
-  <MarkedMen_Settings_DormantInfestations>Enable dormant infestations</MarkedMen_Settings_DormantInfestations>
-  <MarkedMen_Settings_DormantInfestationsDesc>When enabled, some infected buildings start dormant. They burst open with Marked Men when colonists approach.</MarkedMen_Settings_DormantInfestationsDesc>
-  <MarkedMen_Settings_dormantInfestationFrequency>Dormant infestation frequency</MarkedMen_Settings_dormantInfestationFrequency>
-  <MarkedMen_Settings_dormantInfestationFrequencyDesc>How many buildings start with dormant infestations waiting to ambush approaching colonists.</MarkedMen_Settings_dormantInfestationFrequencyDesc>
-  <MarkedMen_Settings_CityEpicenters>Enable city epicenters</MarkedMen_Settings_CityEpicenters>
-  <MarkedMen_Settings_CityEpicentersDesc>When enabled, some urban ruin maps become high-density epicenters with stronger, more frequent spawns and a world-object reinforcement comp.</MarkedMen_Settings_CityEpicentersDesc>
-  <MarkedMen_Settings_epicenterSpawnChance>Epicenter spawn chance</MarkedMen_Settings_epicenterSpawnChance>
-  <MarkedMen_Settings_epicenterSpawnChanceDesc>Chance that a given urban ruins map becomes an epicenter with doubled initial population and periodic reinforcements.</MarkedMen_Settings_epicenterSpawnChanceDesc>
-  <MarkedMen_Settings_UrbanAmbushes>Enable urban ambush incidents</MarkedMen_Settings_UrbanAmbushes>
-  <MarkedMen_Settings_UrbanAmbushesDesc>Allows incident-driven ambush events on Ancient Urban Ruins maps in addition to map-component ambushes.</MarkedMen_Settings_UrbanAmbushesDesc>
-  <MarkedMen_Settings_SurvivorEncounters>Enable survivor encounters</MarkedMen_Settings_SurvivorEncounters>
-  <MarkedMen_Settings_SurvivorEncountersDesc>When enabled, survivor encounters in the ruins may be genuine survivors, hidden infected, or traps leading to infestations.</MarkedMen_Settings_SurvivorEncountersDesc>
-  <MarkedMen_Settings_survivorEncounterChance>Survivor encounter chance modifier</MarkedMen_Settings_survivorEncounterChance>
-  <MarkedMen_Settings_survivorEncounterChanceDesc>Multiplier for survivor encounter incident frequency in urban ruins. Higher values mean more survivor events.</MarkedMen_Settings_survivorEncounterChanceDesc>
-  <MarkedMen_Settings_AURSpawnProtection>AUR Spawn Protection</MarkedMen_Settings_AURSpawnProtection>
-  <MarkedMen_Settings_AURSpawnProtectionDesc>Controls enemy spawn positions on Ancient Urban Ruins maps. Prevents enemies from appearing too close to colonists by redirecting their spawn positions to map edges or a minimum distance away.</MarkedMen_Settings_AURSpawnProtectionDesc>
-  <MarkedMen_Settings_SpawnProtection>Enable spawn distance protection</MarkedMen_Settings_SpawnProtection>
-  <MarkedMen_Settings_SpawnProtectionDesc>When enabled, enemies spawning on Ancient Urban Ruins maps are placed at a safer minimum distance from colonists, animals, and mechs. Only applies when Ancient Urban Ruins is loaded.</MarkedMen_Settings_SpawnProtectionDesc>
-  <MarkedMen_Settings_aurMinimumSpawnDistance>Minimum spawn distance</MarkedMen_Settings_aurMinimumSpawnDistance>
-  <MarkedMen_Settings_aurMinimumSpawnDistanceDesc>Minimum distance in cells that enemies must be kept from any colonist, animal, or mech. Higher values give more reaction time but may reduce valid spawn positions.</MarkedMen_Settings_aurMinimumSpawnDistanceDesc>
-  <MarkedMen_Settings_PreferEdgeSpawn>Prefer map edge spawning</MarkedMen_Settings_PreferEdgeSpawn>
-  <MarkedMen_Settings_PreferEdgeSpawnDesc>When enabled, the patch tries to spawn enemies from map edges first. Falls back to distance-based placement if all edge cells are blocked by ruins or mountains.</MarkedMen_Settings_PreferEdgeSpawnDesc>
-  <MarkedMen_Settings_SpawnDebugLogging>Debug logging for spawn protection</MarkedMen_Settings_SpawnDebugLogging>
-  <MarkedMen_Settings_SpawnDebugLoggingDesc>Writes detailed spawn protection debug messages to the RimWorld log. Useful for troubleshooting spawn placement issues.</MarkedMen_Settings_SpawnDebugLoggingDesc>
-  <MarkedMen_Settings_LostSurvivors>Lost Survivors</MarkedMen_Settings_LostSurvivors>
-  <MarkedMen_Settings_LostSurvivorsDesc>Controls the Lost Survivor incident. A seemingly normal colonist joins but carries a dormant Marked Virus infection that may activate days or weeks later with unpredictable consequences.</MarkedMen_Settings_LostSurvivorsDesc>
-  <MarkedMen_Settings_LostSurvivorIncidents>Enable Lost Survivor incidents</MarkedMen_Settings_LostSurvivorIncidents>
-  <MarkedMen_Settings_LostSurvivorIncidentsDesc>When enabled, the storyteller can send a lost survivor carrying a dormant Marked Virus infection. The survivor appears normal until the dormant mark activates.</MarkedMen_Settings_LostSurvivorIncidentsDesc>
-  <MarkedMen_Settings_lostSurvivorFrequencyMultiplier>Lost Survivor frequency</MarkedMen_Settings_lostSurvivorFrequencyMultiplier>
-  <MarkedMen_Settings_lostSurvivorFrequencyMultiplierDesc>Multiplier for how often Lost Survivor incidents occur. Set to 0 to disable.</MarkedMen_Settings_lostSurvivorFrequencyMultiplierDesc>
-  <MarkedMen_Settings_dormantMarkMinDays>Min dormant days</MarkedMen_Settings_dormantMarkMinDays>
-  <MarkedMen_Settings_dormantMarkMinDaysDesc>Minimum in-game days before the dormant mark can activate.</MarkedMen_Settings_dormantMarkMinDaysDesc>
-  <MarkedMen_Settings_dormantMarkMaxDays>Max dormant days</MarkedMen_Settings_dormantMarkMaxDays>
-  <MarkedMen_Settings_dormantMarkMaxDaysDesc>Maximum in-game days before the dormant mark will activate.</MarkedMen_Settings_dormantMarkMaxDaysDesc>
-  <MarkedMen_Settings_dormantMarkTriggerMultiplier>Trigger sensitivity</MarkedMen_Settings_dormantMarkTriggerMultiplier>
-  <MarkedMen_Settings_dormantMarkTriggerMultiplierDesc>Multiplier for trigger chances (combat damage, near-death, witnessing other transformations, Crossed signal proximity). Higher values make activation more likely.</MarkedMen_Settings_dormantMarkTriggerMultiplierDesc>
-  <MarkedMen_Settings_dormantMarkAlphaChance>Alpha variant chance</MarkedMen_Settings_dormantMarkAlphaChance>
-  <MarkedMen_Settings_dormantMarkAlphaChanceDesc>Chance that the transformed survivor is an Alpha variant (spawns escorting Crossed on activation). Doubled for prisoner survivors.</MarkedMen_Settings_dormantMarkAlphaChanceDesc>
-  <MarkedMen_Settings_dormantMarkGroupVariantChance>Group variant chance</MarkedMen_Settings_dormantMarkGroupVariantChance>
-  <MarkedMen_Settings_dormantMarkGroupVariantChanceDesc>Chance that multiple dormant carriers activate simultaneously. Set to 0 to disable group activations.</MarkedMen_Settings_dormantMarkGroupVariantChanceDesc>
-  <MarkedMen_Settings_MarkedPrisoners>Marked Prisoners</MarkedMen_Settings_MarkedPrisoners>
-  <MarkedMen_Settings_MarkedPrisonersDesc>Controls how the Marked Virus behaves in captured prisoners. Marked prisoners cannot be recruited, will attack wardens, harm themselves over time, and escape aggressively.</MarkedMen_Settings_MarkedPrisonersDesc>
-  <MarkedMen_Settings_PrisonerInfection>Enable prisoner infection system</MarkedMen_Settings_PrisonerInfection>
-  <MarkedMen_Settings_PrisonerInfectionDesc>When enabled, Marked prisoners are unrecruitable, attack wardens during interaction, progress through self-harm stages, and escape with aggression.</MarkedMen_Settings_PrisonerInfectionDesc>
-  <MarkedMen_Settings_PrisonerRestraint>Enable bed restraint system</MarkedMen_Settings_PrisonerRestraint>
-  <MarkedMen_Settings_PrisonerRestraintDesc>When enabled, beds with assigned Marked prisoners gain a gizmo to restrain them with heavy chains. Restrained prisoners cannot attack, self-harm, or escape.</MarkedMen_Settings_PrisonerRestraintDesc>
-  <MarkedMen_Settings_prisonerInfectionChance>Infection chance per warden interaction</MarkedMen_Settings_prisonerInfectionChance>
-  <MarkedMen_Settings_prisonerInfectionChanceDesc>Chance per warden interaction that a Marked prisoner attacks and tries to infect the warden.</MarkedMen_Settings_prisonerInfectionChanceDesc>
-  <MarkedMen_Settings_PrisonerSelfHarm>Enable self-harm behavior</MarkedMen_Settings_PrisonerSelfHarm>
-  <MarkedMen_Settings_PrisonerSelfHarmDesc>When enabled, Marked prisoners progressively harm themselves over time, culminating in suicide.</MarkedMen_Settings_PrisonerSelfHarmDesc>
-  <MarkedMen_Settings_prisonerSelfHarmStageDays>Days before self-harm stage progression</MarkedMen_Settings_prisonerSelfHarmStageDays>
-  <MarkedMen_Settings_prisonerSelfHarmStageDaysDesc>How many in-game days between self-harm stages. Each stage inflicts worse damage.</MarkedMen_Settings_prisonerSelfHarmStageDaysDesc>
-  <MarkedMen_Settings_prisonerSelfHarmSuicideDays>Days before suicide</MarkedMen_Settings_prisonerSelfHarmSuicideDays>
-  <MarkedMen_Settings_prisonerSelfHarmSuicideDaysDesc>How many in-game days before a Marked prisoner attempts suicide with severe self-mutilation.</MarkedMen_Settings_prisonerSelfHarmSuicideDaysDesc>
-  <MarkedMen_Settings_prisonerEscapeAggressionMultiplier>Escape aggression multiplier</MarkedMen_Settings_prisonerEscapeAggressionMultiplier>
-  <MarkedMen_Settings_prisonerEscapeAggressionMultiplierDesc>How aggressively Marked prisoners attack during prison breaks. Higher values mean they target more distant priority targets.</MarkedMen_Settings_prisonerEscapeAggressionMultiplierDesc>
-  <MarkedMen_Settings_PrisonerCosmetic>Enable cosmetic behaviors</MarkedMen_Settings_PrisonerCosmetic>
-  <MarkedMen_Settings_PrisonerCosmeticDesc>When enabled, Marked prisoners pace, growl, scream, and pound walls. Visual only, no mechanical effects.</MarkedMen_Settings_PrisonerCosmeticDesc>
-  <MarkedMen_Settings_prisonerEscapeChance>Daily escape chance</MarkedMen_Settings_prisonerEscapeChance>
-  <MarkedMen_Settings_prisonerEscapeChanceDesc>Base chance per day that a Marked prisoner independently attempts to break out. They attack and try to infect anyone nearby during the escape.</MarkedMen_Settings_prisonerEscapeChanceDesc>
-  <MarkedMen_Settings_PrisonerDebugLogging>Debug logging for prisoner system</MarkedMen_Settings_PrisonerDebugLogging>
-  <MarkedMen_Settings_PrisonerDebugLoggingDesc>Writes prisoner infection system debug messages to the RimWorld log.</MarkedMen_Settings_PrisonerDebugLoggingDesc>
-  <MarkedMen_Settings_RJW_Bridge>Optional RimJobWorld Bridge</MarkedMen_Settings_RJW_Bridge>
-  <MarkedMen_Settings_RJW_BridgeDesc>Only applies when RimJobWorld is installed. The bridge adds no hard dependency.</MarkedMen_Settings_RJW_BridgeDesc>
-  <MarkedMen_Settings_RJW_Detected>RimJobWorld detected right now: {0}.</MarkedMen_Settings_RJW_Detected>
-  <MarkedMen_Settings_Yes>yes</MarkedMen_Settings_Yes>
-  <MarkedMen_Settings_No>no</MarkedMen_Settings_No>
-  <MarkedMen_Settings_RJW_AutoEnable>Auto-enable the RimJobWorld bridge when detected</MarkedMen_Settings_RJW_AutoEnable>
-  <MarkedMen_Settings_RJW_AutoEnableDesc>Automatically turns on the bridge after RimJobWorld is found in the active mod list.</MarkedMen_Settings_RJW_AutoEnableDesc>
-  <MarkedMen_Settings_RJW_Enable>Enable RimJobWorld Marked Virus bridge</MarkedMen_Settings_RJW_Enable>
-  <MarkedMen_Settings_RJW_EnableDesc>Allows adult RJW close-contact events to transmit Marked Virus and lets valid infected adults use RJW enemy assault jobs.</MarkedMen_Settings_RJW_EnableDesc>
-  <MarkedMen_Settings_rjwExposureChance>RimJobWorld exposure chance</MarkedMen_Settings_rjwExposureChance>
-  <MarkedMen_Settings_rjwExposureChanceDesc>Chance that a valid RJW close-contact event involving one infected pawn exposes the other pawn.</MarkedMen_Settings_rjwExposureChanceDesc>
-
-  
-  <CA_KillAnticipation_Label>kill anticipation</CA_KillAnticipation_Label>
-  <CA_KillAnticipation_Desc>The predator's senses sharpen in the presence of prey. Reflexes quicken and focus intensifies with every hostile nearby.</CA_KillAnticipation_Desc>
-  <CA_FreshKillSatisfaction_Label>satisfying kill</CA_FreshKillSatisfaction_Label>
-  <CA_FreshKillSatisfaction_Desc>The rush of a clean kill. The hunt paid off.</CA_FreshKillSatisfaction_Desc>
-  <CA_BloodthirstyCraving_Label>bloodthirsty craving</CA_BloodthirstyCraving_Label>
-  <CA_BloodthirstyCraving_Desc>The hunger for violence grows. It has been too long since the last hunt.</CA_BloodthirstyCraving_Desc>
-  <CA_OverwhelmingBloodlust_Label>overwhelming bloodlust</CA_OverwhelmingBloodlust_Label>
-  <CA_OverwhelmingBloodlust_Desc>The battle consumed everything. There is only the kill.</CA_OverwhelmingBloodlust_Desc>
-  <CA_PredatorPatience_Label>predator's patience</CA_PredatorPatience_Label>
-  <CA_PredatorPatience_Desc>Watching. Waiting. The prey does not know it is already marked.</CA_PredatorPatience_Desc>
-
-  
-  <CA_LostSurvivor_Title>Lost survivor found</CA_LostSurvivor_Title>
-  <CA_LostSurvivor_Desc>A disoriented survivor has wandered to the colony's edge. They claim to have been separated from their group days ago and have been traveling alone since. Something about their story feels incomplete, but they seem grateful for shelter.</CA_LostSurvivor_Desc>
-  <CA_LostSurvivor_Accept>Accept them</CA_LostSurvivor_Accept>
-  <CA_LostSurvivor_Reject>Send away</CA_LostSurvivor_Reject>
-  <CA_LostSurvivor_Betrayal_Label>Dormant infection activated!</CA_LostSurvivor_Betrayal_Label>
-  <CA_LostSurvivor_Betrayal_Text>The dormant Marked Virus infection in {PAWN_labelShort} has suddenly activated! The colonist you took in was carrying the pathogen without visible symptoms — until now.
-
-{PAWN_labelShort} transforms before your eyes, joining the Marked Men. No warning. No chance to prepare. Just the terrible realization that the threat was already inside.</CA_LostSurvivor_Betrayal_Text>
-  <CA_DormantMark_Label>dormant mark</CA_DormantMark_Label>
-  <CA_DormantMark_Desc>A latent Marked Virus infection that has not yet activated. The host shows no symptoms and carries the infection without visible signs.</CA_DormantMark_Desc>
-
-  
-  <CA_BetrayedByColonist_Label>betrayed by colonist</CA_BetrayedByColonist_Label>
-  <CA_BetrayedByColonist_Desc>Someone I trusted was carrying the Marked Virus. They were one of us until they weren't.</CA_BetrayedByColonist_Desc>
-  <CA_BetrayedByColonistSocial_Label>betrayed by</CA_BetrayedByColonistSocial_Label>
-  <CA_LovedOneTurned_Label>loved one transformed</CA_LovedOneTurned_Label>
-  <CA_LovedOneTurned_Desc>A lover, spouse, or close friend was taken by the Marked Virus. What was left behind wore their face but was not them anymore.</CA_LovedOneTurned_Desc>
-  <CA_SuspiciousOfColonists_Label>suspicious of colonists</CA_SuspiciousOfColonists_Label>
-  <CA_SuspiciousOfColonists_Desc>If one of them was carrying the infection without knowing, any of them could be.</CA_SuspiciousOfColonists_Desc>
-  <CA_MercifulKill_Label>merciful execution</CA_MercifulKill_Label>
-  <CA_MercifulKill_Desc>I put down a colonist before they could turn. It was the right call, but that does not make it easier.</CA_MercifulKill_Desc>
-
-  
-  <CA_MarkedPrisoner_RecruitBlocked>The Marked Virus has completely overwritten {PAWN_labelShort}'s will. They can no longer be recruited, their mind is no longer their own.</CA_MarkedPrisoner_RecruitBlocked>
-  <CA_MarkedPrisoner_Attack>{PRISONER_labelShort} lunges at {TARGET_labelShort} with a vicious {TYPE}!</CA_MarkedPrisoner_Attack>
-  <CA_MarkedPrisoner_SelfHarm_Bruise>{PAWN_labelShort} slams their body against the cell walls and floor, leaving dark, spreading bruises across their skin.</CA_MarkedPrisoner_SelfHarm_Bruise>
-  <CA_MarkedPrisoner_SelfHarm_Cut>{PAWN_labelShort} digs their nails into their own flesh, tearing shallow wounds that weep blood.</CA_MarkedPrisoner_SelfHarm_Cut>
-  <CA_MarkedPrisoner_SelfHarm_Mutilate>{PAWN_labelShort} savagely tears at their own body, mutilating themselves beyond recognition.</CA_MarkedPrisoner_SelfHarm_Mutilate>
-  <CA_MarkedPrisoner_Suicide>{PAWN_labelShort} has killed themselves. The Marked Virus drove them to a final, violent end rather than allow capture.</CA_MarkedPrisoner_Suicide>
-  <CA_MarkedPrisoner_Suicide_Label>Marked prisoner suicide</CA_MarkedPrisoner_Suicide_Label>
-  <CA_MarkedPrisoner_DeathReason_Suicide>Self-inflicted death driven by the Marked Virus</CA_MarkedPrisoner_DeathReason_Suicide>
-  <CA_MarkedPrisoner_DeathReason_NeckSnap>Self-inflicted neck snap driven by the Marked Virus</CA_MarkedPrisoner_DeathReason_NeckSnap>
-  <CA_MarkedPrisoner_DeathReason_BloodLoss>Self-inflicted fatal blood loss driven by the Marked Virus</CA_MarkedPrisoner_DeathReason_BloodLoss>
-  <CA_MarkedPrisoner_DeathReason_OrganFailure>Self-inflicted critical organ damage driven by the Marked Virus</CA_MarkedPrisoner_DeathReason_OrganFailure>
-  <CA_MarkedPrisoner_CosmeticScream>{PAWN_labelShort} lets out an inhuman, guttural scream that echoes through the cell block.</CA_MarkedPrisoner_CosmeticScream>
-  <CA_MarkedPrisoner_CosmeticGrowl>{PAWN_labelShort} paces the cell, growling and muttering in a language no one recognizes.</CA_MarkedPrisoner_CosmeticGrowl>
-  <CA_MarkedPrisoner_CosmeticLaugh>{PAWN_labelShort} bursts into manic, hollow laughter that raises the hairs on the back of your neck.</CA_MarkedPrisoner_CosmeticLaugh>
-   <CA_MarkedPrisoner_CosmeticPound>{PAWN_labelShort} pounds against the cell walls with bloody fists, testing for weaknesses.</CA_MarkedPrisoner_CosmeticPound>
-
-  
-  <CA_RestrainPrisoner>Restrain prisoner</CA_RestrainPrisoner>
-  <CA_RestrainPrisonerDesc>Restrain this Marked prisoner with heavy chains. Restrained prisoners cannot attack, self-harm, or escape, but the virus continues to progress.</CA_RestrainPrisonerDesc>
-  <CA_ReleasePrisoner>Release prisoner</CA_ReleasePrisoner>
-  <CA_ReleasePrisonerDesc>Remove the restraints from this prisoner. They will resume attacking wardens, self-harming, and attempting escape.</CA_ReleasePrisonerDesc>
-  <CA_PrisonerRestrained>{PAWN_labelShort} has been restrained with heavy chains. They struggle against the bindings but cannot break free.</CA_PrisonerRestrained>
-  <CA_PrisonerReleased>{PAWN_labelShort} has been released from restraints.</CA_PrisonerReleased>
-
-  <!-- Cured Refugee Letter -->
-  <TheMarkedMen_CuredRefugee_LetterTitle>Cured Survivor: {0}</TheMarkedMen_CuredRefugee_LetterTitle>
-  <TheMarkedMen_CuredRefugee_LetterBody>{0} has been cured of the Marked Virus. They are no longer infected and have regained their humanity.\n\nThey are reaching out to your colony, hoping to start a new life free from the curse that consumed them. Will you offer them sanctuary?</TheMarkedMen_CuredRefugee_LetterBody>
-  <TheMarkedMen_CuredRefugee_LetterFromFaction>They were originally part of the {0} faction before infection took them.</TheMarkedMen_CuredRefugee_LetterFromFaction>
-  <TheMarkedMen_CuredRefugee_HealthStatus>Their physical health is at {0}% - they are recovering from the ordeal of infection and cure.</TheMarkedMen_CuredRefugee_HealthStatus>
-  <TheMarkedMen_CuredRefugee_RequestToJoin>They humbly ask if they might join your colony and contribute to rebuilding their life.</TheMarkedMen_CuredRefugee_RequestToJoin>
-
-  <!-- Choice buttons -->
-  <TheMarkedMen_CuredRefugee_Accept>Accept them into the colony</TheMarkedMen_CuredRefugee_Accept>
-  <TheMarkedMen_CuredRefugee_Reject>Turn them away - they must find their own path</TheMarkedMen_CuredRefugee_Reject>
-
-  <!-- Messages -->
-  <TheMarkedMen_MessageRefugeeAccepted>{0} has been accepted into the colony and is ready to contribute.</TheMarkedMen_MessageRefugeeAccepted>
-  <TheMarkedMen_MessageRefugeeRejected>{0} has been turned away and is leaving to find sanctuary elsewhere.</TheMarkedMen_MessageRefugeeRejected>
-  <TheMarkedMen_MessageRefugeeLeft>{0} has left the colony after being turned away, departing to find a new home elsewhere.</TheMarkedMen_MessageRefugeeLeft>
 </LanguageData>
