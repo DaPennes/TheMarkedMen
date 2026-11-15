@@ -72,21 +72,9 @@ namespace TheMarkedMen
             new[] { "Hyperweave", "Plasteel", "Uranium" },
         };
 
-        private static readonly List<string> IndustrialMilitaryTags = new()
-        {
-            "IndustrialMilitaryAdvanced",
-            "IndustrialMilitaryBasic",
-            "SpacerMilitary",
-        };
-
         private static readonly List<string> CivilianTags = new()
         {
             "IndustrialBasic",
-            "Neolithic",
-        };
-
-        private static readonly List<string> NeolithicTags = new()
-        {
             "Neolithic",
         };
 
@@ -410,69 +398,16 @@ namespace TheMarkedMen
                 if (ap == null || ap.Destroyed) continue;
 
                 ThingDef def = ap.def;
+                if (def?.apparel == null) continue;
 
-                if (def.apparel == null) continue;
-
-                if (pawn.kindDef == CADefOf.CrossedCivilian && !HasAnyTag(def, NeolithicTags))
-                {
-                    pawn.apparel.Remove(ap);
-                    ap.Destroy(DestroyMode.Vanish);
-                    continue;
-                }
-
-                if (isInfected && !CanWearApparel(pawn, def))
-                {
-                    pawn.apparel.Remove(ap);
-                    ap.Destroy(DestroyMode.Vanish);
-                    continue;
-                }
-
-                if (IsShield(def))
-                    continue;
-
-                if (pawn.kindDef == CADefOf.CrossedCivilian && def.apparel.LastLayer == OverheadLayer)
-                {
-                    // Remove heavy armor from civilian infected
-                    if (def.GetStatValueAbstract(StatDefOf.ArmorRating_Sharp) >= 0.10f)
-                    {
-                        pawn.apparel.Remove(ap);
-                        ap.Destroy(DestroyMode.Vanish);
-                    }
-                    continue;
-                }
-
-                if (pawn.kindDef != CADefOf.CrossedCivilian)
-                {
-                    continue;
-                }
-
-                // Keep Common Infected lightly equipped.
-                float sharp = def.GetStatValueAbstract(StatDefOf.ArmorRating_Sharp);
-                bool hasMilTag = HasAnyMilitaryTag(def);
-
-                if (sharp < 0.05f && !hasMilTag && def.apparel.LastLayer == ShellLayer)
+                // The category options are the single source of truth, so the
+                // same rules apply to generated raids and gear worn in play.
+                if (isInfected && !CrossedApparelCompatibility.CanWearApparel(pawn, def))
                 {
                     pawn.apparel.Remove(ap);
                     ap.Destroy(DestroyMode.Vanish);
                 }
             }
-        }
-
-        private static bool HasAnyMilitaryTag(ThingDef def)
-        {
-            if (def.apparel?.tags == null) return false;
-
-            for (int i = 0; i < def.apparel.tags.Count; i++)
-            {
-                string tag = def.apparel.tags[i];
-                for (int j = 0; j < IndustrialMilitaryTags.Count; j++)
-                {
-                    if (string.Equals(tag, IndustrialMilitaryTags[j], StringComparison.OrdinalIgnoreCase))
-                        return true;
-                }
-            }
-
-            return false;
         }
 
         private static void AdjustQuality(Pawn pawn, int tier)
@@ -758,13 +693,7 @@ namespace TheMarkedMen
 
         internal static bool CanWearApparel(Pawn pawn, ThingDef def)
         {
-            if (def?.apparel == null)
-                return false;
-
-            if (IsShield(def) && pawn.kindDef == CADefOf.CrossedCivilian)
-                return false;
-
-            return true;
+            return CrossedApparelCompatibility.CanWearApparel(pawn, def);
         }
 
         private static int GetKindBaseTier(PawnKindDef kind)

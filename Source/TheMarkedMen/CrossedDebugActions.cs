@@ -246,12 +246,16 @@ namespace TheMarkedMen
                 return;
             }
 
+            // Debug assaults use a fixed, deliberately high point budget so the
+            // vehicle eligibility checks cannot fail on point requirements.
+            // Normal raid generation is untouched and still uses its own points.
             const float DebugRaidPoints = 20000f;
+            float debugPoints = Mathf.Max(incident.minThreatPoints, DebugRaidPoints);
             IncidentParms parms = new IncidentParms
             {
                 target = map,
                 faction = faction,
-                points = Mathf.Max(incident.minThreatPoints, DebugRaidPoints),
+                points = debugPoints,
                 pawnGroupKind = PawnGroupKindDefOf.Combat,
                 forced = true,
                 canKidnap = false,
@@ -266,9 +270,6 @@ namespace TheMarkedMen
             RaidVehicleSelectionGroup airSelection = combinedArms
                 ? RaidVehicleSelectionGroup.CombinedAir
                 : RaidVehicleSelectionGroup.Air;
-
-            // Use fixed debug raid points to bypass point requirements for debug menu
-            float debugPoints = DebugRaidPoints;
 
             if (requireLandVehicle
                 && !TheMarkedMenVehicleFrameworkCompatibility.HasEligibleRaidVehicle(

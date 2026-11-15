@@ -31,6 +31,12 @@ namespace TheMarkedMen
 
 		private static readonly List<KeyValuePair<PawnKindDef, float>> TransformationKinds = new List<KeyValuePair<PawnKindDef, float>>();
 
+		/// <summary>
+		/// Set while original gear is being restored so the infected apparel
+		/// compatibility patch does not block the pawn's own pre-infection gear.
+		/// </summary>
+		internal static bool SuppressInfectedApparelRestrictions { get; set; }
+
 		public static TheMarkedMenGameComponent Component => Current.Game?.GetComponent<TheMarkedMenGameComponent>();
 
 		public static bool IsCrossedPawn(Pawn pawn)
@@ -41,105 +47,7 @@ namespace TheMarkedMen
 			}
 
 			if (IsMarkedTurnedPawn(pawn))
-		
-	/// <summary>
-	/// Restores pawn's original apparel and equipment after transformation,
-	/// preserving their pre-infection gear rather than assigning new tier-based equipment.
-	/// </summary>
-	public static void RestoreOriginalEquipment(Pawn pawn, List<Apparel> originalApparel, List<ThingWithComps> originalEquipment, List<BodyPartRecord> bodyParts)
-	{
-		// Restore original worn apparel
-		if (pawn.apparel != null)
-		{
-			// Remove any apparel currently worn that shouldn't be there
-			for (int i = pawn.apparel.WornApparel.Count - 1; i >= 0; i--)
 			{
-				Apparel apparel = pawn.apparel.WornApparel[i];
-				if (apparel != null && !apparel.Destroyed)
-				{
-					bool shouldKeep = false;
-					
-					// Check if this is original apparel we want to keep
-					for (int j = 0; j < originalApparel.Count; j++)
-					{
-						if (originalApparel[j] != null && originalApparel[j].def == apparel.def)
-						{
-							shouldKeep = true;
-							break;
-						}
-					}
-					
-					if (!shouldKeep)
-					{
-						pawn.apparel.Remove(apparel);
-						apparel.Destroy(DestroyMode.Vanish);
-					}
-				}
-			}
-			
-			// Re-equip original apparel
-			for (int i = 0; i < originalApparel.Count; i++)
-			{
-				if (originalApparel[i] != null && !pawn.apparel.WornApparel.Any(a => a.def == originalApparel[i].def))
-				{
-					try
-					{
-						EquipApparel(pawn, originalApparel[i], 0); // Tier 0 preserves original
-					}
-					catch
-					{
-						// Skip if apparel can't be equipped
-					}
-				}
-			}
-		}
-		
-		// Restore original equipment
-		if (pawn.equipment != null)
-		{
-			// Remove equipment that wasn't original
-			for (int i = pawn.equipment.AllEquipmentListForReading.Count - 1; i >= 0; i--)
-			{
-				ThingWithComps eq = pawn.equipment.AllEquipmentListForReading[i];
-				if (eq != null && !eq.Destroyed)
-				{
-					bool isOriginal = false;
-					for (int j = 0; j < originalEquipment.Count; j++)
-					{
-						if (originalEquipment[j] != null && originalEquipment[j].def == eq.def)
-						{
-							isOriginal = true;
-							break;
-						}
-					}
-					
-					if (!isOriginal)
-					{
-						pawn.equipment.Remove(eq);
-						eq.Destroy(DestroyMode.Vanish);
-					}
-				}
-			}
-			
-			// Re-equip original equipment
-			for (int i = 0; i < originalEquipment.Count; i++)
-			{
-				if (originalEquipment[i] != null && pawn.equipment.Primary?.Def?.defName != originalEquipment[i].def.defName)
-				{
-					try
-					{
-						pawn.equipment.AddEquipment(originalEquipment[i]);
-					}
-					catch
-					{
-						// Skip if equipment can't be equipped
-					}
-				}
-			}
-		}
-	}
-
-	{
 				return true;
 			}
 
@@ -150,6 +58,127 @@ namespace TheMarkedMen
 
 			FactionDef crossed = CADefOf.CrossedFaction;
 			return crossed != null && pawn.Faction?.def == crossed;
+		}
+
+		/// <summary>
+		/// Re-equips the apparel and weapons a pawn carried before transformation.
+		/// Transformation does not intentionally replace gear, so this acts as a
+		/// non-destructive safety net: worn and wielded items are left alone, and
+		/// originals that were dropped or unequipped are reclaimed.
+		/// </summary>
+		public static void RestoreOriginalEquipment(Pawn pawn, List<Apparel> originalApparel, List<ThingWithComps> originalEquipment)
+		{
+			if (pawn == null)
+			{
+				return;
+			}
+
+			bool previousSuppression = SuppressInfectedApparelRestrictions;
+			SuppressInfectedApparelRestrictions = true;
+			try
+			{
+				RestoreOriginalApparel(pawn, originalApparel);
+				RestoreOriginalWeapons(pawn, originalEquipment);
+			}
+			finally
+			{
+				SuppressInfectedApparelRestrictions = previousSuppression;
+			}
+		}
+
+		private static void RestoreOriginalApparel(Pawn pawn, List<Apparel> originalApparel)
+		{
+			if (pawn.apparel == null || originalApparel == null)
+			{
+				return;
+			}
+
+			for (int i = 0; i < originalApparel.Count; i++)
+			{
+				Apparel apparel = originalApparel[i];
+				if (apparel == null || apparel.Destroyed || pawn.apparel.WornApparel.Contains(apparel))
+				{
+					continue;
+				}
+
+				if (apparel.ParentHolder is Pawn_ApparelTracker otherTracker && otherTracker != pawn.apparel)
+				{
+					continue;
+				}
+
+				try
+				{
+					ReclaimThing(apparel);
+					pawn.apparel.Wear(apparel, true, false);
+				}
+				catch (Exception ex)
+				{
+					Log.Warning("[The Marked Men] Could not restore apparel " + apparel.def.defName
+						+ " on " + pawn.LabelShort + ": " + ex.Message);
+				}
+			}
+		}
+
+		private static void RestoreOriginalWeapons(Pawn pawn, List<ThingWithComps> originalEquipment)
+		{
+			if (pawn.equipment == null || originalEquipment == null)
+			{
+				return;
+			}
+
+			for (int i = 0; i < originalEquipment.Count; i++)
+			{
+				ThingWithComps equipment = originalEquipment[i];
+				if (equipment == null || equipment.Destroyed
+					|| pawn.equipment.AllEquipmentListForReading.Contains(equipment))
+				{
+					continue;
+				}
+
+				if (equipment.ParentHolder is Pawn_EquipmentTracker otherTracker && otherTracker != pawn.equipment)
+				{
+					continue;
+				}
+
+				if (pawn.equipment.Primary != null)
+				{
+					// Vanilla has a single primary slot. Never replace a weapon the
+					// pawn is already holding.
+					continue;
+				}
+
+				try
+				{
+					ReclaimThing(equipment);
+					pawn.equipment.AddEquipment(equipment);
+				}
+				catch (Exception ex)
+				{
+					Log.Warning("[The Marked Men] Could not restore equipment " + equipment.def.defName
+						+ " on " + pawn.LabelShort + ": " + ex.Message);
+				}
+			}
+		}
+
+		private static void ReclaimThing(Thing thing)
+		{
+			if (thing == null)
+			{
+				return;
+			}
+
+			if (thing.Spawned)
+			{
+				thing.DeSpawn();
+				return;
+			}
+
+			IThingHolder holder = thing.ParentHolder;
+			ThingOwner directlyHeld = holder?.GetDirectlyHeldThings();
+			if (directlyHeld != null && directlyHeld.Contains(thing))
+			{
+				directlyHeld.Remove(thing);
+			}
 		}
 
 		public static bool IsInfectedPawn(Pawn pawn)
@@ -1183,6 +1212,10 @@ namespace TheMarkedMen
 				return;
 			}
 
+			// Snapshot the pawn's own gear before any transformation side effects.
+			List<Apparel> wornApparel = pawn.apparel?.WornApparel?.ToList() ?? new List<Apparel>();
+			List<ThingWithComps> equipment = pawn.equipment?.AllEquipmentListForReading?.ToList() ?? new List<ThingWithComps>();
+
 			Component?.RecordCureOrigin(pawn);
 			Faction faction = Component?.EnsureCrossedFaction();
 			PawnKindDef kind = PickTransformationKind(pawn);
@@ -1201,15 +1234,11 @@ namespace TheMarkedMen
 			pawn.mindState?.mentalStateHandler?.Reset();
 			EnsureFearlessCrossedState(pawn);
 
-			// PRESERVE original equipment - save before transformation changes
-			List<Apparel> wornApparel = pawn.apparel?.WornApparel?.ToList() ?? new List<Apparel>();
-			List<ThingWithComps> equipment = pawn.equipment?.AllEquipmentListForReading?.ToList() ?? new List<ThingWithComps>();
-			List<BodyPartRecord> bodyParts = pawn.health?.hediffSet?.GetAllInternalParts()?.ToList() ?? new List<BodyPartRecord>();
-
 			ApplyClassHediffs(pawn);
 
-			// Restore original equipment instead of assigning new tier-based gear
-			RestoreOriginalEquipment(pawn, wornApparel, equipment, bodyParts);
+			// Restore the pawn's own pre-infection gear instead of assigning new
+			// tier-based equipment.
+			RestoreOriginalEquipment(pawn, wornApparel, equipment);
 			if (pawn.Drawer?.renderer != null)
 			{
 				pawn.Drawer.renderer.SetAllGraphicsDirty();
@@ -1746,7 +1775,6 @@ public static void RemoveMarkedVirusHediffFromFullyTurnedPawn(Pawn pawn)
 				RemoveMarkedVirusHediffFromFullyTurnedPawn(pawn);
 				EnsureFearlessCrossedState(pawn);
 				ApplyInfectedTattoo(pawn);
-				CrossedContagionUtility.TryContagionPulse(pawn);
 				return;
 			}
 
@@ -1768,7 +1796,6 @@ public static void RemoveMarkedVirusHediffFromFullyTurnedPawn(Pawn pawn)
 			hediff.Severity = Mathf.Max(hediff.Severity, 0.15f);
 			EnsureFearlessCrossedState(pawn);
 			ApplyInfectedTattoo(pawn);
-			CrossedContagionUtility.TryContagionPulse(pawn);
 		}
 
 		public static bool CanSafelyProcessInfectedState(Pawn pawn)

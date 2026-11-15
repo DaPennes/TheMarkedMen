@@ -266,18 +266,18 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
         public bool prisonerDebugLogging;
         public float prisonerEscapeChance = 0.04f;
 
-// Infected apparel compatibility settings - Category Based Blocking
-// These control what apparel types infected pawns can equip
-public bool allowInfectedWearTribalApparel = true;
-public bool allowInfectedWearNeolithicApparel = true;
-public bool allowInfectedWearMilitaryApparel = true;
-public bool allowInfectedWearScoutApparel = true;
-public bool allowInfectedWearPoweredArmor = true;
-public bool allowInfectedWearShields = true; // Note: Civilian infected shields blocked by default logic, this overrides it
-public bool allowInfectedWearHelmets = true;
-public bool allowInfectedWearApparelWithTags = true; // Allow apparel with specific tags
+        // Infected apparel compatibility settings - category based blocking.
+        // These control what apparel infected pawns can equip.
+        public bool allowInfectedWearTribalApparel = true;
+        public bool allowInfectedWearNeolithicApparel = true;
+        public bool allowInfectedWearMilitaryApparel = true;
+        public bool allowInfectedWearScoutApparel = true;
+        public bool allowInfectedWearPoweredArmor = true;
+        public bool allowInfectedWearShields = true;
+        public bool allowInfectedWearHelmets = true;
+        public bool allowInfectedWearApparelWithTags = true;
 
-private int settingsVersion = CurrentSettingsVersion;
+        private int settingsVersion = CurrentSettingsVersion;
         private string currentPreset = OutbreakPresetName;
         private Vector2 scrollPosition;
         private readonly Dictionary<string, string> numericBuffers = new Dictionary<string, string>();
@@ -999,10 +999,10 @@ private int settingsVersion = CurrentSettingsVersion;
             DrawCheckbox(listing, "MarkedMen_Settings_AirborneVehicleAssaults".Translate(), ref airborneVehicleAssaultsEnabled, "MarkedMen_Settings_AirborneVehicleAssaultsDesc".Translate());
             DrawCheckbox(listing, "MarkedMen_Settings_CombinedArmsAssaults".Translate(), ref combinedArmsAssaultsEnabled, "MarkedMen_Settings_CombinedArmsAssaultsDesc".Translate());
             DrawRaidVehicleCategorySettings(listing);
-            DrawCheckbox(listing, "Vehicle passenger disembark".Translate(), ref vehiclePassengerDisembarkEnabled, "Disembark surplus passengers when raid vehicles enter a configured combat range.".Translate());
-            DrawFloat(listing, "Land vehicle disembark range".Translate(), ref landVehicleDisembarkRange, 5f, 80f, "landVehicleDisembarkRange", "Distance to the nearest colony target before land-vehicle passengers disembark.".Translate());
-            DrawFloat(listing, "Air vehicle disembark range".Translate(), ref airborneVehicleDisembarkRange, 5f, 100f, "airborneVehicleDisembarkRange", "Distance to the nearest colony target before helicopter passengers disembark.".Translate());
-            DrawFloat(listing, "Vehicle emergency damage threshold".Translate(), ref vehicleEmergencyDamageThreshold, 5f, 90f, "vehicleEmergencyDamageThreshold", "Passenger evacuation threshold based on remaining vehicle hit points; crew remains aboard.".Translate());
+            DrawCheckbox(listing, "MarkedMen_Settings_VehiclePassengerDisembark".Translate(), ref vehiclePassengerDisembarkEnabled, "MarkedMen_Settings_VehiclePassengerDisembarkDesc".Translate());
+            DrawFloat(listing, "MarkedMen_Settings_LandVehicleDisembarkRange".Translate(), ref landVehicleDisembarkRange, 5f, 80f, "landVehicleDisembarkRange", "MarkedMen_Settings_LandVehicleDisembarkRangeDesc".Translate());
+            DrawFloat(listing, "MarkedMen_Settings_AirVehicleDisembarkRange".Translate(), ref airborneVehicleDisembarkRange, 5f, 100f, "airborneVehicleDisembarkRange", "MarkedMen_Settings_AirVehicleDisembarkRangeDesc".Translate());
+            DrawFloat(listing, "MarkedMen_Settings_VehicleEmergencyDamageThreshold".Translate(), ref vehicleEmergencyDamageThreshold, 5f, 90f, "vehicleEmergencyDamageThreshold", "MarkedMen_Settings_VehicleEmergencyDamageThresholdDesc".Translate());
             DrawFloat(listing, "MarkedMen_Settings_vehicleAssaultFrequencyMultiplier".Translate(), ref vehicleAssaultFrequencyMultiplier, 0f, MaxMarkedRaidFrequencyMultiplier, "vehicleAssaultFrequencyMultiplier", "MarkedMen_Settings_vehicleAssaultFrequencyMultiplierDesc".Translate());
             DrawRaidVehicleSelectionSection(
                 listing,
@@ -1150,8 +1150,8 @@ private int settingsVersion = CurrentSettingsVersion;
             DrawFloat(listing, "MarkedMen_Settings_caravanAmbushPrepTimeInHours".Translate(), ref caravanAmbushPrepTimeInHours, 0f, 24f, "caravanAmbushPrepTimeInHours", "MarkedMen_Settings_caravanAmbushPrepTimeInHoursDesc".Translate());
 
             DrawSectionHeader(listing, "MarkedMen_Settings_Performance".Translate(), "MarkedMen_Settings_PerformanceDesc".Translate());
-            DrawInt(listing, "MarkedMen_Settings_minRaidVehicles".Translate(), ref minRaidVehicles, 1, 5, "minRaidVehicles", "Determines the minimum number of vehicles generated during vehicle raids. Default: 1. Set between 1-5. Cannot exceed maxAllowedRaidVehicles.".Translate());
-            DrawInt(listing, "MarkedMen_Settings_maxAllowedRaidVehicles".Translate(), ref maxAllowedRaidVehicles, 1, 5, "maxAllowedRaidVehicles", "Determines the absolute maximum number of vehicles allowed across all raid configurations. Default: 5. Setting this too low may limit vehicle presence. Cannot be set below minRaidVehicles.".Translate());
+            DrawInt(listing, "MarkedMen_Settings_minRaidVehicles".Translate(), ref minRaidVehicles, 1, 5, "minRaidVehicles", "MarkedMen_Settings_minRaidVehiclesDesc".Translate());
+            DrawInt(listing, "MarkedMen_Settings_maxAllowedRaidVehicles".Translate(), ref maxAllowedRaidVehicles, 1, 5, "maxAllowedRaidVehicles", "MarkedMen_Settings_maxAllowedRaidVehiclesDesc".Translate());
             DrawInt(listing, "MarkedMen_Settings_maxContagionTargetsPerPulse".Translate(), ref maxContagionTargetsPerPulse, 0, 50, "maxContagionTargetsPerPulse", "MarkedMen_Settings_maxContagionTargetsPerPulseDesc".Translate());
             DrawInt(listing, "MarkedMen_Settings_tacticalRetargetIntervalTicks".Translate(), ref tacticalRetargetIntervalTicks, 1, 2500, "tacticalRetargetIntervalTicks", "MarkedMen_Settings_tacticalRetargetIntervalTicksDesc".Translate());
             DrawInt(listing, "MarkedMen_Settings_infightingCheckIntervalTicks".Translate(), ref infightingCheckIntervalTicks, 60, GenDate.TicksPerDay, "infightingCheckIntervalTicks", "MarkedMen_Settings_infightingCheckIntervalTicksDesc".Translate());
@@ -1160,7 +1160,7 @@ private int settingsVersion = CurrentSettingsVersion;
             DrawInt(listing, "MarkedMen_Settings_reanimationProcessIntervalTicks".Translate(), ref reanimationProcessIntervalTicks, 60, GenDate.TicksPerDay, "reanimationProcessIntervalTicks", "MarkedMen_Settings_reanimationProcessIntervalTicksDesc".Translate());
             DrawInt(listing, "MarkedMen_Settings_maxPendingReanimationsPerTick".Translate(), ref maxPendingReanimationsPerTick, 1, 500, "maxPendingReanimationsPerTick", "MarkedMen_Settings_maxPendingReanimationsPerTickDesc".Translate());
             DrawInt(listing, "MarkedMen_Settings_maxRaidInfantry".Translate(), ref maxRaidInfantry, 12, 90, "maxRaidInfantry", "MarkedMen_Settings_maxRaidInfantryDesc".Translate());
-            DrawInt(listing, "MarkedMen_Settings_maxRaidVehicles".Translate(), ref maxRaidVehicles, 1, 5, "maxRaidVehicles", "Determines the actual maximum number of vehicles spawned during vehicle raids. Default: 2. Can be set between 1-5. Clamped against minRaidVehicles and maxAllowedRaidVehicles. Higher values increase vehicle presence but may impact TPS during large raids.".Translate());
+            DrawInt(listing, "MarkedMen_Settings_maxRaidVehicles".Translate(), ref maxRaidVehicles, 1, 5, "maxRaidVehicles", "MarkedMen_Settings_maxRaidVehiclesDesc".Translate());
             DrawInt(listing, "MarkedMen_Settings_maxActiveRaidPawns".Translate(), ref maxActiveRaidPawns, 12, 180, "maxActiveRaidPawns", "MarkedMen_Settings_maxActiveRaidPawnsDesc".Translate());
 
             DrawSectionHeader(listing, "MarkedMen_Settings_UrbanOutbreak".Translate(), "MarkedMen_Settings_UrbanOutbreakDesc".Translate());
@@ -1912,6 +1912,14 @@ private int settingsVersion = CurrentSettingsVersion;
             vacsuitBlockExposure = true;
             gasMasksBlockExposure = true;
             sealedArmorBlockExposure = true;
+            allowInfectedWearTribalApparel = true;
+            allowInfectedWearNeolithicApparel = true;
+            allowInfectedWearMilitaryApparel = true;
+            allowInfectedWearScoutApparel = true;
+            allowInfectedWearPoweredArmor = true;
+            allowInfectedWearShields = true;
+            allowInfectedWearHelmets = true;
+            allowInfectedWearApparelWithTags = true;
             markedAlwaysAssault = true;
             markedCanTimeoutOrFlee = false;
             tacticalRetargetingEnabled = true;
