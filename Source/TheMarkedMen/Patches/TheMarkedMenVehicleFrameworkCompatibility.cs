@@ -1924,32 +1924,18 @@ namespace TheMarkedMen
             {
                 List<object> eligible = new List<object>();
                 Assembly assembly = GetVehicleFrameworkAssembly();
-                if (assembly == null || faction?.def?.modExtensions == null)
+                if (assembly == null)
                 {
                     return eligible;
                 }
 
                 try
                 {
-                    Type extensionType = assembly.GetType(VehicleRaidExtensionTypeFullName);
                     Type vehicleDefType = assembly.GetType(VehicleDefTypeFullName);
                     Type categoryType = assembly.GetType("Vehicles.VehicleCategory");
-                    if (extensionType == null || vehicleDefType == null || categoryType == null)
+                    if (vehicleDefType == null || categoryType == null || !CacheAirborneVehicleDefs(vehicleDefType))
                     {
-                        LogRaidLookupFailure("Vehicle Framework aircraft raid types could not be found.");
-                        return eligible;
-                    }
-
-                    object extension = faction.def.modExtensions.Find(candidate => candidate.GetType() == extensionType);
-                    if (extension == null)
-                    {
-                        LogRaidLookupFailure("The Marked Men faction is missing its optional vehicle-raider extension.");
-                        return eligible;
-                    }
-
-                    if (!CacheAirborneVehicleDefs(vehicleDefType))
-                    {
-                        LogRaidLookupFailure("Vehicle Framework aircraft eligibility data could not be accessed.");
+                        LogRaidLookupFailure("Vehicle Framework aircraft definitions could not be accessed.");
                         return eligible;
                     }
 
@@ -1959,12 +1945,9 @@ namespace TheMarkedMen
                         return eligible;
                     }
 
-                    PawnsArrivalModeDef resolvedArrivalMode = arrivalMode ?? PawnsArrivalModeDefOf.EdgeWalkInGroups;
-                    int factionTechLevel = Convert.ToInt32(faction.def.techLevel);
-                    Type npcPropertiesType = null;
-                    Type allowsRaidType = null;
-                    FieldInfo raidParamsField = null;
-                    MethodInfo allowsRaid = null;
+                    // Keep the same no-gating policy as land raids: select loaded,
+                    // NPC-enabled aircraft chosen in Marked Men settings, without
+                    // reapplying faction, point, tech-level, or arrival-mode checks.
                     for (int i = 0; i < airborneVehicleDefs.Count; i++)
                     {
                         object vehicleDef = airborneVehicleDefs[i];
@@ -1973,50 +1956,9 @@ namespace TheMarkedMen
                             continue;
                         }
 
-                        if (airborneVehicleTechLevelField != null
-                            && factionTechLevel < Convert.ToInt32(airborneVehicleTechLevelField.GetValue(vehicleDef)))
-                        {
-                            continue;
-                        }
-
-                        object npcProperties = airborneVehicleNpcPropertiesField.GetValue(vehicleDef);
-                        Type currentRaidParamsType = npcProperties?.GetType();
-                        if (currentRaidParamsType != null && currentRaidParamsType != npcPropertiesType)
-                        {
-                            npcPropertiesType = currentRaidParamsType;
-                            raidParamsField = AccessTools.Field(npcPropertiesType, "raidParams");
-                        }
-
-                        object raidParams = raidParamsField?.GetValue(npcProperties);
-                        if (raidParams != null)
-                        {
-                            if (raidParams.GetType() != allowsRaidType)
-                            {
-                                allowsRaidType = raidParams.GetType();
-                                allowsRaid = AccessTools.Method(
-                                    allowsRaidType,
-                                    "Allows",
-                                    new[] { typeof(Faction), typeof(PawnsArrivalModeDef) });
-                            }
-
-                            if (allowsRaid == null)
-                            {
-                                LogRaidLookupFailure("Vehicle Framework raid arrival restrictions could not be checked.");
-                                continue;
-                            }
-
-                            object allowed = allowsRaid.Invoke(raidParams, new object[] { faction, resolvedArrivalMode });
-                            if (allowed is not bool allowedForRaid || !allowedForRaid)
-                            {
-                                continue;
-                            }
-                        }
-
+                        string defName = Convert.ToString(ReadVehicleMember(vehicleDef, "defName"));
                         if (selectionGroup.HasValue
-                            && !IsRaidVehicleSelected(
-                                Convert.ToString(AccessTools.Field(vehicleDef.GetType(), "defName")?.GetValue(vehicleDef)),
-                                selectionGroup.Value,
-                                true))
+                            && !IsRaidVehicleSelected(defName, selectionGroup.Value, true))
                         {
                             continue;
                         }
@@ -2026,7 +1968,7 @@ namespace TheMarkedMen
                 }
                 catch (Exception ex)
                 {
-                    LogRaidLookupFailure("Could not check Vehicle Framework aircraft: " + ex);
+                    LogRaidLookupFailure("Could not find Marked Men aircraft: " + ex);
                 }
 
                 return eligible;

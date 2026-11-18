@@ -50,15 +50,25 @@ namespace TheMarkedMen
             parms.canTimeoutOrFlee = false;
             TheMarkedMenGameComponent.ApplyMarkedRaidArrivalPattern(parms);
 
+            int remainingCapacity = CrossedRaidTactics.GetRemainingRaidPawnCapacity(map);
             int requestedAircraftCount = Mathf.Min(
-                Mathf.Min(
-                    TheMarkedMenVehicleFrameworkCompatibility.GetRaidAssaultVehicleCount(parms.points),
-                    TheMarkedMenVehicleFrameworkCompatibility.GetMaximumRaidVehicleCount()),
-                Mathf.Max(0, CrossedRaidTactics.GetRemainingRaidPawnCapacity(map) - 6));
-            int infantryCount = IncidentWorker_CrossedRaid.CalculateRaidCount(
-                parms.points * 0.35f,
-                map,
-                requestedAircraftCount);
+                TheMarkedMenVehicleFrameworkCompatibility.GetRaidAssaultVehicleCount(parms.points),
+                TheMarkedMenVehicleFrameworkCompatibility.GetMaximumRaidVehicleCount());
+            int infantryCount = 0;
+            while (requestedAircraftCount > 0)
+            {
+                infantryCount = IncidentWorker_CrossedVehicleRaid.GetDynamicInfantryCount(
+                    0,
+                    requestedAircraftCount,
+                    false);
+                if (remainingCapacity >= requestedAircraftCount + infantryCount)
+                {
+                    break;
+                }
+
+                requestedAircraftCount--;
+            }
+
             if (requestedAircraftCount <= 0 || infantryCount <= 0)
             {
                 return ExecuteFallbackRaid(parms, originalPoints, new List<Pawn>(), "the map's active-raider budget is full");
@@ -135,21 +145,10 @@ namespace TheMarkedMen
             string reason)
         {
             DestroyPawns(generatedPawns);
-            Log.Warning("[The Marked Men] Airborne assault failed (" + reason + "); falling back to a land assault.");
-            IncidentDef fallback = CADefOf.CrossedLandAssault;
-            if (fallback?.Worker == null)
-            {
-                fallback = CADefOf.CrossedRaid;
-            }
-
-            if (fallback?.Worker == null)
-            {
-                Log.Error("[The Marked Men] Could not find a raid worker for airborne assault fallback.");
-                return false;
-            }
-
             parms.points = originalPoints;
-            return fallback.Worker.TryExecute(parms);
+            Log.Warning("[The Marked Men] Airborne assault was cancelled because no aircraft assault could be completed ("
+                + reason + "). It will not be replaced by a land assault.");
+            return false;
         }
 
         private static void DestroyPawns(List<Pawn> pawns)

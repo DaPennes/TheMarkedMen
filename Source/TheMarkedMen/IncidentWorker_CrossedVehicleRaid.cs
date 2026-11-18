@@ -75,9 +75,13 @@ namespace TheMarkedMen
                 int aircraftCount = SpawnAirSupport
                     ? totalVehicleCount - estimatedGroundVehicleCount
                     : 0;
-                maximumInfantryCount = Mathf.Min(infantryLimit, remainingCapacity - totalVehicleCount);
-                int minimumCrewCount = 3 + estimatedGroundVehicleCount * 2 + aircraftCount * 3;
-                if (maximumInfantryCount >= minimumCrewCount)
+                int dynamicInfantryCount = GetDynamicInfantryCount(
+                    estimatedGroundVehicleCount,
+                    aircraftCount,
+                    SpawnAirSupport);
+                maximumInfantryCount = Mathf.Min(infantryLimit, dynamicInfantryCount);
+                if (maximumInfantryCount == dynamicInfantryCount
+                    && remainingCapacity >= totalVehicleCount + maximumInfantryCount)
                 {
                     break;
                 }
@@ -90,13 +94,11 @@ namespace TheMarkedMen
                 return false;
             }
 
-            // Allocate points primarily to infantry, independent of vehicle selection.
-            // Vehicles are selected based on available raid capacity, not point budget.
-            // This ensures vehicle presence doesn't artificially limit infantry strength.
-            float infantryPointBudget = Mathf.Max(
-                raidPoints * 0.5f,  // At least 50% of raid points for infantry
-                maximumInfantryCount * 75f);  // Or enough for scaled infantry force
-            parms.points = Mathf.Clamp(infantryPointBudget, 120f, raidPoints * 0.9f);
+            // Vehicle assaults use only the crew and escort force required by their
+            // actual vehicle mix. Raid points still determine requested vehicles, but
+            // cannot expand the infantry force beyond this dynamic target.
+            float infantryPointBudget = Mathf.Min(raidPoints, maximumInfantryCount * 90f);
+            parms.points = Mathf.Max(120f, infantryPointBudget);
             bool baseRaidLaunched;
             try
             {
@@ -157,16 +159,9 @@ if (!TrimRaidPawnsToLimit(spawnedPawns, maximumInfantryCount))
 
             int groundVehicleCount = CountVehiclePawns(spawnedPawns);
             const int minimumGroundVehicles = 1;
-            if (!groundVehicleDeploymentSucceeded || groundVehicleCount < minimumGroundVehicles)
-            {
-                Log.Warning("[The Marked Men] Vehicle assault deployed only " + groundVehicleCount
-                    + " ground vehicle(s); at least " + minimumGroundVehicles
-                    + " are required. Continuing with the infantry assault instead of cancelling the raid.");
-            }
-
-            List<Pawn> deployedAircraft = new List<Pawn>();
             if (SpawnAirSupport)
             {
+                List<Pawn> deployedAircraft;
                 bool airVehicleDeploymentSucceeded = TheMarkedMenVehicleFrameworkCompatibility.TrySpawnAirborneRaidVehicles(
                     crossed,
                     raidPoints,
@@ -179,18 +174,28 @@ if (!TrimRaidPawnsToLimit(spawnedPawns, maximumInfantryCount))
                     out string deploymentFailure,
                     parms.raidArrivalMode,
                     RaidVehicleSelectionGroup.CombinedAir);
-                if (!airVehicleDeploymentSucceeded)
+                if (!groundVehicleDeploymentSucceeded
+                    || groundVehicleCount < minimumGroundVehicles
+                    || !airVehicleDeploymentSucceeded
+                    || deployedAircraft.Count == 0)
                 {
-                    Log.Warning("[The Marked Men] Combined-arms assault could not deploy its aircraft ("
-                        + deploymentFailure + "). Continuing with the deployed ground forces and infantry.");
+                    Log.Warning("[The Marked Men] Combined-arms assault was cancelled because it requires at least one "
+                        + "ground vehicle and one aircraft (ground vehicles: " + groundVehicleCount
+                        + ", aircraft: " + deployedAircraft.Count + ", aircraft failure: " + deploymentFailure + ").");
+                    for (int i = 0; i < deployedAircraft.Count; i++)
+                    {
+                        TheMarkedMenVehicleFrameworkCompatibility.AbortAirborneRaidVehicle(deployedAircraft[i]);
+                    }
+                    CleanupRaidPawns(spawnedPawns);
+                    return false;
                 }
-
-                if (groundVehicleCount + deployedAircraft.Count < 2)
-                {
-                    Log.Warning("[The Marked Men] Combined-arms assault could deploy only "
-                        + (groundVehicleCount + deployedAircraft.Count)
-                        + " vehicles instead of one ground vehicle and one aircraft. Continuing with available forces.");
-                }
+            }
+            else if (!groundVehicleDeploymentSucceeded || groundVehicleCount < minimumGroundVehicles)
+            {
+                Log.Warning("[The Marked Men] Land assault was cancelled because it requires at least one ground vehicle "
+                    + "(deployment failure: " + vehicleDeploymentFailure + ").");
+                CleanupRaidPawns(spawnedPawns);
+                return false;
             }
 
             List<Pawn> lordPawns = CrossedLordCleanupUtility.CollectValidSpawnedLordPawns(spawnedPawns, map, crossed);
@@ -246,6 +251,31 @@ if (!TrimRaidPawnsToLimit(spawnedPawns, maximumInfantryCount))
 
             component?.NotifyRaidLaunched(raidPoints, lordPawns, map);
             return true;
+        }
+
+        internal static int GetDynamicInfantryCount(
+            int groundVehicleCount,
+            int aircraftCount,
+            bool combinedArms)
+        {
+            if (combinedArms)
+            {
+                // A combined assault uses the ground and aircraft crews plus its
+                // six-person combined escort: 11 pawns for one vehicle and one
+                // aircraft, then two/three more for each additional vehicle/aircraft.
+                return groundVehicleCount * 2 + aircraftCount * 3 + 6;
+            }
+
+            if (aircraftCount > 0)
+            {
+                // Six pawns for one aircraft, then its three-person crew for each
+                // additional aircraft.
+                return aircraftCount * 3 + 3;
+            }
+
+            // Eight pawns for one ground vehicle, then two additional crew-capable
+            // infected for each additional ground vehicle.
+            return groundVehicleCount * 2 + 6;
         }
 
         private static bool TrimRaidPawnsToLimit(List<Pawn> pawns, int maximumCount)
