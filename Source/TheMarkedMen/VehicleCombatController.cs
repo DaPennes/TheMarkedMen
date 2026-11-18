@@ -224,7 +224,7 @@ namespace TheMarkedMen
         private static bool IsThreatBuilding(Pawn target)
         {
             // Non-pawn threats are handled elsewhere
-            // This marks enemies with equipment as higher threat
+            // This just marks heavily armed or positioned enemies as higher threat
             if (target.equipment?.Primary != null)
             {
                 // Has any primary weapon equipped
@@ -386,21 +386,178 @@ namespace TheMarkedMen
         }
 
         /// <summary>
+        /// Gets the pawn's effective health percentage.
+        /// </summary>
+        private static float GetPawnHealthPercent(Pawn pawn)
+        {
+            if (pawn == null || pawn.Dead || pawn.Destroyed)
+            {
+                return 0f;
+            }
+
+            if (pawn.health != null && pawn.Spawned)
+            {
+                return pawn.health.summaryHealth.SummaryHealthPercent;
+            }
+
+            return 1f; // Default to full health if we can't determine
+        }
+
+        /// <summary>
+        /// Checks if a pawn (or vehicle) should disengage based on health status.
+        /// Damaged pawns prioritize survival over continued combat.
+        /// </summary>
+        /// <param name="entity">The pawn or vehicle to check</param>
+        /// <param name="isVehicle">Whether this is a vehicle entity</param>
+        private static bool ShouldDisengageDueToHealth(Pawn entity, bool isVehicle = false)
+        {
+            float healthPercent;
+
+            if (isVehicle)
+            {
+                // For vehicles, check the vehicle's health
+                if (entity == null || entity.Dead || entity.Destroyed)
+                {
+                    return false;
+                }
+
+                if (entity.health != null && entity.Spawned)
+                {
+                    healthPercent = entity.health.summaryHealth.SummaryHealthPercent;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            else
+            {
+                healthPercent = GetPawnHealthPercent(entity);
+            }
+
+            // Entities below 20% health disengage to avoid pointless fights
+            if (healthPercent <= 0.2f)
+            {
+                return true;
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// Gets the crew's combat effectiveness modifier based on pawn skills.
+        /// Veterans shoot better, green crews are less accurate.
+        /// </summary>
+        private static float GetCrewCombatEffectiveness(Pawn vehicle)
+        {
+            if (vehicle == null || !vehicle.Spawned || vehicle.Map == null)
+            {
+                return 1f;
+            }
+
+            float totalEffectiveness = 1f;
+            int crewCount = 0;
+
+            // Check passengers via Vehicle Framework
+            if (TheMarkedMenVehicleFrameworkCompatibility.IsVehicleFrameworkLoaded)
+            {
+                IEnumerable<Pawn> passengers = TheMarkedMenVehicleFrameworkCompatibility.GetVehiclePassengers(vehicle);
+                foreach (Pawn passenger in passengers)
+                {
+                    if (passenger != null && !passenger.Dead && !passenger.Downed && passenger.Spawned)
+                    {
+                        totalEffectiveness += CalculatePassengerCombatEffectiveness(passenger);
+                        crewCount++;
+                    }
+                }
+            }
+            else if (TheMarkedMenVehicleFrameworkCompatibility.IsVehiclePawn(vehicle))
+            {
+                // Fallback: simplified check - count as one crew member with base effectiveness
+                totalEffectiveness = 1f;
+                crewCount = 1;
+            }
+
+            // Normalize by crew count
+            if (crewCount > 0)
+            {
+                totalEffectiveness /= crewCount;
+            }
+
+            // Clamp to reasonable bounds
+            return Mathf.Clamp01(totalEffectiveness);
+        }
+
+        /// <summary>
+        /// Calculates combat effectiveness for a single pawn based on skills.
+        /// </summary>
+        private static float CalculatePassengerCombatEffectiveness(Pawn pawn)
+        {
+            if (pawn == null || pawn.Dead || pawn.Downed || !pawn.Spawned)
+            {
+                return 0f;
+            }
+
+            float effectiveness = 1f; // Base effectiveness
+
+            // Shooting skill increases ranged combat effectiveness
+            if (pawn.skills != null)
+            {
+                float shootingLevel = pawn.skills.GetSkill(SkillDefOf.Shooting).Level;
+                // Each skill level adds ~15% effectiveness, capped
+                effectiveness += shootingLevel * 0.15f;
+            }
+
+            // Clamp to reasonable bounds
+            return Mathf.Clamp01(effectiveness);
+        }
+
+        /// <summary>
         /// Applies combat behavior: maintain distance, prepare for engagement.
+        /// Includes health-based disengagement and crew-skill awareness.
         /// </summary>
         private static void ApplyCombatBehavior(Pawn vehicle, Pawn target, VehicleCombatState state, int currentTick)
         {
-            // Immediately invalidate target if it's no longer viable
-            if (target != null
-                && (!target.Spawned
-                    || target.Dead
-                    || target.Downed
-                    || target.Map != vehicle.Map
-                    || !vehicle.HostileTo(target)))
+            // Get preferred combat range for this vehicle type
+            float preferredRange = GetPreferredCombatRange(vehicle);
+
+            // --- HEALTH-BASED DISENGAGEMENT ---
+            // If vehicle is too damaged, Disengage to avoid pointless fights
+            if (ShouldDisengageDueToHealth(vehicle, isVehicle: true))
             {
-                Log.Message("[The Marked Men] Invalid combat target cleared during behavior application for vehicle " + vehicle.def.defName);
+                // Reset target and stop engaging - vehicle seeks safety
+                if (state.lastTarget != null)
+                {
+                    Log.Message("[The Marked Men] Vehicle " + vehicle.def.defName + " disengaging due to low health (" +
+                        Mathf.RoundToInt(GetPawnHealthPercent(vehicle) * 100) + "%)");
+                }
                 state.lastTarget = null;
                 state.lastTargetUpdateTick = 0;
+                state.isEngaging = false;
+
+                // Assign a defensive duty - move to cover rather than attack
+                if (preferredRange > 0f)
+                {
+                    IntVec3 standoffCell = FindStandoffPosition(vehicle, target, preferredRange);
+                    if (standoffCell.IsValid)
+                    {
+                        vehicle.mindState.duty = new PawnDuty(DutyDefOf.AssaultColony, standoffCell, preferredRange * 0.5f);
+                    }
+                    else
+                    {
+                        vehicle.mindState.duty = new PawnDuty(DutyDefOf.AssaultColony);
+                    }
+                }
+                else
+                {
+                    vehicle.mindState.duty = new PawnDuty(DutyDefOf.AssaultColony);
+                }
+
+                // Validate and return early - no further combat processing
+                if (AIConflictPrevention.CanAssignDuty(vehicle, vehicle.mindState.duty))
+                {
+                    state.lastDutyReassignTick = currentTick;
+                }
                 return;
             }
 
@@ -409,29 +566,249 @@ namespace TheMarkedMen
                 return;
             }
 
-            // Check for duty conflicts before reassigning
-            PawnDuty newDuty = null;
-            float preferredRange = GetPreferredCombatRange(vehicle);
-            float actualDistance = vehicle.Position.DistanceTo(target.Position);
+            // --- CREW-SKILL AWARENESS ---
+            float crewEffectiveness = GetCrewCombatEffectiveness(vehicle);
 
-            // If too close to target, move to maintain distance based on vehicle type
-            if (preferredRange > 0f && actualDistance < preferredRange * 0.7f)
+            // --- TARGET SCORING ENHANCEMENT ---
+            // Calculate enhanced target score incorporating crew effectiveness
+            float actualDistance = vehicle.Position.DistanceTo(target.Position);
+            VehicleTypeCategory vtype = GetVehicleTypeCategory(vehicle);
+
+            // Base scoring from existing logic
+            float score = 0f;
+
+            // Prioritize dangerous structures (turrets, defensive positions)
+            if (IsThreatBuilding(target))
             {
-                IntVec3 standoffCell = FindStandoffPosition(vehicle, target, preferredRange);
-                if (standoffCell.IsValid)
+                score += 1000f;
+            }
+
+            // Prioritize armed enemies
+            if (target.equipment?.Primary != null)
+            {
+                score += 500f;
+            }
+
+            // Closer targets are higher priority (weight scaled by vehicle type)
+            // Tanks/APCs value distance more (they have long-range turrets)
+            // Motorcycles/Technicals value closeness more (flanking behavior)
+            switch (vtype)
+            {
+                case VehicleTypeCategory.Tank:
+                case VehicleTypeCategory.APC:
+                    // distanceWeight = 300f already applied above in CalculateTargetScore context
+                    break;
+
+                case VehicleTypeCategory.Motorcycle:
+                case VehicleTypeCategory.Technical:
+                    // distanceWeight = 150f already applied above in CalculateTargetScore context
+                    break;
+
+                default:
+                    // distanceWeight = 200f already applied above in CalculateTargetScore context
+                    break;
+            }
+
+            // Apply crew effectiveness as a modifier to the overall score
+            // More effective crews = better prioritization, worse crews = more conservative
+            // The distance scoring was already done in CalculateTargetScore; here we just
+            // ensure crewEffectiveness modulates the overall combat behavior
+            score += Mathf.Max(0f, 200f - actualDistance) * crewEffectiveness;
+
+            // Prioritize healthy enemies (less wasted firepower)
+            if (target.health != null)
+            {
+                float healthPercent = target.health.summaryHealth.SummaryHealthPercent;
+                score += healthPercent * 100f * crewEffectiveness;
+            }
+
+            // Vehicle-type-specific target priorities
+            score += ApplyVehicleTargetPriority(target, vehicle);
+
+            // If target is very poor priority given crew effectiveness, may want to reconsider engagement
+            if (crewEffectiveness < 0.5f && score < 200f)
+            {
+                // Ineffective crew with poor target - conservative play
+            }
+
+            // Determine duty based on enhanced scoring and vehicle type
+            PawnDuty newDuty = null;
+
+            // Tanks and APCs: prefer shooting at range, maintain standoff distance
+            if (vtype == VehicleTypeCategory.Tank || vtype == VehicleTypeCategory.APC)
+            {
+                // If target is within effective combat range, maintain assault with standoff
+                // (the existing AssaultColony duty + 60-tile range naturally makes them shoot first)
+                if (preferredRange > 0f && actualDistance < preferredRange * 1.3f)
                 {
-                    newDuty = new PawnDuty(DutyDefOf.AssaultColony, standoffCell, preferredRange * 0.5f);
+                    IntVec3 standoffCell = FindStandoffPosition(vehicle, target, preferredRange);
+                    if (standoffCell.IsValid)
+                    {
+                        newDuty = new PawnDuty(DutyDefOf.AssaultColony, standoffCell, preferredRange * 0.5f);
+                    }
+                    else
+                    {
+                        newDuty = new PawnDuty(DutyDefOf.AssaultColony);
+                    }
+                }
+                else if (preferredRange > 0f)
+                {
+                    newDuty = new PawnDuty(DutyDefOf.AssaultColony);
+                }
+                else
+                {
+                    newDuty = new PawnDuty(DutyDefOf.AssaultColony);
                 }
             }
 
-            // Otherwise, maintain assault stance on target
-            if (newDuty == null)
+            // Technicals and motorcycles: close-range aggression
+            else if (vtype == VehicleTypeCategory.Technical || vtype == VehicleTypeCategory.Motorcycle)
             {
-                newDuty = new PawnDuty(DutyDefOf.AssaultColony);
+                if (actualDistance < 25f)
+                {
+                    IntVec3 standoffCell = FindStandoffPosition(vehicle, target, 20f);
+                    if (standoffCell.IsValid)
+                    {
+                        newDuty = new PawnDuty(DutyDefOf.AssaultColony, standoffCell, 15f);
+                    }
+                    else
+                    {
+                        newDuty = new PawnDuty(DutyDefOf.AssaultColony);
+                    }
+                }
+                else
+                {
+                    newDuty = new PawnDuty(DutyDefOf.AssaultColony);
+                }
+            }
+
+            // Armored cars: moderate range combat
+            else if (vtype == VehicleTypeCategory.ArmoredCar)
+            {
+                if (preferredRange > 0f && actualDistance < preferredRange * 1.3f)
+                {
+                    IntVec3 standoffCell = FindStandoffPosition(vehicle, target, preferredRange);
+                    if (standoffCell.IsValid)
+                    {
+                        newDuty = new PawnDuty(DutyDefOf.AssaultColony, standoffCell, preferredRange * 0.5f);
+                    }
+                    else
+                    {
+                        newDuty = new PawnDuty(DutyDefOf.AssaultColony);
+                    }
+                }
+                else if (preferredRange > 0f)
+                {
+                    newDuty = new PawnDuty(DutyDefOf.AssaultColony);
+                }
+                else
+                {
+                    newDuty = new PawnDuty(DutyDefOf.AssaultColony);
+                }
+            }
+
+            // Half-tracks: support from moderate distance
+            else if (vtype == VehicleTypeCategory.HalfTrack)
+            {
+                if (preferredRange > 0f && actualDistance < preferredRange * 1.2f)
+                {
+                    IntVec3 standoffCell = FindStandoffPosition(vehicle, target, preferredRange);
+                    if (standoffCell.IsValid)
+                    {
+                        newDuty = new PawnDuty(DutyDefOf.AssaultColony, standoffCell, preferredRange * 0.5f);
+                    }
+                    else
+                    {
+                        newDuty = new PawnDuty(DutyDefOf.AssaultColony);
+                    }
+                }
+                else if (preferredRange > 0f)
+                {
+                    newDuty = new PawnDuty(DutyDefOf.AssaultColony);
+                }
+                else
+                {
+                    newDuty = new PawnDuty(DutyDefOf.AssaultColony);
+                }
+            }
+
+            // Airplanes: long-range engagement (100 tiles)
+            else if (vtype == VehicleTypeCategory.Airplane)
+            {
+                if (preferredRange > 0f && actualDistance < preferredRange * 1.1f)
+                {
+                    IntVec3 standoffCell = FindStandoffPosition(vehicle, target, preferredRange);
+                    if (standoffCell.IsValid)
+                    {
+                        newDuty = new PawnDuty(DutyDefOf.AssaultColony, standoffCell, preferredRange * 0.5f);
+                    }
+                    else
+                    {
+                        newDuty = new PawnDuty(DutyDefOf.AssaultColony);
+                    }
+                }
+                else if (preferredRange > 0f)
+                {
+                    newDuty = new PawnDuty(DutyDefOf.AssaultColony);
+                }
+                else
+                {
+                    newDuty = new PawnDuty(DutyDefOf.AssaultColony);
+                }
+            }
+
+            // Helicopters: versatile engagement (50 tiles)
+            else if (vtype == VehicleTypeCategory.Helicopter)
+            {
+                if (preferredRange > 0f && actualDistance < preferredRange * 1.2f)
+                {
+                    IntVec3 standoffCell = FindStandoffPosition(vehicle, target, preferredRange);
+                    if (standoffCell.IsValid)
+                    {
+                        newDuty = new PawnDuty(DutyDefOf.AssaultColony, standoffCell, preferredRange * 0.5f);
+                    }
+                    else
+                    {
+                        newDuty = new PawnDuty(DutyDefOf.AssaultColony);
+                    }
+                }
+                else if (preferredRange > 0f)
+                {
+                    newDuty = new PawnDuty(DutyDefOf.AssaultColony);
+                }
+                else
+                {
+                    newDuty = new PawnDuty(DutyDefOf.AssaultColony);
+                }
+            }
+
+            // Default: standard assault behavior
+            else
+            {
+                if (preferredRange > 0f && actualDistance < preferredRange * 0.8f)
+                {
+                    IntVec3 standoffCell = FindStandoffPosition(vehicle, target, preferredRange);
+                    if (standoffCell.IsValid)
+                    {
+                        newDuty = new PawnDuty(DutyDefOf.AssaultColony, standoffCell, preferredRange * 0.5f);
+                    }
+                    else
+                    {
+                        newDuty = new PawnDuty(DutyDefOf.AssaultColony);
+                    }
+                }
+                else if (preferredRange > 0f)
+                {
+                    newDuty = new PawnDuty(DutyDefOf.AssaultColony);
+                }
+                else
+                {
+                    newDuty = new PawnDuty(DutyDefOf.AssaultColony);
+                }
             }
 
             // Validate assignment before applying
-            if (AIConflictPrevention.CanAssignDuty(vehicle, newDuty))
+            if (newDuty != null && AIConflictPrevention.CanAssignDuty(vehicle, newDuty))
             {
                 vehicle.mindState.duty = newDuty;
                 state.lastDutyReassignTick = currentTick;
