@@ -71,7 +71,7 @@ namespace TheMarkedMen
 
         // Job throttling: track recent pathfinding failures to prevent job spam
         private static Dictionary<int, int> vehiclePathFailureTicks = new Dictionary<int, int>();
-        private const int VehiclePathFailureCooldownTicks = 60; // Wait 1 second before retry
+        private const int VehiclePathFailureCooldownTicks = 120; // Wait 2 seconds before retry to reduce job spam on difficult maps
 
         private const int VehicleAssaultWaypointDistance = 35;
 
@@ -318,15 +318,15 @@ namespace TheMarkedMen
             {
                 categories.Add(Enum.Parse(categoryType, "Combat"));
             }
-            if (settings?.raidVehicleTransportCategoryEnabled == true)
+            if (settings == null || settings?.raidVehicleTransportCategoryEnabled == true)
             {
                 categories.Add(Enum.Parse(categoryType, "Transport"));
             }
-            if (settings?.raidVehicleTraderCategoryEnabled == true)
+            if (settings == null || settings?.raidVehicleTraderCategoryEnabled == true)
             {
                 categories.Add(Enum.Parse(categoryType, "Trader"));
             }
-            if (settings?.raidVehicleWorkCategoryEnabled == true)
+            if (settings == null || settings?.raidVehicleWorkCategoryEnabled == true)
             {
                 categories.Add(Enum.Parse(categoryType, "Work"));
             }

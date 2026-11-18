@@ -34,6 +34,22 @@ namespace TheMarkedMen
         private const float MaxCombatEngagementDistance = 150f;
 
         /// <summary>
+        /// Vehicle type categories for behavior differentiation.
+        /// </summary>
+        private enum VehicleTypeCategory
+        {
+            Tank,
+            APC,
+            Technical,
+            Motorcycle,
+            ArmoredCar,
+            HalfTrack,
+            Airplane,
+            Helicopter,
+            Unknown
+        }
+
+        /// <summary>
         /// Combat state data for a single vehicle.
         /// </summary>
         private class VehicleCombatState
@@ -91,6 +107,21 @@ namespace TheMarkedMen
                 combatStates[vehicleId] = state;
             }
 
+            // Immediately clear target if vehicle's current target is no longer valid
+            // (destroyed, downed, map change, or no longer hostile). This prevents
+            // vehicles from stubbornly continuing to engage invalid targets.
+            if (state?.lastTarget != null
+                && (!state.lastTarget.Spawned
+                    || state.lastTarget.Dead
+                    || state.lastTarget.Downed
+                    || state.lastTarget.Map != vehicle.Map
+                    || !vehicle.HostileTo(state.lastTarget)))
+            {
+                Log.Message("[The Marked Men] Clearing invalid combat target for vehicle " + vehicle.def.defName);
+                state.lastTarget = null;
+                state.lastTargetUpdateTick = 0;
+            }
+
             return state;
         }
 
@@ -132,7 +163,7 @@ namespace TheMarkedMen
             }
 
             // Ensure target is still valid
-            if (!state.IsTargetValid())
+            if (state.lastTarget != null && !state.IsTargetValid())
             {
                 state.lastTarget = null;
             }
@@ -188,8 +219,25 @@ namespace TheMarkedMen
         }
 
         /// <summary>
+        /// Checks if a pawn represents a defensive threat (heavily armed, in turret, etc).
+        /// </summary>
+        private static bool IsThreatBuilding(Pawn target)
+        {
+            // Non-pawn threats are handled elsewhere
+            // This marks enemies with equipment as higher threat
+            if (target.equipment?.Primary != null)
+            {
+                // Has any primary weapon equipped
+                return true;
+            }
+
+            return false;
+        }
+
+        /// <summary>
         /// Calculates a score for prioritizing a target.
         /// Higher scores = higher priority.
+        /// Score weights are modified by vehicle type for differentiated behavior.
         /// </summary>
         private static float CalculateTargetScore(Pawn target, Pawn vehicle)
         {
@@ -207,9 +255,31 @@ namespace TheMarkedMen
                 score += 500f;
             }
 
-            // Closer targets are higher priority
+            // Closer targets are higher priority (weight scaled by vehicle type)
             float distance = target.Position.DistanceTo(vehicle.Position);
-            score += Mathf.Max(0f, 200f - distance);
+            VehicleTypeCategory vtype = GetVehicleTypeCategory(vehicle);
+            float distanceWeight = 200f;
+
+            // Tanks/APCs value distance more (they have long-range turrets)
+            // Motorcycles/Technicals value closeness more (flanking behavior)
+            switch (vtype)
+            {
+                case VehicleTypeCategory.Tank:
+                case VehicleTypeCategory.APC:
+                    distanceWeight = 300f; // Value range more
+                    break;
+
+                case VehicleTypeCategory.Motorcycle:
+                case VehicleTypeCategory.Technical:
+                    distanceWeight = 150f; // Value closeness more
+                    break;
+
+                default:
+                    distanceWeight = 200f;
+                    break;
+            }
+
+            score += Mathf.Max(0f, distanceWeight - distance);
 
             // Prioritize healthy enemies (less wasted firepower)
             if (target.health != null)
@@ -218,28 +288,101 @@ namespace TheMarkedMen
                 score += healthPercent * 100f;
             }
 
+            // Vehicle-type-specific target priorities (using only verifiable API)
+            score += ApplyVehicleTargetPriority(target, vehicle);
+
             return score;
         }
 
         /// <summary>
-        /// Checks if a pawn represents a defensive threat (heavily armed, in turret, etc).
+        /// Applies vehicle-type-specific target priority modifications.
+        /// Uses only RimWorld API properties that are guaranteed to exist.
         /// </summary>
-        private static bool IsThreatBuilding(Pawn target)
+        private static float ApplyVehicleTargetPriority(Pawn target, Pawn vehicle)
         {
-            // Non-pawn threats are handled elsewhere
-            // This just marks heavily armed or positioned enemies as higher threat
-            if (target.equipment?.Primary != null
-                && target.equipment.Primary.def.Verbs != null
-                && target.equipment.Primary.def.Verbs.Count > 0)
+            float score = 0f;
+            VehicleTypeCategory vtype = GetVehicleTypeCategory(vehicle);
+
+            // Tanks prioritize colonists (they hunt aggressively)
+            if (vtype == VehicleTypeCategory.Tank)
             {
-                VerbProperties verbProps = target.equipment.Primary.def.Verbs[0];
-                if (verbProps.range > 10f)  // Ranged weapon
+                if (target.Faction == Faction.OfPlayer || target.IsColonist || target.IsPrisonerOfColony)
                 {
-                    return true;
+                    score += 200f;
                 }
             }
 
-            return false;
+            // APCs prioritize colonists
+            if (vtype == VehicleTypeCategory.APC)
+            {
+                if (target.IsColonist || target.IsPrisonerOfColony || target.IsFreeColonist)
+                {
+                    score += 150f;
+                }
+            }
+
+            // Technicals prioritize unarmed targets
+            if (vtype == VehicleTypeCategory.Technical)
+            {
+                if (target.equipment?.Primary == null)
+                {
+                    score += 100f; // Technicals gun down unarmed targets
+                }
+            }
+
+            // Motorcycles prioritize colonists and close targets
+            if (vtype == VehicleTypeCategory.Motorcycle)
+            {
+                if (target.IsColonist || target.IsPrisonerOfColony || target.IsFreeColonist)
+                {
+                    score += 125f;
+                }
+                // Close targets for rapid engagement
+                float distance = target.Position.DistanceTo(vehicle.Position);
+                if (distance < 30f)
+                {
+                    score += 75f;
+                }
+            }
+
+            // Armored cars have mild colonist preference
+            if (vtype == VehicleTypeCategory.ArmoredCar)
+            {
+                if (target.Faction == Faction.OfPlayer || target.IsColonist)
+                {
+                    score += 100f;
+                }
+            }
+
+            // Half-tracks prioritize enemy infantry
+            if (vtype == VehicleTypeCategory.HalfTrack)
+            {
+                if (target.RaceProps.Humanlike && !target.IsColonist)
+                {
+                    score += 100f;
+                }
+            }
+
+            // Airplanes value healthy targets
+            if (vtype == VehicleTypeCategory.Airplane)
+            {
+                if (target.health != null)
+                {
+                    float healthPercent = target.health.summaryHealth.SummaryHealthPercent;
+                    score += healthPercent * 50f;
+                }
+            }
+
+            // Helicopters have mild colonist preference
+            if (vtype == VehicleTypeCategory.Helicopter)
+            {
+                if (target.IsColonist || target.IsPrisonerOfColony || target.IsFreeColonist)
+                {
+                    score += 80f;
+                }
+            }
+
+            return score;
         }
 
         /// <summary>
@@ -247,6 +390,20 @@ namespace TheMarkedMen
         /// </summary>
         private static void ApplyCombatBehavior(Pawn vehicle, Pawn target, VehicleCombatState state, int currentTick)
         {
+            // Immediately invalidate target if it's no longer viable
+            if (target != null
+                && (!target.Spawned
+                    || target.Dead
+                    || target.Downed
+                    || target.Map != vehicle.Map
+                    || !vehicle.HostileTo(target)))
+            {
+                Log.Message("[The Marked Men] Invalid combat target cleared during behavior application for vehicle " + vehicle.def.defName);
+                state.lastTarget = null;
+                state.lastTargetUpdateTick = 0;
+                return;
+            }
+
             if (target == null || !state.CanReassignDuty(currentTick))
             {
                 return;
@@ -257,7 +414,7 @@ namespace TheMarkedMen
             float preferredRange = GetPreferredCombatRange(vehicle);
             float actualDistance = vehicle.Position.DistanceTo(target.Position);
 
-            // If too close to target, move to maintain distance
+            // If too close to target, move to maintain distance based on vehicle type
             if (preferredRange > 0f && actualDistance < preferredRange * 0.7f)
             {
                 IntVec3 standoffCell = FindStandoffPosition(vehicle, target, preferredRange);
@@ -304,18 +461,133 @@ namespace TheMarkedMen
         }
 
         /// <summary>
-        /// Gets the preferred combat engagement range for a vehicle based on its weapons.
-        /// Returns 0 if unable to determine or vehicle has no ranged weapons.
+        /// Gets the preferred combat engagement range for a vehicle based on its type.
+        /// Different vehicle types have different optimal engagement distances.
         /// </summary>
         private static float GetPreferredCombatRange(Pawn vehicle)
         {
-            // Default to a reasonable distance for general assault
-            // Vehicle Framework's weapons would be checked here if available
-            return 35f;
+            VehicleTypeCategory type = GetVehicleTypeCategory(vehicle);
+            float baseRange = 35f; // Default general assault range
+
+            switch (type)
+            {
+                case VehicleTypeCategory.Tank:
+                case VehicleTypeCategory.APC:
+                    // Tanks and APCs maintain standoff distance for turret engagement
+                    return 60f;
+
+                case VehicleTypeCategory.Technical:
+                case VehicleTypeCategory.Motorcycle:
+                    // Technicals and motorcycles engage at closer ranges, flank aggressively
+                    return 20f;
+
+                case VehicleTypeCategory.ArmoredCar:
+                    // Armored cars maintain moderate distance, can ram
+                    return 40f;
+
+                case VehicleTypeCategory.HalfTrack:
+                    // Half-tracks transport troops, support from moderate distance
+                    return 35f;
+
+                case VehicleTypeCategory.Airplane:
+                    // Aircraft engage from distance, guns have long range
+                    return 100f;
+
+                case VehicleTypeCategory.Helicopter:
+                    // Helicopters can engage at various ranges, default to 50f
+                    return 50f;
+
+                default:
+                    // Unknown or vanilla vehicles use default
+                    return baseRange;
+            }
+        }
+
+        /// <summary>
+        /// Determines the vehicle type category based on its definition.
+        /// </summary>
+        private static VehicleTypeCategory GetVehicleTypeCategory(Pawn vehicle)
+        {
+            if (vehicle == null || vehicle.def == null)
+            {
+                return VehicleTypeCategory.Unknown;
+            }
+
+            string defName = vehicle.def.defName;
+
+            // Check for known vehicle type keywords in def name
+            defName = defName.ToLower();
+
+            // Tank-like vehicles
+            if (defName.Contains("tank")
+                || defName.Contains("heavy")
+                || defName.Contains("main battle"))
+            {
+                return VehicleTypeCategory.Tank;
+            }
+
+            // APC vehicles
+            if (defName.Contains("apc")
+                || defName.Contains("personal carriage"))
+            {
+                return VehicleTypeCategory.APC;
+            }
+
+            // Technical vehicles (technicals, pickups with weapons)
+            if (defName.Contains("technical")
+                || defName.Contains("pickup")
+                || defName.Contains("hilux"))
+            {
+                return VehicleTypeCategory.Technical;
+            }
+
+            // Motorcycle-like vehicles
+            if (defName.Contains("motorcycle")
+                || defName.Contains("bike")
+                || defName.Contains("quad"))
+            {
+                return VehicleTypeCategory.Motorcycle;
+            }
+
+            // Armored car vehicles
+            if (defName.Contains("armored")
+                || defName.Contains("car")
+                || defName.Contains("sedan"))
+            {
+                return VehicleTypeCategory.ArmoredCar;
+            }
+
+            // Half-track vehicles
+            if (defName.Contains("half-track")
+                || defName.Contains("halftrack")
+                || defName.Contains("scout"))
+            {
+                return VehicleTypeCategory.HalfTrack;
+            }
+
+            // Aircraft
+            if (defName.Contains("plane")
+                || defName.Contains("aircraft")
+                || defName.Contains("jet")
+                || defName.Contains("skyfaller"))
+            {
+                return VehicleTypeCategory.Airplane;
+            }
+
+            // Helicopters
+            if (defName.Contains("heli")
+                || defName.Contains("helicopter")
+                || defName.Contains("chopper"))
+            {
+                return VehicleTypeCategory.Helicopter;
+            }
+
+            return VehicleTypeCategory.Unknown;
         }
 
         /// <summary>
         /// Finds a position where the vehicle can maintain combat distance from target.
+        /// Different vehicle types have different standoff preferences.
         /// </summary>
         private static IntVec3 FindStandoffPosition(Pawn vehicle, Pawn target, float preferredRange)
         {
@@ -324,19 +596,44 @@ namespace TheMarkedMen
                 return IntVec3.Invalid;
             }
 
+            VehicleTypeCategory type = GetVehicleTypeCategory(vehicle);
+            float standoffMultiplier = 1f;
+
+            // Adjust standoff distance based on vehicle type
+            switch (type)
+            {
+                case VehicleTypeCategory.Tank:
+                case VehicleTypeCategory.APC:
+                    standoffMultiplier = 1.2f; // Tanks prefer slightly further back
+                    break;
+
+                case VehicleTypeCategory.Motorcycle:
+                case VehicleTypeCategory.Technical:
+                    standoffMultiplier = 0.8f; // Motorcycles/technicals prefer closer
+                    break;
+
+                case VehicleTypeCategory.Helicopter:
+                    standoffMultiplier = 1.5f; // Helicopters can operate further out
+                    break;
+
+                default:
+                    standoffMultiplier = 1f;
+                    break;
+            }
+
             // Try to find a cell at the preferred distance
             IntVec3 vehiclePos = vehicle.Position;
             IntVec3 targetPos = target.Position;
 
             int attempts = 0;
-            int maxAttempts = 8;
+            int maxAttempts = 12; // More attempts for vehicle types
 
             while (attempts < maxAttempts)
             {
                 // Calculate direction away from target
                 Vector3 directionVec = (vehiclePos - targetPos).ToVector3().normalized;
                 IntVec3 direction = new IntVec3(Mathf.RoundToInt(directionVec.x), 0, Mathf.RoundToInt(directionVec.z));
-                IntVec3 candidateCell = targetPos + (direction * Mathf.RoundToInt(preferredRange * 0.9f));
+                IntVec3 candidateCell = targetPos + (direction * Mathf.RoundToInt(preferredRange * standoffMultiplier * 0.9f));
 
                 // Check if this cell is valid
                 if (candidateCell.InBounds(vehicle.Map)
