@@ -13,13 +13,7 @@ namespace TheMarkedMen
             Faction faction = CrossedUtility.Component?.EnsureCrossedFaction();
             return !ScenPart_MarkedMenPlayerState.IsActive
                 && faction != null
-                && base.CanFireNowSub(parms)
-                && TheMarkedMenVehicleFrameworkCompatibility.HasEligibleAirborneRaidVehicle(
-                    faction,
-                    parms?.points ?? 0f,
-                    1f,
-                    parms?.raidArrivalMode,
-                    RaidVehicleSelectionGroup.Air);
+                && base.CanFireNowSub(parms);
         }
 
         protected override string GetLetterLabel(IncidentParms parms)

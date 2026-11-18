@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Patch>
+  <Operation Class="PatchOperationFindMod">
+    <mods>
+      <li>SmashPhil.VehicleFramework</li>
+    </mods>
+    <match Class="PatchOperationAddModExtension">
+      <xpath>/Defs/FactionDef[defName="CA_CrossedFaction"]</xpath>
+      <value>
+        <li Class="Vehicles.VehicleRaiderDefModExtension">
+          <pointMultiplier>1.0</pointMultiplier>
+          <techLevelRestricted>false</techLevelRestricted>
+        </li>
+      </value>
+    </match>
+  </Operation>
+</Patch>

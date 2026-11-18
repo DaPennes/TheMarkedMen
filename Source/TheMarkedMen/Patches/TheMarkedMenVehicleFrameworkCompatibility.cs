@@ -86,6 +86,8 @@ namespace TheMarkedMen
             {
                 // Try to load Vehicle Framework types
                 Assembly vehicleAssembly = null;
+                Log.Message("[The Marked Men] Starting Vehicle Framework compatibility initialization...");
+
                 foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
                 {
                     if (assembly.GetName().Name == VehicleFrameworkAssemblyName)
@@ -97,12 +99,33 @@ namespace TheMarkedMen
 
                 if (vehicleAssembly == null)
                 {
+                    Log.Warning("[The Marked Men] Vehicle Framework not found (looking for assembly name: '" + VehicleFrameworkAssemblyName + "')");
+                    Log.Warning("[The Marked Men] Checking loaded assemblies for matches...");
+                    foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
+                    {
+                        string name = assembly.GetName().Name;
+                        if (name.Contains("Vehicle") || name.Contains("vehicle"))
+                        {
+                            Log.Warning("[The Marked Men] Found assembly with 'vehicle' in name: '" + name + "'");
+                        }
+                    }
                     return; // Vehicle Framework not loaded
                 }
+
+                Log.Message("[The Marked Men] Found Vehicle Framework assembly: " + vehicleAssembly.GetName().FullName);
 
                 vehicleType = vehicleAssembly.GetType(VehicleTypeFullName);
                 if (vehicleType == null)
                 {
+                    Log.Warning("[The Marked Men] Vehicle Framework found but couldn't find type: " + VehicleTypeFullName);
+                    Log.Warning("[The Marked Men] Available types starting with 'VehiclePawn':");
+                    foreach (var type in vehicleAssembly.GetTypes())
+                    {
+                        if (type.FullName != null && type.FullName.StartsWith("Vehicles.VehiclePawn", StringComparison.Ordinal))
+                        {
+                            Log.Warning("[The Marked Men]   - " + type.FullName);
+                        }
+                    }
                     return; // Vehicle type not found
                 }
 
@@ -111,7 +134,7 @@ namespace TheMarkedMen
                 getPassengersMethod = AccessTools.PropertyGetter(vehicleType, "AllPawnsAboard");
 
                 isVehicleFrameworkActive = true;
-                Log.Message("[The Marked Men] Vehicle Framework compatibility initialized.");
+                Log.Message("[The Marked Men] Vehicle Framework compatibility initialized successfully.");
             }
             catch (Exception ex)
             {
@@ -132,13 +155,12 @@ namespace TheMarkedMen
             PawnsArrivalModeDef arrivalMode,
             RaidVehicleSelectionGroup selectionGroup = RaidVehicleSelectionGroup.Land)
         {
-            Assembly assembly = GetVehicleFrameworkAssembly();
-            if (assembly == null || faction?.def?.modExtensions == null)
-            {
-                return false;
-            }
-
-            return GetEligibleRaidVehicleDefs(faction, points, arrivalMode, assembly, selectionGroup).Count > 0;
+            // Always return true: let Framework's internal spawn logic determine
+            // vehicle availability. The points gating has been removed from our mod,
+            // so raids will trigger regardless. Framework will attempt to spawn vehicles
+            // based on its own settings (vehicle raider extension, tech level, etc.).
+            // If Framework blocks vehicle spawning, our mod no longer forces infantry fallback.
+            return true;
         }
 
         public static List<MarkedRaidVehicleOption> GetRaidVehicleOptions(bool airborne)
@@ -1625,12 +1647,12 @@ namespace TheMarkedMen
                 PawnsArrivalModeDef arrivalMode = null,
                 RaidVehicleSelectionGroup selectionGroup = RaidVehicleSelectionGroup.Air)
             {
-                return GetEligibleAirborneRaidVehicleDefs(
-                    faction,
-                    points,
-                    budgetMultiplier,
-                    arrivalMode,
-                    selectionGroup).Count > 0;
+                // Always return true: let Framework's internal spawn logic determine
+                // vehicle availability. The points gating has been removed from our mod,
+                // so raids will trigger regardless. Framework will attempt to spawn vehicles
+                // based on its own settings (vehicle raider extension, tech level, etc.).
+                // If Framework blocks vehicle spawning, our mod no longer forces infantry fallback.
+                return true;
             }
 
             public static bool TrySpawnAirborneRaidVehicles(
@@ -2492,39 +2514,18 @@ namespace TheMarkedMen
             RaidVehicleSelectionGroup? selectionGroup)
         {
             List<object> eligible = new List<object>();
-            if (assembly == null || faction?.def?.modExtensions == null)
+            if (assembly == null)
             {
                 return eligible;
             }
 
             try
             {
-                Type extensionType = assembly.GetType(VehicleRaidExtensionTypeFullName);
                 Type vehicleDefType = assembly.GetType(VehicleDefTypeFullName);
                 Type categoryType = assembly.GetType("Vehicles.VehicleCategory");
-                Type helperType = assembly.GetType(VehicleRaidHelperTypeFullName);
-                if (extensionType == null || vehicleDefType == null || categoryType == null || helperType == null)
+                if (vehicleDefType == null || categoryType == null)
                 {
-                    LogRaidLookupFailure("Vehicle Framework raid API types could not be found.");
-                    return eligible;
-                }
-
-                object extension = faction.def.modExtensions.Find(candidate => candidate.GetType() == extensionType);
-                if (extension == null)
-                {
-                    LogRaidLookupFailure("The Marked Men faction is missing its optional vehicle-raider extension.");
-                    return eligible;
-                }
-
-                float vehicleBudget = float.MaxValue;
-
-                Type databaseType = typeof(DefDatabase<>).MakeGenericType(vehicleDefType);
-                PropertyInfo definitionsProperty = databaseType.GetProperty("AllDefsListForReading");
-                IEnumerable definitions = definitionsProperty?.GetValue(null, null) as IEnumerable;
-                MethodInfo validVehicle = AccessTools.Method(helperType, "ValidRaiderVehicle");
-                if (definitions == null || validVehicle == null)
-                {
-                    LogRaidLookupFailure("Vehicle Framework raid eligibility data could not be accessed.");
+                    LogRaidLookupFailure("Vehicle Framework vehicle-definition types could not be found.");
                     return eligible;
                 }
 
@@ -2534,50 +2535,30 @@ namespace TheMarkedMen
                     return eligible;
                 }
 
-                PawnsArrivalModeDef resolvedArrivalMode = arrivalMode ?? PawnsArrivalModeDefOf.EdgeWalkInGroups;
-                foreach (object vehicleDef in definitions)
+                // Vehicle Framework's ValidRaiderVehicle method re-applies faction,
+                // point-budget, tech-level, and arrival-mode gates. Marked Men vehicle
+                // assaults deliberately bypass those gates, but still use loaded,
+                // NPC-enabled, selected land vehicle definitions.
+                foreach (object vehicleDef in GetAllLandRaidVehicleDefs(vehicleDefType))
                 {
                     if (!HasAnyEnabledVehicleCategory(vehicleDef, enabledCategories))
                     {
                         continue;
                     }
 
-                    bool validForRaid = false;
-                    for (int i = 0; i < enabledCategories.Count; i++)
+                    string defName = Convert.ToString(ReadVehicleMember(vehicleDef, "defName"));
+                    if (selectionGroup.HasValue
+                        && !IsRaidVehicleSelected(defName, selectionGroup.Value, false))
                     {
-                        object category = enabledCategories[i];
-                        if (validVehicle.Invoke(null, new object[]
-                        {
-                            vehicleDef,
-                            category,
-                            resolvedArrivalMode,
-                            faction,
-                            vehicleBudget
-                        }) is bool valid && valid)
-                        {
-                            validForRaid = true;
-                            break;
-                        }
+                        continue;
                     }
 
-                    if (validForRaid)
-                    {
-                        if (selectionGroup.HasValue
-                            && !IsRaidVehicleSelected(
-                                Convert.ToString(AccessTools.Field(vehicleDef.GetType(), "defName")?.GetValue(vehicleDef)),
-                                selectionGroup.Value,
-                                false))
-                        {
-                            continue;
-                        }
-
-                        eligible.Add(vehicleDef);
-                    }
+                    eligible.Add(vehicleDef);
                 }
             }
             catch (Exception ex)
             {
-                LogRaidLookupFailure("Could not check Vehicle Framework raid vehicles: " + ex);
+                LogRaidLookupFailure("Could not find Marked Men ground raid vehicles: " + ex);
             }
 
             return eligible;

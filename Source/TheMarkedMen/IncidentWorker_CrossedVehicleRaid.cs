@@ -15,19 +15,7 @@ namespace TheMarkedMen
             Faction faction = CrossedUtility.Component?.EnsureCrossedFaction();
             return !ScenPart_MarkedMenPlayerState.IsActive
                 && faction != null
-                && base.CanFireNowSub(parms)
-                && TheMarkedMenVehicleFrameworkCompatibility.HasEligibleRaidVehicle(
-                    faction,
-                    parms?.points ?? 0f,
-                    parms?.raidArrivalMode,
-                    SpawnAirSupport ? RaidVehicleSelectionGroup.CombinedLand : RaidVehicleSelectionGroup.Land)
-                && (!SpawnAirSupport
-                    || TheMarkedMenVehicleFrameworkCompatibility.HasEligibleAirborneRaidVehicle(
-                        faction,
-                        parms?.points ?? 0f,
-                        0.5f,
-                        parms?.raidArrivalMode,
-                        RaidVehicleSelectionGroup.CombinedAir));
+                && base.CanFireNowSub(parms);
         }
 
         protected override string GetLetterLabel(IncidentParms parms)
@@ -65,22 +53,6 @@ namespace TheMarkedMen
             TheMarkedMenGameComponent.ApplyMarkedRaidArrivalPattern(parms);
 
             float raidPoints = parms.points;
-            if (!TheMarkedMenVehicleFrameworkCompatibility.HasEligibleRaidVehicle(
-                crossed,
-                raidPoints,
-                parms.raidArrivalMode,
-                SpawnAirSupport ? RaidVehicleSelectionGroup.CombinedLand : RaidVehicleSelectionGroup.Land)
-                || (SpawnAirSupport
-                    && !TheMarkedMenVehicleFrameworkCompatibility.HasEligibleAirborneRaidVehicle(
-                        crossed,
-                        raidPoints,
-                        0.5f,
-                        parms.raidArrivalMode,
-                        RaidVehicleSelectionGroup.CombinedAir))
-                )
-            {
-                return false;
-            }
 
             int remainingCapacity = CrossedRaidTactics.GetRemainingRaidPawnCapacity(map);
             int minimumVehicleCount = SpawnAirSupport ? 2 : 1;
