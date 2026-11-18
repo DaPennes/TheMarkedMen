@@ -3567,7 +3567,7 @@ namespace TheMarkedMen
                 // When vehicle takes damage, notify any infected passengers
                 // Make a copy of passengers list to prevent enumeration during concurrent modification
                 var passengers = GetVehiclePassengers(__instance);
-                if (passengers == null || passengers.Count == 0)
+                if (passengers == null || !passengers.Any())
                 {
                     return;
                 }
