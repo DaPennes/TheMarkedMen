@@ -1,5 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Defs>
+  <!-- ============================================================
+       Thought Definitions for The Marked Men mod
+       Mood and opinion modifiers triggered by virus exposure,
+       witnessing transformations, and infection events.
+       ============================================================ -->
+
+  <!-- Memory of watching a colonist transform into one of the Marked Men.
+       Deep psychological trauma from witnessing the Marked Virus take over. -->
   <ThoughtDef>
     <defName>CA_WitnessedCrossedTransformation</defName>
     <durationDays>6</durationDays>
@@ -13,6 +21,8 @@
     </stages>
   </ThoughtDef>
 
+  <!-- Social thought triggered when Marked Men hunt a colonist.
+       Applies an opinion penalty toward the infected hunter. -->
   <ThoughtDef>
     <defName>CA_CrossedSocialTerror</defName>
     <thoughtClass>Thought_MemorySocial</thoughtClass>
@@ -34,6 +44,8 @@
     <thoughtToMake>CA_CrossedSocialTerrorMood</thoughtToMake>
   </ThoughtDef>
 
+  <!-- Mood thought triggered when Marked Men hunt a colonist.
+       Separate from the social opinion effect for clearer mood tracking. -->
   <ThoughtDef>
     <defName>CA_CrossedSocialTerrorMood</defName>
     <durationDays>3</durationDays>

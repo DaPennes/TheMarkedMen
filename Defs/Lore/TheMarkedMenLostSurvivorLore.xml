@@ -1,5 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Defs>
+  <!-- ============================================================
+       Lore Rule Pack Definitions for The Marked Men mod
+       Narrative rules describing dormant infection states,
+       latent carriers, and Alpha emergence from dormancy.
+       ============================================================ -->
+
+  <!-- Lore records for dormant Marked Virus carriers: medical reports,
+       witness statements, safety protocols, and pack memory. -->
   <RulePackDef>
     <defName>CA_CrossedDormantLore</defName>
     <rulePack>

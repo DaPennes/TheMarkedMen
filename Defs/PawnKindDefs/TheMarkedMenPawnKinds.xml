@@ -1,8 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Defs>
+  <!-- ============================================================
+       PawnKind Definitions for The Marked Men mod
+       Defines all Crossed/Marked Men pawn types with their equipment,
+       apparel, combat power, and behavior characteristics.
+       ============================================================ -->
 
   <!-- ============================================================
        CA_CrossedBase - Abstract base for all Crossed pawns
+       Defines base properties shared by all Crossed-infected pawns.
+       Used as ParentName for all other Crossed PawnKindDefs.
        ============================================================ -->
   <PawnKindDef Name="CA_CrossedBase" Abstract="True">
     <race>Human</race>
@@ -376,5 +383,4 @@
       <li>GrenadeDestructive</li>
     </weaponTags>
   </PawnKindDef>
-
 </Defs>

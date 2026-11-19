@@ -1,5 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Defs>
+  <!-- ============================================================
+       Incident Definitions for The Marked Men mod
+       Handles specialized arrival events for survivors and refugees.
+       ============================================================ -->
+
+  <!-- A disoriented survivor who wanders into the colony. They may be a genuine refugee,
+       a carrier of the virus, or a scout for the Marked Men. -->
   <IncidentDef>
     <defName>CA_LostSurvivor</defName>
     <label>Lost Survivor arrives</label>

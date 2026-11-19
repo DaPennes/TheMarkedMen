@@ -1,5 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Defs>
+  <!-- ============================================================
+       Predator Thought Definitions for The Marked Men mod
+       Mood modifiers tied to predator drive, bloodlust, and
+       hunting satisfaction for infected pawns.
+       ============================================================ -->
+
+  <!-- Short-term mood boost from a clean kill. The hunt paid off. -->
   <ThoughtDef>
     <defName>CA_FreshKillSatisfaction</defName>
     <thoughtClass>Thought_Memory</thoughtClass>
@@ -15,6 +22,7 @@
     </stages>
   </ThoughtDef>
 
+  <!-- Mood penalty when bloodlust has built too long without a kill. -->
   <ThoughtDef>
     <defName>CA_BloodthirstyCraving</defName>
     <thoughtClass>Thought_Memory</thoughtClass>
@@ -29,6 +37,7 @@
     </stages>
   </ThoughtDef>
 
+  <!-- Mood boost from overwhelming combat - the battle consumed everything. -->
   <ThoughtDef>
     <defName>CA_OverwhelmingBloodlust</defName>
     <thoughtClass>Thought_Memory</thoughtClass>
@@ -43,6 +52,7 @@
     </stages>
   </ThoughtDef>
 
+  <!-- Mood boost from patient predator behavior - watching, waiting, then striking. -->
   <ThoughtDef>
     <defName>CA_PredatorPatience</defName>
     <thoughtClass>Thought_Memory</thoughtClass>

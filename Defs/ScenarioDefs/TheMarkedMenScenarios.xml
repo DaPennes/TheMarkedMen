@@ -1,5 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Defs>
+  <!-- ============================================================
+       Scenario Definitions for The Marked Men mod
+       Custom scenarios for playing as or surviving against
+       the Marked Men outbreak.
+       ============================================================ -->
+
+  <!-- Scenario part definition for playing as the Marked Men.
+       Starts as an infected pack with recovered supplies,
+       controls temporary infected followers. -->
   <ScenPartDef>
     <defName>CA_MarkedMenPlayerState</defName>
     <label>play as the Marked Men</label>
@@ -12,6 +21,8 @@
     <canBePlayerAddedRemoved>false</canBePlayerAddedRemoved>
   </ScenPartDef>
 
+  <!-- Scenario: Play as the Marked Men - lead an infected pack,
+       control transformed victims, build a foothold. -->
   <ScenarioDef ParentName="ScenarioBase">
     <defName>CA_MarkedMenPlayerColony</defName>
     <label>The Marked Men</label>
@@ -76,6 +87,7 @@
     </scenario>
   </ScenarioDef>
 
+  <!-- Scenario part definition for starting as marked survivor immune to the virus. -->
   <ScenPartDef>
     <defName>CA_MarkedSurvivorState</defName>
     <label>marked survivor immunity</label>
@@ -88,6 +100,8 @@
     <canBePlayerAddedRemoved>false</canBePlayerAddedRemoved>
   </ScenPartDef>
 
+  <!-- Scenario: Three immune survivors escaped the outbreak.
+       Build a colony that can survive the Marked Men hunting pressure. -->
   <ScenarioDef ParentName="ScenarioBase">
     <defName>CA_MarkedVillageFounder</defName>
     <label>Marked Survivors</label>

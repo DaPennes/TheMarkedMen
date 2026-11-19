@@ -1,5 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Defs>
+  <!-- ============================================================
+       Storyteller Definitions for The Marked Men mod
+       Custom storyteller that drives Marked Men hunting pressure,
+       raids, ambushes, disease, and outbreak events.
+       ============================================================ -->
+
+  <!-- The Marked One storyteller: outbreak given intent. Sends scouts,
+       warbands, hordes, disease, ambushes, and bad luck until the colony
+       breaks or adapts. Plays like a hostile Randy Random variant tuned
+       for outbreak survival. -->
   <StorytellerDef ParentName="BaseStoryteller">
     <defName>CA_TheMarkedMan</defName>
     <label>The Marked One</label>

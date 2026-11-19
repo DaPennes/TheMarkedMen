@@ -1,5 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Defs>
+  <!-- ============================================================
+       Need Definitions for The Marked Men mod
+       Custom needs that govern pawn states and behaviors.
+       ============================================================ -->
+
+  <!-- A predator's craving for violence. Low bloodlust causes a negative mood.
+       Kills and combat satisfy the craving. -->
   <NeedDef>
     <defName>CA_MarkedBloodlustNeed</defName>
     <label>Bloodlust</label>

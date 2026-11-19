@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Defs>
+  <!-- Kill Anticipation: The predator's senses sharpen in the presence of prey -->
   <HediffDef>
     <defName>CA_KillAnticipation</defName>
     <label>kill anticipation</label>

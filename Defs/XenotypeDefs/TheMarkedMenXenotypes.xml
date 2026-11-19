@@ -1,5 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Defs>
+  <!-- ============================================================
+       Xenotype Definitions for The Marked Men mod
+       Custom xenotypes representing different stages of Marked Virus
+       infection and transformation.
+       Required DLC: Biotech
+       ============================================================ -->
+
+  <!-- The Marked Virus has fully consumed its host, forging an aggressive
+       and resilient predator that lives only to hunt and kill. -->
   <XenotypeDef MayRequire="Ludeon.RimWorld.Biotech">
     <defName>CA_MarkedOne</defName>
     <label>Marked One</label>
@@ -12,6 +21,4 @@
       <li>CA_MarkedBloodlustNeed</li>
     </genes>
   </XenotypeDef>
-
-
 </Defs>

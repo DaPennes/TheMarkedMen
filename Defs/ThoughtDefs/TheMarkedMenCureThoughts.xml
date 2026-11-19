@@ -1,5 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Defs>
+  <!-- ============================================================
+       Cure Thought Definitions for The Marked Men mod
+       Mood modifiers tied to the Marked Virus cure process,
+       including post-cure trauma memories.
+       ============================================================ -->
+
+  <!-- Long-term trauma memory for cured refugees recalling their time infected.
+       Every memory of what they did while under the virus's control remains vivid. -->
   <ThoughtDef>
     <defName>TheMarkedMen_IRememberEverything</defName>
     <thoughtClass>Thought_Memory</thoughtClass>

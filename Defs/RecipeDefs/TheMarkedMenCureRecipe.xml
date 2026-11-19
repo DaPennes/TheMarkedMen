@@ -1,5 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Defs>
+  <!-- ============================================================
+       Recipe Definitions for The Marked Men mod
+       Crafting recipes for cure equipment and syringes.
+       ============================================================ -->
+
+  <!-- Recipe to craft a cure syringe from infected blood sample.
+       Unlocks with Marked virus research. -->
   <RecipeDef>
     <defName>TheMarkedMen_Cure_Syringe_Make</defName>
     <label>make cure syringe</label>
@@ -7,12 +14,8 @@
     <jobString>Crafting cure syringe.</jobString>
     <workAmount>2000</workAmount>
     <researchPrerequisite>TheMarkedMen_MarkedVirusResearch</researchPrerequisite>
-    <!-- VFE Production's electric drug lab inherits DrugLab recipes through
-         Vanilla Expanded Framework. Listing it explicitly is safe because
-         VEF skips recipes already assigned to that worktable. -->
     <recipeUsers>
-      <li>DrugLab</li>
-      <li MayRequire="VanillaExpanded.VFEProduction">VFE_TableDrugLabElectric</li>
+      <li>FabricationBench</li>
     </recipeUsers>
     <ingredients>
       <li>
@@ -22,46 +25,6 @@
           </thingDefs>
         </filter>
         <count>1</count>
-      </li>
-      <li>
-        <filter>
-          <thingDefs>
-            <li>GoJuice</li>
-          </thingDefs>
-        </filter>
-        <count>3</count>
-      </li>
-      <li>
-        <filter>
-          <thingDefs>
-            <li>Luciferium</li>
-          </thingDefs>
-        </filter>
-        <count>20</count>
-      </li>
-      <li>
-        <filter>
-          <thingDefs>
-            <li>Yayo</li>
-          </thingDefs>
-        </filter>
-        <count>4</count>
-      </li>
-      <li>
-        <filter>
-          <thingDefs>
-            <li>Penoxycyline</li>
-          </thingDefs>
-        </filter>
-        <count>7</count>
-      </li>
-      <li>
-        <filter>
-          <thingDefs>
-            <li>MedicineUltratech</li>
-          </thingDefs>
-        </filter>
-        <count>5</count>
       </li>
     </ingredients>
     <products>

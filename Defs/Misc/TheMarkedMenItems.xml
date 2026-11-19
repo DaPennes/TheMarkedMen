@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Defs>
+  <!-- ============================================================
+       Item Definitions for The Marked Men mod
+       Custom items, weapons, and equipment used by infected pawns
+       ============================================================ -->
   <ThingDef>
     <defName>TheMarkedMen_Cure_Syringe</defName>
     <label>Marked Virus cure syringe</label>

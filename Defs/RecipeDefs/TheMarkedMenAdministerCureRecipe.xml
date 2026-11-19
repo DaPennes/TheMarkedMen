@@ -1,5 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Defs>
+  <!-- ============================================================
+       Recipe Definitions for The Marked Men mod
+       Cure-related recipes for virus management.
+       ============================================================ -->
+
+  <!-- Recipe to administer a cure syringe to an infected pawn.
+       Removes the Marked Virus infection from the patient. -->
   <RecipeDef>
     <defName>TheMarkedMen_AdministerCure</defName>
     <label>administer cure syringe</label>

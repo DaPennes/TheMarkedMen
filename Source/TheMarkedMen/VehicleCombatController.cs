@@ -4,6 +4,8 @@ using RimWorld;
 using UnityEngine;
 using Verse;
 using Verse.AI;
+using Verse.AI.Group;
+using TheMarkedMen; // For Constants
 
 namespace TheMarkedMen
 {
@@ -17,11 +19,6 @@ namespace TheMarkedMen
         /// Cached combat state per vehicle (indexed by thing ID).
         /// </summary>
         private static readonly Dictionary<int, VehicleCombatState> combatStates = new Dictionary<int, VehicleCombatState>();
-
-        /// <summary>
-        /// Minimum ticks between duty reassignments to prevent thrashing.
-        /// </summary>
-        private const int DutyReassignCooldownTicks = 60;
 
         /// <summary>
         /// How often to scan for new targets (in ticks).
@@ -86,7 +83,7 @@ namespace TheMarkedMen
 
             public bool CanReassignDuty(int currentTick)
             {
-                return currentTick - lastDutyReassignTick >= DutyReassignCooldownTicks;
+                return currentTick - lastDutyReassignTick >= Constants.VehicleDutyReassignmentCooldownTicks;
             }
         }
 
@@ -126,15 +123,88 @@ namespace TheMarkedMen
         }
 
         /// <summary>
-        /// Cleans up combat state when a vehicle is destroyed.
+        /// Handles vehicle disengagement when health is too low.
         /// </summary>
-        public static void NotifyVehicleDestroyed(Pawn vehicle)
+        private static bool HandleHealthDisengagement(Pawn vehicle, Pawn target, VehicleCombatState state, float preferredRange, int currentTick)
         {
-            if (vehicle != null)
+            if (ShouldDisengageDueToHealth(vehicle, isVehicle: true))
             {
-                combatStates.Remove(vehicle.thingIDNumber);
+                if (state.lastTarget != null)
+                {
+                    Log.Message("[The Marked Men] Vehicle " + vehicle.def.defName + " disengaging due to low health (" +
+                        Mathf.RoundToInt(GetPawnHealthPercent(vehicle) * 100) + "%)");
+                }
+                state.lastTarget = null;
+                state.lastTargetUpdateTick = 0;
+                state.isEngaging = false;
+
+                PawnDuty disengageDuty = null;
+                if (preferredRange > 0f)
+                {
+                    IntVec3 standoffCell = FindStandoffPosition(vehicle, target, preferredRange);
+                    disengageDuty = standoffCell.IsValid
+                        ? new PawnDuty(DutyDefOf.AssaultColony, standoffCell, preferredRange * 0.5f)
+                        : new PawnDuty(DutyDefOf.AssaultColony);
+                }
+                else
+                {
+                    disengageDuty = new PawnDuty(DutyDefOf.AssaultColony);
+                }
+
+                if (AIConflictPrevention.CanAssignDuty(vehicle, disengageDuty))
+                {
+                    vehicle.mindState.duty = disengageDuty;
+                    state.lastDutyReassignTick = currentTick;
+                }
+                return true;
             }
+            return false;
         }
+
+        /// <summary>
+        /// Determines the appropriate duty for a vehicle based on its type and distance to target.
+        /// </summary>
+        private static PawnDuty DetermineVehicleDuty(Pawn vehicle, Pawn target, VehicleTypeCategory vtype, float actualDistance, float preferredRange)
+        {
+            if (vtype == VehicleTypeCategory.Technical || vtype == VehicleTypeCategory.Motorcycle)
+            {
+                if (actualDistance < 25f)
+                {
+                    IntVec3 standoffCell = FindStandoffPosition(vehicle, target, 20f);
+                    return standoffCell.IsValid ? new PawnDuty(DutyDefOf.AssaultColony, standoffCell, 15f) : new PawnDuty(DutyDefOf.AssaultColony);
+                }
+                return new PawnDuty(DutyDefOf.AssaultColony);
+            }
+
+            float thresholdMultiplier = 1.0f;
+            switch (vtype)
+            {
+                case VehicleTypeCategory.Tank:
+                case VehicleTypeCategory.APC:
+                case VehicleTypeCategory.ArmoredCar:
+                    thresholdMultiplier = 1.3f;
+                    break;
+                case VehicleTypeCategory.HalfTrack:
+                case VehicleTypeCategory.Helicopter:
+                    thresholdMultiplier = 1.2f;
+                    break;
+                case VehicleTypeCategory.Airplane:
+                    thresholdMultiplier = 1.1f;
+                    break;
+                default:
+                    thresholdMultiplier = 0.8f;
+                    break;
+            }
+
+            if (preferredRange > 0f && actualDistance < preferredRange * thresholdMultiplier)
+            {
+                IntVec3 standoffCell = FindStandoffPosition(vehicle, target, preferredRange);
+                return standoffCell.IsValid ? new PawnDuty(DutyDefOf.AssaultColony, standoffCell, preferredRange * 0.5f) : new PawnDuty(DutyDefOf.AssaultColony);
+            }
+
+            return new PawnDuty(DutyDefOf.AssaultColony);
+        }
+
 
         /// <summary>
         /// Main entry point: evaluates and applies combat behavior to a raid vehicle.
@@ -237,9 +307,9 @@ namespace TheMarkedMen
         /// <summary>
         /// Calculates a score for prioritizing a target.
         /// Higher scores = higher priority.
-        /// Score weights are modified by vehicle type for differentiated behavior.
+        /// Score weights are modified by vehicle type and crew effectiveness.
         /// </summary>
-        private static float CalculateTargetScore(Pawn target, Pawn vehicle)
+        private static float CalculateTargetScore(Pawn target, Pawn vehicle, float crewEffectiveness = 1.0f)
         {
             float score = 0f;
 
@@ -255,7 +325,7 @@ namespace TheMarkedMen
                 score += 500f;
             }
 
-            // Closer targets are higher priority (weight scaled by vehicle type)
+            // Closer targets are higher priority (weight scaled by vehicle type and crew effectiveness)
             float distance = target.Position.DistanceTo(vehicle.Position);
             VehicleTypeCategory vtype = GetVehicleTypeCategory(vehicle);
             float distanceWeight = 200f;
@@ -279,16 +349,16 @@ namespace TheMarkedMen
                     break;
             }
 
-            score += Mathf.Max(0f, distanceWeight - distance);
+            score += Mathf.Max(0f, distanceWeight - distance) * crewEffectiveness;
 
-            // Prioritize healthy enemies (less wasted firepower)
+            // Prioritize healthy enemies (less wasted firepower), modulated by crew effectiveness
             if (target.health != null)
             {
                 float healthPercent = target.health.summaryHealth.SummaryHealthPercent;
-                score += healthPercent * 100f;
+                score += (healthPercent * 100f) * crewEffectiveness;
             }
 
-            // Vehicle-type-specific target priorities (using only verifiable API)
+            // Vehicle-type-specific target priorities
             score += ApplyVehicleTargetPriority(target, vehicle);
 
             return score;
@@ -436,7 +506,7 @@ namespace TheMarkedMen
             }
 
             // Entities below 20% health disengage to avoid pointless fights
-            if (healthPercent <= 0.2f)
+            if (healthPercent <= Constants.VehicleHealthDisengagePercent / 100f)
             {
                 return true;
             }
@@ -518,46 +588,11 @@ namespace TheMarkedMen
         /// </summary>
         private static void ApplyCombatBehavior(Pawn vehicle, Pawn target, VehicleCombatState state, int currentTick)
         {
-            // Get preferred combat range for this vehicle type
             float preferredRange = GetPreferredCombatRange(vehicle);
 
             // --- HEALTH-BASED DISENGAGEMENT ---
-            // If vehicle is too damaged, Disengage to avoid pointless fights
-            if (ShouldDisengageDueToHealth(vehicle, isVehicle: true))
+            if (HandleHealthDisengagement(vehicle, target, state, preferredRange, currentTick))
             {
-                // Reset target and stop engaging - vehicle seeks safety
-                if (state.lastTarget != null)
-                {
-                    Log.Message("[The Marked Men] Vehicle " + vehicle.def.defName + " disengaging due to low health (" +
-                        Mathf.RoundToInt(GetPawnHealthPercent(vehicle) * 100) + "%)");
-                }
-                state.lastTarget = null;
-                state.lastTargetUpdateTick = 0;
-                state.isEngaging = false;
-
-                // Assign a defensive duty - move to cover rather than attack
-                if (preferredRange > 0f)
-                {
-                    IntVec3 standoffCell = FindStandoffPosition(vehicle, target, preferredRange);
-                    if (standoffCell.IsValid)
-                    {
-                        vehicle.mindState.duty = new PawnDuty(DutyDefOf.AssaultColony, standoffCell, preferredRange * 0.5f);
-                    }
-                    else
-                    {
-                        vehicle.mindState.duty = new PawnDuty(DutyDefOf.AssaultColony);
-                    }
-                }
-                else
-                {
-                    vehicle.mindState.duty = new PawnDuty(DutyDefOf.AssaultColony);
-                }
-
-                // Validate and return early - no further combat processing
-                if (AIConflictPrevention.CanAssignDuty(vehicle, vehicle.mindState.duty))
-                {
-                    state.lastDutyReassignTick = currentTick;
-                }
                 return;
             }
 
@@ -566,246 +601,22 @@ namespace TheMarkedMen
                 return;
             }
 
-            // --- CREW-SKILL AWARENESS ---
+            // --- CREW-SKILL AWARENESS & TARGET SCORING ---
             float crewEffectiveness = GetCrewCombatEffectiveness(vehicle);
-
-            // --- TARGET SCORING ENHANCEMENT ---
-            // Calculate enhanced target score incorporating crew effectiveness
             float actualDistance = vehicle.Position.DistanceTo(target.Position);
-            VehicleTypeCategory vtype = GetVehicleTypeCategory(vehicle);
 
-            // Base scoring from existing logic
-            float score = 0f;
+            // Use refactored scoring that incorporates crew effectiveness
+            float score = CalculateTargetScore(target, vehicle, crewEffectiveness);
 
-            // Prioritize dangerous structures (turrets, defensive positions)
-            if (IsThreatBuilding(target))
-            {
-                score += 1000f;
-            }
-
-            // Prioritize armed enemies
-            if (target.equipment?.Primary != null)
-            {
-                score += 500f;
-            }
-
-            // Closer targets are higher priority (weight scaled by vehicle type)
-            // Tanks/APCs value distance more (they have long-range turrets)
-            // Motorcycles/Technicals value closeness more (flanking behavior)
-            switch (vtype)
-            {
-                case VehicleTypeCategory.Tank:
-                case VehicleTypeCategory.APC:
-                    // distanceWeight = 300f already applied above in CalculateTargetScore context
-                    break;
-
-                case VehicleTypeCategory.Motorcycle:
-                case VehicleTypeCategory.Technical:
-                    // distanceWeight = 150f already applied above in CalculateTargetScore context
-                    break;
-
-                default:
-                    // distanceWeight = 200f already applied above in CalculateTargetScore context
-                    break;
-            }
-
-            // Apply crew effectiveness as a modifier to the overall score
-            // More effective crews = better prioritization, worse crews = more conservative
-            // The distance scoring was already done in CalculateTargetScore; here we just
-            // ensure crewEffectiveness modulates the overall combat behavior
-            score += Mathf.Max(0f, 200f - actualDistance) * crewEffectiveness;
-
-            // Prioritize healthy enemies (less wasted firepower)
-            if (target.health != null)
-            {
-                float healthPercent = target.health.summaryHealth.SummaryHealthPercent;
-                score += healthPercent * 100f * crewEffectiveness;
-            }
-
-            // Vehicle-type-specific target priorities
-            score += ApplyVehicleTargetPriority(target, vehicle);
-
-            // If target is very poor priority given crew effectiveness, may want to reconsider engagement
+            // If target is very poor priority given crew effectiveness, we may want to reconsider
             if (crewEffectiveness < 0.5f && score < 200f)
             {
-                // Ineffective crew with poor target - conservative play
+                // Conservative play: we'll still assign a duty, but the score reflects the risk
             }
 
-            // Determine duty based on enhanced scoring and vehicle type
-            PawnDuty newDuty = null;
-
-            // Tanks and APCs: prefer shooting at range, maintain standoff distance
-            if (vtype == VehicleTypeCategory.Tank || vtype == VehicleTypeCategory.APC)
-            {
-                // If target is within effective combat range, maintain assault with standoff
-                // (the existing AssaultColony duty + 60-tile range naturally makes them shoot first)
-                if (preferredRange > 0f && actualDistance < preferredRange * 1.3f)
-                {
-                    IntVec3 standoffCell = FindStandoffPosition(vehicle, target, preferredRange);
-                    if (standoffCell.IsValid)
-                    {
-                        newDuty = new PawnDuty(DutyDefOf.AssaultColony, standoffCell, preferredRange * 0.5f);
-                    }
-                    else
-                    {
-                        newDuty = new PawnDuty(DutyDefOf.AssaultColony);
-                    }
-                }
-                else if (preferredRange > 0f)
-                {
-                    newDuty = new PawnDuty(DutyDefOf.AssaultColony);
-                }
-                else
-                {
-                    newDuty = new PawnDuty(DutyDefOf.AssaultColony);
-                }
-            }
-
-            // Technicals and motorcycles: close-range aggression
-            else if (vtype == VehicleTypeCategory.Technical || vtype == VehicleTypeCategory.Motorcycle)
-            {
-                if (actualDistance < 25f)
-                {
-                    IntVec3 standoffCell = FindStandoffPosition(vehicle, target, 20f);
-                    if (standoffCell.IsValid)
-                    {
-                        newDuty = new PawnDuty(DutyDefOf.AssaultColony, standoffCell, 15f);
-                    }
-                    else
-                    {
-                        newDuty = new PawnDuty(DutyDefOf.AssaultColony);
-                    }
-                }
-                else
-                {
-                    newDuty = new PawnDuty(DutyDefOf.AssaultColony);
-                }
-            }
-
-            // Armored cars: moderate range combat
-            else if (vtype == VehicleTypeCategory.ArmoredCar)
-            {
-                if (preferredRange > 0f && actualDistance < preferredRange * 1.3f)
-                {
-                    IntVec3 standoffCell = FindStandoffPosition(vehicle, target, preferredRange);
-                    if (standoffCell.IsValid)
-                    {
-                        newDuty = new PawnDuty(DutyDefOf.AssaultColony, standoffCell, preferredRange * 0.5f);
-                    }
-                    else
-                    {
-                        newDuty = new PawnDuty(DutyDefOf.AssaultColony);
-                    }
-                }
-                else if (preferredRange > 0f)
-                {
-                    newDuty = new PawnDuty(DutyDefOf.AssaultColony);
-                }
-                else
-                {
-                    newDuty = new PawnDuty(DutyDefOf.AssaultColony);
-                }
-            }
-
-            // Half-tracks: support from moderate distance
-            else if (vtype == VehicleTypeCategory.HalfTrack)
-            {
-                if (preferredRange > 0f && actualDistance < preferredRange * 1.2f)
-                {
-                    IntVec3 standoffCell = FindStandoffPosition(vehicle, target, preferredRange);
-                    if (standoffCell.IsValid)
-                    {
-                        newDuty = new PawnDuty(DutyDefOf.AssaultColony, standoffCell, preferredRange * 0.5f);
-                    }
-                    else
-                    {
-                        newDuty = new PawnDuty(DutyDefOf.AssaultColony);
-                    }
-                }
-                else if (preferredRange > 0f)
-                {
-                    newDuty = new PawnDuty(DutyDefOf.AssaultColony);
-                }
-                else
-                {
-                    newDuty = new PawnDuty(DutyDefOf.AssaultColony);
-                }
-            }
-
-            // Airplanes: long-range engagement (100 tiles)
-            else if (vtype == VehicleTypeCategory.Airplane)
-            {
-                if (preferredRange > 0f && actualDistance < preferredRange * 1.1f)
-                {
-                    IntVec3 standoffCell = FindStandoffPosition(vehicle, target, preferredRange);
-                    if (standoffCell.IsValid)
-                    {
-                        newDuty = new PawnDuty(DutyDefOf.AssaultColony, standoffCell, preferredRange * 0.5f);
-                    }
-                    else
-                    {
-                        newDuty = new PawnDuty(DutyDefOf.AssaultColony);
-                    }
-                }
-                else if (preferredRange > 0f)
-                {
-                    newDuty = new PawnDuty(DutyDefOf.AssaultColony);
-                }
-                else
-                {
-                    newDuty = new PawnDuty(DutyDefOf.AssaultColony);
-                }
-            }
-
-            // Helicopters: versatile engagement (50 tiles)
-            else if (vtype == VehicleTypeCategory.Helicopter)
-            {
-                if (preferredRange > 0f && actualDistance < preferredRange * 1.2f)
-                {
-                    IntVec3 standoffCell = FindStandoffPosition(vehicle, target, preferredRange);
-                    if (standoffCell.IsValid)
-                    {
-                        newDuty = new PawnDuty(DutyDefOf.AssaultColony, standoffCell, preferredRange * 0.5f);
-                    }
-                    else
-                    {
-                        newDuty = new PawnDuty(DutyDefOf.AssaultColony);
-                    }
-                }
-                else if (preferredRange > 0f)
-                {
-                    newDuty = new PawnDuty(DutyDefOf.AssaultColony);
-                }
-                else
-                {
-                    newDuty = new PawnDuty(DutyDefOf.AssaultColony);
-                }
-            }
-
-            // Default: standard assault behavior
-            else
-            {
-                if (preferredRange > 0f && actualDistance < preferredRange * 0.8f)
-                {
-                    IntVec3 standoffCell = FindStandoffPosition(vehicle, target, preferredRange);
-                    if (standoffCell.IsValid)
-                    {
-                        newDuty = new PawnDuty(DutyDefOf.AssaultColony, standoffCell, preferredRange * 0.5f);
-                    }
-                    else
-                    {
-                        newDuty = new PawnDuty(DutyDefOf.AssaultColony);
-                    }
-                }
-                else if (preferredRange > 0f)
-                {
-                    newDuty = new PawnDuty(DutyDefOf.AssaultColony);
-                }
-                else
-                {
-                    newDuty = new PawnDuty(DutyDefOf.AssaultColony);
-                }
-            }
+            // --- DUTY ASSIGNMENT ---
+            VehicleTypeCategory vtype = GetVehicleTypeCategory(vehicle);
+            PawnDuty newDuty = DetermineVehicleDuty(vehicle, target, vtype, actualDistance, preferredRange);
 
             // Validate assignment before applying
             if (newDuty != null && AIConflictPrevention.CanAssignDuty(vehicle, newDuty))

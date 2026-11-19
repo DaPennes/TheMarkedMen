@@ -726,6 +726,7 @@ namespace TheMarkedMen
                 {
                     lastFailure = "deployment of " + vehicleDef + " threw "
                         + ex.GetType().Name + ": " + ex.Message;
+                    Log.Error("[The Marked Men] Ground raid vehicle deployment failed: " + lastFailure);
                     if (vehicle != null && !vehicle.Destroyed)
                     {
                         RestoreGroundRaidCrew(vehicle, map, availableRaidPawns, originalSpawnPositions);
@@ -1156,8 +1157,9 @@ namespace TheMarkedMen
             {
                 await Task.Run(action, token).ConfigureAwait(false);
             }
-            catch (OperationCanceledException)
+            catch (OperationCanceledException ex)
             {
+                Log.Warning("[The Marked Men] Vehicle Framework operation canceled: " + ex.Message);
             }
             catch (Exception ex)
             {
@@ -2172,9 +2174,10 @@ namespace TheMarkedMen
                     // VehicleSkyfaller_Arriving.SpawnSetup prepares and starts the landing protocol.
                     GenSpawn.Spawn(skyfaller, landingCell, map, rotation);
                 }
-                catch
+                catch (Exception ex)
                 {
                     inFlightField?.SetValue(launcher, previousInFlight ?? false);
+                    Log.Error("[The Marked Men] Failed to spawn airborne raid vehicle: " + ex.Message);
                     throw;
                 }
 
@@ -2974,8 +2977,9 @@ namespace TheMarkedMen
                         {
                             return property.GetValue(instance, null);
                         }
-                        catch
+                        catch (Exception ex)
                         {
+                            Log.Error("[The Marked Men] Could not read property via reflection: " + ex.Message);
                         }
                     }
                 }
@@ -2993,8 +2997,9 @@ namespace TheMarkedMen
                         return true;
                     }
                 }
-                catch
+                catch (Exception ex)
                 {
+                    Log.Error("[The Marked Men] Could not convert float value: " + ex.Message);
                 }
 
                 result = 0f;
@@ -3136,8 +3141,9 @@ namespace TheMarkedMen
 
                 return false;
             }
-            catch
+            catch (Exception ex)
             {
+                Log.Error("[The Marked Men] Could not check if pawn is in vehicle: " + ex.Message);
                 return false;
             }
         }
@@ -3165,8 +3171,9 @@ namespace TheMarkedMen
 
                 return null;
             }
-            catch
+            catch (Exception ex)
             {
+                Log.Error("[The Marked Men] Could not get vehicle for pawn: " + ex.Message);
                 return null;
             }
         }
@@ -3186,8 +3193,9 @@ namespace TheMarkedMen
                 var result = getPassengersMethod.Invoke(vehicle, null) as List<Pawn>;
                 return result ?? new List<Pawn>();
             }
-            catch
+            catch (Exception ex)
             {
+                Log.Error("[The Marked Men] Could not get vehicle passengers: " + ex.Message);
                 return new List<Pawn>();
             }
         }
@@ -3222,8 +3230,9 @@ namespace TheMarkedMen
 
                 return true;
             }
-            catch
+            catch (Exception ex)
             {
+                Log.Error("[The Marked Men] Could not check if infected can ride vehicle: " + ex.Message);
                 return false;
             }
         }

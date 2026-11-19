@@ -1,5 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Defs>
+  <!-- ============================================================
+       Hediff Definitions for The Marked Men mod
+       Health effects, diseases, conditions, and status effects
+       applied to pawns infected by or exposed to the Marked Virus.
+       ============================================================ -->
+
+  <!-- Primary disease: contagious neurological blood-borne disease spread by close contact with infected bodily fluids -->
   <HediffDef>
     <defName>CA_CrossVirus</defName>
     <label>Marked Virus</label>
@@ -12,6 +19,7 @@
     <isBad>true</isBad>
     <makesSickThought>true</makesSickThought>
     <alwaysShowSeverity>true</alwaysShowSeverity>
+    <!-- The CA_CrossVirus infects pawns through blood contact and can progress through several stages -->
     <stages>
       <li>
         <minSeverity>0</minSeverity>
@@ -89,6 +97,7 @@
         </statOffsets>
       </li>
     </stages>
+    <!-- The CA_CrossVirus has four stages of progression from early infection to terminal transformation -->
     <comps>
       <li Class="TheMarkedMen.HediffCompProperties_CrossVirus">
         <incubationTicks>600</incubationTicks>
@@ -108,6 +117,7 @@
     </comps>
   </HediffDef>
 
+  <!-- Visible red cross-shaped rash that spreads across the face and neck of Marked Virus carriers -->
   <HediffDef>
     <defName>CA_CrossedRash</defName>
     <label>marked rash</label>
@@ -123,7 +133,7 @@
     </stages>
   </HediffDef>
 
-  <!-- Scout adrenaline -->
+  <!-- Scout adrenaline: The Marked Virus sharpens the scout's reflexes, pushing them into a permanent heightened state for rapid hit-and-run attacks -->
   <HediffDef>
     <defName>CA_ScoutAdrenaline</defName>
     <label>scout adrenaline</label>
@@ -142,7 +152,7 @@
     </stages>
   </HediffDef>
 
-  <!-- Hunter focus -->
+  <!-- Hunter focus: The virus enhances the hunter's tracking instincts, granting preternatural accuracy and stealth in pursuit of prey -->
   <HediffDef>
     <defName>CA_HunterFocus</defName>
     <label>hunter focus</label>
@@ -162,7 +172,7 @@
     </stages>
   </HediffDef>
 
-  <!-- Shooter rush -->
+  <!-- Shooter rush: The infected shooter moves with an aggressive, relentless pace, closing distance and unloading with unnatural speed -->
   <HediffDef>
     <defName>CA_ShooterRush</defName>
     <label>shooter rush</label>
@@ -182,7 +192,7 @@
     </stages>
   </HediffDef>
 
-  <!-- Raider fury -->
+  <!-- Raider fury: Rage and viral aggression merge into a relentless assault drive — the raider feels no fear and hits harder with every breach -->
   <HediffDef>
     <defName>CA_RaiderFury</defName>
     <label>raider fury</label>
@@ -204,7 +214,7 @@
     </stages>
   </HediffDef>
 
-  <!-- Soldier discipline -->
+  <!-- Soldier discipline: Former military training is amplified by the virus — the crossed soldier fights with tactical precision and unbreakable nerve -->
   <HediffDef>
     <defName>CA_SoldierDiscipline</defName>
     <label>soldier discipline</label>
@@ -226,7 +236,7 @@
     </stages>
   </HediffDef>
 
-  <!-- Fire hunger -->
+  <!-- Fire hunger: The virus twists the pyromaniac's obsession into a weapon — they accelerate through flames and feel only warmth where others feel agony -->
   <HediffDef>
     <defName>CA_FireHunger</defName>
     <label>fire hunger</label>
@@ -247,7 +257,7 @@
     </stages>
   </HediffDef>
 
-  <!-- Warlord presence -->
+  <!-- Warlord presence: A regional commander whose infection has amplified their tactical instincts — the warlord leads from the front with devastating effect -->
   <HediffDef>
     <defName>CA_WarlordPresence</defName>
     <label>warlord presence</label>
@@ -271,7 +281,7 @@
     </stages>
   </HediffDef>
 
-  <!-- Warlord tier -->
+  <!-- Warlord tier: This Warlord has undergone severe neural and muscular reinforcement. Its tactical instincts are amplified and its body is conditioned for sustained assault -->
   <HediffDef>
     <defName>CA_WarlordTier</defName>
     <label>warlord tier</label>
@@ -301,7 +311,7 @@
     </stages>
   </HediffDef>
 
-  <!-- Alpha tier -->
+  <!-- Alpha tier: This Alpha's infection has hybridized with its nervous system, granting preternatural reflexes and dense muscle fiber reinforcement -->
   <HediffDef>
     <defName>CA_AlphaTier</defName>
     <label>alpha tier</label>
@@ -331,7 +341,7 @@
     </stages>
   </HediffDef>
 
-  <!-- Marked tier -->
+  <!-- Marked tier: The Marked Virus has achieved complete saturation. The host is no longer organic — it is a living weapon of apex lethality -->
   <HediffDef>
     <defName>CA_MarkedTier</defName>
     <label>marked tier</label>
@@ -361,6 +371,7 @@
     </stages>
   </HediffDef>
 
+  <!-- Marked Virus immunity: This pawn has strong Marked Virus immune memory -->
   <HediffDef>
     <defName>CA_CrossVirusImmunity</defName>
     <label>marked virus immunity</label>
@@ -379,6 +390,7 @@
     </stages>
   </HediffDef>
 
+  <!-- Blood rush: The berserker's adrenal system is locked into a permanent sprinting combat state -->
   <HediffDef>
     <defName>CA_BloodRush</defName>
     <label>blood rush</label>
@@ -405,6 +417,7 @@
     </stages>
   </HediffDef>
 
+  <!-- Alpha command aura: An Alpha's vocal cadence and pheromone output pushes nearby infected into coordinated violence -->
   <HediffDef>
     <defName>CA_CommandAura</defName>
     <label>alpha command aura</label>
@@ -433,6 +446,7 @@
     </stages>
   </HediffDef>
 
+  <!-- Psychic aura: The Alpha Psychic's mind emanates a destabilizing field that triggers panic in nearby non-infected humans -->
   <HediffDef>
     <defName>CA_PsychicAura</defName>
     <label>psychic aura</label>
@@ -464,8 +478,7 @@
     </comps>
   </HediffDef>
 
-
-
+  <!-- Marked ascension: The virus has reached full saturation — the host is no longer fighting the Mark -->
   <HediffDef>
     <defName>CA_MarkedAscension</defName>
     <label>marked ascension</label>
@@ -493,6 +506,7 @@
     </stages>
   </HediffDef>
 
+  <!-- Screaming charge: The infected charges with supernatural speed and aggression -->
   <HediffDef>
     <defName>CA_ScreamingCharge</defName>
     <label>screaming charge</label>
@@ -510,6 +524,7 @@
     </stages>
   </HediffDef>
 
+  <!-- Blood frenzy: Kill after kill, the frenzy builds — the infected moves faster and hits harder with every victim -->
   <HediffDef>
     <defName>CA_BloodFrenzy</defName>
     <label>blood frenzy</label>
@@ -552,6 +567,7 @@
     </stages>
   </HediffDef>
 
+  <!-- Rally buff: The Alpha or Warlord's presence pushes nearby infected to fight harder -->
   <HediffDef>
     <defName>CA_RallyBuff</defName>
     <label>rally buff</label>
@@ -574,6 +590,7 @@
     </stages>
   </HediffDef>
 
+  <!-- Pack coordination: The infected coordinates with nearby pack members for tactical advantage -->
   <HediffDef>
     <defName>CA_PackCoordination</defName>
     <label>pack coordination</label>
@@ -609,6 +626,7 @@
     </stages>
   </HediffDef>
 
+  <!-- Crossed panic: Recent contact with Marked Men voices, laughter, or coordinated threats has destabilized this pawn -->
   <HediffDef>
     <defName>CA_CrossedPanic</defName>
     <label>marked panic</label>
@@ -631,6 +649,8 @@
       </li>
     </comps>
   </HediffDef>
+
+  <!-- Crossed strength: The Marked Virus enhances the host's physical capabilities beyond normal human limits -->
   <HediffDef>
     <defName>CA_CrossedStrength</defName>
     <label>marked strength</label>
@@ -656,6 +676,7 @@
     </stages>
   </HediffDef>
 
+  <!-- Temporary Marked Ally: This infected pawn temporarily serves the player as a controllable slave -->
   <HediffDef>
     <defName>CA_TemporaryMarkedAlly</defName>
     <label>temporary infected ally</label>
@@ -670,6 +691,7 @@
     </comps>
   </HediffDef>
 
+  <!-- Marked Turned: A pawn transformed by the Marked Virus. They retain fragments of their former abilities and memory -->
   <HediffDef>
     <defName>CA_MarkedTurned</defName>
     <label>marked turned</label>

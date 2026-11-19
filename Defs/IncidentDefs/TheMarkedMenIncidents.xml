@@ -1,5 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Defs>
+  <!-- ============================================================
+       Incident Definitions for The Marked Men mod
+       Custom incident workers for various Marked Men raid types and events.
+       ============================================================ -->
+
+  <!-- Standard Marked Men raid - coordinated warband of infected -->
   <IncidentDef>
     <defName>CA_CrossedRaid</defName>
     <label>Marked Men raid</label>
@@ -19,6 +25,7 @@
     <canOccurOnAllPlanetLayers>true</canOccurOnAllPlanetLayers>
   </IncidentDef>
 
+  <!-- Land assault with vehicles and infantry -->
   <IncidentDef>
     <defName>CA_CrossedLandAssault</defName>
     <label>Marked Men Land Assault</label>
@@ -38,6 +45,7 @@
     <canOccurOnAllPlanetLayers>true</canOccurOnAllPlanetLayers>
   </IncidentDef>
 
+  <!-- Airborne assault with combat aircraft -->
   <IncidentDef>
     <defName>CA_CrossedAirborneAssault</defName>
     <label>Marked Men Airborne Assault</label>
@@ -57,6 +65,7 @@
     <canOccurOnAllPlanetLayers>true</canOccurOnAllPlanetLayers>
   </IncidentDef>
 
+  <!-- Combined arms assault: infantry + ground vehicles + aircraft -->
   <IncidentDef>
     <defName>CA_CrossedCombinedArmsAssault</defName>
     <label>Marked Men Combined Arms Assault</label>
@@ -76,6 +85,7 @@
     <canOccurOnAllPlanetLayers>true</canOccurOnAllPlanetLayers>
   </IncidentDef>
 
+  <!-- Small scouting pack probing defenses -->
   <IncidentDef>
     <defName>CA_CrossedProbe</defName>
     <label>Marked Men probe</label>
@@ -95,6 +105,7 @@
     <canOccurOnAllPlanetLayers>true</canOccurOnAllPlanetLayers>
   </IncidentDef>
 
+  <!-- Downed infected survivor near colony -->
   <IncidentDef>
     <defName>CA_CrossedDownedSurvivor</defName>
     <label>Marked downed survivor</label>
@@ -111,8 +122,10 @@
     <letterLabel>Infected survivor downed</letterLabel>
     <letterText>A critically infected survivor has collapsed near the colony. They are carrying the Marked Virus and may turn at any moment. Rescue them or put them down before they become a threat.</letterText>
     <letterDef>ThreatSmall</letterDef>
+    <canOccurOnAllPlanetLayers>true</canOccurOnAllPlanetLayers>
   </IncidentDef>
 
+  <!-- Caravan ambush by Marked Men -->
   <IncidentDef>
     <defName>CA_CrossedCaravanAmbush</defName>
     <label>Marked Men caravan ambush</label>
@@ -129,8 +142,10 @@
     <letterLabel>Marked Men ambush</letterLabel>
     <letterText>A pack of Marked Men has ambushed the caravan! The infected erupt from cover with unnatural speed, cutting off escape routes. Fight through them or fall back to reform - but the Marked do not retreat, and every exchange of blood risks exposure to the Marked Virus.</letterText>
     <letterDef>ThreatSmall</letterDef>
+    <canOccurOnAllPlanetLayers>true</canOccurOnAllPlanetLayers>
   </IncidentDef>
 
+  <!-- Large horde of infected -->
   <IncidentDef>
     <defName>CA_CrossedHorde</defName>
     <label>Marked Men horde</label>

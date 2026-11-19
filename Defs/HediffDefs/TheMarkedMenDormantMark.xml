@@ -12,6 +12,7 @@
     <isBad>false</isBad>
     <makesSickThought>false</makesSickThought>
     <scenarioCanAdd>false</scenarioCanAdd>
+    <!-- Can trigger to active infection when host takes damage or witnesses Crossed activity -->
     <comps>
       <li Class="TheMarkedMen.HediffCompProperties_DormantMark">
         <dormantMinDays>8</dormantMinDays>

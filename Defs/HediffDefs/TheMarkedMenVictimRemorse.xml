@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Defs>
+  <!-- Victim Remorse: A psychological condition from the trauma of killing -->
   <HediffDef>
     <defName>TheMarkedMen_VictimRemorse</defName>
     <label>victim remorse</label>
-    <description>They Remember Everything The things they've Done</description>
+    <description>Deep psychological trauma from having killed victims. This condition is imposed on certain enemies after they kill the player's colonists, causing them to become less effective in combat due to emotional trauma.</description>
     <hediffClass>HediffWithComps</hediffClass>
     <isBad>true</isBad>
     <tendable>false</tendable>

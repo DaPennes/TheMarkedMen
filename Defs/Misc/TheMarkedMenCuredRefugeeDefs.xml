@@ -1,12 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Defs>
+  <!-- ============================================================
+       Cured Refugee Definitions for The Marked Men mod
+       Definitions for the state and notifications of pawns who
+       have been cured of the virus and are seeking refuge.
+       ============================================================ -->
 
-  <!-- Letter def for cured refugee choice letter -->
+  <!-- Letter def for cured refugee choice letter.
+       Notifies the player when a cured refugee seeks acceptance. -->
   <LetterDef>
     <defName>TheMarkedMen_CuredRefugeeLetter</defName>
     <label>cured refugee</label>
     <color>(0.2, 0.8, 0.2)</color>
     <flashInterval>0.5</flashInterval>
   </LetterDef>
-
 </Defs>

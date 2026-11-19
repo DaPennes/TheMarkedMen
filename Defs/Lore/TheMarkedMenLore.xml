@@ -1,5 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Defs>
+  <!-- ============================================================
+       Lore Rule Pack Definitions for The Marked Men mod
+       Narrative rules generating flavor text and world-building details
+       for the Marked Men outbreak and infected society.
+       ============================================================ -->
+
+  <!-- Lore records for the Marked Men: origin, military reports,
+       survivor journals, progression notes, and pack structure. -->
   <RulePackDef>
     <defName>CA_CrossedLoreRecords</defName>
     <rulePack>

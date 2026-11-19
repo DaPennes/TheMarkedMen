@@ -1,5 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Defs>
+  <!-- ============================================================
+       Tattoo Definitions for The Marked Men mod
+       Visual tattoos representing Marked Virus rash progression stages.
+       ============================================================ -->
+
+  <!-- Stage 1 of the marked rash - early infection, faint cross pattern on face -->
   <TattooDef>
     <defName>CA_Face_CrossedRashStage1</defName>
     <label>marked rash stage 1</label>
@@ -14,6 +20,7 @@
     </styleTags>
   </TattooDef>
 
+  <!-- Stage 2 of the marked rash - established infection, deeper cross pattern -->
   <TattooDef>
     <defName>CA_Face_CrossedRashStage2</defName>
     <label>marked rash stage 2</label>
@@ -28,6 +35,7 @@
     </styleTags>
   </TattooDef>
 
+  <!-- Stage 3 of the marked rash - advanced infection, pronounced cross pattern -->
   <TattooDef>
     <defName>CA_Face_CrossedRashStage3</defName>
     <label>marked rash stage 3</label>
@@ -42,6 +50,7 @@
     </styleTags>
   </TattooDef>
 
+  <!-- Stage 4 of the marked rash - terminal infection, dark red X across face -->
   <TattooDef>
     <defName>CA_Face_CrossedRashStage4</defName>
     <label>marked rash stage 4</label>
@@ -56,6 +65,7 @@
     </styleTags>
   </TattooDef>
 
+  <!-- Composite marked rash tattoo used by the CA_CrossedRash hediff -->
   <TattooDef>
     <defName>CA_Face_CrossedRash</defName>
     <label>marked rash</label>

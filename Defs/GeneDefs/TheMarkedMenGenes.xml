@@ -1,9 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Defs>
+  <!-- ============================================================
+       Gene Definitions for The Marked Men mod
+       Custom genes governing Marked Virus infection, immunity, and traits
+       Required DLC: Biotech
+       ============================================================ -->
+
+  <!-- Grants complete immunity to the Marked Virus. Prevents infection from all Marked Virus exposure and improves immunity gain. -->
   <GeneDef MayRequire="Ludeon.RimWorld.Biotech">
     <defName>CA_CrossVirusResistance</defName>
     <label>Marked Virus Immunity</label>
-    <description>Complete immunity to the Marked Virus. This gene prevents infection from all Marked Virus exposure and improves immunity gain.</description>
+    <description>A gene that grants complete immunity to the Marked Virus. Prevents infection from all Marked Virus exposure and improves immunity gain.</description>
     <iconPath>UI/Genes/Marked Immune Gene/Marked Immune Gene</iconPath>
     <displayCategory>Miscellaneous</displayCategory>
     <biostatCpx>2</biostatCpx>
@@ -13,6 +20,7 @@
     </statOffsets>
   </GeneDef>
 
+  <!-- Reduces the chance of contracting the Marked Virus by 75% after direct exposure. -->
   <GeneDef MayRequire="Ludeon.RimWorld.Biotech">
     <defName>CA_MarkedVirusResistanceGene</defName>
     <label>Marked Virus Resistance</label>
@@ -23,20 +31,5 @@
     <biostatMet>-1</biostatMet>
   </GeneDef>
 
-  <GeneDef MayRequire="Ludeon.RimWorld.Biotech">
-    <defName>CA_CrossedAggressionMarker</defName>
-    <label>aggression marker</label>
-    <description>A dangerous neurological expression pattern seen in late-stage Marked Virus mutations. It increases movement speed and melee capability at the cost of social stability.</description>
-    <iconPath>UI/Genes/Marked Aggression Gene/Marked Aggression Gene</iconPath>
-    <displayCategory>Miscellaneous</displayCategory>
-    <biostatCpx>3</biostatCpx>
-    <biostatMet>2</biostatMet>
-    <statOffsets>
-      <MoveSpeed>0.24</MoveSpeed>
-      <MeleeDodgeChance>0.06</MeleeDodgeChance>
-      <SocialImpact>-0.4</SocialImpact>
-    </statOffsets>
-  </GeneDef>
-
-
+  <!-- Gene for marked bloodlust is defined in TheMarkedMenPredatorGenes.xml to avoid duplicate DefName -->
 </Defs>

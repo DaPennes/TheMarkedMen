@@ -1,11 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Defs>
-
   <!-- Hediff for tracking that a pawn is a cured refugee -->
   <HediffDef>
     <defName>TheMarkedMen_CuredRefugee</defName>
     <label>cured refugee</label>
-    <description>This person has been cured of the Marked Virus infection and is seeking acceptance into a new community.</description>
+    <description>A pawn who has been cured of the Marked Virus infection and is seeking acceptance into a new community. This condition tracks their journey toward integration and emotional recovery.</description>
     <hediffClass>Hediff</hediffClass>
     <defaultLabelColor>(0.5, 0.5, 0.5)</defaultLabelColor>
     <stages>
@@ -66,5 +65,4 @@
       </li>
     </degreeDatas>
   </TraitDef>
-
 </Defs>

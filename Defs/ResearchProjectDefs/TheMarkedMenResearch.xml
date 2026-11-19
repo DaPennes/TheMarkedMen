@@ -1,5 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Defs>
+  <!-- ============================================================
+       Research Project Definitions for The Marked Men mod
+       Research projects specific to understanding and managing
+       the Marked Virus and its effects.
+       ============================================================ -->
+
+  <!-- Study the Marked Virus and the blood of its hosts.
+       Unlocks the syringe, infected blood sample handling,
+       and the Marked Virus cure. -->
   <ResearchProjectDef>
     <defName>TheMarkedMen_MarkedVirusResearch</defName>
     <label>Marked virus studies</label>

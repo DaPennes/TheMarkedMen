@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Defs>
+  <!-- Restraint condition: Used for prisoners being held on a medical bed with heavy chains -->
   <HediffDef>
     <defName>CA_Restrained</defName>
     <label>restrained</label>
-    <description>This pawn has been physically restrained on a bed with heavy chains. Movement and attacks are impossible.\n\nWhen restrained, the Marked Virus progression is unaffected but the prisoner cannot attack wardens, harm themselves, or escape.</description>
+    <description>This pawn has been physically restrained on a bed with heavy chains. Movement and attacks are impossible. When restrained, the Marked Virus progression is unaffected but the prisoner cannot attack wardens, harm themselves, or escape.</description>
     <hediffClass>HediffWithComps</hediffClass>
     <isBad>true</isBad>
     <tendable>false</tendable>

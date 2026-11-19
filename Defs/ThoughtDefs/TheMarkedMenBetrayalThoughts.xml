@@ -1,5 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Defs>
+  <!-- ============================================================
+       Betrayal Thought Definitions for The Marked Men mod
+       Mood and opinion modifiers triggered by betrayal, transformation,
+       and loss of trusted colonists to the virus.
+       ============================================================ -->
+
+  <!-- Mood effect when a trusted colonist is revealed to be carrying the virus. -->
   <ThoughtDef>
     <defName>CA_BetrayedByColonist</defName>
     <durationDays>12</durationDays>
@@ -13,6 +20,7 @@
     </stages>
   </ThoughtDef>
 
+  <!-- Social opinion modifier when a colonist is betrayed by another colonist carrying the virus. -->
   <ThoughtDef>
     <defName>CA_BetrayedByColonistSocial</defName>
     <thoughtClass>Thought_MemorySocial</thoughtClass>
@@ -34,6 +42,7 @@
     <thoughtToMake>CA_BetrayedByColonist</thoughtToMake>
   </ThoughtDef>
 
+  <!-- Mood effect when a loved one (lover, spouse, close friend) transforms into one of the Marked Men. -->
   <ThoughtDef>
     <defName>CA_LovedOneTurned</defName>
     <durationDays>20</durationDays>
@@ -47,6 +56,7 @@
     </stages>
   </ThoughtDef>
 
+  <!-- Mood effect when the player grows suspicious that other colonists may be infected. -->
   <ThoughtDef>
     <defName>CA_SuspiciousOfColonists</defName>
     <durationDays>8</durationDays>
@@ -60,6 +70,7 @@
     </stages>
   </ThoughtDef>
 
+  <!-- Mood effect when performing a merciful execution of an infected colonist before they turn. -->
   <ThoughtDef>
     <defName>CA_MercifulKill</defName>
     <durationDays>10</durationDays>

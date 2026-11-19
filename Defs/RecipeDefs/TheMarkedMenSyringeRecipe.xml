@@ -1,5 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Defs>
+  <!-- ============================================================
+       Recipe Definitions for The Marked Men mod
+       Basic syringe crafting for blood draws and medical use.
+       ============================================================ -->
+
+  <!-- Recipe to assemble a blood syringe from raw materials.
+       Required for blood draws and cure administration. -->
   <RecipeDef>
     <defName>TheMarkedMen_Syringe_Make</defName>
     <label>make syringe</label>
@@ -32,14 +39,6 @@
         <count>1</count>
       </li>
     </ingredients>
-    <fixedIngredientFilter>
-      <categories>
-        <li>StoneChunks</li>
-      </categories>
-      <thingDefs>
-        <li>Steel</li>
-      </thingDefs>
-    </fixedIngredientFilter>
     <products>
       <TheMarkedMen_Syringe>1</TheMarkedMen_Syringe>
     </products>

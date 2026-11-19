@@ -1,5 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Defs>
+  <!-- ============================================================
+       Incident Definitions for The Marked Men mod
+       Urban-specific events triggered when the player is in ruins
+       or designated urban map areas.
+       ============================================================ -->
+
+  <!-- Ambush event where infected pour from urban cover.
+       High lethality due to close-quarters engagement and ambush positioning. -->
   <IncidentDef>
     <defName>CA_UrbanAmbush</defName>
     <label>Urban ruins ambush</label>
@@ -17,6 +25,8 @@
     <letterDef>ThreatSmall</letterDef>
   </IncidentDef>
 
+  <!-- Discovery of a survivor within urban ruins.
+       Can lead to a new colonist, a hostage, or an infection trigger. -->
   <IncidentDef>
     <defName>CA_UrbanSurvivor</defName>
     <label>Urban ruins survivor</label>

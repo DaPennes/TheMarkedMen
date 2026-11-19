@@ -1,5 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Defs>
+  <!-- ============================================================
+       Faction Definitions for The Marked Men mod
+       Defines the Crossed Faction, its ideology, and raid behavior.
+       Required DLC: Ideology (for ideology-related fields).
+       ============================================================ -->
+  <!-- Raid loot table used by Crossed faction raids -->
   <ThingSetMakerDef>
     <defName>CA_CrossedRaidLootMaker</defName>
     <root Class="ThingSetMaker_MarketValue">

@@ -1,6 +1,13 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <Defs>
+  <!-- ============================================================
+       Think Tree Definitions for The Marked Men mod
+       Custom AI think trees governing Marked Men combat behavior.
+       ============================================================ -->
 
+  <!-- Pursuer think tree: Hunter behavior for fast roaming infected.
+       Prioritizes finding targets, hunting wounded, flanking, cover,
+       and retreat decisions. -->
   <ThinkTreeDef>
     <defName>CA_HunterThinkTree</defName>
     <label>Pursuer Think Tree</label>
@@ -23,5 +30,4 @@
       </subNodes>
     </thinkRoot>
   </ThinkTreeDef>
-
 </Defs>

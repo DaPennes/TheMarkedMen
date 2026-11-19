@@ -1,7 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Defs>
+  <!-- ============================================================
+       Job Definitions for The Marked Men mod
+       Custom job definitions used by infected pawns and Marked Men AI
+       ============================================================ -->
   <JobDef>
     <defName>TheMarkedMen_DrawBlood</defName>
+    <label>draw blood</label>
+    <description>A specialized job where infected pawns draw blood from targets to spread the Marked Virus. Used by Crossed and Marked Men infected pawns.</description>
     <driverClass>TheMarkedMen.JobDriver_DrawBlood</driverClass>
     <reportString>drawing blood from TargetA.</reportString>
     <casualInterruptible>false</casualInterruptible>
@@ -9,6 +15,8 @@
   </JobDef>
   <JobDef>
     <defName>TheMarkedMen_InjectCure</defName>
+    <label>inject cure</label>
+    <description>Administers the cure to infected targets. This job is used by medical personnel and infected carriers to treat the Marked Virus infection.</description>
     <driverClass>TheMarkedMen.JobDriver_InjectCure</driverClass>
     <reportString>injecting the cure into TargetA.</reportString>
     <casualInterruptible>false</casualInterruptible>

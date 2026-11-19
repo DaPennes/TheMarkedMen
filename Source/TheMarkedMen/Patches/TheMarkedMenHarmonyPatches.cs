@@ -49,6 +49,22 @@ namespace TheMarkedMen
                 memory.AddNoise(__instance.Position, 1f, 2500);
             }
 
+            // Trigger Dormant Mark activation
+            if (!__instance.Dead)
+            {
+                Hediff dormant = __instance.health?.hediffSet?.GetFirstHediffOfDef(CADefOf.CA_DormantMark);
+                if (dormant != null)
+                {
+                    HediffComp_DormantMark comp = dormant.TryGetComp<HediffComp_DormantMark>();
+                    if (comp != null && !comp.IsActivated)
+                    {
+                        float maxHealth = __instance.HealthScale * 100f;
+                        float damageFraction = totalDamageDealt / Math.Max(maxHealth, 1f);
+                        comp.NotifyDamaged(damageFraction);
+                    }
+                }
+            }
+
             if (!CrossedDamageUtility.IsValidMeleeInfectionSource(dinfo))
             {
                 return;
@@ -141,6 +157,17 @@ namespace TheMarkedMen
 
             CrossedUtility.EnsureFearlessCrossedState(__instance);
             CrossedTacticalAI.TryIssueTacticalJob(__instance);
+
+            // Prevent vanilla map-exit behavior for infected
+            if (__instance.mindState != null && __instance.mindState.exitMapAfterTick > 0)
+            {
+                __instance.mindState.exitMapAfterTick = -1; // Cancel exit
+
+                // Reassign to stay on map and engage targets
+                CrossedUtility.EnsureInfectedHasValidLord(__instance);
+                CrossedTacticalAI.TryIssueTacticalJob(__instance);
+            }
+
             if (!__instance.IsHashIntervalTick(TheMarkedMenSettings.InfectedStateMaintenanceIntervalTicks))
             {
                 return;
@@ -536,21 +563,6 @@ namespace TheMarkedMen
     [HarmonyPatch(typeof(Pawn), nameof(Pawn.TickRare))]
     public static class Patch_PreventInfectedMapExit
     {
-        public static void Postfix(Pawn __instance)
-        {
-            if (__instance == null || __instance.Faction == Faction.OfPlayer || !CrossedUtility.IsInfectedPawn(__instance))
-                return;
-
-            // Prevent vanilla map-exit behavior for infected
-            if (__instance.mindState != null && __instance.mindState.exitMapAfterTick > 0)
-            {
-                __instance.mindState.exitMapAfterTick = -1; // Cancel exit
-
-                // Reassign to stay on map and engage targets
-                CrossedUtility.EnsureInfectedHasValidLord(__instance);
-                CrossedTacticalAI.TryIssueTacticalJob(__instance);
-            }
-        }
     }
 
     [HarmonyPatch(typeof(LetterStack), nameof(LetterStack.LettersOnGUI))]

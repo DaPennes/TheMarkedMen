@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Defs>
+  <!-- Hediff indicating the cure is actively working through a Marked Virus infection -->
   <HediffDef>
     <defName>TheMarkedMen_CurePending</defName>
     <label>cure working</label>

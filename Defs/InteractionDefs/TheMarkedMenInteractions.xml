@@ -1,5 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Defs>
+  <!-- ============================================================
+       Interaction Definitions for The Marked Men mod
+       Custom social interactions used by the Crossed to psychologically
+       attack or manipulate non-infected pawns.
+       ============================================================ -->
+
+  <!-- Predatory Taunt: A psychological attack designed to instill fear
+       and reveal weaknesses in the target's defenses. -->
   <InteractionDef>
     <defName>CA_CrossedPredatoryTaunt</defName>
     <label>predatory taunt</label>
@@ -56,6 +64,8 @@
     </logRulesInitiator>
   </InteractionDef>
 
+  <!-- False Mercy: A manipulation attempt to trick the target into
+       lowering their guard or revealing critical information. -->
   <InteractionDef>
     <defName>CA_CrossedFalseMercy</defName>
     <label>false mercy</label>
@@ -99,6 +109,8 @@
     </logRulesInitiator>
   </InteractionDef>
 
+  <!-- Pack Laughter: A coordinated psychological attack where multiple infected
+       mock a target to break their spirit. -->
   <InteractionDef>
     <defName>CA_CrossedPackLaughter</defName>
     <label>pack laughter</label>
@@ -124,6 +136,8 @@
     </logRulesInitiator>
   </InteractionDef>
 
+  <!-- Infection Gloat: A targeted psychological attack focused on the target's
+       inevitable transformation. -->
   <InteractionDef>
     <defName>CA_CrossedInfectionGloat</defName>
     <label>infection gloat</label>

@@ -1,5 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Defs>
+  <!-- ============================================================
+       Choice Letter Definitions for The Marked Men mod
+       Specialized letters that present the player with narrative
+       choices regarding survivor encounters.
+       ============================================================ -->
+
+  <!-- Choice letter for the Lost Survivor incident.
+       Presents options for how to handle the newcomer. -->
   <LetterDef>
     <defName>CA_LostSurvivorLetter</defName>
     <letterClass>TheMarkedMen.ChoiceLetter_LostSurvivor</letterClass>

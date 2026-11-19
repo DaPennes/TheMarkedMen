@@ -1,5 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Defs>
+  <!-- ============================================================
+       Stat Definitions for The Marked Men mod
+       Custom stats governing pawn capabilities and resistances.
+       ============================================================ -->
+
+  <!-- How resistant this pawn is to contracting the Marked Virus from direct exposure.
+       Apparel with Marked Virus resistance reduces exposure risk, while fully sealed
+       protective sets can block direct exposure. This stat is separate from toxic
+       environment resistance and does not affect vanilla toxin mechanics. -->
   <StatDef>
     <defName>CA_MarkedVirusResistance</defName>
     <label>marked virus resistance</label>
