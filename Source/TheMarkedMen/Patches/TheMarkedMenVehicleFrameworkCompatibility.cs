@@ -3690,7 +3690,7 @@ namespace TheMarkedMen
                 try
                 {
                     FieldInfo field = instance.GetType().GetField(name, System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-                    if (field != null && field.CanWrite(instance))
+                    if (field != null)
                     {
                         field.SetValue(instance, value);
                         return;
