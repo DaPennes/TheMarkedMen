@@ -2212,17 +2212,17 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
 
     public sealed class TheMarkedMenGameComponent : GameComponent
     {
-        private const int MaintenanceTickInterval = 2500;
-        private const int RaidMonitorIntervalTicks = 250;
-        private const int RaidWarningCheckIntervalTicks = 250;
-        private const int ColonyPresenceCacheTicks = 250;
-        private const int InfectedStateReconciliationIntervalTicks = GenDate.TicksPerDay;
+        private const int MaintenanceTickInterval = 5000;
+        private const int RaidMonitorIntervalTicks = 500;
+        private const int RaidWarningCheckIntervalTicks = 500;
+        private const int ColonyPresenceCacheTicks = 500;
+        private const int InfectedStateReconciliationIntervalTicks = GenDate.TicksPerDay * 2;
         private const int ReanimationDelayTicks = 900;
         private const int InitialThreatFirstTick = GenDate.TicksPerDay * 45;
         private const int RaidFirstTick = InitialThreatFirstTick;
         private const int RaidIntervalTicks = GenDate.TicksPerDay * 5;
         private const int RaidMinimumIntervalTicks = GenDate.TicksPerDay;
-        private const int DebugEarlyRaidDelayTicks = 2500;
+        private const int DebugEarlyRaidDelayTicks = 5000;
         private const int RaidScheduleVersion = 3;
         private const int RaidRetryTicks = GenDate.TicksPerDay;
         private const int HordeFirstTick = InitialThreatFirstTick + HordeBaseIntervalTicks;
@@ -2231,8 +2231,8 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
         private const int HordeMinIntervalTicks = GenDate.TicksPerDay * 2;
         private const int HordeMaxIntervalTicks = HordeBaseIntervalTicks;
         private const int RecentIncidentLimit = 12;
-        private const float RaidEscalationPerRaid = 0.18f;
-        private const float RaidEscalationMaxBonus = 5f;
+        private const float RaidEscalationPerRaid = 0.05f;
+        private const float RaidEscalationMaxBonus = 2f;
         private const float RandomRaidIntervalMinFactor = 0.2f;
         private const float RandomRaidIntervalMaxFactor = 2.4f;
 
