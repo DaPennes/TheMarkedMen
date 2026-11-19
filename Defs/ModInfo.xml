@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ModInfo>
+<Defs>
   <Name>The Marked Men</Name>
   <Description>A RimWorld mod adding a new faction of infected humans with enhanced AI behavior, vehicle combat capabilities, and unique medical conditions.</Description>
   <Author>The Pennes</Author>
@@ -10,4 +10,4 @@
   <LoadBefore>CoreStats</LoadBefore>
   <Version>1.2.0</Version>
   <Description>This mod adds a new infected faction with unique AI behavior, medical conditions, and combat capabilities. It introduces the 'Marked Men' as a distinct faction with their own vehicles, weapons, and AI behaviors.</Description>
-</ModInfo>
+</Defs>
