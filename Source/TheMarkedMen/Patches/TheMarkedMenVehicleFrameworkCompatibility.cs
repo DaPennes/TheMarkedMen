@@ -48,7 +48,7 @@ namespace TheMarkedMen
         private const string VehicleRaidHelperTypeFullName = "Vehicles.RaidInjectionHelper";
         private const string VehicleRaidExtensionTypeFullName = "Vehicles.VehicleRaiderDefModExtension";
         private const int MinimumGroundRaidPawns = 3;
-        private const int MaximumVehiclesPerRaid = 3;
+        private const int MaximumVehiclesPerRaid = 2;
         public const int MinimumVehicleCrewReserve = MinimumGroundRaidPawns;
 
         private static bool isVehicleFrameworkActive;

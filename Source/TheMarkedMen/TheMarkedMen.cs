@@ -48,11 +48,11 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
     {
         private const int CurrentSettingsVersion = 20;
         public const float InfectionTransmissionChance = 0.45f;
-        public const float DefaultMarkedRaidFrequencyMultiplier = 2f;
+        public const float DefaultMarkedRaidFrequencyMultiplier = 1f;
         public const float MinMarkedRaidFrequencyMultiplier = 0f;
         public const float MaxMarkedRaidFrequencyMultiplier = 5f;
-        public const float DefaultRaidEscalationPerRaid = 0.18f;
-        public const float DefaultRaidEscalationMaxBonus = 5f;
+        public const float DefaultRaidEscalationPerRaid = 0.05f;
+        public const float DefaultRaidEscalationMaxBonus = 2f;
         public const float DefaultImmunitySurvivalChance = 0.05f;
         public const float DefaultTerminalTransformationWeight = 0.75f;
         public const float DefaultTerminalDeathWeight = 0.20f;
@@ -111,7 +111,7 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
         public List<string> combinedAirRaidVehicleDefNames = new List<string>();
         public bool raidVehicleSelectionsConfigured;
         public bool randomizeMarkedRaids;
-        public float markedRaidFrequencyMultiplier = DefaultMarkedRaidFrequencyMultiplier;
+        public float markedRaidFrequencyMultiplier = 1f;
         public float warbandFrequencyMultiplier = 1f;
         public float hordeFrequencyMultiplier = 1f;
         public float probeFrequencyMultiplier = 1f;
@@ -120,8 +120,8 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
         public float raidPointsMultiplier = 2f;
         public float minimumRaidPoints = 2000f;
         public float maximumRaidPoints = 10000f;
-        public float raidEscalationPerRaid = DefaultRaidEscalationPerRaid;
-        public float raidEscalationMaxBonus = DefaultRaidEscalationMaxBonus;
+        public float raidEscalationPerRaid = 0.05f;
+        public float raidEscalationMaxBonus = 2f;
 
         // Raid wave randomization settings
         public float raidEscalationRandomness = 0.3f;
@@ -208,17 +208,17 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
         public bool caravanAmbushTimerVisible = true;
         public float caravanAmbushTelegraphDays = 2f;
         public float caravanAmbushPrepTimeInHours = 8f;
-        public int contagionPulseIntervalTicks = 500;
+        public int contagionPulseIntervalTicks = 1000;
         public int maxContagionTargetsPerPulse = 3;
-        public int tacticalRetargetIntervalTicks = 60;
-        public int infightingCheckIntervalTicks = 1000;
-        public int lordCleanupIntervalTicks = 250;
-        public int infectedStateMaintenanceIntervalTicks = 2500;
-        public int reanimationProcessIntervalTicks = 2500;
+        public int tacticalRetargetIntervalTicks = 120;
+        public int infightingCheckIntervalTicks = 2000;
+        public int lordCleanupIntervalTicks = 500;
+        public int infectedStateMaintenanceIntervalTicks = 5000;
+        public int reanimationProcessIntervalTicks = 5000;
         public int maxPendingReanimationsPerTick = 24;
-        public int maxRaidInfantry = 60;
+        public int maxRaidInfantry = 30;
         public int maxRaidVehicles = 2;
-        public int maxActiveRaidPawns = 80;
+        public int maxActiveRaidPawns = 40;
         // New performance settings
         public int minRaidVehicles = 1;
         public int maxAllowedRaidVehicles = 5;
@@ -700,17 +700,17 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
             Scribe_Values.Look(ref allowInfectedWearShields, "allowInfectedWearShields", true);
             Scribe_Values.Look(ref allowInfectedWearHelmets, "allowInfectedWearHelmets", true);
             Scribe_Values.Look(ref allowInfectedWearApparelWithTags, "allowInfectedWearApparelWithTags", true);
-            Scribe_Values.Look(ref contagionPulseIntervalTicks, "contagionPulseIntervalTicks", 500);
+            Scribe_Values.Look(ref contagionPulseIntervalTicks, "contagionPulseIntervalTicks", 1000);
             Scribe_Values.Look(ref maxContagionTargetsPerPulse, "maxContagionTargetsPerPulse", 3);
-            Scribe_Values.Look(ref tacticalRetargetIntervalTicks, "tacticalRetargetIntervalTicks", 60);
-            Scribe_Values.Look(ref infightingCheckIntervalTicks, "infightingCheckIntervalTicks", 1000);
-            Scribe_Values.Look(ref lordCleanupIntervalTicks, "lordCleanupIntervalTicks", 250);
-            Scribe_Values.Look(ref infectedStateMaintenanceIntervalTicks, "infectedStateMaintenanceIntervalTicks", 2500);
-            Scribe_Values.Look(ref reanimationProcessIntervalTicks, "reanimationProcessIntervalTicks", 2500);
+            Scribe_Values.Look(ref tacticalRetargetIntervalTicks, "tacticalRetargetIntervalTicks", 120);
+            Scribe_Values.Look(ref infightingCheckIntervalTicks, "infightingCheckIntervalTicks", 2000);
+            Scribe_Values.Look(ref lordCleanupIntervalTicks, "lordCleanupIntervalTicks", 500);
+            Scribe_Values.Look(ref infectedStateMaintenanceIntervalTicks, "infectedStateMaintenanceIntervalTicks", 5000);
+            Scribe_Values.Look(ref reanimationProcessIntervalTicks, "reanimationProcessIntervalTicks", 5000);
             Scribe_Values.Look(ref maxPendingReanimationsPerTick, "maxPendingReanimationsPerTick", 24);
-            Scribe_Values.Look(ref maxRaidInfantry, "maxRaidInfantry", 60);
-            Scribe_Values.Look(ref maxRaidVehicles, "maxRaidVehicles", 3);
-            Scribe_Values.Look(ref maxActiveRaidPawns, "maxActiveRaidPawns", 80);
+            Scribe_Values.Look(ref maxRaidInfantry, "maxRaidInfantry", 30);
+            Scribe_Values.Look(ref maxRaidVehicles, "maxRaidVehicles", 2);
+            Scribe_Values.Look(ref maxActiveRaidPawns, "maxActiveRaidPawns", 40);
             Scribe_Values.Look(ref bloodlustEnabled, "bloodlustEnabled", true);
             Scribe_Values.Look(ref bloodlustDecayRate, "bloodlustDecayRate", 1f);
             Scribe_Values.Look(ref bloodlustKillGainMultiplier, "bloodlustKillGainMultiplier", 1f);
@@ -2196,17 +2196,17 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
 
         private void ResetPerformanceDefaults()
         {
-            contagionPulseIntervalTicks = 500;
+            contagionPulseIntervalTicks = 1000;
             maxContagionTargetsPerPulse = 3;
-            tacticalRetargetIntervalTicks = 60;
-            infightingCheckIntervalTicks = 1000;
-            lordCleanupIntervalTicks = 250;
-            infectedStateMaintenanceIntervalTicks = 2500;
-            reanimationProcessIntervalTicks = 2500;
+            tacticalRetargetIntervalTicks = 120;
+            infightingCheckIntervalTicks = 2000;
+            lordCleanupIntervalTicks = 500;
+            infectedStateMaintenanceIntervalTicks = 5000;
+            reanimationProcessIntervalTicks = 5000;
             maxPendingReanimationsPerTick = 24;
-            maxRaidInfantry = 60;
+            maxRaidInfantry = 30;
             maxRaidVehicles = 2;
-            maxActiveRaidPawns = 80;
+            maxActiveRaidPawns = 40;
         }
     }
 

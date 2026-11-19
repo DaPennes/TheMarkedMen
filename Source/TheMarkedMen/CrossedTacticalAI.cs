@@ -11,11 +11,11 @@ namespace TheMarkedMen
 {
     public static class CrossedTacticalAI
     {
-        private const int TacticalJobExpiryTicks = 90;
+        private const int TacticalJobExpiryTicks = 180;
         private static readonly Dictionary<int, int> escapeScanStartTicks = new Dictionary<int, int>();
         private const int EscapeRoomScanDuration = 900;
-        private const int TacticalMoveExpiryTicks = 180;
-        private const int RangedCastSearchMaxRegions = 80;
+        private const int TacticalMoveExpiryTicks = 360;
+        private const int RangedCastSearchMaxRegions = 40;
         private const float MaxTacticalTargetDistance = 120f;
         private const float MaxTacticalTargetDistanceSquared = MaxTacticalTargetDistance * MaxTacticalTargetDistance;
         private const float CommonInfectedSightRadius = 45f;
@@ -28,7 +28,7 @@ namespace TheMarkedMen
         private const float InfightingChance = 0.12f;
         private const float MaxInfightingTargetDistanceSquared = 2500f;
         private const string WaitDownedJobDefName = "Wait_Downed";
-        private const int BestTargetScanIntervalTicks = 750;
+        private const int BestTargetScanIntervalTicks = 3000;
         private const int BreachRetryTicks = 300;
         private const int BreachPathSearchIntervalTicks = 20;
         private const float MaxBreachSearchDistanceSquared = 3600f;

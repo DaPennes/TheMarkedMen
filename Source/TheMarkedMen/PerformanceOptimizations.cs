@@ -109,10 +109,10 @@ namespace TheMarkedMen
             /// <summary>
             /// Standard tick intervals (in ticks) for different update frequencies.
             /// </summary>
-            public const int FastTickInterval = 6;          // ~0.1 seconds
-            public const int NormalTickInterval = 60;        // ~1 second
-            public const int SlowTickInterval = 250;         // ~4 seconds
-            public const int RareTickInterval = 2500;        // ~42 seconds
+            public const int FastTickInterval = 12;          // ~0.2 seconds
+            public const int NormalTickInterval = 120;        // ~2 seconds
+            public const int SlowTickInterval = 500;         // ~8 seconds
+            public const int RareTickInterval = 5000;        // ~83 seconds
             public const int CombatScanInterval = 60;        // Vehicle combat target scan
             public const int DisembarkCheckInterval = 30;    // Tactical disembarkation checks
 

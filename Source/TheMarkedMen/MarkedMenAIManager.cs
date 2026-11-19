@@ -17,10 +17,10 @@ namespace TheMarkedMen
 
     public class MarkedMenAIManager : MapComponent
     {
-        private const int FastTickInterval = 6;
-        private const int NormalTickInterval = 60;
-        private const int SlowTickInterval = 250;
-        private const int RareTickInterval = 2500;
+        private const int FastTickInterval = 12;
+        private const int NormalTickInterval = 120;
+        private const int SlowTickInterval = 500;
+        private const int RareTickInterval = 5000;
         private const int ScentCheckRadius = 20;
         private const int NoiseCheckRadius = 30;
         private const int MemoryCheckRadius = 15;
