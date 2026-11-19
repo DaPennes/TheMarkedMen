@@ -639,6 +639,9 @@ namespace TheMarkedMen
                     }
                     EnsureRaidVehicleFaction(vehicle, faction);
 
+                    // Ensure raid vehicles start with full fuel and ammo
+                    TryFillVehicleFuelAndAmmo(vehicle);
+
                     MethodInfo tryAddPawn = AccessTools.Method(vehicle.GetType(), "TryAddPawn", new[] { typeof(Pawn) });
                     PropertyInfo seatsAvailable = AccessTools.Property(vehicle.GetType(), "SeatsAvailable");
                     PropertyInfo hasEnoughOperators = AccessTools.Property(vehicle.GetType(), "HasEnoughOperators");
@@ -3597,6 +3600,113 @@ namespace TheMarkedMen
                 // Log exception for diagnostics without crashing
                 // This helps identify upstream Vehicle Framework issues
                 Log.Warning($"[The Marked Men] Exception in vehicle damage patch: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// Ensures Marked Men raid vehicles spawn with full fuel and ammunition.
+        /// </summary>
+        public static void TryFillVehicleFuelAndAmmo(Pawn vehicle)
+        {
+            if (vehicle?.AllComps == null)
+            {
+                return;
+            }
+
+            foreach (ThingComp comp in vehicle.AllComps)
+            {
+                if (comp == null)
+                {
+                    continue;
+                }
+
+                string fullName = comp.GetType().FullName ?? string.Empty;
+
+                // Fill fuel tank to maximum
+                if (fullName.Contains("Refuelable")
+                    || fullName.Contains("VehicleFuel")
+                    || fullName.Contains("Fuel"))
+                {
+                    TrySetMember(comp, "Fuel", "fuel", ReadMember(comp, "FuelCapacity", "Props", "capacity"));
+                    TrySetMember(comp, "FuelPercentOfMax", "FuelPercent", "PercentFull", 1f);
+                }
+
+                // Fill turret ammo to maximum
+                if (fullName.Contains("VehicleTurrets")
+                    || fullName.Contains("Turret"))
+                {
+                    object turrets = ReadMember(comp, "Turrets");
+                    if (turrets is IEnumerable turretList)
+                    {
+                        foreach (object turret in turretList)
+                        {
+                            if (turret == null)
+                            {
+                                continue;
+                            }
+                            // Try various ammo fields
+                            object ammoCapacity = ReadMember(turret, "MaxAmmo", "AmmoCapacity", "Props", "maxAmmo");
+                            if (TryConvertFloat(ammoCapacity, out float maxAmmo) && maxAmmo > 0f)
+                            {
+                                TrySetMember(turret, "Ammo", "ammo", maxAmmo);
+                                TrySetMember(turret, "CurrentAmmo", "currentAmmo", maxAmmo);
+                                TrySetMember(turret, "AmmoCount", "ammoCount", maxAmmo);
+                            }
+                        }
+                    }
+                }
+
+                // Fill launcher ammo to maximum
+                if (fullName.Contains("VehicleLauncher")
+                    || fullName.Contains("Launcher"))
+                {
+                    object ammoCapacity = ReadMember(comp, "MaxAmmo", "AmmoCapacity", "Props", "maxAmmo");
+                    if (TryConvertFloat(ammoCapacity, out float maxAmmo) && maxAmmo > 0f)
+                    {
+                        TrySetMember(comp, "Ammo", "ammo", maxAmmo);
+                        TrySetMember(comp, "CurrentAmmo", "currentAmmo", maxAmmo);
+                        TrySetMember(comp, "AmmoCount", "ammoCount", maxAmmo);
+                    }
+                }
+            }
+        }
+
+        private static void TrySetMember(object instance, params object[] namesAndValue)
+        {
+            if (instance == null || namesAndValue == null || namesAndValue.Length < 2)
+            {
+                return;
+            }
+
+            object value = namesAndValue[namesAndValue.Length - 1];
+            for (int i = 0; i < namesAndValue.Length - 1; i++)
+            {
+                string name = namesAndValue[i] as string;
+                if (string.IsNullOrEmpty(name))
+                {
+                    continue;
+                }
+
+                try
+                {
+                    FieldInfo field = instance.GetType().GetField(name, System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                    if (field != null && field.CanWrite(instance))
+                    {
+                        field.SetValue(instance, value);
+                        return;
+                    }
+
+                    PropertyInfo prop = instance.GetType().GetProperty(name, System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                    if (prop != null && prop.CanWrite)
+                    {
+                        prop.SetValue(instance, value, null);
+                        return;
+                    }
+                }
+                catch
+                {
+                    // Ignore and try next name
+                }
             }
         }
     }
