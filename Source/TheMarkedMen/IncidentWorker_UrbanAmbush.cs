@@ -68,18 +68,98 @@ namespace TheMarkedMen
             Pawn victim = TryGenerateVictim(map, attacker);
             if (victim == null) return false;
 
-            IntVec3 dropSpot = CellFinder.RandomEdgeCell(map);
-            if (!dropSpot.IsValid)
+            IntVec3 dropSpot;
+            if (!TryFindValidSpawnCell(map, out dropSpot))
             {
-                dropSpot = CellFinderLoose.RandomCellWith(c => c.Walkable(map), map, 100);
+                return false;
             }
-            if (!dropSpot.IsValid) return false;
 
             GenSpawn.Spawn(attacker, dropSpot, map, Rot4.Random);
             GenSpawn.Spawn(victim, dropSpot, map, Rot4.Random);
 
             // Use standard letter instead of custom ChoiceLetter
-            LetterMaker.MakeLetter(def.letterLabel, def.letterText, def.letterDef, new LookTargets(attacker, victim));
+            Find.LetterStack.ReceiveLetter(def.letterLabel, def.letterText, def.letterDef, new LookTargets(attacker, victim));
+
+            return true;
+        }
+
+        private bool TryFindValidSpawnCell(Map map, out IntVec3 result)
+        {
+            if (CellFinder.TryFindRandomEdgeCellWith(
+                (IntVec3 c) => IsValidSpawnCell(map, c),
+                map,
+                0f,
+                out IntVec3 edgeResult))
+            {
+                result = edgeResult;
+                return true;
+            }
+
+            for (int i = 0; i < 200; i++)
+            {
+                IntVec3 cell = CellFinder.RandomCell(map);
+                if (IsValidSpawnCell(map, cell))
+                {
+                    result = cell;
+                    return true;
+                }
+            }
+
+            result = IntVec3.Invalid;
+            return false;
+        }
+
+        private static bool IsValidSpawnCell(Map map, IntVec3 cell)
+        {
+            if (!cell.IsValid || !cell.InBounds(map))
+            {
+                return false;
+            }
+
+            if (cell.Fogged(map))
+            {
+                return false;
+            }
+
+            if (!cell.Standable(map))
+            {
+                return false;
+            }
+
+            if (!cell.Walkable(map))
+            {
+                return false;
+            }
+
+            if (cell.Impassable(map))
+            {
+                return false;
+            }
+
+            Building building = cell.GetEdifice(map);
+            if (building != null)
+            {
+                if (building.Faction == Faction.OfPlayer)
+                {
+                    return false;
+                }
+
+                if (building is Building_Door)
+                {
+                    return false;
+                }
+
+                if (building is Building_Trap)
+                {
+                    return false;
+                }
+            }
+
+            TerrainDef terrain = cell.GetTerrain(map);
+            if (terrain != null && terrain.passability == Traversability.Impassable)
+            {
+                return false;
+            }
 
             return true;
         }

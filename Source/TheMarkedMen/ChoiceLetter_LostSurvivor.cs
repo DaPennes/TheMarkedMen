@@ -1,12 +1,14 @@
 using System.Collections.Generic;
 using RimWorld;
 using Verse;
+using UnityEngine;
 
 namespace TheMarkedMen
 {
     public class ChoiceLetter_LostSurvivor : ChoiceLetter
     {
         public Pawn pawn;
+        public Color color = new Color(1f, 0.85f, 0f);
 
         public override IEnumerable<DiaOption> Choices
         {
