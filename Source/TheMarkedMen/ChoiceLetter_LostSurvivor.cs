@@ -16,6 +16,11 @@ namespace TheMarkedMen
                 {
                     yield return DiaOptionAccept;
                     yield return DiaOptionReject;
+                    // If the "send away" option is enabled, add a second reject option
+                    if (TheMarkedMenMod.Settings?.survivorRefuseSendsAway ?? true)
+                    {
+                        yield return DiaOptionSendAway;
+                    }
                 }
                 yield return Option_Close;
             }
@@ -45,17 +50,82 @@ namespace TheMarkedMen
                 DiaOption diaOption = new DiaOption("CA_LostSurvivor_Reject".Translate());
                 diaOption.action = () =>
                 {
-                    if (pawn != null && !pawn.Destroyed)
+                    IfPawnExistsAndNotDestroyed(() =>
                     {
-                        if (pawn.Spawned)
+                        if (TheMarkedMenMod.Settings?.survivorRefuseSendsAway ?? true)
                         {
-                            pawn.DeSpawn();
+                            SendPawnAwayAtEdge();
                         }
-                        pawn.Destroy(DestroyMode.Vanish);
-                    }
+                        else
+                        {
+                            DestroyPawn();
+                        }
+                    });
                 };
                 diaOption.resolveTree = true;
                 return diaOption;
+            }
+        }
+
+        private DiaOption DiaOptionSendAway
+        {
+            get
+            {
+                DiaOption diaOption = new DiaOption("CA_LostSurvivor_SendAway".Translate());
+                diaOption.action = () =>
+                {
+                    IfPawnExistsAndNotDestroyed(() =>
+                    {
+                        SendPawnAwayAtEdge();
+                    });
+                };
+                diaOption.resolveTree = true;
+                return diaOption;
+            }
+        }
+
+        private void IfPawnExistsAndNotDestroyed(System.Action action)
+        {
+            if (pawn != null && !pawn.Destroyed)
+            {
+                action?.Invoke();
+            }
+        }
+
+        private void DestroyPawn()
+        {
+            if (pawn.Spawned)
+            {
+                pawn.DeSpawn();
+            }
+            pawn.Destroy(DestroyMode.Vanish);
+        }
+
+        private void SendPawnAwayAtEdge()
+        {
+            if (pawn == null) return;
+
+            // If on a map, find the edge cell closest to where they spawned
+            // and de-spawn them there so they can walk off the map naturally
+            Map map = pawn.Map;
+            if (map != null && pawn.Spawned)
+            {
+                // Mark them as a guest with no faction to leave naturally
+                pawn.SetFaction(null);
+                pawn.guest?.SetGuestStatus(null);
+                pawn.mindState?.mentalStateHandler?.Reset();
+
+                // Find an edge cell to de-spawn them
+                IntVec3 edgeSpot = CellFinder.RandomEdgeCell(map);
+                if (edgeSpot.IsValid)
+                {
+                    pawn.Position = edgeSpot;
+                }
+                pawn.DeSpawn();
+            }
+            else
+            {
+                pawn.Destroy(DestroyMode.Vanish);
             }
         }
 

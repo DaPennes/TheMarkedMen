@@ -80,7 +80,12 @@ namespace TheMarkedMen
 
             ApplyDormantMark(survivor);
 
-            ChoiceLetter_LostSurvivor choiceLetter = (ChoiceLetter_LostSurvivor)LetterMaker.MakeLetter(def.letterLabel, def.letterText, def.letterDef, new LookTargets(survivor));
+            Verse.StandardLetter choiceLetterBase = LetterMaker.MakeLetter(def.letterLabel, def.letterText, def.letterDef, new LookTargets(survivor));
+            ChoiceLetter_LostSurvivor choiceLetter = choiceLetterBase as ChoiceLetter_LostSurvivor;
+            if (choiceLetter == null)
+            {
+                return false;
+            }
             choiceLetter.pawn = survivor;
             Find.LetterStack.ReceiveLetter(choiceLetter);
 

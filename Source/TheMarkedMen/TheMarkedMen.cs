@@ -249,6 +249,7 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
 
         public bool lostSurvivorEnabled = true;
         public float lostSurvivorFrequencyMultiplier = 1f;
+        public bool survivorRefuseSendsAway = true;
         public float dormantMarkMinDays = 8f;
         public float dormantMarkMaxDays = 30f;
         public float dormantMarkTriggerMultiplier = 1f;
@@ -735,6 +736,7 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
             Scribe_Values.Look(ref aurSpawnPatchDebugLogging, "aurSpawnPatchDebugLogging", false);
             Scribe_Values.Look(ref lostSurvivorEnabled, "lostSurvivorEnabled", true);
             Scribe_Values.Look(ref lostSurvivorFrequencyMultiplier, "lostSurvivorFrequencyMultiplier", 1f);
+            Scribe_Values.Look(ref survivorRefuseSendsAway, "survivorRefuseSendsAway", true);
             Scribe_Values.Look(ref dormantMarkMinDays, "dormantMarkMinDays", 8f);
             Scribe_Values.Look(ref dormantMarkMaxDays, "dormantMarkMaxDays", 30f);
             Scribe_Values.Look(ref dormantMarkTriggerMultiplier, "dormantMarkTriggerMultiplier", 1f);
@@ -1184,6 +1186,7 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
             DrawSectionHeader(listing, "MarkedMen_Settings_LostSurvivors".Translate(), "MarkedMen_Settings_LostSurvivorsDesc".Translate());
             DrawCheckbox(listing, "MarkedMen_Settings_LostSurvivorIncidents".Translate(), ref lostSurvivorEnabled, "MarkedMen_Settings_LostSurvivorIncidentsDesc".Translate());
             DrawFloat(listing, "MarkedMen_Settings_lostSurvivorFrequencyMultiplier".Translate(), ref lostSurvivorFrequencyMultiplier, 0f, 5f, "lostSurvivorFrequencyMultiplier", "MarkedMen_Settings_lostSurvivorFrequencyMultiplierDesc".Translate());
+            DrawCheckbox(listing, "MarkedMen_Settings_SurvivorRefuseSendsAway".Translate(), ref survivorRefuseSendsAway, "MarkedMen_Settings_SurvivorRefuseSendsAwayDesc".Translate());
             DrawFloat(listing, "MarkedMen_Settings_dormantMarkMinDays".Translate(), ref dormantMarkMinDays, 1f, 60f, "dormantMarkMinDays", "MarkedMen_Settings_dormantMarkMinDaysDesc".Translate());
             DrawFloat(listing, "MarkedMen_Settings_dormantMarkMaxDays".Translate(), ref dormantMarkMaxDays, 1f, 120f, "dormantMarkMaxDays", "MarkedMen_Settings_dormantMarkMaxDaysDesc".Translate());
             DrawFloat(listing, "MarkedMen_Settings_dormantMarkTriggerMultiplier".Translate(), ref dormantMarkTriggerMultiplier, 0f, 5f, "dormantMarkTriggerMultiplier", "MarkedMen_Settings_dormantMarkTriggerMultiplierDesc".Translate());

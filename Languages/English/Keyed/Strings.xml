@@ -441,6 +441,8 @@
   <MarkedMen_Settings_LostSurvivorIncidentsDesc>Allow lost survivor encounters that can join the colony or carry a dormant Mark.</MarkedMen_Settings_LostSurvivorIncidentsDesc>
   <MarkedMen_Settings_lostSurvivorFrequencyMultiplier>Lost survivor frequency</MarkedMen_Settings_lostSurvivorFrequencyMultiplier>
   <MarkedMen_Settings_lostSurvivorFrequencyMultiplierDesc>Scales how often lost survivor incidents occur.</MarkedMen_Settings_lostSurvivorFrequencyMultiplierDesc>
+  <MarkedMen_Settings_SurvivorRefuseSendsAway>Refusing survivor sends them away</MarkedMen_Settings_SurvivorRefuseSendsAway>
+  <MarkedMen_Settings_SurvivorRefuseSendsAwayDesc>When refusing a survivor, send them back to the map edge to leave peacefully instead of destroying them.</MarkedMen_Settings_SurvivorRefuseSendsAwayDesc>
   <MarkedMen_Settings_dormantMarkMinDays>Dormant Mark minimum days</MarkedMen_Settings_dormantMarkMinDays>
   <MarkedMen_Settings_dormantMarkMinDaysDesc>Minimum number of days before a dormant Mark can activate.</MarkedMen_Settings_dormantMarkMinDaysDesc>
   <MarkedMen_Settings_dormantMarkMaxDays>Dormant Mark maximum days</MarkedMen_Settings_dormantMarkMaxDays>
@@ -499,6 +501,7 @@
 
   <CA_LostSurvivor_Accept>Accept the survivor</CA_LostSurvivor_Accept>
   <CA_LostSurvivor_Reject>Turn the survivor away</CA_LostSurvivor_Reject>
+  <CA_LostSurvivor_SendAway>Send them back to the wild</CA_LostSurvivor_SendAway>
   <CA_LostSurvivor_Betrayal_Label>The dormant Mark awakens</CA_LostSurvivor_Betrayal_Label>
   <CA_LostSurvivor_Betrayal_Text>{PAWN} has fallen to the dormant Mark. The infection was waiting all along, and now another Marked Man walks among the colony's ruins.</CA_LostSurvivor_Betrayal_Text>
   <CA_RestrainPrisoner>Restrain prisoner</CA_RestrainPrisoner>
