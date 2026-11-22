@@ -191,10 +191,10 @@ namespace TheMarkedMen
                 return currentJob.targetA == proposedJob.targetA;
             }
 
-            // If both are goto jobs near same location, continue current
+            // If both are goto jobs to the exact same destination, continue current
             if (currentJob.def == JobDefOf.Goto && proposedJob.def == JobDefOf.Goto)
             {
-                return currentJob.targetA.Cell.DistanceToSquared(proposedJob.targetA.Cell) < 25f;
+                return currentJob.targetA.Cell.Equals(proposedJob.targetA.Cell);
             }
 
             return false;

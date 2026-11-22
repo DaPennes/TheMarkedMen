@@ -13,21 +13,15 @@
   </PropertyGroup>
   <PropertyGroup>
     <RimWorldDir>..\..\..\..\..\..\common\RimWorld\</RimWorldDir>
-    <RimWorldManaged>$(RimWorldDir)RimWorldWin64_Data\Managed\</RimWorldManaged>
+    <RimWorldManaged>$(RimWorldDir)</RimWorldManaged>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Assembly-CSharp">
       <HintPath>$(RimWorldManaged)Assembly-CSharp.dll</HintPath>
       <Private>false</Private>
     </Reference>
-    <Reference Include="Assembly-CSharp-firstpass">
-      <HintPath>$(RimWorldManaged)Assembly-CSharp-firstpass.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="$(RimWorldManaged)UnityEngine*.dll">
-      <Private>false</Private>
-    </Reference>
-    <Reference Include="$(RimWorldManaged)Unity.*.dll">
+    <Reference Include="UnityStubs">
+      <HintPath>$(RimWorldManaged)UnityStubs.dll</HintPath>
       <Private>false</Private>
     </Reference>
   </ItemGroup>

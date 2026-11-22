@@ -29,6 +29,7 @@ namespace TheMarkedMen
         private const float MaxInfightingTargetDistanceSquared = 2500f;
         private const string WaitDownedJobDefName = "Wait_Downed";
         private const int BestTargetScanIntervalTicks = 3000;
+        private const int NoTargetScanIntervalTicks = 300;
         private const int BreachRetryTicks = 300;
         private const int BreachPathSearchIntervalTicks = 20;
         private const float MaxBreachSearchDistanceSquared = 3600f;
@@ -96,7 +97,9 @@ namespace TheMarkedMen
                         pawn.jobs.EndCurrentJob(JobCondition.InterruptForced);
                         return TryAssignAttackJob(pawn, roomTarget, true);
                     }
-                    return false;
+                    // No room target yet, but keep the pawn moving while the
+                    // escape scan continues instead of idling until it expires.
+                    return TryAssignWanderJob(pawn);
                 }
                 escapeScanStartTicks.Remove(pawnId);
             }
@@ -1125,6 +1128,13 @@ namespace TheMarkedMen
                     best = candidate;
                     bestScore = score;
                 }
+            }
+
+            if (best == null)
+            {
+                // No valid prey this scan. Retry soon instead of locking the
+                // pawn out of target scanning for a full BestTargetScanIntervalTicks.
+                nextTargetScanTick[pawnId] = currentTick + NoTargetScanIntervalTicks;
             }
 
             bestTargetCache[pawnId] = new CachedEntry { owner = pawn, target = best };
