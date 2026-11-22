@@ -170,11 +170,9 @@ namespace TheMarkedMen
             float minimum = Mathf.Max(incident?.minThreatPoints ?? 120f, TheMarkedMenMod.Settings?.minimumRaidPoints ?? 120f);
             float storytellerPoints = map == null ? minimum : StorytellerUtility.DefaultThreatPointsNow(map);
             float points = Mathf.Max(existingPoints, storytellerPoints, minimum);
-            float pressure = Mathf.InverseLerp(5000f, 50000f, points);
-            float pressureFactor = Mathf.Lerp(1.05f, 1.35f, pressure);
             float randomFactor = Props.pointsFactorRange.RandomInRange;
             float storytellerFactor = CalculateStorytellerThreatFactor();
-            return TheMarkedMenSettings.ApplyRaidPointSettings(Mathf.Max(minimum, points * pressureFactor * randomFactor * storytellerFactor));
+            return TheMarkedMenSettings.ApplyRaidPointSettings(Mathf.Max(minimum, points * randomFactor * storytellerFactor));
         }
 
         private float CalculateStorytellerThreatFactor()
