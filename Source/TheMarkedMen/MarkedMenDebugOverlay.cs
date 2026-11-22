@@ -16,7 +16,8 @@ namespace TheMarkedMen
         private static bool showLabels = true;
         private static float overlayOpacity = 0.85f;
         private static bool collapsed;
-        private static Vector2 panelPos = new Vector2(12f, -1f);
+        private static float panelPosX = 12f;
+        private static float panelPosY = -1f;
 
         // ─── Animation ─────────────────────────────────────────────
         private static float fadeAlpha;
@@ -25,24 +26,49 @@ namespace TheMarkedMen
         private static int hoveredIdx = -1;
 
         // ─── Drag ──────────────────────────────────────────────────
+        // ─── Drag ──────────────────────────────────────────────────
         private static bool dragging;
-        private static Vector2 dragOffset;
+        // Use float[] instead of Vector2 to avoid static UnityEngine type reference at load time
+        private static float[] dragOffset;
 
         // ─── Textures ──────────────────────────────────────────────
         private static Texture2D glowTex;
         private static bool texReady;
 
         // ─── Colors ────────────────────────────────────────────────
-        private static readonly Color colScent = new Color(1f, 0.25f, 0.15f);
-        private static readonly Color colNoise = new Color(0.15f, 0.9f, 0.25f);
-        private static readonly Color colMemory = new Color(0.2f, 0.45f, 1f);
-        private static readonly Color colLabel = new Color(0.85f, 0.85f, 0.9f);
-        private static readonly Color bgPanel = new Color(0.06f, 0.06f, 0.08f, 0.78f);
-        private static readonly Color bgHeader = new Color(0.1f, 0.1f, 0.13f, 0.85f);
-        private static readonly Color borderDim = new Color(0.3f, 0.3f, 0.35f, 0.45f);
-        private static readonly Color borderHi = new Color(0.5f, 0.5f, 0.6f, 0.3f);
+        // Lazy-initialized to avoid static UnityEngine type references at mod load time
+        private static Color? colScent;
+        private static Color? colNoise;
+        private static Color? colMemory;
+        private static Color? colLabel;
+        private static Color? bgPanel;
+        private static Color? bgHeader;
+        private static Color? borderDim;
+        private static Color? borderHi;
 
         private static readonly string[] stateLabels = { "IDLE", "SEARCH", "HUNT", "FRENZY" };
+
+        // Initialize colors lazily
+        private static void EnsureColors()
+        {
+            if (colScent.HasValue) return;
+            colScent = new Color(1f, 0.25f, 0.15f);
+            colNoise = new Color(0.15f, 0.9f, 0.25f);
+            colMemory = new Color(0.2f, 0.45f, 1f);
+            colLabel = new Color(0.85f, 0.85f, 0.9f);
+            bgPanel = new Color(0.06f, 0.06f, 0.08f, 0.78f);
+            bgHeader = new Color(0.1f, 0.1f, 0.13f, 0.85f);
+            borderDim = new Color(0.3f, 0.3f, 0.35f, 0.45f);
+            borderHi = new Color(0.5f, 0.5f, 0.6f, 0.3f);
+        }
+
+        // Helper to get color from nullable field
+        private static Color GetColor(Color? colorRef)
+        {
+            if (colorRef.HasValue) return colorRef.Value;
+            // Default fallback colors if reference is null
+            return Color.white;
+        }
 
         public static bool Active
         {
@@ -170,7 +196,7 @@ namespace TheMarkedMen
                 if (a < 0.02f) continue;
                 float sf = 0.5f + 0.5f * m.strength;
                 float sz = Mathf.Lerp(18f, 5f, age) * sf;
-                Glow(m.position, cam, vr, colScent, sz, a, 1f, time, fa);
+                Glow(m.position, cam, vr, GetColor(colScent), sz, a, 1f, time, fa);
             }
         }
 
@@ -188,13 +214,14 @@ namespace TheMarkedMen
                 float a = Mathf.Lerp(0.9f, 0.08f, age);
                 float sf = 0.5f + 0.5f * n.strength;
                 float sz = Mathf.Lerp(26f, 6f, age) * sf;
-                Glow(n.position, cam, vr, colNoise, sz, a, 2.2f, time, fa);
+                Glow(n.position, cam, vr, GetColor(colNoise), sz, a, 2.2f, time, fa);
 
                 Vector3 sp = cam.WorldToScreenPoint(n.position.ToVector3Shifted());
                 sp.y = Screen.height - sp.y;
                 float ra = fa * a * (0.5f + 0.5f * Mathf.Sin(time * 3.5f));
                 float rs = sz * 1.6f;
-                GUI.color = new Color(colNoise.r, colNoise.g, colNoise.b, ra * 0.1f);
+                Color cNoise = GetColor(colNoise);
+                GUI.color = new Color(cNoise.r, cNoise.g, cNoise.b, ra * 0.1f);
                 GUI.DrawTexture(new Rect(sp.x - rs * 0.5f, sp.y - rs * 0.5f, rs, rs), glowTex);
                 GUI.color = Color.white;
             }
@@ -213,7 +240,7 @@ namespace TheMarkedMen
                 if (age > 30000) continue;
                 float a = Mathf.Lerp(0.6f, 0.03f, age / 30000f);
                 if (a < 0.01f) continue;
-                Glow(m.position, cam, vr, colMemory, 8f, a, 0.6f, time, fa);
+                Glow(m.position, cam, vr, GetColor(colMemory), 8f, a, 0.6f, time, fa);
             }
         }
 
@@ -289,9 +316,9 @@ namespace TheMarkedMen
             }
 
             // position
-            if (panelPos.y < 0) panelPos.y = Screen.height - ph - pad;
-            float px = panelPos.x;
-            float py = panelPos.y;
+            if (panelPosY < 0) panelPosY = Screen.height - ph - pad;
+            float px = panelPosX;
+            float py = panelPosY;
 
             // clamp
             px = Mathf.Clamp(px, 2f - pw + tabW, Screen.width - pw - 2f);
@@ -302,11 +329,12 @@ namespace TheMarkedMen
             Rect headR = new Rect(px, py, pw, hh);
 
             // body bg
-            GUI.color = bgPanel;
+            EnsureColors();
+            GUI.color = GetColor(bgPanel);
             GUI.DrawTexture(bodyR, BaseContent.WhiteTex);
 
             // body border
-            GUI.color = borderDim;
+            GUI.color = GetColor(borderDim);
             GUI.DrawTexture(new Rect(px, py + hh, pw, 1f), BaseContent.WhiteTex);
             GUI.DrawTexture(new Rect(px, py + ph - 1f, pw, 1f), BaseContent.WhiteTex);
             GUI.DrawTexture(new Rect(px, py + hh, 1f, ph - hh), BaseContent.WhiteTex);
@@ -314,9 +342,9 @@ namespace TheMarkedMen
             GUI.color = Color.white;
 
             // ── header ──
-            GUI.color = bgHeader;
+            GUI.color = GetColor(bgHeader);
             GUI.DrawTexture(headR, BaseContent.WhiteTex);
-            GUI.color = borderDim;
+            GUI.color = GetColor(borderDim);
             GUI.DrawTexture(new Rect(px, py, pw, 1f), BaseContent.WhiteTex);
             GUI.DrawTexture(new Rect(px, py + hh - 1f, pw, 1f), BaseContent.WhiteTex);
             GUI.DrawTexture(new Rect(px, py, 1f, hh), BaseContent.WhiteTex);
@@ -347,10 +375,10 @@ namespace TheMarkedMen
             float cy = py + hh + pad;
             float ix = px + pad + 6f;
 
-            DrawItem(ix, ref cy, "SCENT", colScent, ref showScent, 0, lw, tw, ih, fa, time);
-            DrawItem(ix, ref cy, "NOISE", colNoise, ref showNoise, 1, lw, tw, ih, fa, time);
-            DrawItem(ix, ref cy, "MEMORY", colMemory, ref showMemory, 2, lw, tw, ih, fa, time);
-            DrawItem(ix, ref cy, "LABELS", colLabel, ref showLabels, 3, lw, tw, ih, fa, time);
+            DrawItem(ix, ref cy, "SCENT", GetColor(colScent), ref showScent, 0, lw, tw, ih, fa, time);
+            DrawItem(ix, ref cy, "NOISE", GetColor(colNoise), ref showNoise, 1, lw, tw, ih, fa, time);
+            DrawItem(ix, ref cy, "MEMORY", GetColor(colMemory), ref showMemory, 2, lw, tw, ih, fa, time);
+            DrawItem(ix, ref cy, "LABELS", GetColor(colLabel), ref showLabels, 3, lw, tw, ih, fa, time);
 
             // opacity
             float opY = cy + (ih - 18f) * 0.5f;
@@ -372,10 +400,11 @@ namespace TheMarkedMen
 
             // ── drag logic ──
             if (Event.current.type == EventType.MouseDown && headR.Contains(Event.current.mousePosition))
-            { dragging = true; dragOffset = new Vector2(Event.current.mousePosition.x - px, Event.current.mousePosition.y - py); Event.current.Use(); }
+            { dragging = true; dragOffset = new float[2] { Event.current.mousePosition.x - px, Event.current.mousePosition.y - py }; Event.current.Use(); }
             if (dragging && Event.current.type == EventType.MouseDrag)
             {
-                panelPos = new Vector2(Event.current.mousePosition.x - dragOffset.x, Event.current.mousePosition.y - dragOffset.y);
+                panelPosX = Event.current.mousePosition.x - dragOffset[0];
+                panelPosY = Event.current.mousePosition.y - dragOffset[1];
                 Event.current.Use();
             }
             if (dragging && (Event.current.type == EventType.MouseUp || Event.current.rawType == EventType.MouseUp))
@@ -397,13 +426,13 @@ namespace TheMarkedMen
 
         private static void DrawCollapsedTab(float tabW, float tabH, float fa)
         {
-            float cx = panelPos.x;
-            float cy = panelPos.y;
+            float cx = panelPosX;
+            float cy = panelPosY;
 
             Rect tabR = new Rect(cx, cy, tabW, tabH);
             GUI.color = new Color(0.06f, 0.06f, 0.08f, 0.7f * fa);
             GUI.DrawTexture(tabR, BaseContent.WhiteTex);
-            GUI.color = borderDim;
+            GUI.color = GetColor(borderDim);
             GUI.DrawTexture(new Rect(cx, cy, tabW, 1f), BaseContent.WhiteTex);
             GUI.DrawTexture(new Rect(cx, cy + tabH - 1f, tabW, 1f), BaseContent.WhiteTex);
             GUI.DrawTexture(new Rect(cx, cy, 1f, tabH), BaseContent.WhiteTex);
@@ -418,10 +447,11 @@ namespace TheMarkedMen
             { collapsed = false; Event.current.Use(); }
 
             if (Event.current.type == EventType.MouseDown && tabR.Contains(Event.current.mousePosition))
-            { dragging = true; dragOffset = new Vector2(Event.current.mousePosition.x - cx, Event.current.mousePosition.y - cy); Event.current.Use(); }
+            { dragging = true; dragOffset = new float[2] { Event.current.mousePosition.x - cx, Event.current.mousePosition.y - cy }; Event.current.Use(); }
             if (dragging && Event.current.type == EventType.MouseDrag)
             {
-                panelPos = new Vector2(Event.current.mousePosition.x - dragOffset.x, Event.current.mousePosition.y - dragOffset.y);
+                panelPosX = Event.current.mousePosition.x - dragOffset[0];
+                panelPosY = Event.current.mousePosition.y - dragOffset[1];
                 Event.current.Use();
             }
             if (dragging && (Event.current.type == EventType.MouseUp || Event.current.rawType == EventType.MouseUp))
@@ -467,7 +497,7 @@ namespace TheMarkedMen
                                 : new Color(0.2f, 0.2f, 0.25f, 0.6f * fa);
             GUI.color = tbg;
             GUI.DrawTexture(tr, BaseContent.WhiteTex);
-            GUI.color = borderDim;
+            GUI.color = GetColor(borderDim);
             GUI.DrawTexture(new Rect(tx, ty, tw, 1f), BaseContent.WhiteTex);
             GUI.DrawTexture(new Rect(tx, ty + tw - 1f, tw, 1f), BaseContent.WhiteTex);
             GUI.DrawTexture(new Rect(tx, ty, 1f, tw), BaseContent.WhiteTex);
@@ -498,13 +528,14 @@ namespace TheMarkedMen
         private static void SnapPanel(float ph)
         {
             float edgeDist = 40f;
-            float sx = panelPos.x;
-            float sy = panelPos.y;
+            float sx = panelPosX;
+            float sy = panelPosY;
             if (sx < edgeDist) sx = 2f;
-            else if (sx > Screen.width - edgeDist) sx = Screen.width - (panelPos.x > Screen.width * 0.5f ? 240f : 200f);
+            else if (sx > Screen.width - edgeDist) sx = Screen.width - (panelPosX > Screen.width * 0.5f ? 240f : 200f);
             if (sy < edgeDist) sy = 2f;
             else if (sy > Screen.height - edgeDist) sy = Screen.height - ph - 2f;
-            panelPos = new Vector2(sx, sy);
+            panelPosX = sx;
+            panelPosY = sy;
         }
 
         [DebugAction("The Marked Men", "Add debug scent at cursor",

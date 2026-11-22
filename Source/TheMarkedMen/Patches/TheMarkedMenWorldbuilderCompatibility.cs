@@ -25,7 +25,8 @@ namespace TheMarkedMen
 
         private static FieldInfo worldbuilderPreviewDirtyField;
         private static FieldInfo worldbuilderPreviewTextureField;
-        private static Texture2D fallbackWorldPreviewTexture;
+        // Use a reference wrapper to avoid static UnityEngine type at load time
+        private static object fallbackWorldPreviewTextureRef;
         private static bool delayedRetryScheduled;
         private static bool patchApplied;
         private static bool previewWarningLogged;
@@ -595,14 +596,14 @@ namespace TheMarkedMen
 
         private static Texture2D GetFallbackWorldPreviewTexture()
         {
-            if (fallbackWorldPreviewTexture != null)
+            if (fallbackWorldPreviewTextureRef != null)
             {
-                return fallbackWorldPreviewTexture;
+                return (Texture2D)fallbackWorldPreviewTextureRef;
             }
 
             const int size = 2;
             Color color = new Color(0.12f, 0.12f, 0.12f, 1f);
-            fallbackWorldPreviewTexture = new Texture2D(size, size, TextureFormat.RGBA32, false)
+            Texture2D tex = new Texture2D(size, size, TextureFormat.RGBA32, false)
             {
                 name = "TheMarkedMen_WorldbuilderPreviewDisabled"
             };
@@ -613,9 +614,10 @@ namespace TheMarkedMen
                 pixels[i] = color;
             }
 
-            fallbackWorldPreviewTexture.SetPixels(pixels);
-            fallbackWorldPreviewTexture.Apply(false, false);
-            return fallbackWorldPreviewTexture;
+            tex.SetPixels(pixels);
+            tex.Apply(false, false);
+            fallbackWorldPreviewTextureRef = tex;
+            return tex;
         }
 
         private static void TrySetWorldbuilderPreviewState(Texture2D previewTexture)
