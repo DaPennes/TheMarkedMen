@@ -69,14 +69,56 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
         private const string CasualPresetName = "Very Easy";
         private const string VanillaLikePresetName = "Easy";
         private const string BrutalPresetName = "Hard";
-        private static readonly Color HelpTextColor = new Color(0.72f, 0.72f, 0.72f);
-        private static readonly Color SectionHeaderColor = new Color(0.22f, 0.24f, 0.26f, 1f);
-        private static readonly Color SectionHeaderHoverColor = new Color(0.28f, 0.30f, 0.33f, 1f);
-        private static readonly Color SectionToggleColor = new Color(0.10f, 0.11f, 0.12f, 1f);
-        private static readonly Color SectionToggleHoverColor = new Color(0.16f, 0.17f, 0.19f, 1f);
+        // Lazy-initialized to avoid static UnityEngine type references at mod load time
+        private static Color? helpTextColor;
+        private static Color? sectionHeaderColor;
+        private static Color? sectionHeaderHoverColor;
+        private static Color? sectionToggleColor;
+        private static Color? sectionToggleHoverColor;
         private const float OptionRowHeight = 28f;
         private const float SectionHeaderHeight = 38f;
         private const float SectionToggleWidth = 48f;
+
+        // Lazy-initialize UI colors to avoid static UnityEngine type references at mod load time
+        private static void EnsureUIColors()
+        {
+            if (helpTextColor.HasValue) return;
+            helpTextColor = new Color(0.72f, 0.72f, 0.72f);
+            sectionHeaderColor = new Color(0.22f, 0.24f, 0.26f, 1f);
+            sectionHeaderHoverColor = new Color(0.28f, 0.30f, 0.33f, 1f);
+            sectionToggleColor = new Color(0.10f, 0.11f, 0.12f, 1f);
+            sectionToggleHoverColor = new Color(0.16f, 0.17f, 0.19f, 1f);
+        }
+
+        private static Color GetHelpTextColor()
+        {
+            EnsureUIColors();
+            return helpTextColor.Value;
+        }
+
+        private static Color GetSectionHeaderColor()
+        {
+            EnsureUIColors();
+            return sectionHeaderColor.Value;
+        }
+
+        private static Color GetSectionHeaderHoverColor()
+        {
+            EnsureUIColors();
+            return sectionHeaderHoverColor.Value;
+        }
+
+        private static Color GetSectionToggleColor()
+        {
+            EnsureUIColors();
+            return sectionToggleColor.Value;
+        }
+
+        private static Color GetSectionToggleHoverColor()
+        {
+            EnsureUIColors();
+            return sectionToggleHoverColor.Value;
+        }
 
         public bool infectionEnabled = true;
         public float temporaryAllyDurationDays = 30f;
@@ -1520,11 +1562,11 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
             bool open = IsSectionOpen(title);
             Rect row = listing.GetRect(SectionHeaderHeight, 1f);
             bool hover = Mouse.IsOver(row);
-            Widgets.DrawBoxSolid(row, hover ? SectionHeaderHoverColor : SectionHeaderColor);
+            Widgets.DrawBoxSolid(row, hover ? GetSectionHeaderHoverColor() : GetSectionHeaderColor());
             Widgets.DrawBox(row, 1, null);
 
             Rect toggleRect = new Rect(row.x + 4f, row.y + 4f, SectionToggleWidth, row.height - 8f);
-            Widgets.DrawBoxSolid(toggleRect, hover ? SectionToggleHoverColor : SectionToggleColor);
+            Widgets.DrawBoxSolid(toggleRect, hover ? GetSectionToggleHoverColor() : GetSectionToggleColor());
             Widgets.DrawBox(toggleRect, 1, null);
 
             Rect titleRect = new Rect(toggleRect.xMax + 10f, row.y + 4f, row.width - SectionToggleWidth - 22f, row.height - 8f);
@@ -1589,7 +1631,7 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
 
             Color oldColor = GUI.color;
             GameFont oldFont = Text.Font;
-            GUI.color = HelpTextColor;
+            GUI.color = GetHelpTextColor();
             Text.Font = GameFont.Small;
             listing.Label(text);
             Text.Font = oldFont;

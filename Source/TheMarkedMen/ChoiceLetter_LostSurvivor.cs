@@ -8,7 +8,8 @@ namespace TheMarkedMen
     public class ChoiceLetter_LostSurvivor : ChoiceLetter
     {
         public Pawn pawn;
-        public Color color = new Color(1f, 0.85f, 0f);
+        // Color field moved to lazy initialization to avoid static Unity type resolution at load time
+        // private Color color = new Color(1f, 0.85f, 0f); // REMOVED - causing TypeLoadException
 
         public override IEnumerable<DiaOption> Choices
         {
