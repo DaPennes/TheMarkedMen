@@ -159,7 +159,7 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
         public float probeFrequencyMultiplier = 1f;
         public float vehicleAssaultFrequencyMultiplier = 1f;
         public int firstMarkedRaidDay = 45;
-        public float raidPointsMultiplier = 2f;
+        public float raidPointsMultiplier = 1f;
         public float minimumRaidPoints = 2000f;
         public float maximumRaidPoints = 10000f;
         public float raidEscalationPerRaid = 0.05f;
@@ -651,7 +651,7 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
             Scribe_Values.Look(ref probeFrequencyMultiplier, "probeFrequencyMultiplier", 1f);
             Scribe_Values.Look(ref vehicleAssaultFrequencyMultiplier, "vehicleAssaultFrequencyMultiplier", 1f);
             Scribe_Values.Look(ref firstMarkedRaidDay, "firstMarkedRaidDay", 45);
-            Scribe_Values.Look(ref raidPointsMultiplier, "raidPointsMultiplier", 2f);
+            Scribe_Values.Look(ref raidPointsMultiplier, "raidPointsMultiplier", 1f);
             Scribe_Values.Look(ref minimumRaidPoints, "minimumRaidPoints", 2000f);
             Scribe_Values.Look(ref maximumRaidPoints, "maximumRaidPoints", 10000f);
             Scribe_Values.Look(ref raidEscalationPerRaid, "raidEscalationPerRaid", DefaultRaidEscalationPerRaid);
@@ -856,7 +856,7 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
                     combinedArmsAssaultsEnabled = true;
                     vehicleAssaultFrequencyMultiplier = 1f;
                     firstMarkedRaidDay = 45;
-                    raidPointsMultiplier = 2f;
+                    raidPointsMultiplier = 1f;
                     minimumRaidPoints = 2000f;
                     maximumRaidPoints = 10000f;
                     raidEscalationPerRaid = DefaultRaidEscalationPerRaid;
