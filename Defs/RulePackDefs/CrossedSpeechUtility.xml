@@ -9,20 +9,20 @@
     <rulePack>
       <rulesStrings>
         <!-- Predatory Taunt speech - sadistic and disturbing -->
-        <li>[weakness] makes you delicious</li>
-        <li>your [weakness] is perfect for us</li>
-        <li>[weakness] is the key to your death</li>
-        <li>the [weakness] will get you raped</li>
-        <li>your [weakness] means you bleed for us</li>
-        <li>watch as [weakness] tears you apart</li>
-        <li>[weakness] is what we do to people like you</li>
-        <li>your [weakness] is delicious</li>
-        <li>I want to taste your [weakness]</li>
-        <li>[weakness] means you're mine now</li>
-        <li>the [weakness] is your last pleasure</li>
-        <li>funny how [weakness] hurts so good</li>
-        <li>your [weakness] is going to get so much worse</li>
-        <li>don't you want to feel your [weakness]?</li>
+        <li>text->[weakness] makes you delicious</li>
+        <li>text->your [weakness] is perfect for us</li>
+        <li>text->[weakness] is the key to your death</li>
+        <li>text->the [weakness] will get you raped</li>
+        <li>text->your [weakness] means you bleed for us</li>
+        <li>text->watch as [weakness] tears you apart</li>
+        <li>text->[weakness] is what we do to people like you</li>
+        <li>text->your [weakness] is delicious</li>
+        <li>text->I want to taste your [weakness]</li>
+        <li>text->[weakness] means you're mine now</li>
+        <li>text->the [weakness] is your last pleasure</li>
+        <li>text->funny how [weakness] hurts so good</li>
+        <li>text->your [weakness] is going to get so much worse</li>
+        <li>text->don't you want to feel your [weakness]?</li>
 
         <!-- Subject variations - targeting vulnerabilities -->
         <li>weakness->injuries</li>
@@ -46,20 +46,20 @@
     <rulePack>
       <rulesStrings>
         <!-- False Mercy speech - deceptive and mocking -->
-        <li>I'll let you live... for now</li>
-        <li>she who knocks on your door is me</li>
-        <li>the nice man with the knife says hello</li>
-        <li>I'm here to help... right into my teeth</li>
-        <li>safe passage? I'll make it a one-way trip</li>
-        <li>my medicine tastes so sweet on your lips</li>
-        <li>the clean way out is down this hallway</li>
-        <li>a place to hide? I'll hide you forever</li>
-        <li>surrender is the first step to screaming</li>
-        <li>there's no need to fight when I can make you</li>
-        <li>my truce is sealed with your blood</li>
-        <li>a quiet minute? Just until I'm done torturing you</li>
-        <li>trust me... I'm going to enjoy this</li>
-        <li>I'm playing nice... for my entertainment</li>
+        <li>text->I'll let you live... for now</li>
+        <li>text->she who knocks on your door is me</li>
+        <li>text->the nice man with the knife says hello</li>
+        <li>text->I'm here to help... right into my teeth</li>
+        <li>text->safe passage? I'll make it a one-way trip</li>
+        <li>text->my medicine tastes so sweet on your lips</li>
+        <li>text->the clean way out is down this hallway</li>
+        <li>text->a place to hide? I'll hide you forever</li>
+        <li>text->surrender is the first step to screaming</li>
+        <li>text->there's no need to fight when I can make you</li>
+        <li>text->my truce is sealed with your blood</li>
+        <li>text->a quiet minute? Just until I'm done torturing you</li>
+        <li>text->trust me... I'm going to enjoy this</li>
+        <li>text->I'm playing nice... for my entertainment</li>
 
         <!-- Offer variations - all twisted -->
         <li>offer->my hand to pull you from the darkness</li>
@@ -95,23 +95,23 @@
     <rulePack>
       <rulesStrings>
         <!-- Pack Laughter speech - coordinated sadism -->
-        <li>we found your hiding spot, bitch</li>
-        <li>the pack counts your heartbeats</li>
-        <li>we're all getting fucking fed</li>
-        <li>every door opens for our cocky little walk</li>
-        <li>the colony's names on my tongue tonight</li>
-        <li>marking that little shit [RECIPIENT_nameDef] for dinner</li>
-        <li>who's next? Who's screaming loudest?</li>
-        <li>the horde laughs at your whimpering</li>
-        <li>we're all wet for you, [RECIPIENT_nameDef]</li>
-        <li>the pack remembers your face from breakfast</li>
-        <li>we've been waiting for you to bleed</li>
-        <li>count the locks as we break them all down</li>
-        <li>the farts of [RECIPIENT_nameDef] smell sweet to us</li>
-        <li>dance for the pack, little survivor</li>
-        <li>the rhythm of your heartbeat is our music</li>
-        <li>we're going to fill our bellies with you</li>
-        <li>the last sound you'll hear is our laughter</li>
+        <li>text->we found your hiding spot, bitch</li>
+        <li>text->the pack counts your heartbeats</li>
+        <li>text->we're all getting fucking fed</li>
+        <li>text->every door opens for our cocky little walk</li>
+        <li>text->the colony's names on my tongue tonight</li>
+        <li>text->marking that little shit [RECIPIENT_nameDef] for dinner</li>
+        <li>text->who's next? Who's screaming loudest?</li>
+        <li>text->the horde laughs at your whimpering</li>
+        <li>text->we're all wet for you, [RECIPIENT_nameDef]</li>
+        <li>text->the pack remembers your face from breakfast</li>
+        <li>text->we've been waiting for you to bleed</li>
+        <li>text->count the locks as we break them all down</li>
+        <li>text->the farts of [RECIPIENT_nameDef] smell sweet to us</li>
+        <li>text->dance for the pack, little survivor</li>
+        <li>text->the rhythm of your heartbeat is our music</li>
+        <li>text->we're going to fill our bellies with you</li>
+        <li>text->the last sound you'll hear is our laughter</li>
 
         <!-- Signal variations - pack coordination -->
         <li>signal->the crack of bone on metal</li>
@@ -137,21 +137,21 @@
     <rulePack>
       <rulesStrings>
         <!-- Infection Gloat speech - transformation horror -->
-        <li>your body is mine to ruin</li>
-        <li>the disease is turning you into me</li>
-        <li>I'm already in your blood</li>
-        <li>the fever is a gift I gave you</li>
-        <li>your cells are my cells now</li>
-        <li>shedding skin is just the beginning</li>
-        <li>the infection is making you wet for me</li>
-        <li>you can't stop what I've set in motion</li>
-        <li>the change starts in your marrow</li>
-        <li>your blood is thickening with my will</li>
-        <li>the mark is spreading through your bones</li>
-        <li>screaming is pleasant against my teeth</li>
-        <li>the last thing you'll think is of me</li>
-        <li>my laughter is the sound of your organs shutting down</li>
-        <li>the clean ones always bleed first</li>
+        <li>text->your body is mine to ruin</li>
+        <li>text->the disease is turning you into me</li>
+        <li>text->I'm already in your blood</li>
+        <li>text->the fever is a gift I gave you</li>
+        <li>text->your cells are my cells now</li>
+        <li>text->shedding skin is just the beginning</li>
+        <li>text->the infection is making you wet for me</li>
+        <li>text->you can't stop what I've set in motion</li>
+        <li>text->the change starts in your marrow</li>
+        <li>text->your blood is thickening with my will</li>
+        <li>text->the mark is spreading through your bones</li>
+        <li>text->screaming is pleasant against my teeth</li>
+        <li>text->the last thing you'll think is of me</li>
+        <li>text->my laughter is the sound of your organs shutting down</li>
+        <li>text->the clean ones always bleed first</li>
 
         <!-- Claim variations - gruesome predictions -->
         <li>claim->the fever will rape you slowly</li>

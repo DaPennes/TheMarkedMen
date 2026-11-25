@@ -20,6 +20,12 @@ namespace TheMarkedMen
         private static InteractionDef crossedFalseMercy;
         private static InteractionDef crossedPackLaughter;
         private static InteractionDef crossedInfectionGloat;
+        private static InteractionDef crossedPrisonerHarassment;
+        private static InteractionDef crossedWoundedMockery;
+        private static InteractionDef crossedEscapeTaunt;
+        private static InteractionDef crossedGroupCoordination;
+        private static InteractionDef crossedCompanionMockery;
+        private static InteractionDef crossedPackAnnouncement;
         private static PawnKindDef crossedCivilian;
         private static PawnKindDef crossedScout;
         private static PawnKindDef crossedHunter;
@@ -100,6 +106,8 @@ namespace TheMarkedMen
         private static RulePackDef crossedSpeechEscapeTaunt;
         private static RulePackDef crossedSpeechGroupCoordination;
         private static RulePackDef crossedSpeechInfectionCelebration;
+        private static RulePackDef crossedSpeechCompanionMockery;
+        private static RulePackDef crossedSpeechPackAnnouncement;
 
         public static HediffDef CrossVirus => crossVirus ?? (crossVirus = DefDatabase<HediffDef>.GetNamedSilentFail("CA_CrossVirus"));
 
@@ -115,6 +123,8 @@ namespace TheMarkedMen
         public static RulePackDef CA_CrossedSpeechEscapeTaunt => crossedSpeechEscapeTaunt ?? (crossedSpeechEscapeTaunt = DefDatabase<RulePackDef>.GetNamedSilentFail("CA_CrossedSpeechEscapeTaunt"));
         public static RulePackDef CA_CrossedSpeechGroupCoordination => crossedSpeechGroupCoordination ?? (crossedSpeechGroupCoordination = DefDatabase<RulePackDef>.GetNamedSilentFail("CA_CrossedSpeechGroupCoordination"));
         public static RulePackDef CA_CrossedSpeechInfectionCelebration => crossedSpeechInfectionCelebration ?? (crossedSpeechInfectionCelebration = DefDatabase<RulePackDef>.GetNamedSilentFail("CA_CrossedSpeechInfectionCelebration"));
+        public static RulePackDef CA_CrossedSpeechCompanionMockery => crossedSpeechCompanionMockery ?? (crossedSpeechCompanionMockery = DefDatabase<RulePackDef>.GetNamedSilentFail("CA_CrossedSpeechCompanionMockery"));
+        public static RulePackDef CA_CrossedSpeechPackAnnouncement => crossedSpeechPackAnnouncement ?? (crossedSpeechPackAnnouncement = DefDatabase<RulePackDef>.GetNamedSilentFail("CA_CrossedSpeechPackAnnouncement"));
         public static HediffDef CrossVirusImmunity => crossVirusImmunity ?? (crossVirusImmunity = DefDatabase<HediffDef>.GetNamedSilentFail("CA_CrossVirusImmunity"));
         public static HediffDef CrossedRash => crossedRash ?? (crossedRash = DefDatabase<HediffDef>.GetNamedSilentFail("CA_CrossedRash"));
         public static HediffDef BloodRush => bloodRush ?? (bloodRush = DefDatabase<HediffDef>.GetNamedSilentFail("CA_BloodRush"));
@@ -128,6 +138,12 @@ namespace TheMarkedMen
         public static InteractionDef CrossedFalseMercy => crossedFalseMercy ?? (crossedFalseMercy = DefDatabase<InteractionDef>.GetNamedSilentFail("CA_CrossedFalseMercy"));
         public static InteractionDef CrossedPackLaughter => crossedPackLaughter ?? (crossedPackLaughter = DefDatabase<InteractionDef>.GetNamedSilentFail("CA_CrossedPackLaughter"));
         public static InteractionDef CrossedInfectionGloat => crossedInfectionGloat ?? (crossedInfectionGloat = DefDatabase<InteractionDef>.GetNamedSilentFail("CA_CrossedInfectionGloat"));
+        public static InteractionDef CrossedPrisonerHarassment => crossedPrisonerHarassment ?? (crossedPrisonerHarassment = DefDatabase<InteractionDef>.GetNamedSilentFail("CA_CrossedPrisonerHarassment"));
+        public static InteractionDef CrossedWoundedMockery => crossedWoundedMockery ?? (crossedWoundedMockery = DefDatabase<InteractionDef>.GetNamedSilentFail("CA_CrossedWoundedMockery"));
+        public static InteractionDef CrossedEscapeTaunt => crossedEscapeTaunt ?? (crossedEscapeTaunt = DefDatabase<InteractionDef>.GetNamedSilentFail("CA_CrossedEscapeTaunt"));
+        public static InteractionDef CrossedGroupCoordination => crossedGroupCoordination ?? (crossedGroupCoordination = DefDatabase<InteractionDef>.GetNamedSilentFail("CA_CrossedGroupCoordination"));
+        public static InteractionDef CrossedCompanionMockery => crossedCompanionMockery ?? (crossedCompanionMockery = DefDatabase<InteractionDef>.GetNamedSilentFail("CA_CrossedCompanionMockery"));
+        public static InteractionDef CrossedPackAnnouncement => crossedPackAnnouncement ?? (crossedPackAnnouncement = DefDatabase<InteractionDef>.GetNamedSilentFail("CA_CrossedPackAnnouncement"));
         public static PawnKindDef CrossedCivilian => crossedCivilian ?? (crossedCivilian = DefDatabase<PawnKindDef>.GetNamedSilentFail("CA_CrossedCivilian"));
         public static PawnKindDef CrossedScout => crossedScout ?? (crossedScout = DefDatabase<PawnKindDef>.GetNamedSilentFail("CA_CrossedScout"));
         public static PawnKindDef CrossedHunter => crossedHunter ?? (crossedHunter = DefDatabase<PawnKindDef>.GetNamedSilentFail("CA_CrossedHunter"));

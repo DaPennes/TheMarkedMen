@@ -203,4 +203,180 @@
       </rulesStrings>
     </logRulesInitiator>
   </InteractionDef>
+
+  <!-- Prisoner Harassment: Sadistic mockery of prisoners. The Crossed
+       enjoy tormenting those who are restrained and helpless. -->
+  <InteractionDef>
+    <defName>CA_CrossedPrisonerHarassment</defName>
+    <label>prisoner harassment</label>
+    <workerClass>TheMarkedMen.InteractionWorker_CrossedSocial</workerClass>
+    <symbol>Things/Mote/SpeechSymbols/Insult</symbol>
+    <socialFightBaseChance>0.08</socialFightBaseChance>
+    <logRulesInitiator>
+      <include>
+        <li>CA_CrossedSpeechPrisonerHarassment</li>
+        <li>CA_CrossedSpeechWoundedMockery</li>
+      </include>
+      <rulesStrings>
+        <li>r_logentry->[INITIATOR_nameDef] mocked [RECIPIENT_nameDef] while they were restrained.</li>
+        <li>r_logentry->[INITIATOR_nameDef] taunted [RECIPIENT_nameDef] about their injuries.</li>
+        <li>r_logentry->[INITIATOR_nameDef] laughed at [RECIPIENT_nameDef]'s helpless state.</li>
+
+        <li>taunted->mocked</li>
+        <li>taunted->taunted</li>
+        <li>taunted->baited</li>
+        <li>taunted->jeered at</li>
+        <li>taunted->threatened</li>
+
+        <li>state->helpless</li>
+        <li>state->restrained</li>
+        <li>state->trapped</li>
+        <li>state->waiting</li>
+        <li>state->doomed</li>
+      </rulesStrings>
+    </logRulesInitiator>
+  </InteractionDef>
+
+  <!-- Wounded Mockery: Targeted cruelty at wounded victims. The Crossed
+       take particular pleasure in mocking those already in pain. -->
+  <InteractionDef>
+    <defName>CA_CrossedWoundedMockery</defName>
+    <label>wounded mockery</label>
+    <workerClass>TheMarkedMen.InteractionWorker_CrossedSocial</workerClass>
+    <symbol>Things/Mote/SpeechSymbols/Insult</symbol>
+    <socialFightBaseChance>0.05</socialFightBaseChance>
+    <logRulesInitiator>
+      <include><li>CA_CrossedSpeechWoundedMockery</li></include>
+      <rulesStrings>
+        <li>r_logentry->[INITIATOR_nameDef] mocked [RECIPIENT_nameDef]'s [injury].</li>
+        <li>r_logentry->[INITIATOR_nameDef] laughed at [RECIPIENT_nameDef]'s [injury] state.</li>
+        <li>r_logentry->[INITIATOR_nameDef] called [RECIPIENT_nameDef] a [injury] mess.</li>
+
+        <li>injury->broken leg</li>
+        <li>injury->torn shirt</li>
+        <li>injury->bloody face</li>
+        <li>injury->bloodied uniform</li>
+        <li>injury->wounded arm</li>
+        <li>injury->cracked skull</li>
+      </rulesStrings>
+    </logRulesInitiator>
+  </InteractionDef>
+
+  <!-- Escape Taunt: Mocks someone attempting to flee. Often used during
+       chases or escape attempts. -->
+  <InteractionDef>
+    <defName>CA_CrossedEscapeTaunt</defName>
+    <label>escape taunt</label>
+    <workerClass>TheMarkedMen.InteractionWorker_CrossedSocial</workerClass>
+    <symbol>Things/Mote/SpeechSymbols/Chitchat</symbol>
+    <socialFightBaseChance>0.07</socialFightBaseChance>
+    <logRulesInitiator>
+      <include><li>CA_CrossedSpeechEscapeTaunt</li></include>
+      <rulesStrings>
+        <li>r_logentry->[INITIATOR_nameDef] taunted [RECIPIENT_nameDef] during their escape attempt.</li>
+        <li>r_logentry->[INITIATOR_nameDef] called out to [RECIPIENT_nameDef], who was fleeing.</li>
+        <li>r_logentry->[INITIATOR_nameDef] chased [RECIPIENT_nameDef], laughing.</li>
+
+        <li>taunted->mocked</li>
+        <li>taunted->called out</li>
+        <li>taunted->laughed at</li>
+        <li>taunted->shouted after</li>
+      </rulesStrings>
+    </logRulesInitiator>
+  </InteractionDef>
+
+  <!-- Group Coordination: Coordinated pack behavior where infected communicate
+       tactics or celebrate together. -->
+  <InteractionDef>
+    <defName>CA_CrossedGroupCoordination</defName>
+    <label>group coordination</label>
+    <workerClass>TheMarkedMen.InteractionWorker_CrossedSocial</workerClass>
+    <symbol>Things/Mote/SpeechSymbols/DeepTalk</symbol>
+    <socialFightBaseChance>0.1</socialFightBaseChance>
+    <logRulesInitiator>
+      <include><li>CA_CrossedSpeechGroupCoordination</li></include>
+      <rulesStrings>
+        <li>r_logentry->[INITIATOR_nameDef] coordinated with the pack about [RECIPIENT_nameDef].</li>
+        <li>r_logentry->[INITIATOR_nameDef] celebrated with the pack after [RECIPIENT_nameDef].</li>
+        <li>r_logentry->[INITIATOR_nameDef] counted down with the pack, [RECIPIENT_nameDef] next.</li>
+
+        <li>coordinated->planned</li>
+        <li>coordinated->discussed</li>
+        <li>coordinated->signaled</li>
+
+        <li>celebrated->cheered</li>
+        <li>celebrated->laughed together</li>
+        <li>celebrated->marked their victory</li>
+      </rulesStrings>
+    </logRulesInitiator>
+  </InteractionDef>
+
+  <!-- Companion Mockery: Mocking other survivors, showing interactions between
+       targets and other NPCs. Shows the pack mentality and how infected view
+       other survivors as prey or threats. -->
+  <InteractionDef>
+    <defName>CA_CrossedCompanionMockery</defName>
+    <label>companion mockery</label>
+    <workerClass>TheMarkedMen.InteractionWorker_CrossedSocial</workerClass>
+    <symbol>Things/Mote/SpeechSymbols/Chitchat</symbol>
+    <socialFightBaseChance>0.08</socialFightBaseChance>
+    <logRulesInitiator>
+      <include><li>CA_CrossedSpeechCompanionMockery</li></include>
+      <rulesStrings>
+        <li>r_logentry->[INITIATOR_nameDef] mocked [RECIPIENT_nameDef] to other survivors.</li>
+        <li>r_logentry->[INITIATOR_nameDef] told [RECIPIENT_nameDef]'s secrets to the pack.</li>
+        <li>r_logentry->[INITIATOR_nameDef] showed [RECIPIENT_nameDef] who truly commands.</li>
+        <li>r_logentry->[INITIATOR_nameDef] laughed while [RECIPIENT_nameDef] watched in fear.</li>
+
+        <li>mocked->taunted</li>
+        <li>mocked->ridiculed</li>
+        <li>mocked->mocked</li>
+        <li>mocked->scoffed at</li>
+
+        <li>to->about</li>
+        <li>to->while</li>
+        <li>to->during</li>
+      </rulesStrings>
+    </logRulesInitiator>
+  </InteractionDef>
+
+  <!-- Pack Announcement: Announcing victims to the pack, coordinating
+       attacks through vocal calls. References other NPCs and pack members. -->
+  <InteractionDef>
+    <defName>CA_CrossedPackAnnouncement</defName>
+    <label>pack announcement</label>
+    <workerClass>TheMarkedMen.InteractionWorker_CrossedSocial</workerClass>
+    <symbol>Things/Mote/SpeechSymbols/DeepTalk</symbol>
+    <socialFightBaseChance>0.07</socialFightBaseChance>
+    <logRulesInitiator>
+      <include><li>CA_CrossedSpeechPackAnnouncement</li></include>
+      <rulesStrings>
+        <li>r_logentry->[INITIATOR_nameDef] announced [RECIPIENT_nameDef] to the pack.</li>
+        <li>r_logentry->[INITIATOR_nameDef] marked [RECIPIENT_nameDef] as prey.</li>
+        <li>r_logentry->[INITIATOR_nameDef] called for the pack to find [RECIPIENT_nameDef].</li>
+        <li>r_logentry->[INITIATOR_nameDef] told the pack [RECIPIENT_nameDef] is ready.</li>
+        <li>r_logentry->[INITIATOR_nameDef] showed the pack where [RECIPIENT_nameDef] hides.</li>
+        <li>r_logentry->[INITIATOR_nameDef] counted [RECIPIENT_nameDef] into the pack's sights.</li>
+        <li>r_logentry->[INITIATOR_nameDef] told the pack [RECIPIENT_nameDef] has nowhere to hide.</li>
+
+        <li>as->for</li>
+        <li>as->is</li>
+        <li>as->were</li>
+        <li>as->became</li>
+
+        <li>prey->target</li>
+        <li>prey->choice</li>
+        <li>prey->next</li>
+
+        <li>ready->prepared</li>
+        <li>ready->waiting</li>
+        <li>ready->available</li>
+
+        <li>where->how to find</li>
+        <li>where->the location of</li>
+        <li>where->near</li>
+      </rulesStrings>
+    </logRulesInitiator>
+  </InteractionDef>
+
 </Defs>

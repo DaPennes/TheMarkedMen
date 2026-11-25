@@ -7,16 +7,16 @@
     <rulePack>
       <rulesStrings>
         <!-- General prisoner harassment -->
-        <li>[RECIPIENT_nameDef], you're just a dog in a cage</li>
-        <li>begging looks good on you, [RECIPIENT_nameDef]</li>
-        <li>who's gonna save you now?</li>
-        <li>[RECIPIENT_nameDef], I want to paint my nails with your blood</li>
-        <li>you can't hide from me in that cell</li>
-        <li>let him watch, [RECIPIENT_nameDef]</li>
-        <li>every day without me fucking you is a day wasted</li>
-        <li>[RECIPIENT_nameDef]'s pretty face is mine to ruin</li>
-        <li>I'm gonna tear that pretty mouth open</li>
-        <li>your hands are shackled but your pussy's not</li>
+        <li>text->[RECIPIENT_nameDef], you're just a dog in a cage</li>
+        <li>text->begging looks good on you, [RECIPIENT_nameDef]</li>
+        <li>text->who's gonna save you now?</li>
+        <li>text->[RECIPIENT_nameDef], I want to paint my nails with your blood</li>
+        <li>text->you can't hide from me in that cell</li>
+        <li>text->let him watch, [RECIPIENT_nameDef]</li>
+        <li>text->every day without me fucking you is a day wasted</li>
+        <li>text->[RECIPIENT_nameDef]'s pretty face is mine to ruin</li>
+        <li>text->I'm gonna tear that pretty mouth open</li>
+        <li>text->your hands are shackled but your pussy's not</li>
 
         <!-- False mercy variations -->
         <li>falseMercy->I'll let you go if you scream for me</li>
@@ -46,16 +46,16 @@
     <rulePack>
       <rulesStrings>
         <!-- Wounded victim mockery -->
-        <li>[RECIPIENT_nameDef], you look like a fucking mess</li>
-        <li>that's what you get for trying to run</li>
-        <li>keep crawling, little survivor</li>
-        <li>your blood's on the floor, [RECIPIENT_nameDef]</li>
-        <li>[RECIPIENT_nameDef] can't even run straight</li>
-        <li>drag your broken ass to me</li>
-        <li>[RECIPIENT_nameDef] is already half dead</li>
-        <li>you smell like piss and fear</li>
-        <li>[RECIPIENT_nameDef], I'll make you cum before I kill you</li>
-        <li>try not to wet yourself when I find you</li>
+        <li>text->[RECIPIENT_nameDef], you look like a fucking mess</li>
+        <li>text->that's what you get for trying to run</li>
+        <li>text->keep crawling, little survivor</li>
+        <li>text->your blood's on the floor, [RECIPIENT_nameDef]</li>
+        <li>text->[RECIPIENT_nameDef] can't even run straight</li>
+        <li>text->drag your broken ass to me</li>
+        <li>text->[RECIPIENT_nameDef] is already half dead</li>
+        <li>text->you smell like piss and fear</li>
+        <li>text->[RECIPIENT_nameDef], I'll make you cum before I kill you</li>
+        <li>text->try not to wet yourself when I find you</li>
 
         <!-- Injury-specific variations -->
         <li>injury->your leg is broken</li>
@@ -73,16 +73,16 @@
     <rulePack>
       <rulesStrings>
         <!-- Escape attempts -->
-        <li>[RECIPIENT_nameDef], you can't outrun me</li>
-        <li>stop running, you silly bastard</li>
-        <li>[RECIPIENT_nameDef] is going home with me</li>
-        <li>that door's not going anywhere</li>
-        <li>I'll catch you when you fall</li>
-        <li>[RECIPIENT_nameDef], you're getting slower</li>
-        <li>your hiding place is going to get you killed</li>
-        <li>the walls are full of ears</li>
-        <li>[RECIPIENT_nameDef] can't hide from what's coming</li>
-        <li>every step away is a step closer to pain</li>
+        <li>text->[RECIPIENT_nameDef], you can't outrun me</li>
+        <li>text->stop running, you silly bastard</li>
+        <li>text->[RECIPIENT_nameDef] is going home with me</li>
+        <li>text->that door's not going anywhere</li>
+        <li>text->I'll catch you when you fall</li>
+        <li>text->[RECIPIENT_nameDef], you're getting slower</li>
+        <li>text->your hiding place is going to get you killed</li>
+        <li>text->the walls are full of ears</li>
+        <li>text->[RECIPIENT_nameDef] can't hide from what's coming</li>
+        <li>text->every step away is a step closer to pain</li>
 
         <!-- Chase-specific variations -->
         <li>chase->I'm right behind you</li>

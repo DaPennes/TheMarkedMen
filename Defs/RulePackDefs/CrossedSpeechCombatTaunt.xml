@@ -7,16 +7,16 @@
     <rulePack>
       <rulesStrings>
         <!-- Predatory combat taunts -->
-        <li>[RECIPIENT_nameDef], you're already dead</li>
-        <li>[RECIPIENT_nameDef] can't run from me forever</li>
-        <li>I'm gonna enjoy this [RECIPIENT_nameDef]</li>
-        <li>[RECIPIENT_nameDef] is mine now</li>
-        <li>try to stay down, [RECIPIENT_nameDef]</li>
-        <li>your [weakness] is showing</li>
-        <li>[RECIPIENT_nameDef] bleeds for us now</li>
-        <li>I'll make you scream</li>
-        <li>[RECIPIENT_nameDef] begs for death</li>
-        <li>more blood, more fun</li>
+        <li>text->[RECIPIENT_nameDef], you're already dead</li>
+        <li>text->[RECIPIENT_nameDef] can't run from me forever</li>
+        <li>text->I'm gonna enjoy this [RECIPIENT_nameDef]</li>
+        <li>text->[RECIPIENT_nameDef] is mine now</li>
+        <li>text->try to stay down, [RECIPIENT_nameDef]</li>
+        <li>text->your [weakness] is showing</li>
+        <li>text->[RECIPIENT_nameDef] bleeds for us now</li>
+        <li>text->I'll make you scream</li>
+        <li>text->[RECIPIENT_nameDef] begs for death</li>
+        <li>text->more blood, more fun</li>
 
         <!-- Subject variations -->
         <li>weakness->wounds</li>
@@ -34,16 +34,16 @@
     <rulePack>
       <rulesStrings>
         <!-- Shooter-specific taunts -->
-        <li>[RECIPIENT_nameDef] should've stayed hidden</li>
-        <li>one shot, one screaming kill</li>
-        <li>[RECIPIENT_nameDef] is a target waiting for me</li>
-        <li>fuck you, [RECIPIENT_nameDef], I'm lining my teeth with your bones</li>
-        <li>[RECIPIENT_nameDef]'s last thought will be my name</li>
-        <li>your screams are music to me</li>
-        <li>[RECIPIENT_nameDef] is gonna be fucked up when I'm done</li>
-        <li>that's one less cocky bastard</li>
-        <li>[RECIPIENT_nameDef] tastes better when terrified</li>
-        <li>I'm gonna put a bullet in your head and wear it like a necklace</li>
+        <li>text->[RECIPIENT_nameDef] should've stayed hidden</li>
+        <li>text->one shot, one screaming kill</li>
+        <li>text->[RECIPIENT_nameDef] is a target waiting for me</li>
+        <li>text->fuck you, [RECIPIENT_nameDef], I'm lining my teeth with your bones</li>
+        <li>text->[RECIPIENT_nameDef]'s last thought will be my name</li>
+        <li>text->your screams are music to me</li>
+        <li>text->[RECIPIENT_nameDef] is gonna be fucked up when I'm done</li>
+        <li>text->that's one less cocky bastard</li>
+        <li>text->[RECIPIENT_nameDef] tastes better when terrified</li>
+        <li>text->I'm gonna put a bullet in your head and wear it like a necklace</li>
       </rulesStrings>
     </rulePack>
   </RulePackDef>
@@ -53,16 +53,16 @@
     <rulePack>
       <rulesStrings>
         <!-- Brute-specific combat taunts -->
-        <li>[RECIPIENT_nameDef] is mine to break</li>
-        <li>I'll crush your bones</li>
-        <li>[RECIPIENT_nameDef] screams sound pretty</li>
-        <li>watch the big one play</li>
-        <li>your bones will crack like twigs</li>
-        <li>I'm gonna ruin you</li>
-        <li>[RECIPIENT_nameDef] is nothing to me</li>
-        <li>fuck with me and you get hurt</li>
-        <li>my fists make you beg</li>
-        <li>[RECIPIENT_nameDef] is already dead inside</li>
+        <li>text->[RECIPIENT_nameDef] is mine to break</li>
+        <li>text->I'll crush your bones</li>
+        <li>text->[RECIPIENT_nameDef] screams sound pretty</li>
+        <li>text->watch the big one play</li>
+        <li>text->your bones will crack like twigs</li>
+        <li>text->I'm gonna ruin you</li>
+        <li>text->[RECIPIENT_nameDef] is nothing to me</li>
+        <li>text->fuck with me and you get hurt</li>
+        <li>text->my fists make you beg</li>
+        <li>text->[RECIPIENT_nameDef] is already dead inside</li>
       </rulesStrings>
     </rulePack>
   </RulePackDef>

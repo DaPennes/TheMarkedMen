@@ -1,7 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Reflection;
-using HarmonyLib;
 using RimWorld;
 using UnityEngine;
 using Verse;
@@ -14,6 +12,9 @@ namespace TheMarkedMen
         private const float SocialPulseBaseChance = 0.42f;
         private const float SocialPulseLeaderChance = 0.78f;
         private const float MaxSocialTargetDistanceSquared = 400f;
+
+        private const int QuickSocialPulseInterval = 600;
+        private const float QuickSocialPulseChance = 0.15f;
 
         public static void TryHostileSocialPulse(Pawn initiator)
         {
@@ -47,6 +48,84 @@ namespace TheMarkedMen
             }
         }
 
+        public static void TryQuickSocialPulse(Pawn initiator)
+        {
+            if (initiator == null || !initiator.Spawned || initiator.Dead || initiator.Map == null || !CrossedUtility.IsCrossedPawn(initiator))
+            {
+                return;
+            }
+
+            float socialStrength = TheMarkedMenSettings.SocialTerrorStrength;
+            if (socialStrength <= 0f || !initiator.IsHashIntervalTick(QuickSocialPulseInterval))
+            {
+                return;
+            }
+
+            float chance = Mathf.Clamp01(QuickSocialPulseChance * socialStrength);
+            if (!Rand.Chance(chance))
+            {
+                return;
+            }
+
+            Pawn recipient = FindQuickRecipient(initiator);
+            if (recipient == null)
+            {
+                return;
+            }
+
+            InteractionDef interactionDef = PickQuickInteraction(initiator, recipient);
+            if (interactionDef != null)
+            {
+                TriggerInteraction(initiator, recipient, interactionDef);
+            }
+        }
+
+        private static Pawn FindQuickRecipient(Pawn initiator)
+        {
+            Map map = initiator.Map;
+            if (map?.mapPawns == null)
+            {
+                return null;
+            }
+
+            Pawn best = null;
+            float bestScore = 0f;
+            IReadOnlyList<Pawn> pawns = map.mapPawns.AllPawnsSpawned;
+            for (int i = 0; i < pawns.Count; i++)
+            {
+                Pawn candidate = pawns[i];
+                if (!CanCrossedSocialInteract(initiator, candidate, true))
+                {
+                    continue;
+                }
+
+                float distanceSquared = initiator.Position.DistanceToSquared(candidate.Position);
+                if (distanceSquared > MaxSocialTargetDistanceSquared)
+                {
+                    continue;
+                }
+
+                float score = 150f - Mathf.Sqrt(distanceSquared) * 3f;
+                if (candidate.Downed)
+                {
+                    score += 70f;
+                }
+
+                if (candidate.ageTracker != null && candidate.ageTracker.AgeBiologicalYears < 18)
+                {
+                    score += 35f;
+                }
+
+                if (score > bestScore)
+                {
+                    bestScore = score;
+                    best = candidate;
+                }
+            }
+
+            return best;
+        }
+
         public static bool CanCrossedSocialInteract(Pawn initiator, Pawn recipient, bool allowInfectedToInfected = false)
         {
             if (initiator == null || recipient == null || initiator == recipient || initiator.Map == null || recipient.Map != initiator.Map)
@@ -64,7 +143,7 @@ namespace TheMarkedMen
                 return allowInfectedToInfected && TheMarkedMenSettings.SocialTerrorStrength > 0f;
             }
 
-            return IsHumanlikeActivePawn(recipient) && IsPlayerAligned(recipient);
+            return IsHumanlikeActivePawn(recipient);
         }
 
         public static void ApplyCrossedSocialEffect(Pawn initiator, Pawn recipient, InteractionDef interactionDef)
@@ -95,107 +174,92 @@ namespace TheMarkedMen
 
         public static void TriggerInteraction(Pawn initiator, Pawn recipient, InteractionDef interactionDef)
         {
-            if (interactionDef == null || !CanCrossedSocialInteract(initiator, recipient))
+            if (interactionDef == null)
             {
                 return;
             }
 
-            ApplyCrossedSocialEffect(initiator, recipient, interactionDef);
+            if (!CanCrossedSocialInteract(initiator, recipient))
+            {
+                return;
+            }
 
             List<RulePackDef> extraSentencePacks = GetSentencePacks(interactionDef);
 
-            string letterText = null;
-            string letterLabel = null;
-            LetterDef letterDef = null;
-            LookTargets lookTargets = new LookTargets(initiator, recipient);
-
             if (interactionDef.Worker != null)
             {
-                interactionDef.Worker.Interacted(initiator, recipient, extraSentencePacks, out letterText, out letterLabel, out letterDef, out lookTargets);
+                interactionDef.Worker.Interacted(initiator, recipient, extraSentencePacks, out _, out _, out _, out _);
             }
-
-            string speechText = ResolveSpeechText(interactionDef, initiator, recipient, extraSentencePacks);
-            DisplaySpeech(initiator, recipient, speechText);
-
-            if (Find.PlayLog != null)
-            {
-                Find.PlayLog.Add(new PlayLogEntry_Interaction(interactionDef, initiator, recipient, extraSentencePacks));
-            }
-        }
-
-        private static string ResolveSpeechText(InteractionDef interactionDef, Pawn initiator, Pawn recipient, List<RulePackDef> extraSentencePacks)
-        {
-            if (interactionDef == null || initiator == null || recipient == null)
-                return null;
-
-            try
-            {
-                Type speechType = AccessTools.TypeByName("Speech");
-                if (speechType == null)
-                    return null;
-
-                MethodInfo resolveMethod = AccessTools.Method(speechType, "ResolveText",
-                    new[] { typeof(InteractionDef), typeof(Pawn), typeof(Pawn), typeof(List<RulePackDef>) });
-
-                if (resolveMethod == null)
-                    return null;
-
-                return (string)resolveMethod.Invoke(null, new object[] { interactionDef, initiator, recipient, extraSentencePacks });
-            }
-            catch (Exception ex)
-            {
-                Log.Warning("[The Marked Men] Failed to resolve speech text via reflection: " + ex.Message);
-                return null;
-            }
-        }
-
-        private static void DisplaySpeech(Pawn initiator, Pawn recipient, string speechText)
-        {
-            if (initiator == null || recipient == null || string.IsNullOrEmpty(speechText))
-            {
-                return;
-            }
-            if (initiator.Map == null || recipient.Map != initiator.Map)
-            {
-                return;
-            }
-
-            Color textcolor = Color.white;
-            MoteMaker.ThrowText(initiator.DrawPos, initiator.Map, speechText, textcolor, 3.5f);
-            MoteMaker.ThrowText(recipient.DrawPos, recipient.Map, speechText, textcolor, 3.5f);
         }
 
         private static List<RulePackDef> GetSentencePacks(InteractionDef interactionDef)
         {
+            if (interactionDef == null)
+                return new List<RulePackDef>();
+
             List<RulePackDef> result = new List<RulePackDef>();
 
+            // Predatory taunt - sadistic attacks revealing weaknesses
             if (interactionDef == CADefOf.CrossedPredatoryTaunt)
             {
                 if (CADefOf.CA_CrossedSpeechPredatory != null)
-                {
                     result.Add(CADefOf.CA_CrossedSpeechPredatory);
-                }
             }
+            // False mercy - deceptive mockery
             else if (interactionDef == CADefOf.CrossedFalseMercy)
             {
                 if (CADefOf.CA_CrossedSpeechFalseMercy != null)
-                {
                     result.Add(CADefOf.CA_CrossedSpeechFalseMercy);
-                }
             }
+            // Pack laughter - coordinated sadism
             else if (interactionDef == CADefOf.CrossedPackLaughter)
             {
                 if (CADefOf.CA_CrossedSpeechPackLaughter != null)
-                {
                     result.Add(CADefOf.CA_CrossedSpeechPackLaughter);
-                }
             }
+            // Infection gloat - transformation horror
             else if (interactionDef == CADefOf.CrossedInfectionGloat)
             {
                 if (CADefOf.CA_CrossedSpeechInfection != null)
-                {
                     result.Add(CADefOf.CA_CrossedSpeechInfection);
-                }
+            }
+            // Prisoner harassment - mockery of prisoners
+            else if (interactionDef == CADefOf.CrossedPrisonerHarassment)
+            {
+                if (CADefOf.CA_CrossedSpeechPrisonerHarassment != null)
+                    result.Add(CADefOf.CA_CrossedSpeechPrisonerHarassment);
+                if (CADefOf.CA_CrossedSpeechWoundedMockery != null)
+                    result.Add(CADefOf.CA_CrossedSpeechWoundedMockery);
+            }
+            // Wounded mockery - targeting injured victims
+            else if (interactionDef == CADefOf.CrossedWoundedMockery)
+            {
+                if (CADefOf.CA_CrossedSpeechWoundedMockery != null)
+                    result.Add(CADefOf.CA_CrossedSpeechWoundedMockery);
+            }
+            // Escape taunt - mocking escape attempts
+            else if (interactionDef == CADefOf.CrossedEscapeTaunt)
+            {
+                if (CADefOf.CA_CrossedSpeechEscapeTaunt != null)
+                    result.Add(CADefOf.CA_CrossedSpeechEscapeTaunt);
+            }
+            // Group coordination - pack-level communication
+            else if (interactionDef == CADefOf.CrossedGroupCoordination)
+            {
+                if (CADefOf.CA_CrossedSpeechGroupCoordination != null)
+                    result.Add(CADefOf.CA_CrossedSpeechGroupCoordination);
+            }
+            // Companion mockery - mocking other survivors
+            else if (interactionDef == CADefOf.CrossedCompanionMockery)
+            {
+                if (CADefOf.CA_CrossedSpeechCompanionMockery != null)
+                    result.Add(CADefOf.CA_CrossedSpeechCompanionMockery);
+            }
+            // Pack announcement - announcing victims to the pack
+            else if (interactionDef == CADefOf.CrossedPackAnnouncement)
+            {
+                if (CADefOf.CA_CrossedSpeechPackAnnouncement != null)
+                    result.Add(CADefOf.CA_CrossedSpeechPackAnnouncement);
             }
 
             return result;
@@ -263,12 +327,75 @@ namespace TheMarkedMen
             // For infected-to-infected interactions, use pack laughter or infection gloat
             if (isInfectedToInfected)
             {
-                float value = Rand.Value;
-                if (value < 0.5f && CADefOf.CrossedPackLaughter != null)
+                float rValue = Rand.Value;
+                if (rValue < 0.4f && CADefOf.CrossedPackLaughter != null)
                 {
                     return CADefOf.CrossedPackLaughter;
                 }
                 return CADefOf.CrossedInfectionGloat ?? CADefOf.CrossedPackLaughter;
+            }
+
+            // Wounded target - use infection gloat to emphasize suffering
+            if (recipient.Downed && CADefOf.CrossedInfectionGloat != null)
+            {
+                return CADefOf.CrossedInfectionGloat;
+            }
+
+            // Civilian initiate - pack laughter is primary
+            if ((initiator.kindDef == CADefOf.CrossedCivilian) && CADefOf.CrossedPackLaughter != null)
+            {
+                return CADefOf.CrossedPackLaughter;
+            }
+
+            float r = Rand.Value;
+
+            // False mercy - deceptive approach
+            if (r < 0.15f && CADefOf.CrossedFalseMercy != null)
+            {
+                return CADefOf.CrossedFalseMercy;
+            }
+
+            // Predatory taunt - direct sadistic attack
+            if (r < 0.45f && CADefOf.CrossedPredatoryTaunt != null)
+            {
+                return CADefOf.CrossedPredatoryTaunt;
+            }
+
+            // Prisoner harassment - when targeting prisoners
+            if (recipient.IsPrisonerOfColony)
+            {
+                return CADefOf.CrossedPackLaughter;
+            }
+
+            // Infection gloat - transformation horror
+            if (CADefOf.CrossedInfectionGloat != null)
+            {
+                return CADefOf.CrossedInfectionGloat;
+            }
+
+            return CADefOf.CrossedPredatoryTaunt ?? CADefOf.CrossedFalseMercy ?? CADefOf.CrossedPackLaughter;
+        }
+
+        private static InteractionDef PickQuickInteraction(Pawn initiator, Pawn recipient)
+        {
+            if (recipient == null)
+                return null;
+
+            float r = Rand.Value;
+
+            if (r < 0.25f && CADefOf.CrossedPredatoryTaunt != null)
+            {
+                return CADefOf.CrossedPredatoryTaunt;
+            }
+
+            if (r < 0.5f && CADefOf.CrossedPackLaughter != null)
+            {
+                return CADefOf.CrossedPackLaughter;
+            }
+
+            if (r < 0.75f && CADefOf.CrossedEscapeTaunt != null)
+            {
+                return CADefOf.CrossedEscapeTaunt;
             }
 
             if (recipient.Downed && CADefOf.CrossedInfectionGloat != null)
@@ -276,28 +403,7 @@ namespace TheMarkedMen
                 return CADefOf.CrossedInfectionGloat;
             }
 
-            if ((initiator.kindDef == CADefOf.CrossedCivilian) && CADefOf.CrossedPackLaughter != null && Rand.Chance(0.5f))
-            {
-                return CADefOf.CrossedPackLaughter;
-            }
-
-            float value2 = Rand.Value;
-            if (value2 < 0.28f && CADefOf.CrossedFalseMercy != null)
-            {
-                return CADefOf.CrossedFalseMercy;
-            }
-
-            if (value2 < 0.74f && CADefOf.CrossedPredatoryTaunt != null)
-            {
-                return CADefOf.CrossedPredatoryTaunt;
-            }
-
-            if (CADefOf.CrossedInfectionGloat != null)
-            {
-                return CADefOf.CrossedInfectionGloat;
-            }
-
-            return CADefOf.CrossedPredatoryTaunt ?? CADefOf.CrossedFalseMercy ?? CADefOf.CrossedPackLaughter;
+            return CADefOf.CrossedPredatoryTaunt ?? CADefOf.CrossedPackLaughter ?? CADefOf.CrossedEscapeTaunt;
         }
 
         private static bool IsHumanlikeActivePawn(Pawn pawn)
@@ -321,14 +427,28 @@ namespace TheMarkedMen
                 return 0f;
             }
 
+            // Civilian initiate - pack laughter gets extra weight
             if (interaction == CADefOf.CrossedPackLaughter && (initiator.kindDef == CADefOf.CrossedCivilian))
             {
                 return 1.2f;
             }
 
+            // Wounded target - infection gloat is extra effective
             if (interaction == CADefOf.CrossedInfectionGloat && recipient.Downed)
             {
                 return 1.8f;
+            }
+
+            // Prisoner harassment - extra weight for prisoners
+            if (interaction == CADefOf.CrossedPackLaughter && recipient.IsPrisonerOfColony)
+            {
+                return 1.3f;
+            }
+
+            // Group coordination - weight for Civilian initiates
+            if (interaction == CADefOf.CrossedGroupCoordination && initiator.kindDef == CADefOf.CrossedCivilian)
+            {
+                return 0.9f;
             }
 
             return 0.7f;

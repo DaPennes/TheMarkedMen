@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+  <!-- Companion Mockery - When infected mockery other survivors/companions -->
+
+  <RulePackDef>
+    <defName>CA_CrossedSpeechCompanionMockery</defName>
+    <rulePack>
+      <rulesStrings>
+        <!-- Mocking other survivors -->
+        <li>text->[INITIATOR_nameDef] laughs while [RECIPIENT_nameDef] cowers</li>
+        <li>text->the pack ignores [RECIPIENT_nameDef], they're not worth killing yet</li>
+        <li>text->[INITIATOR_nameDef] tells [RECIPIENT_nameDef] the others lie to you</li>
+        <li>text->who's [RECIPIENT_nameDef] talking to now, the colony or me?</li>
+        <li>text->[RECIPIENT_nameDef] is getting on my nerves, leave them alone</li>
+        <li>text->the pack has tasted [RECIPIENT_nameDef], they're mine now</li>
+        <li>text->[INITIATOR_nameDef] shows [RECIPIENT_nameDef] where the real games start</li>
+        <li>text->every survivor has their place, [RECIPIENT_nameDef] is marked for mine</li>
+        <li>text->[INITIATOR_nameDef] knows where [RECIPIENT_nameDef] hides</li>
+        <li>text->don't trust your companions, they'll all betray you</li>
+
+        <!-- Pack references for other-NPC interaction -->
+        <li>text->the pack watches [RECIPIENT_nameDef] with hungry eyes</li>
+        <li>text->[INITIATOR_nameDef] calls to the pack about [RECIPIENT_nameDef]</li>
+        <li>text->the pack counts [RECIPIENT_nameDef] as one step closer</li>
+        <li>text->[RECIPIENT_nameDef] is another voice in the pack's chorus</li>
+        <li>text->mark [RECIPIENT_nameDef] for the pack's collection</li>
+
+        <!-- Group references -->
+        <li>text->[INITIATOR_nameDef] joins the pack's laughter at [RECIPIENT_nameDef]</li>
+        <li>text->[INITIATOR_nameDef] shares the pack's joy as [RECIPIENT_nameDef] begs</li>
+        <li>text->the pack's hunger grows with each scream</li>
+      </rulesStrings>
+    </rulePack>
+  </RulePackDef>
+
+  <RulePackDef>
+    <defName>CA_CrossedSpeechPackAnnouncement</defName>
+    <rulePack>
+      <rulesStrings>
+        <!-- Announcing victims to the pack -->
+        <li>text->[INITIATOR_nameDef] marks [RECIPIENT_nameDef] with a howl</li>
+        <li>text->the pack sees [RECIPIENT_nameDef] in the shadows</li>
+        <li>text>who's next? the pack needs [RECIPIENT_nameDef]</li>
+        <li>text>[INITIATOR_nameDef] calls the pack to [RECIPIENT_nameDef]'s location</li>
+        <li>text>another name for the pack's dinner table: [RECIPIENT_nameDef]</li>
+        <li>text>[RECIPIENT_nameDef] is marked for the pack's feast</li>
+        <li>text>the pack counts beats until [RECIPIENT_nameDef] joins us</li>
+        <li>text>[INITIATOR_nameDef] tells the pack [RECIPIENT_nameDef] is ready</li>
+        <li>text>the colony's name is on the pack's tongue tonight</li>
+        <li>text>[RECIPIENT_nameDef] is another lost soul for the pack</li>
+
+        <!-- Collective pack references -->
+        <li>text->the pack moves as one toward [RECIPIENT_nameDef]</li>
+        <li>text>[RECIPIENT_nameDef] is another note in the pack's song</li>
+        <li>text>the pack's hunger never stops, [RECIPIENT_nameDef]</li>
+        <li>text>[INITIATOR_nameDef] joins the pack in waiting for [RECIPIENT_nameDef]</li>
+        <li>text>the pack will show [RECIPIENT_nameDef] their true welcome</li>
+      </rulesStrings>
+    </rulePack>
+  </RulePackDef>
+
+</Defs>

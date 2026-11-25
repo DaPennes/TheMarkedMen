@@ -179,6 +179,33 @@ namespace TheMarkedMen
         }
     }
 
+    [HarmonyPatch]
+    public static class Patch_CrossedSocialPulse
+    {
+        public static MethodBase TargetMethod()
+        {
+            return AccessTools.Method(typeof(Pawn), "Tick");
+        }
+
+        public static void Postfix(Pawn __instance)
+        {
+            if (__instance == null || __instance.Dead || !__instance.Spawned || __instance.Map == null)
+            {
+                return;
+            }
+
+            if (!CrossedUtility.IsCrossedPawn(__instance))
+            {
+                return;
+            }
+
+            if (Prefs.DevMode) Log.Message($"[TheMarkedMen] Patch_CrossedSocialPulse: Pawn.Tick() called for crossed pawn {__instance.LabelShort}");
+
+            CrossedSocialUtility.TryHostileSocialPulse(__instance);
+            CrossedSocialUtility.TryQuickSocialPulse(__instance);
+        }
+    }
+
     [HarmonyPatch(typeof(Lord), nameof(Lord.LordTick))]
     public static class Patch_CrossedLordInvalidPawnCleanup
     {

@@ -7,16 +7,16 @@
     <rulePack>
       <rulesStrings>
         <!-- Attack coordination -->
-        <li>[RECIPIENT_nameDef], the pack finds you</li>
-        <li>count to three, [RECIPIENT_nameDef]</li>
-        <li>divide and conquer, boys</li>
-        <li>all for one, one for all</li>
-        <li>spread the word, we have a new plaything</li>
-        <li>every door opens for our cocky little walk</li>
-        <li>the horde laughs at your whimpering</li>
-        <li>we're all getting fucking fed</li>
-        <li>the colony's names on my tongue tonight</li>
-        <li>mark that little shit for dinner</li>
+        <li>text->[RECIPIENT_nameDef], the pack finds you</li>
+        <li>text->count to three, [RECIPIENT_nameDef]</li>
+        <li>text->divide and conquer, boys</li>
+        <li>text->all for one, one for all</li>
+        <li>text->spread the word, we have a new plaything</li>
+        <li>text->every door opens for our cocky little walk</li>
+        <li>text->the horde laughs at your whimpering</li>
+        <li>text->we're all getting fucking fed</li>
+        <li>text->the colony's names on my tongue tonight</li>
+        <li>text->mark that little shit for dinner</li>
 
         <!-- Group signals -->
         <li>signal->the crack of bone on metal</li>
@@ -31,16 +31,16 @@
         <li>signal->the moan of your last breath</li>
 
         <!-- Pack celebration -->
-        <li>celebration->fuck yeah, another one bites the dust</li>
-        <li>celebration->that's one less cocky bastard</li>
-        <li>celebration->we're getting fat on survivors</li>
-        <li>celebration>the colony's down to a few bitches</li>
-        <li>celebration>I'm gonna need more knives for this one</li>
-        <li>celebration>another day, another piece of ass</li>
-        <li>celebration>we've outdone ourselves today</li>
-        <li>celebration>the taste of [RECIPIENT_nameDef] was perfect</li>
-        <li>celebration>I'm so turned on right now</li>
-        <li>celebration>this place is going to burn when we're done</li>
+        <li>text->fuck yeah, another one bites the dust</li>
+        <li>text->that's one less cocky bastard</li>
+        <li>text->we're getting fat on survivors</li>
+        <li>text->the colony's down to a few bitches</li>
+        <li>text->I'm gonna need more knives for this one</li>
+        <li>text->another day, another piece of ass</li>
+        <li>text->we've outdone ourselves today</li>
+        <li>text->the taste of [RECIPIENT_nameDef] was perfect</li>
+        <li>text->I'm so turned on right now</li>
+        <li>text->this place is going to burn when we're done</li>
       </rulesStrings>
     </rulePack>
   </RulePackDef>
@@ -50,16 +50,16 @@
     <rulePack>
       <rulesStrings>
         <!-- Infection celebration -->
-        <li>[RECIPIENT_nameDef] is mine now</li>
-        <li>the fever's spreading through the colony</li>
-        <li>more mouths to join the pack</li>
-        <li>one sick bastard feeding the others</li>
-        <li>the rash is blooming, like a beautiful flower</li>
-        <li>the screaming's getting louder</li>
-        <li>we're all wet for you, [RECIPIENT_nameDef]</li>
-        <li>the disease chooses quickly</li>
-        <li>I'm already in your blood</li>
-        <li>the clean ones always bleed first</li>
+        <li>text->[RECIPIENT_nameDef] is mine now</li>
+        <li>text->the fever's spreading through the colony</li>
+        <li>text->more mouths to join the pack</li>
+        <li>text->one sick bastard feeding the others</li>
+        <li>text->the rash is blooming, like a beautiful flower</li>
+        <li>text->the screaming's getting louder</li>
+        <li>text->we're all wet for you, [RECIPIENT_nameDef]</li>
+        <li>text->the disease chooses quickly</li>
+        <li>text->I'm already in your blood</li>
+        <li>text->the clean ones always bleed first</li>
 
         <!-- Infection progress -->
         <li>infectionStage->the rash is spreading</li>
