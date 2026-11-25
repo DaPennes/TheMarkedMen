@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+  <!-- General speech rules for non-crossed pawn interactions -->
+  <RulePackDef>
+    <defName>CA_GeneralHostileStandoff</defName>
+    <rulePack>
+      <rulesStrings>
+        <li>text->[INITIATOR_nameDef] glares at [RECIPIENT_nameDef] with pure hatred.</li>
+        <li>text->[RECIPIENT_nameDef] snarls, "Stay away from me."</li>
+        <li>text->The air cracks with tension between them.</li>
+      </rulesStrings>
+    </rulePack>
+  </RulePackDef>
+
+  <RulePackDef>
+    <defName>CA_GeneralThreateningTaunt</defName>
+    <rulePack>
+      <rulesStrings>
+        <li>text->[INITIATOR_nameDef] hisses, "I'll [threat] you where you stand!"</li>
+        <li>text->[RECIPIENT_nameDef] laughs, "You're nothing but a [insult]."</li>
+        <li>text->[INITIATOR_nameDef] promises, "You'll [outcome] by my hand."</li>
+      </rulesStrings>
+    </rulePack>
+  </RulePackDef>
+
+  <RulePackDef>
+    <defName>CA_GeneralDefiantInsult</defName>
+    <rulePack>
+      <rulesStrings>
+        <li>text->[INITIATOR_nameDef] spits, "You're a [insult], [RECIPIENT_nameDef]!"</li>
+        <li>text->[RECIPIENT_nameDef] roars, "I'll [threat] you to pieces!"</li>
+        <li>text->[INITIATOR_nameDef] mocks, "Your [weakness] makes you weak!"</li>
+      </rulesStrings>
+    </rulePack>
+  </RulePackDef>
+
+  <RulePackDef>
+    <defName>CA_GeneralPrisonerSolidarity</defName>
+    <rulePack>
+      <rulesStrings>
+        <li>text->[INITIATOR_nameDef] whispers, "We'll escape together, [RECIPIENT_nameDef]."</li>
+        <li>text->[RECIPIENT_nameDef] nods, "Stay strong, [INITIATOR_nameDef]."</li>
+        <li>text->They share a look of grim determination.</li>
+      </rulesStrings>
+    </rulePack>
+  </RulePackDef>
+
+  <RulePackDef>
+    <defName>CA_GeneralPrisonerSmallTalk</defName>
+    <rulePack>
+      <rulesStrings>
+        <li>text->[INITIATOR_nameDef] asks, "How long have you been here, [RECIPIENT_nameDef]?"</li>
+        <li>text->[RECIPIENT_nameDef] sighs, "The food here is worse than [comparison]."</li>
+        <li>text->[INITIATOR_nameDef] mutters, "I heard the guards are planning a [event]."</li>
+      </rulesStrings>
+    </rulePack>
+  </RulePackDef>
+
+  <RulePackDef>
+    <defName>CA_GeneralPrisonerDefiance</defName>
+    <rulePack>
+      <rulesStrings>
+        <li>text->[INITIATOR_nameDef] shouts, "You'll never break me, [RECIPIENT_nameDef]!"</li>
+        <li>text->[RECIPIENT_nameDef] sneers, "Enjoy your freedom while it lasts."</li>
+        <li>text->[INITIATOR_nameDef] defiantly kicks the dirt at [RECIPIENT_nameDef]'s feet.</li>
+      </rulesStrings>
+    </rulePack>
+  </RulePackDef>
+
+  <RulePackDef>
+    <defName>CA_GeneralPrisonerResignation</defName>
+    <rulePack>
+      <rulesStrings>
+        <li>text->[INITIATOR_nameDef] weeps, "There's no hope left..."</li>
+        <li>text->[RECIPIENT_nameDef] sighs, "We're all just [insult] here."</li>
+        <li>text->[INITIATOR_nameDef] accepts their fate with empty eyes.</li>
+      </rulesStrings>
+    </rulePack>
+  </RulePackDef>
+
+  <RulePackDef>
+    <defName>CA_GeneralGuardEncouragement</defName>
+    <rulePack>
+      <rulesStrings>
+        <li>text->[INITIATOR_nameDef] claps [RECIPIENT_nameDef] on the shoulder, "Good work today."</li>
+        <li>text->[RECIPIENT_nameDef] smiles, "Thanks, I needed that."</li>
+        <li>text->[INITIATOR_nameDef] reminds, "Stay sharp out there."</li>
+      </rulesStrings>
+    </rulePack>
+  </RulePackDef>
+
+  <RulePackDef>
+    <defName>CA_GeneralGuardIntimidation</defName>
+    <rulePack>
+      <rulesStrings>
+        <li>text->[INITIATOR_nameDef] growls, "One wrong move, prisoner."</li>
+        <li>text->[RECIPIENT_nameDef] flinches under [INITIATOR_nameDef]'s glare.</li>
+        <li>text->[INITIATOR_nameDef] promises, "You'll regret defiance."</li>
+      </rulesStrings>
+    </rulePack>
+  </RulePackDef>
+
+  <RulePackDef>
+    <defName>CA_GeneralFriendlyGreeting</defName>
+    <rulePack>
+      <rulesStrings>
+        <li>text->[INITIATOR_nameDef] beams, "Hello, [RECIPIENT_nameDef]!"</li>
+        <li>text->[RECIPIENT_nameDef] waves, "Lovely day, isn't it?"</li>
+        <li>text->They exchange warm smiles.</li>
+      </rulesStrings>
+    </rulePack>
+  </RulePackDef>
+
+  <RulePackDef>
+    <defName>CA_GeneralCasualChat</defName>
+    <rulePack>
+      <rulesStrings>
+        <li>text->[INITIATOR_nameDef] remarks, "The crops are looking good this season."</li>
+        <li>text->[RECIPIENT_nameDef] agrees, "Yes, thanks to the rain."</li>
+        <li>text->[INITIATOR_nameDef] asks, "Any news from the caravan?"</li>
+      </rulesStrings>
+    </rulePack>
+  </RulePackDef>
+
+  <RulePackDef>
+    <defName>CA_GeneralTenseStandoff</defName>
+    <rulePack>
+      <rulesStrings>
+        <li>text->[INITIATOR_nameDef] and [RECIPIENT_nameDef] circle each other warily.</li>
+        <li>text->[RECIPIENT_nameDef] mutters, "Stay back..."</li>
+        <li>text->The tension between them is palpable.</li>
+      </rulesStrings>
+    </rulePack>
+  </RulePackDef>
+
+  <RulePackDef>
+    <defName>CA_GeneralColdShoulder</defName>
+    <rulePack>
+      <rulesStrings>
+        <li>text->[INITIATOR_nameDef] turns away from [RECIPIENT_nameDef] in silence.</li>
+        <li>text->[RECIPIENT_nameDef] shrugs, "Suit yourself."</li>
+        <li>text->They ignore each other completely.</li>
+      </rulesStrings>
+    </rulePack>
+  </RulePackDef>
+
+  <RulePackDef>
+    <defName>CA_GeneralNervousAvoidance</defName>
+    <rulePack>
+      <rulesStrings>
+        <li>text->[INITIATOR_nameDef] avoids [RECIPIENT_nameDef]'s gaze, sweating.</li>
+        <li>text->[RECIPIENT_nameDef] fidgets, "Umm... hi?"</li>
+        <li>text->The conversation dies before it starts.</li>
+      </rulesStrings>
+    </rulePack>
+  </RulePackDef>
+
+  <RulePackDef>
+    <defName>CA_GeneralAwkwardSilence</defName>
+    <rulePack>
+      <rulesStrings>
+        <li>text->[INITIATOR_nameDef] clears their throat awkwardly.</li>
+        <li>text->[RECIPIENT_nameDef] shuffles feet, saying nothing.</li>
+        <li>text->The silence stretches uncomfortably.</li>
+      </rulesStrings>
+    </rulePack>
+  </RulePackDef>
+</Defs>

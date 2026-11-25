@@ -40,21 +40,21 @@
         <!-- Announcing victims to the pack -->
         <li>text->[INITIATOR_nameDef] marks [RECIPIENT_nameDef] with a howl</li>
         <li>text->the pack sees [RECIPIENT_nameDef] in the shadows</li>
-        <li>text>who's next? the pack needs [RECIPIENT_nameDef]</li>
-        <li>text>[INITIATOR_nameDef] calls the pack to [RECIPIENT_nameDef]'s location</li>
-        <li>text>another name for the pack's dinner table: [RECIPIENT_nameDef]</li>
-        <li>text>[RECIPIENT_nameDef] is marked for the pack's feast</li>
-        <li>text>the pack counts beats until [RECIPIENT_nameDef] joins us</li>
-        <li>text>[INITIATOR_nameDef] tells the pack [RECIPIENT_nameDef] is ready</li>
-        <li>text>the colony's name is on the pack's tongue tonight</li>
-        <li>text>[RECIPIENT_nameDef] is another lost soul for the pack</li>
+        <li>text->who's next? the pack needs [RECIPIENT_nameDef]</li>
+        <li>text->[INITIATOR_nameDef] calls the pack to [RECIPIENT_nameDef]'s location</li>
+        <li>text->another name for the pack's dinner table: [RECIPIENT_nameDef]</li>
+        <li>text->[RECIPIENT_nameDef] is marked for the pack's feast</li>
+        <li>text->the pack counts beats until [RECIPIENT_nameDef] joins us</li>
+        <li>text->[INITIATOR_nameDef] tells the pack [RECIPIENT_nameDef] is ready</li>
+        <li>text->the colony's name is on the pack's tongue tonight</li>
+        <li>text->[RECIPIENT_nameDef] is another lost soul for the pack</li>
 
         <!-- Collective pack references -->
         <li>text->the pack moves as one toward [RECIPIENT_nameDef]</li>
-        <li>text>[RECIPIENT_nameDef] is another note in the pack's song</li>
-        <li>text>the pack's hunger never stops, [RECIPIENT_nameDef]</li>
-        <li>text>[INITIATOR_nameDef] joins the pack in waiting for [RECIPIENT_nameDef]</li>
-        <li>text>the pack will show [RECIPIENT_nameDef] their true welcome</li>
+        <li>text->[RECIPIENT_nameDef] is another note in the pack's song</li>
+        <li>text->the pack's hunger never stops, [RECIPIENT_nameDef]</li>
+        <li>text->[INITIATOR_nameDef] joins the pack in waiting for [RECIPIENT_nameDef]</li>
+        <li>text->the pack will show [RECIPIENT_nameDef] their true welcome</li>
       </rulesStrings>
     </rulePack>
   </RulePackDef>

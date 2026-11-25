@@ -199,8 +199,6 @@ namespace TheMarkedMen
                 return;
             }
 
-            if (Prefs.DevMode) Log.Message($"[TheMarkedMen] Patch_CrossedSocialPulse: Pawn.Tick() called for crossed pawn {__instance.LabelShort}");
-
             CrossedSocialUtility.TryHostileSocialPulse(__instance);
             CrossedSocialUtility.TryQuickSocialPulse(__instance);
         }

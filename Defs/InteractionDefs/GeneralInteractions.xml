@@ -1,0 +1,243 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+  <!-- General pawn interactions for The Marked Men mod -->
+  <!-- Hostile standoff between enemies -->
+  <InteractionDef>
+    <defName>CA_GeneralHostileStandoff</defName>
+    <label>hostile standoff</label>
+    <workerClass>TheMarkedMen.InteractionWorker_CrossedSocial</workerClass>
+    <symbol>Things/Mote/SpeechSymbols/Insult</symbol>
+    <socialFightBaseChance>0.08</socialFightBaseChance>
+    <logRulesInitiator>
+      <rulesStrings>
+        <li>r_logentry->[INITIATOR_nameDef] and [RECIPIENT_nameDef] glared at each other in silence.</li>
+        <li>r_logentry->[INITIATOR_nameDef] challenged [RECIPIENT_nameDef] to a duel of stares.</li>
+        <li>r_logentry->[INITIATOR_nameDef] and [RECIPIENT_nameDef] stood in tense silence, fists clenched.</li>
+      </rulesStrings>
+    </logRulesInitiator>
+  </InteractionDef>
+
+  <!-- Threatening taunt -->
+  <InteractionDef>
+    <defName>CA_GeneralThreateningTaunt</defName>
+    <label>threatening taunt</label>
+    <workerClass>TheMarkedMen.InteractionWorker_CrossedSocial</workerClass>
+    <symbol>Things/Mote/SpeechSymbols/Insult</symbol>
+    <socialFightBaseChance>0.12</socialFightBaseChance>
+    <logRulesInitiator>
+      <rulesStrings>
+        <li>r_logentry->[INITIATOR_nameDef] hissed a threat at [RECIPIENT_nameDef]: "I'll [threat] you."</li>
+        <li>r_logentry->[INITIATOR_nameDef] snarled at [RECIPIENT_nameDef], "You'll [outcome]."</li>
+        <li>r_logentry->[INITIATOR_nameDef] promised [RECIPIENT_nameDef] a slow death.</li>
+      </rulesStrings>
+    </logRulesInitiator>
+  </InteractionDef>
+
+  <!-- Defiant insult -->
+  <InteractionDef>
+    <defName>CA_GeneralDefiantInsult</defName>
+    <label>defiant insult</label>
+    <workerClass>TheMarkedMen.InteractionWorker_CrossedSocial</workerClass>
+    <symbol>Things/Mote/SpeechSymbols/Insult</symbol>
+    <socialFightBaseChance>0.15</socialFightBaseChance>
+    <logRulesInitiator>
+      <rulesStrings>
+        <li>r_logentry->[INITIATOR_nameDef] spat at [RECIPIENT_nameDef]'s feet.</li>
+        <li>r_logentry->[INITIATOR_nameDef] called [RECIPIENT_nameDef] a [insult].</li>
+        <li>r_logentry->[INITIATOR_nameDef] mocked [RECIPIENT_nameDef]'s [weakness].</li>
+      </rulesStrings>
+    </logRulesInitiator>
+  </InteractionDef>
+
+  <!-- Prisoner solidarity -->
+  <InteractionDef>
+    <defName>CA_GeneralPrisonerSolidarity</defName>
+    <label>prisoner solidarity</label>
+    <workerClass>TheMarkedMen.InteractionWorker_CrossedSocial</workerClass>
+    <symbol>Things/Mote/SpeechSymbols/Chitchat</symbol>
+    <socialFightBaseChance>0.02</socialFightBaseChance>
+    <logRulesInitiator>
+      <rulesStrings>
+        <li>r_logentry->[INITIATOR_nameDef] shared a silent nod with fellow prisoner [RECIPIENT_nameDef].</li>
+        <li>r_logentry->[INITIATOR_nameDef] and [RECIPIENT_nameDef] planned an escape in hushed tones.</li>
+        <li>r_logentry->[INITIATOR_nameDef] offered [RECIPIENT_nameDef] a scrap of food.</li>
+      </rulesStrings>
+    </logRulesInitiator>
+  </InteractionDef>
+
+  <!-- Prisoner small talk -->
+  <InteractionDef>
+    <defName>CA_GeneralPrisonerSmallTalk</defName>
+    <label>prisoner small talk</label>
+    <workerClass>TheMarkedMen.InteractionWorker_CrossedSocial</workerClass>
+    <symbol>Things/Mote/SpeechSymbols/Chitchat</symbol>
+    <socialFightBaseChance>0.03</socialFightBaseChance>
+    <logRulesInitiator>
+      <rulesStrings>
+        <li>r_logentry->[INITIATOR_nameDef] asked [RECIPIENT_nameDef] about life before capture.</li>
+        <li>r_logentry->[INITIATOR_nameDef] and [RECIPIENT_nameDef] complained about the rations.</li>
+        <li>r_logentry->[INITIATOR_nameDef] shared rumors of an upcoming raid with [RECIPIENT_nameDef].</li>
+      </rulesStrings>
+    </logRulesInitiator>
+  </InteractionDef>
+
+  <!-- Prisoner defiance -->
+  <InteractionDef>
+    <defName>CA_GeneralPrisonerDefiance</defName>
+    <label>prisoner defiance</label>
+    <workerClass>TheMarkedMen.InteractionWorker_CrossedSocial</workerClass>
+    <symbol>Things/Mote/SpeechSymbols/Insult</symbol>
+    <socialFightBaseChance>0.05</socialFightBaseChance>
+    <logRulesInitiator>
+      <rulesStrings>
+        <li>r_logentry->[INITIATOR_nameDef] defied guard [RECIPIENT_nameDef]: "You can't break me!"</li>
+        <li>r_logentry->[INITIATOR_nameDef] spat in [RECIPIENT_nameDef]'s face.</li>
+        <li>r_logentry->[INITIATOR_nameDef] shouted curses at [RECIPIENT_nameDef].</li>
+      </rulesStrings>
+    </logRulesInitiator>
+  </InteractionDef>
+
+  <!-- Prisoner resignation -->
+  <InteractionDef>
+    <defName>CA_GeneralPrisonerResignation</defName>
+    <label>prisoner resignation</label>
+    <workerClass>TheMarkedMen.InteractionWorker_CrossedSocial</workerClass>
+    <symbol>Things/Mote/SpeechSymbols/DeepTalk</symbol>
+    <socialFightBaseChance>0.01</socialFightBaseChance>
+    <logRulesInitiator>
+      <rulesStrings>
+        <li>r_logentry->[INITIATOR_nameDef] sighed to [RECIPIENT_nameDef], "There's no escape."</li>
+        <li>r_logentry->[INITIATOR_nameDef] accepted defeat in front of [RECIPIENT_nameDef].</li>
+        <li>r_logentry->[INITIATOR_nameDef] wept silently near [RECIPIENT_nameDef].</li>
+      </rulesStrings>
+    </logRulesInitiator>
+  </InteractionDef>
+
+  <!-- Guard encouragement -->
+  <InteractionDef>
+    <defName>CA_GeneralGuardEncouragement</defName>
+    <label>guard encouragement</label>
+    <workerClass>TheMarkedMen.InteractionWorker_CrossedSocial</workerClass>
+    <symbol>Things/Mote/SpeechSymbols/DeepTalk</symbol>
+    <socialFightBaseChance>0.04</socialFightBaseChance>
+    <logRulesInitiator>
+      <rulesStrings>
+        <li>r_logentry->Guard [INITIATOR_nameDef] encouraged [RECIPIENT_nameDef]: "Stay vigilant."</li>
+        <li>r_logentry->[INITIATOR_nameDef] praised [RECIPIENT_nameDef]'s patrol work.</li>
+        <li>r_logentry->[INITIATOR_nameDef] reminded [RECIPIENT_nameDef] of their duty.</li>
+      </rulesStrings>
+    </logRulesInitiator>
+  </InteractionDef>
+
+  <!-- Guard intimidation -->
+  <InteractionDef>
+    <defName>CA_GeneralGuardIntimidation</defName>
+    <label>guard intimidation</label>
+    <workerClass>TheMarkedMen.InteractionWorker_CrossedSocial</workerClass>
+    <symbol>Things/Mote/SpeechSymbols/Insult</symbol>
+    <socialFightBaseChance>0.07</socialFightBaseChance>
+    <logRulesInitiator>
+      <rulesStrings>
+        <li>r_logentry->Guard [INITIATOR_nameDef] threatened prisoner [RECIPIENT_nameDef]: "Obey or suffer."</li>
+        <li>r_logentry->[INITIATOR_nameDef] loomed over [RECIPIENT_nameDef], flexing cuffs.</li>
+        <li>r_logentry->[INITIATOR_nameDef] mocked [RECIPIENT_nameDef]'s hopeless situation.</li>
+      </rulesStrings>
+    </logRulesInitiator>
+  </InteractionDef>
+
+  <!-- Friendly greeting -->
+  <InteractionDef>
+    <defName>CA_GeneralFriendlyGreeting</defName>
+    <label>friendly greeting</label>
+    <workerClass>TheMarkedMen.InteractionWorker_CrossedSocial</workerClass>
+    <symbol>Things/Mote/SpeechSymbols/Chitchat</symbol>
+    <socialFightBaseChance>0.01</socialFightBaseChance>
+    <logRulesInitiator>
+      <rulesStrings>
+        <li>r_logentry->[INITIATOR_nameDef] greeted [RECIPIENT_nameDef] warmly: "Good day!"</li>
+        <li>r_logentry->[INITIATOR_nameDef] smiled at [RECIPIENT_nameDef] and waved.</li>
+        <li>r_logentry->[INITIATOR_nameDef] asked [RECIPIENT_nameDef] about their day.</li>
+      </rulesStrings>
+    </logRulesInitiator>
+  </InteractionDef>
+
+  <!-- Casual chat -->
+  <InteractionDef>
+    <defName>CA_GeneralCasualChat</defName>
+    <label>casual chat</label>
+    <workerClass>TheMarkedMen.InteractionWorker_CrossedSocial</workerClass>
+    <symbol>Things/Mote/SpeechSymbols/Chitchat</symbol>
+    <socialFightBaseChance>0.02</socialFightBaseChance>
+    <logRulesInitiator>
+      <rulesStrings>
+        <li>r_logentry->[INITIATOR_nameDef] and [RECIPIENT_nameDef] discussed the weather.</li>
+        <li>r_logentry->[INITIATOR_nameDef] shared farming tips with [RECIPIENT_nameDef].</li>
+        <li>r_logentry->[INITIATOR_nameDef] asked [RECIPIENT_nameDef] about local news.</li>
+      </rulesStrings>
+    </logRulesInitiator>
+  </InteractionDef>
+
+  <!-- Tense standoff -->
+  <InteractionDef>
+    <defName>CA_GeneralTenseStandoff</defName>
+    <label>tense standoff</label>
+    <workerClass>TheMarkedMen.InteractionWorker_CrossedSocial</workerClass>
+    <symbol>Things/Mote/SpeechSymbols/Insult</symbol>
+    <socialFightBaseChance>0.05</socialFightBaseChance>
+    <logRulesInitiator>
+      <rulesStrings>
+        <li>r_logentry->[INITIATOR_nameDef] and [RECIPIENT_nameDef] avoided eye contact, tension thick.</li>
+        <li>r_logentry->[INITIATOR_nameDef] shifted uneasily near [RECIPIENT_nameDef].</li>
+        <li>r_logentry->[INITIATOR_nameDef] and [RECIPIENT_nameDef] stood in uncomfortable silence.</li>
+      </rulesStrings>
+    </logRulesInitiator>
+  </InteractionDef>
+
+  <!-- Cold shoulder -->
+  <InteractionDef>
+    <defName>CA_GeneralColdShoulder</defName>
+    <label>cold shoulder</label>
+    <workerClass>TheMarkedMen.InteractionWorker_CrossedSocial</workerClass>
+    <symbol>Things/Mote/SpeechSymbols/DeepTalk</symbol>
+    <socialFightBaseChance>0.03</socialFightBaseChance>
+    <logRulesInitiator>
+      <rulesStrings>
+        <li>r_logentry->[INITIATOR_nameDef] ignored [RECIPIENT_nameDef]'s greeting.</li>
+        <li>r_logentry->[INITIATOR_nameDef] turned away from [RECIPIENT_nameDef] in disgust.</li>
+        <li>r_logentry->[INITIATOR_nameDef] gave [RECIPIENT_nameDef] the silent treatment.</li>
+      </rulesStrings>
+    </logRulesInitiator>
+  </InteractionDef>
+
+  <!-- Nervous avoidance -->
+  <InteractionDef>
+    <defName>CA_GeneralNervousAvoidance</defName>
+    <label>nervous avoidance</label>
+    <workerClass>TheMarkedMen.InteractionWorker_CrossedSocial</workerClass>
+    <symbol>Things/Mote/SpeechSymbols/DeepTalk</symbol>
+    <socialFightBaseChance>0.01</socialFightBaseChance>
+    <logRulesInitiator>
+      <rulesStrings>
+        <li>r_logentry->[INITIATOR_nameDef] hurried past [RECIPIENT_nameDef] without a word.</li>
+        <li>r_logentry->[INITIATOR_nameDef] avoided [RECIPIENT_nameDef]'s gaze, sweating.</li>
+        <li>r_logentry->[INITIATOR_nameDef] fidgeted nervously near [RECIPIENT_nameDef].</li>
+      </rulesStrings>
+    </logRulesInitiator>
+  </InteractionDef>
+
+  <!-- Awkward silence -->
+  <InteractionDef>
+    <defName>CA_GeneralAwkwardSilence</defName>
+    <label>awkward silence</label>
+    <workerClass>TheMarkedMen.InteractionWorker_CrossedSocial</workerClass>
+    <symbol>Things/Mote/SpeechSymbols/DeepTalk</symbol>
+    <socialFightBaseChance>0.005</socialFightBaseChance>
+    <logRulesInitiator>
+      <rulesStrings>
+        <li>r_logentry->[INITIATOR_nameDef] and [RECIPIENT_nameDef] stood in painful silence.</li>
+        <li>r_logentry->[INITIATOR_nameDef] cleared their throat awkwardly near [RECIPIENT_nameDef].</li>
+        <li>r_logentry->[INITIATOR_nameDef] shuffled feet, avoiding [RECIPIENT_nameDef]'s eyes.</li>
+      </rulesStrings>
+    </logRulesInitiator>
+  </InteractionDef>
+</Defs>

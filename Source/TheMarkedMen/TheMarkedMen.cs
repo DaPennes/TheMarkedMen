@@ -236,6 +236,7 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
         public bool doorTargetingEnabled = true;
         public float infightingChance = 0.12f;
         public float socialTerrorStrength = 1f;
+        public float generalSocialPulseChance = 0.33f;
         public bool markedPanicEnabled = true;
         public float markedPanicRadius = 12f;
         public int markedPanicDurationTicks = 18000;
@@ -583,6 +584,8 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
 
         public static float SocialTerrorStrength => Mathf.Clamp(TheMarkedMenMod.Settings?.socialTerrorStrength ?? 1f, 0f, 5f);
 
+        public static float GeneralSocialPulseChance => TheMarkedMenMod.Settings?.generalSocialPulseChance ?? 0.33f;
+
         public static bool MarkedPanicEnabled => TheMarkedMenMod.Settings?.markedPanicEnabled != false;
 
         public static float MarkedPanicRadius => Mathf.Clamp(TheMarkedMenMod.Settings?.markedPanicRadius ?? 12f, 0f, 100f);
@@ -726,6 +729,7 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
             Scribe_Values.Look(ref doorTargetingEnabled, "doorTargetingEnabled", true);
             Scribe_Values.Look(ref infightingChance, "infightingChance", 0.12f);
             Scribe_Values.Look(ref socialTerrorStrength, "socialTerrorStrength", 1f);
+            Scribe_Values.Look(ref generalSocialPulseChance, "generalSocialPulseChance", 0.33f);
             Scribe_Values.Look(ref markedPanicEnabled, "markedPanicEnabled", true);
             Scribe_Values.Look(ref markedPanicRadius, "markedPanicRadius", 12f);
             Scribe_Values.Look(ref markedPanicDurationTicks, "markedPanicDurationTicks", 18000);
@@ -1167,6 +1171,7 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
             DrawCheckbox(listing, "MarkedMen_Settings_DoorTargeting".Translate(), ref doorTargetingEnabled, "MarkedMen_Settings_DoorTargetingDesc".Translate());
             DrawFloat(listing, "MarkedMen_Settings_infightingChance".Translate(), ref infightingChance, 0f, 1f, "infightingChance", "MarkedMen_Settings_infightingChanceDesc".Translate());
             DrawFloat(listing, "MarkedMen_Settings_socialTerrorStrength".Translate(), ref socialTerrorStrength, 0f, 5f, "socialTerrorStrength", "MarkedMen_Settings_socialTerrorStrengthDesc".Translate());
+            DrawFloat(listing, "MarkedMen_Settings_generalSocialPulseChance".Translate(), ref generalSocialPulseChance, 0f, 1f, "generalSocialPulseChance", "MarkedMen_Settings_generalSocialPulseChanceDesc".Translate());
             DrawCheckbox(listing, "MarkedMen_Settings_MarkedPanicEnabled".Translate(), ref markedPanicEnabled, "MarkedMen_Settings_MarkedPanicEnabledDesc".Translate());
             DrawFloat(listing, "MarkedMen_Settings_markedPanicRadius".Translate(), ref markedPanicRadius, 0f, 100f, "markedPanicRadius", "MarkedMen_Settings_markedPanicRadiusDesc".Translate());
             DrawInt(listing, "MarkedMen_Settings_markedPanicDurationTicks".Translate(), ref markedPanicDurationTicks, 60, GenDate.TicksPerDay * 30, "markedPanicDurationTicks", "MarkedMen_Settings_markedPanicDurationTicksDesc".Translate());

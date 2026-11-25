@@ -18,33 +18,222 @@ namespace TheMarkedMen
 
         public static void TryHostileSocialPulse(Pawn initiator)
         {
-            if (initiator == null || !initiator.Spawned || initiator.Dead || initiator.Downed || initiator.Map == null || !CrossedUtility.IsCrossedPawn(initiator))
+            if (initiator == null || !initiator.Spawned || initiator.Dead || initiator.Downed || initiator.Map == null)
             {
                 return;
             }
 
-            float socialStrength = TheMarkedMenSettings.SocialTerrorStrength;
-            if (socialStrength <= 0f || !initiator.IsHashIntervalTick(SocialPulseInterval))
+            // Existing crossed-pawn logic
+            if (CrossedUtility.IsCrossedPawn(initiator))
+            {
+                float socialStrength = TheMarkedMenSettings.SocialTerrorStrength;
+                if (socialStrength <= 0f || !initiator.IsHashIntervalTick(SocialPulseInterval))
+                {
+                    return;
+                }
+
+                float chance = Mathf.Clamp01(SocialPulseBaseChance * socialStrength);
+                if (!Rand.Chance(chance))
+                {
+                    return;
+                }
+
+                Pawn recipient = FindBestRecipient(initiator, true);
+                if (recipient == null)
+                {
+                    return;
+                }
+
+                InteractionDef interactionDef = PickInteraction(initiator, recipient, true);
+                if (interactionDef != null)
+                {
+                    TriggerInteraction(initiator, recipient, interactionDef);
+                }
+            }
+            else
+            {
+                // New general-pawn branch
+                TryGeneralSocialPulse(initiator);
+            }
+        }
+
+        // New general-pawn interaction methods
+        public static void TryGeneralSocialPulse(Pawn initiator)
+        {
+            // General-pawn social pulse implementation
+            float chance = Mathf.Clamp01(TheMarkedMenSettings.GeneralSocialPulseChance);
+            if (!initiator.IsHashIntervalTick(SocialPulseInterval) || !Rand.Chance(chance))
             {
                 return;
             }
 
-            float chance = Mathf.Clamp01(SocialPulseBaseChance * socialStrength);
-            if (!Rand.Chance(chance))
-            {
-                return;
-            }
-
-            Pawn recipient = FindBestRecipient(initiator, true);
+            Pawn recipient = FindBestGeneralRecipient(initiator);
             if (recipient == null)
             {
                 return;
             }
 
-            InteractionDef interactionDef = PickInteraction(initiator, recipient, true);
+            InteractionDef interactionDef = PickGeneralInteraction(initiator, recipient);
             if (interactionDef != null)
             {
                 TriggerInteraction(initiator, recipient, interactionDef);
+            }
+        }
+
+        private static Pawn FindBestGeneralRecipient(Pawn initiator)
+        {
+            Map map = initiator.Map;
+            if (map?.mapPawns == null)
+            {
+                return null;
+            }
+
+            Pawn best = null;
+            float bestScore = 0f;
+            IReadOnlyList<Pawn> pawns = map.mapPawns.AllPawnsSpawned;
+            for (int i = 0; i < pawns.Count; i++)
+            {
+                Pawn candidate = pawns[i];
+                if (!CanGeneralSocialInteract(initiator, candidate))
+                {
+                    continue;
+                }
+
+                float distanceSquared = initiator.Position.DistanceToSquared(candidate.Position);
+                if (distanceSquared > MaxSocialTargetDistanceSquared)
+                {
+                    continue;
+                }
+
+                float score = 100f - Mathf.Sqrt(distanceSquared) * 3f;
+                if (initiator.Faction.HostileTo(candidate.Faction))
+                {
+                    score += 50f;
+                }
+                if (initiator.relations.OpinionOf(candidate) < 0)
+                {
+                    score += 30f;
+                }
+                if (initiator.IsPrisonerOfColony || candidate.IsPrisonerOfColony)
+                {
+                    score += 20f;
+                }
+                if (initiator.Downed || candidate.Downed)
+                {
+                    score += 40f;
+                }
+                if (initiator.ageTracker.Adult || candidate.ageTracker.Adult)
+                {
+                    // Prefer adults; children get lower scores
+                    score += 25f;
+                }
+                if (!GenSight.LineOfSight(initiator.Position, candidate.Position, map))
+                {
+                    score *= 0.6f;
+                }
+
+                if (score > bestScore)
+                {
+                    bestScore = score;
+                    best = candidate;
+                }
+            }
+
+            return best;
+        }
+
+        public static bool CanGeneralSocialInteract(Pawn initiator, Pawn recipient)
+        {
+            if (initiator == null || recipient == null || initiator == recipient || initiator.Map == null || recipient.Map != initiator.Map)
+            {
+                return false;
+            }
+
+            // Exclude crossed pawns (handled in existing branch)
+            if (CrossedUtility.IsCrossedPawn(initiator) || CrossedUtility.IsCrossedPawn(recipient))
+            {
+                return false;
+            }
+
+            // Both must be humanlike and active
+            return IsHumanlikeActivePawn(initiator) && IsHumanlikeActivePawn(recipient);
+        }
+
+        private static InteractionDef PickGeneralInteraction(Pawn initiator, Pawn recipient)
+        {
+            float r = Rand.Value;
+            bool hostile = initiator.Faction.HostileTo(recipient.Faction);
+            bool initiatorPrisoner = initiator.IsPrisonerOfColony;
+            bool recipientPrisoner = recipient.IsPrisonerOfColony;
+            float opinion = initiator.relations.OpinionOf(recipient);
+
+            // Hostile interactions take priority
+            if (hostile)
+            {
+                if (r < 0.3f && CADefOf.CA_GeneralHostileStandoff != null)
+                {
+                    return CADefOf.CA_GeneralHostileStandoff;
+                }
+                if (r < 0.6f && CADefOf.CA_GeneralThreateningTaunt != null)
+                {
+                    return CADefOf.CA_GeneralThreateningTaunt;
+                }
+                return CADefOf.CA_GeneralDefiantInsult ?? CADefOf.CA_GeneralHostileStandoff;
+            }
+
+            // Prisoner dynamics
+            else if (initiatorPrisoner && recipientPrisoner)
+            {
+                if (r < 0.4f && CADefOf.CA_GeneralPrisonerSolidarity != null)
+                {
+                    return CADefOf.CA_GeneralPrisonerSolidarity;
+                }
+                return CADefOf.CA_GeneralPrisonerSmallTalk ?? CADefOf.CA_GeneralPrisonerSolidarity;
+            }
+            else if (initiatorPrisoner)
+            {
+                if (opinion < -10 && CADefOf.CA_GeneralPrisonerDefiance != null)
+                {
+                    return CADefOf.CA_GeneralPrisonerDefiance;
+                }
+                return CADefOf.CA_GeneralPrisonerResignation ?? CADefOf.CA_GeneralPrisonerSmallTalk;
+            }
+            else if (recipientPrisoner)
+            {
+                if (opinion > 10 && CADefOf.CA_GeneralGuardEncouragement != null)
+                {
+                    return CADefOf.CA_GeneralGuardEncouragement;
+                }
+                return CADefOf.CA_GeneralGuardIntimidation ?? CADefOf.CA_GeneralThreateningTaunt;
+            }
+
+            // Neutral/friendly with opinion weighting
+            else
+            {
+                if (opinion > 20)
+                {
+                    if (r < 0.5f && CADefOf.CA_GeneralFriendlyGreeting != null)
+                    {
+                        return CADefOf.CA_GeneralFriendlyGreeting;
+                    }
+                    return CADefOf.CA_GeneralCasualChat ?? CADefOf.CA_GeneralFriendlyGreeting;
+                }
+                else if (opinion < -10)
+                {
+                    if (r < 0.4f && CADefOf.CA_GeneralTenseStandoff != null)
+                    {
+                        return CADefOf.CA_GeneralTenseStandoff;
+                    }
+                    return CADefOf.CA_GeneralColdShoulder ?? CADefOf.CA_GeneralTenseStandoff;
+                }
+                else
+                {
+                    if (r < 0.4f && CADefOf.CA_GeneralNervousAvoidance != null)
+                    {
+                        return CADefOf.CA_GeneralNervousAvoidance;
+                    }
+                    return CADefOf.CA_GeneralAwkwardSilence ?? CADefOf.CA_GeneralNervousAvoidance;
+                }
             }
         }
 

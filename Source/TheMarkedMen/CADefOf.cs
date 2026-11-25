@@ -28,6 +28,23 @@ namespace TheMarkedMen
         private static InteractionDef crossedPackAnnouncement;
         private static PawnKindDef crossedCivilian;
         private static PawnKindDef crossedScout;
+
+        // General interactions
+        public static InteractionDef CA_GeneralHostileStandoff;
+        public static InteractionDef CA_GeneralThreateningTaunt;
+        public static InteractionDef CA_GeneralDefiantInsult;
+        public static InteractionDef CA_GeneralPrisonerSolidarity;
+        public static InteractionDef CA_GeneralPrisonerSmallTalk;
+        public static InteractionDef CA_GeneralPrisonerDefiance;
+        public static InteractionDef CA_GeneralPrisonerResignation;
+        public static InteractionDef CA_GeneralGuardEncouragement;
+        public static InteractionDef CA_GeneralGuardIntimidation;
+        public static InteractionDef CA_GeneralFriendlyGreeting;
+        public static InteractionDef CA_GeneralCasualChat;
+        public static InteractionDef CA_GeneralTenseStandoff;
+        public static InteractionDef CA_GeneralColdShoulder;
+        public static InteractionDef CA_GeneralNervousAvoidance;
+        public static InteractionDef CA_GeneralAwkwardSilence;
         private static PawnKindDef crossedHunter;
         private static PawnKindDef crossedShooter;
         private static PawnKindDef crossedRaider;
