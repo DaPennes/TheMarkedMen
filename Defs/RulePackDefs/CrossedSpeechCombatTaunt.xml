@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+  <!-- Combat Taunts - When the Crossed attack during combat -->
+
+  <RulePackDef>
+    <defName>CA_CrossedSpeechCombatTaunt_General</defName>
+    <rulePack>
+      <rulesStrings>
+        <!-- Predatory combat taunts -->
+        <li>[RECIPIENT_nameDef], you're already dead</li>
+        <li>[RECIPIENT_nameDef] can't run from me forever</li>
+        <li>I'm gonna enjoy this [RECIPIENT_nameDef]</li>
+        <li>[RECIPIENT_nameDef] is mine now</li>
+        <li>try to stay down, [RECIPIENT_nameDef]</li>
+        <li>your [weakness] is showing</li>
+        <li>[RECIPIENT_nameDef] bleeds for us now</li>
+        <li>I'll make you scream</li>
+        <li>[RECIPIENT_nameDef] begs for death</li>
+        <li>more blood, more fun</li>
+
+        <!-- Subject variations -->
+        <li>weakness->wounds</li>
+        <li>weakness->injuries</li>
+        <li>weakness->scars</li>
+        <li>weakness->marks</li>
+        <li>weakness->pains</li>
+        <li>weakness->breaches</li>
+      </rulesStrings>
+    </rulePack>
+  </RulePackDef>
+
+  <RulePackDef>
+    <defName>CA_CrossedSpeechCombatTaunt_Shooter</defName>
+    <rulePack>
+      <rulesStrings>
+        <!-- Shooter-specific taunts -->
+        <li>[RECIPIENT_nameDef] should've stayed hidden</li>
+        <li>one shot, one screaming kill</li>
+        <li>[RECIPIENT_nameDef] is a target waiting for me</li>
+        <li>fuck you, [RECIPIENT_nameDef], I'm lining my teeth with your bones</li>
+        <li>[RECIPIENT_nameDef]'s last thought will be my name</li>
+        <li>your screams are music to me</li>
+        <li>[RECIPIENT_nameDef] is gonna be fucked up when I'm done</li>
+        <li>that's one less cocky bastard</li>
+        <li>[RECIPIENT_nameDef] tastes better when terrified</li>
+        <li>I'm gonna put a bullet in your head and wear it like a necklace</li>
+      </rulesStrings>
+    </rulePack>
+  </RulePackDef>
+
+  <RulePackDef>
+    <defName>CA_CrossedSpeechCombatTaunt_Brute</defName>
+    <rulePack>
+      <rulesStrings>
+        <!-- Brute-specific combat taunts -->
+        <li>[RECIPIENT_nameDef] is mine to break</li>
+        <li>I'll crush your bones</li>
+        <li>[RECIPIENT_nameDef] screams sound pretty</li>
+        <li>watch the big one play</li>
+        <li>your bones will crack like twigs</li>
+        <li>I'm gonna ruin you</li>
+        <li>[RECIPIENT_nameDef] is nothing to me</li>
+        <li>fuck with me and you get hurt</li>
+        <li>my fists make you beg</li>
+        <li>[RECIPIENT_nameDef] is already dead inside</li>
+      </rulesStrings>
+    </rulePack>
+  </RulePackDef>
+
+</Defs>

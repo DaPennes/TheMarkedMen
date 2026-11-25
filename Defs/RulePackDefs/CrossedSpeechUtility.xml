@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+  <!-- RulePackDefs for spoken dialogue/dialect in social interactions -->
+  <!-- These provide the "spoken" portion of crossed attacks alongside social log entries -->
+  <!-- Language is intentionally disturbing, violent, and sadistic to match Crossed comics -->
+
+  <RulePackDef>
+    <defName>CA_CrossedSpeechPredatory</defName>
+    <rulePack>
+      <rulesStrings>
+        <!-- Predatory Taunt speech - sadistic and disturbing -->
+        <li>[weakness] makes you delicious</li>
+        <li>your [weakness] is perfect for us</li>
+        <li>[weakness] is the key to your death</li>
+        <li>the [weakness] will get you raped</li>
+        <li>your [weakness] means you bleed for us</li>
+        <li>watch as [weakness] tears you apart</li>
+        <li>[weakness] is what we do to people like you</li>
+        <li>your [weakness] is delicious</li>
+        <li>I want to taste your [weakness]</li>
+        <li>[weakness] means you're mine now</li>
+        <li>the [weakness] is your last pleasure</li>
+        <li>funny how [weakness] hurts so good</li>
+        <li>your [weakness] is going to get so much worse</li>
+        <li>don't you want to feel your [weakness]?</li>
+
+        <!-- Subject variations - targeting vulnerabilities -->
+        <li>weakness->injuries</li>
+        <li>weakness->hiding place</li>
+        <li>weakness->friends</li>
+        <li>weakness->escape route</li>
+        <li>weakness->locked room</li>
+        <li>weakness->last round of ammunition</li>
+        <li>weakness->blood</li>
+        <li>weakness->fear</li>
+        <li>weakness->panic</li>
+        <li>weakness->medicine</li>
+        <li>weakness->medicine shelf</li>
+        <li>weakness->hospital</li>
+      </rulesStrings>
+    </rulePack>
+  </RulePackDef>
+
+  <RulePackDef>
+    <defName>CA_CrossedSpeechFalseMercy</defName>
+    <rulePack>
+      <rulesStrings>
+        <!-- False Mercy speech - deceptive and mocking -->
+        <li>I'll let you live... for now</li>
+        <li>she who knocks on your door is me</li>
+        <li>the nice man with the knife says hello</li>
+        <li>I'm here to help... right into my teeth</li>
+        <li>safe passage? I'll make it a one-way trip</li>
+        <li>my medicine tastes so sweet on your lips</li>
+        <li>the clean way out is down this hallway</li>
+        <li>a place to hide? I'll hide you forever</li>
+        <li>surrender is the first step to screaming</li>
+        <li>there's no need to fight when I can make you</li>
+        <li>my truce is sealed with your blood</li>
+        <li>a quiet minute? Just until I'm done torturing you</li>
+        <li>trust me... I'm going to enjoy this</li>
+        <li>I'm playing nice... for my entertainment</li>
+
+        <!-- Offer variations - all twisted -->
+        <li>offer->my hand to pull you from the darkness</li>
+        <li>offer->safe passage to your eternal sleep</li>
+        <li>offer->medicine that will hurt so good</li>
+        <li>offer->a clean way out through my teeth</li>
+        <li>offer->a place to hide until I find you</li>
+        <li>offer->a truce where I'm the only one who speaks</li>
+        <li>offer->a locked door that leads to me</li>
+        <li>offer->a surrender that means endless pleasure</li>
+        <li>offer->one quiet minute that never ends</li>
+        <li>offer->mercy that cuts deeper than any blade</li>
+
+        <!-- Lie variations - deceptive promises -->
+        <li>lie->an unlocked route... to me</li>
+        <li>lie->a harmless blood test... I'll love the taste</li>
+        <li>lie->a survivor waiting... to join me</li>
+        <li>lie->a quiet room... where I'll make you scream</li>
+        <li>lie->a cure that doesn't exist... like your future</li>
+        <li>lie->a rescue team... they're all mine now</li>
+        <li>lie->a sealed bunker... where I'll break you open</li>
+        <li>lie->a safe route... straight through my madness</li>
+        <li>lie->the exit sign pointing to me</li>
+        <li>lie->my open arms waiting for you</li>
+        <li>lie->the path I carved with my teeth</li>
+        <li>lie->freedom through submission</li>
+      </rulesStrings>
+    </rulePack>
+  </RulePackDef>
+
+  <RulePackDef>
+    <defName>CA_CrossedSpeechPackLaughter</defName>
+    <rulePack>
+      <rulesStrings>
+        <!-- Pack Laughter speech - coordinated sadism -->
+        <li>we found your hiding spot, bitch</li>
+        <li>the pack counts your heartbeats</li>
+        <li>we're all getting fucking fed</li>
+        <li>every door opens for our cocky little walk</li>
+        <li>the colony's names on my tongue tonight</li>
+        <li>marking that little shit [RECIPIENT_nameDef] for dinner</li>
+        <li>who's next? Who's screaming loudest?</li>
+        <li>the horde laughs at your whimpering</li>
+        <li>we're all wet for you, [RECIPIENT_nameDef]</li>
+        <li>the pack remembers your face from breakfast</li>
+        <li>we've been waiting for you to bleed</li>
+        <li>count the locks as we break them all down</li>
+        <li>the farts of [RECIPIENT_nameDef] smell sweet to us</li>
+        <li>dance for the pack, little survivor</li>
+        <li>the rhythm of your heartbeat is our music</li>
+        <li>we're going to fill our bellies with you</li>
+        <li>the last sound you'll hear is our laughter</li>
+
+        <!-- Signal variations - pack coordination -->
+        <li>signal->the crack of bone on metal</li>
+        <li>signal->the wet slap of teeth on flesh</li>
+        <li>signal->the howl of [RECIPIENT_nameDef]'s death scream</li>
+        <li>signal->the drip of your blood on concrete</li>
+        <li>signal->the thump of your heart slowing down</li>
+        <li>signal->the final gasp before we take you</li>
+        <li>signal->the creak of [RECIPIENT_nameDef]'s bones</li>
+        <li>signal->the wet sound of us fucking your corpse</li>
+        <li>signal->the moan of [RECIPIENT_nameDef] begging</li>
+        <li>signal->the shriek of your soul leaving you</li>
+        <li>signal->the wet slap as we mark our new toy</li>
+        <li>signal->the scream of the girl who bled for us</li>
+        <li>signal->the moan of your last breath</li>
+        <li>signal->the wet crunch of breaking your skull</li>
+      </rulesStrings>
+    </rulePack>
+  </RulePackDef>
+
+  <RulePackDef>
+    <defName>CA_CrossedSpeechInfection</defName>
+    <rulePack>
+      <rulesStrings>
+        <!-- Infection Gloat speech - transformation horror -->
+        <li>your body is mine to ruin</li>
+        <li>the disease is turning you into me</li>
+        <li>I'm already in your blood</li>
+        <li>the fever is a gift I gave you</li>
+        <li>your cells are my cells now</li>
+        <li>shedding skin is just the beginning</li>
+        <li>the infection is making you wet for me</li>
+        <li>you can't stop what I've set in motion</li>
+        <li>the change starts in your marrow</li>
+        <li>your blood is thickening with my will</li>
+        <li>the mark is spreading through your bones</li>
+        <li>screaming is pleasant against my teeth</li>
+        <li>the last thing you'll think is of me</li>
+        <li>my laughter is the sound of your organs shutting down</li>
+        <li>the clean ones always bleed first</li>
+
+        <!-- Claim variations - gruesome predictions -->
+        <li>claim->the fever will rape you slowly</li>
+        <li>claim->the rash is just my hand on your skin</li>
+        <li>claim->you'll hear the pack's laughter through the pain</li>
+        <li>claim->every locked door opens for my cock</li>
+        <li>claim->your blood is choosing to come to me</li>
+        <li>claim->the survivors run out of time before I do</li>
+        <li>claim->the fever is making delicious decisions</li>
+        <li>claim->the doors fail before the screaming gets loud</li>
+        <li>claim->your infection is blooming like a beautiful flower</li>
+        <li>claim->the fever is a hot load in your cunt</li>
+        <li>claim->the rash is my fingers tracing your flesh</li>
+        <li>claim->you can't tell where I end and you begin</li>
+
+        <!-- Change variations - transformation horror -->
+        <li>change->the shaking hands that reach for more</li>
+        <li>change->the first smile of your new life</li>
+        <li>change->the fever burning through your blood</li>
+        <li>change->the loss of hesitation as you feel what you want</li>
+        <li>change->the mark taking hold in your wet mouth</li>
+        <li>change->the moment the fear turns useful for me</li>
+        <li>change->the last clear thought before I take you</li>
+        <li>change->the laugh that won't stop when I'm inside you</li>
+        <li>change->the wetness as you become my bitch</li>
+        <li>change->the dripping as I fill you up</li>
+        <li>change->the throbbing as I make you come</li>
+        <li>change->the screaming as I ruin you properly</li>
+      </rulesStrings>
+    </rulePack>
+  </RulePackDef>
+
+</Defs>

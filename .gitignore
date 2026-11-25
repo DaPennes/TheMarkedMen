@@ -1,5 +1,7 @@
 Changelog.txt
 Source/**/obj/
 Source/**/bin/
+Assemblies/**/*.dll
+Assemblies/**/*.pdb
 *.user
 *.suo

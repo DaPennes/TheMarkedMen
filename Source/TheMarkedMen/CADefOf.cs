@@ -88,8 +88,33 @@ namespace TheMarkedMen
         private static ThingDef syringe;
         private static ThingDef cureSyringe;
         private static HediffDef curePending;
+        private static RulePackDef crossedSpeechPredatory;
+        private static RulePackDef crossedSpeechFalseMercy;
+        private static RulePackDef crossedSpeechPackLaughter;
+        private static RulePackDef crossedSpeechInfection;
+        private static RulePackDef crossedSpeechCombatTauntGeneral;
+        private static RulePackDef crossedSpeechCombatTauntShooter;
+        private static RulePackDef crossedSpeechCombatTauntBrute;
+        private static RulePackDef crossedSpeechPrisonerHarassment;
+        private static RulePackDef crossedSpeechWoundedMockery;
+        private static RulePackDef crossedSpeechEscapeTaunt;
+        private static RulePackDef crossedSpeechGroupCoordination;
+        private static RulePackDef crossedSpeechInfectionCelebration;
 
         public static HediffDef CrossVirus => crossVirus ?? (crossVirus = DefDatabase<HediffDef>.GetNamedSilentFail("CA_CrossVirus"));
+
+        public static RulePackDef CA_CrossedSpeechPredatory => crossedSpeechPredatory ?? (crossedSpeechPredatory = DefDatabase<RulePackDef>.GetNamedSilentFail("CA_CrossedSpeechPredatory"));
+        public static RulePackDef CA_CrossedSpeechFalseMercy => crossedSpeechFalseMercy ?? (crossedSpeechFalseMercy = DefDatabase<RulePackDef>.GetNamedSilentFail("CA_CrossedSpeechFalseMercy"));
+        public static RulePackDef CA_CrossedSpeechPackLaughter => crossedSpeechPackLaughter ?? (crossedSpeechPackLaughter = DefDatabase<RulePackDef>.GetNamedSilentFail("CA_CrossedSpeechPackLaughter"));
+        public static RulePackDef CA_CrossedSpeechInfection => crossedSpeechInfection ?? (crossedSpeechInfection = DefDatabase<RulePackDef>.GetNamedSilentFail("CA_CrossedSpeechInfection"));
+        public static RulePackDef CA_CrossedSpeechCombatTauntGeneral => crossedSpeechCombatTauntGeneral ?? (crossedSpeechCombatTauntGeneral = DefDatabase<RulePackDef>.GetNamedSilentFail("CA_CrossedSpeechCombatTaunt_General"));
+        public static RulePackDef CA_CrossedSpeechCombatTauntShooter => crossedSpeechCombatTauntShooter ?? (crossedSpeechCombatTauntShooter = DefDatabase<RulePackDef>.GetNamedSilentFail("CA_CrossedSpeechCombatTaunt_Shooter"));
+        public static RulePackDef CA_CrossedSpeechCombatTauntBrute => crossedSpeechCombatTauntBrute ?? (crossedSpeechCombatTauntBrute = DefDatabase<RulePackDef>.GetNamedSilentFail("CA_CrossedSpeechCombatTaunt_Brute"));
+        public static RulePackDef CA_CrossedSpeechPrisonerHarassment => crossedSpeechPrisonerHarassment ?? (crossedSpeechPrisonerHarassment = DefDatabase<RulePackDef>.GetNamedSilentFail("CA_CrossedSpeechPrisonerHarassment"));
+        public static RulePackDef CA_CrossedSpeechWoundedMockery => crossedSpeechWoundedMockery ?? (crossedSpeechWoundedMockery = DefDatabase<RulePackDef>.GetNamedSilentFail("CA_CrossedSpeechWoundedMockery"));
+        public static RulePackDef CA_CrossedSpeechEscapeTaunt => crossedSpeechEscapeTaunt ?? (crossedSpeechEscapeTaunt = DefDatabase<RulePackDef>.GetNamedSilentFail("CA_CrossedSpeechEscapeTaunt"));
+        public static RulePackDef CA_CrossedSpeechGroupCoordination => crossedSpeechGroupCoordination ?? (crossedSpeechGroupCoordination = DefDatabase<RulePackDef>.GetNamedSilentFail("CA_CrossedSpeechGroupCoordination"));
+        public static RulePackDef CA_CrossedSpeechInfectionCelebration => crossedSpeechInfectionCelebration ?? (crossedSpeechInfectionCelebration = DefDatabase<RulePackDef>.GetNamedSilentFail("CA_CrossedSpeechInfectionCelebration"));
         public static HediffDef CrossVirusImmunity => crossVirusImmunity ?? (crossVirusImmunity = DefDatabase<HediffDef>.GetNamedSilentFail("CA_CrossVirusImmunity"));
         public static HediffDef CrossedRash => crossedRash ?? (crossedRash = DefDatabase<HediffDef>.GetNamedSilentFail("CA_CrossedRash"));
         public static HediffDef BloodRush => bloodRush ?? (bloodRush = DefDatabase<HediffDef>.GetNamedSilentFail("CA_BloodRush"));

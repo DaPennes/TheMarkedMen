@@ -7,7 +7,8 @@
        ============================================================ -->
 
   <!-- Predatory Taunt: A psychological attack designed to instill fear
-       and reveal weaknesses in the target's defenses. -->
+       and reveal weaknesses in the target's defenses. Contains graphic,
+       sadistic Crossed-appropriate dialogue and social log entries. -->
   <InteractionDef>
     <defName>CA_CrossedPredatoryTaunt</defName>
     <label>predatory taunt</label>
@@ -15,6 +16,7 @@
     <symbol>Things/Mote/SpeechSymbols/Insult</symbol>
     <socialFightBaseChance>0.12</socialFightBaseChance>
     <logRulesInitiator>
+      <include><li>CA_CrossedSpeechPredatory</li></include>
       <rulesStrings>
         <li>r_logentry->[INITIATOR_nameDef] [taunted] [RECIPIENT_nameDef] about [subject].</li>
         <li>r_logentry->[INITIATOR_nameDef] [said] [threat] to [RECIPIENT_nameDef].</li>
@@ -52,20 +54,25 @@
         <li>threat->that mercy was only bait</li>
         <li>threat->that surrender would not change anything</li>
 
-        <li>weakness->fear</li>
         <li>weakness->injuries</li>
         <li>weakness->hiding place</li>
         <li>weakness->friends</li>
         <li>weakness->escape route</li>
         <li>weakness->locked room</li>
         <li>weakness->last round of ammunition</li>
+        <li>weakness->blood</li>
+        <li>weakness->fear</li>
         <li>weakness->panic</li>
+        <li>weakness->medicine</li>
+        <li>weakness->medicine shelf</li>
+        <li>weakness->hospital</li>
       </rulesStrings>
     </logRulesInitiator>
   </InteractionDef>
 
   <!-- False Mercy: A manipulation attempt to trick the target into
-       lowering their guard or revealing critical information. -->
+       lowering their guard or revealing critical information. Contains
+       deceptive, mock-"kind" Crossed dialogue with disturbing undertones. -->
   <InteractionDef>
     <defName>CA_CrossedFalseMercy</defName>
     <label>false mercy</label>
@@ -73,29 +80,36 @@
     <symbol>Things/Mote/SpeechSymbols/Chitchat</symbol>
     <socialFightBaseChance>0.06</socialFightBaseChance>
     <logRulesInitiator>
+      <include><li>CA_CrossedSpeechFalseMercy</li></include>
       <rulesStrings>
         <li>r_logentry->[INITIATOR_nameDef] offered [RECIPIENT_nameDef] [offer] in a calm voice.</li>
         <li>r_logentry->[INITIATOR_nameDef] pretended to help [RECIPIENT_nameDef] by describing [lie].</li>
         <li>r_logentry->[INITIATOR_nameDef] used a familiar voice to ask [RECIPIENT_nameDef] for [request].</li>
         <li>r_logentry->[INITIATOR_nameDef] promised [RECIPIENT_nameDef] safety, then laughed at the word.</li>
 
-        <li>offer->safe passage</li>
-        <li>offer->medicine</li>
-        <li>offer->a clean way out</li>
-        <li>offer->a place to hide</li>
-        <li>offer->a truce</li>
-        <li>offer->a locked door that would not hold</li>
-        <li>offer->a surrender that meant nothing</li>
-        <li>offer->one quiet minute before the breach</li>
+        <li>offer->my hand to pull you from the darkness</li>
+        <li>offer->safe passage to your eternal sleep</li>
+        <li>offer->medicine that will hurt so good</li>
+        <li>offer->a clean way out through my teeth</li>
+        <li>offer->a place to hide until I find you</li>
+        <li>offer->a truce where I'm the only one who speaks</li>
+        <li>offer->a locked door that leads to me</li>
+        <li>offer->a surrender that means endless pleasure</li>
+        <li>offer->one quiet minute that never ends</li>
+        <li>offer->mercy that cuts deeper than any blade</li>
 
-        <li>lie->an unlocked route outside</li>
-        <li>lie->a harmless blood test</li>
-        <li>lie->a survivor waiting nearby</li>
-        <li>lie->a quiet room away from the fighting</li>
-        <li>lie->a cure that did not exist</li>
-        <li>lie->a rescue team already dead</li>
-        <li>lie->a sealed bunker already opened</li>
-        <li>lie->a safe route through the dark</li>
+        <li>lie->an unlocked route... to me</li>
+        <li>lie->a harmless blood test... I'll love the taste</li>
+        <li>lie->a survivor waiting... to join me</li>
+        <li>lie->a quiet room... where I'll make you scream</li>
+        <li>lie->a cure that doesn't exist... like your future</li>
+        <li>lie->a rescue team... they're all mine now</li>
+        <li>lie->a sealed bunker... where I'll break you open</li>
+        <li>lie->a safe route... straight through my madness</li>
+        <li>lie->the exit sign pointing to me</li>
+        <li>lie->my open arms waiting for you</li>
+        <li>lie->the path I carved with my teeth</li>
+        <li>lie->freedom through submission</li>
 
         <li>request->the door code</li>
         <li>request->the hospital location</li>
@@ -110,7 +124,8 @@
   </InteractionDef>
 
   <!-- Pack Laughter: A coordinated psychological attack where multiple infected
-       mock a target to break their spirit. -->
+       mock a target to break their spirit. Contains coordinated, sadistic
+       pack behavior with disturbing signals and remarks from the comics. -->
   <InteractionDef>
     <defName>CA_CrossedPackLaughter</defName>
     <label>pack laughter</label>
@@ -118,26 +133,34 @@
     <symbol>Things/Mote/SpeechSymbols/Insult</symbol>
     <socialFightBaseChance>0.16</socialFightBaseChance>
     <logRulesInitiator>
+      <include><li>CA_CrossedSpeechPackLaughter</li></include>
       <rulesStrings>
         <li>r_logentry->[INITIATOR_nameDef] started a chorus of laughter around [RECIPIENT_nameDef].</li>
         <li>r_logentry->[INITIATOR_nameDef] marked [RECIPIENT_nameDef] for the pack with [signal].</li>
         <li>r_logentry->[INITIATOR_nameDef] repeated [RECIPIENT_nameDef]'s name until nearby Marked Men answered.</li>
         <li>r_logentry->[INITIATOR_nameDef] counted the colony doors aloud while the pack answered each number.</li>
 
-        <li>signal->a sharp whistle</li>
-        <li>signal->a broken chant</li>
-        <li>signal->a shouted room number</li>
-        <li>signal->a rhythm beaten on a weapon</li>
-        <li>signal->a laughing countdown</li>
-        <li>signal->a list of colonist names</li>
-        <li>signal->a shouted map direction</li>
-        <li>signal->the rhythm of fists on a sealed door</li>
+        <li>signal->the crack of bone on metal</li>
+        <li>signal->the wet slap of teeth on flesh</li>
+        <li>signal->the howl of [RECIPIENT_nameDef]'s death scream</li>
+        <li>signal->the drip of your blood on concrete</li>
+        <li>signal->the thump of your heart slowing down</li>
+        <li>signal->the final gasp before we take you</li>
+        <li>signal->the creak of [RECIPIENT_nameDef]'s bones</li>
+        <li>signal->the wet sound of us fucking your corpse</li>
+        <li>signal->the moan of [RECIPIENT_nameDef] begging</li>
+        <li>signal->the shriek of your soul leaving you</li>
+        <li>signal->the wet slap as we mark our new toy</li>
+        <li>signal->the scream of the girl who bled for us</li>
+        <li>signal->the moan of your last breath</li>
+        <li>signal->the wet crunch of breaking your skull</li>
       </rulesStrings>
     </logRulesInitiator>
   </InteractionDef>
 
   <!-- Infection Gloat: A targeted psychological attack focused on the target's
-       inevitable transformation. -->
+       inevitable transformation. Contains transformation horror content
+       with disturbing glorification of the infection process. -->
   <InteractionDef>
     <defName>CA_CrossedInfectionGloat</defName>
     <label>infection gloat</label>
@@ -145,29 +168,38 @@
     <symbol>Things/Mote/SpeechSymbols/DeepTalk</symbol>
     <socialFightBaseChance>0.1</socialFightBaseChance>
     <logRulesInitiator>
+      <include><li>CA_CrossedSpeechInfection</li></include>
       <rulesStrings>
         <li>r_logentry->[INITIATOR_nameDef] told [RECIPIENT_nameDef] that [claim].</li>
         <li>r_logentry->[INITIATOR_nameDef] smiled at [RECIPIENT_nameDef] and described [change].</li>
         <li>r_logentry->[INITIATOR_nameDef] counted down near [RECIPIENT_nameDef], waiting for [change].</li>
         <li>r_logentry->[INITIATOR_nameDef] told [RECIPIENT_nameDef] that survival only made the mark arrive later.</li>
 
-        <li>claim->the fever would make things simple</li>
-        <li>claim->the rash was only the first sign</li>
-        <li>claim->the colony would hear the laughter soon</li>
-        <li>claim->every locked door was temporary</li>
-        <li>claim->the blood would choose quickly</li>
-        <li>claim->the clean ones always ran out of time</li>
-        <li>claim->the fever was already making decisions</li>
-        <li>claim->the doors would fail before the screaming stopped</li>
+        <li>claim->the fever will rape you slowly</li>
+        <li>claim->the rash is just my hand on your skin</li>
+        <li>claim->you'll hear the pack's laughter through the pain</li>
+        <li>claim->every locked door opens for my cock</li>
+        <li>claim->your blood is choosing to come to me</li>
+        <li>claim->the survivors run out of time before I do</li>
+        <li>claim->the fever is making delicious decisions</li>
+        <li>claim->the doors fail before the screaming gets loud</li>
+        <li>claim->your infection is blooming like a beautiful flower</li>
+        <li>claim->the fever is a hot load in your cunt</li>
+        <li>claim->the rash is my fingers tracing your flesh</li>
+        <li>claim->you can't tell where I end and you begin</li>
 
-        <li>change->the shaking hands</li>
-        <li>change->the first smile</li>
-        <li>change->the fever</li>
-        <li>change->the loss of hesitation</li>
-        <li>change->the mark taking hold</li>
-        <li>change->the moment the fear turned useful</li>
-        <li>change->the last clear thought</li>
-        <li>change->the laugh that would not stop</li>
+        <li>change->the shaking hands that reach for more</li>
+        <li>change->the first smile of your new life</li>
+        <li>change->the fever burning through your blood</li>
+        <li>change->the loss of hesitation as you feel what you want</li>
+        <li>change->the mark taking hold in your wet mouth</li>
+        <li>change->the moment the fear turns useful for me</li>
+        <li>change->the last clear thought before I take you</li>
+        <li>change->the laugh that won't stop when I'm inside you</li>
+        <li>change->the wetness as you become my bitch</li>
+        <li>change->the dripping as I fill you up</li>
+        <li>change->the throbbing as I make you come</li>
+        <li>change->the screaming as I ruin you properly</li>
       </rulesStrings>
     </logRulesInitiator>
   </InteractionDef>

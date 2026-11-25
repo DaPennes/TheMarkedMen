@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+  <!-- Prisoner Harassment - When the Crossed mock restrained prisoners -->
+
+  <RulePackDef>
+    <defName>CA_CrossedSpeechPrisonerHarassment</defName>
+    <rulePack>
+      <rulesStrings>
+        <!-- General prisoner harassment -->
+        <li>[RECIPIENT_nameDef], you're just a dog in a cage</li>
+        <li>begging looks good on you, [RECIPIENT_nameDef]</li>
+        <li>who's gonna save you now?</li>
+        <li>[RECIPIENT_nameDef], I want to paint my nails with your blood</li>
+        <li>you can't hide from me in that cell</li>
+        <li>let him watch, [RECIPIENT_nameDef]</li>
+        <li>every day without me fucking you is a day wasted</li>
+        <li>[RECIPIENT_nameDef]'s pretty face is mine to ruin</li>
+        <li>I'm gonna tear that pretty mouth open</li>
+        <li>your hands are shackled but your pussy's not</li>
+
+        <!-- False mercy variations -->
+        <li>falseMercy->I'll let you go if you scream for me</li>
+        <li>falseMercy->just say please and I'll play nice</li>
+        <li>falseMercy->maybe I'll be gentle</li>
+        <li>falseMercy->you can come closer if you're good</li>
+        <li>falseMercy->I'll make this quick for you</li>
+        <li>falseMercy->just stop struggling and I'll pleasure you</li>
+        <li>falseMercy->bite my finger if you want mercy</li>
+        <li>falseMercy->cry my name and I'll come to you</li>
+
+        <!-- Mockery variations -->
+        <li>mockery->the jailer's tears are the only pretty thing here</li>
+        <li>mockery->[RECIPIENT_nameDef] can watch the others get taken</li>
+        <li>mockery->maybe they'll rape you better than I will</li>
+        <li>mockery->you're just another pretty body waiting</li>
+        <li>mockery->your pretty lips are made for screaming</li>
+        <li>mockery->[RECIPIENT_nameDef] is getting close to the meat section</li>
+        <li>mockery->I'll make you squeal like the dog you are</li>
+        <li>mockery->the guards won't hear your whimpers through the walls</li>
+      </rulesStrings>
+    </rulePack>
+  </RulePackDef>
+
+  <RulePackDef>
+    <defName>CA_CrossedSpeechWoundedMockery</defName>
+    <rulePack>
+      <rulesStrings>
+        <!-- Wounded victim mockery -->
+        <li>[RECIPIENT_nameDef], you look like a fucking mess</li>
+        <li>that's what you get for trying to run</li>
+        <li>keep crawling, little survivor</li>
+        <li>your blood's on the floor, [RECIPIENT_nameDef]</li>
+        <li>[RECIPIENT_nameDef] can't even run straight</li>
+        <li>drag your broken ass to me</li>
+        <li>[RECIPIENT_nameDef] is already half dead</li>
+        <li>you smell like piss and fear</li>
+        <li>[RECIPIENT_nameDef], I'll make you cum before I kill you</li>
+        <li>try not to wet yourself when I find you</li>
+
+        <!-- Injury-specific variations -->
+        <li>injury->your leg is broken</li>
+        <li>injury->you're missing fingers</li>
+        <li>injury->your face is bloody</li>
+        <li>injury->that arm is useless</li>
+        <li>injury->you can't stand</li>
+        <li>injury->pain's all you know now</li>
+      </rulesStrings>
+    </rulePack>
+  </RulePackDef>
+
+  <RulePackDef>
+    <defName>CA_CrossedSpeechEscapeTaunt</defName>
+    <rulePack>
+      <rulesStrings>
+        <!-- Escape attempts -->
+        <li>[RECIPIENT_nameDef], you can't outrun me</li>
+        <li>stop running, you silly bastard</li>
+        <li>[RECIPIENT_nameDef] is going home with me</li>
+        <li>that door's not going anywhere</li>
+        <li>I'll catch you when you fall</li>
+        <li>[RECIPIENT_nameDef], you're getting slower</li>
+        <li>your hiding place is going to get you killed</li>
+        <li>the walls are full of ears</li>
+        <li>[RECIPIENT_nameDef] can't hide from what's coming</li>
+        <li>every step away is a step closer to pain</li>
+
+        <!-- Chase-specific variations -->
+        <li>chase->I'm right behind you</li>
+        <li>chase->you can hear me coming</li>
+        <li>chase->that's my sweet heartbeat you can hear</li>
+        <li>chase->I know where you're staying</li>
+        <li>chase->you're not as fast as you think</li>
+        <li>chase->my laughter echoes in the dark</li>
+      </rulesStrings>
+    </rulePack>
+  </RulePackDef>
+
+</Defs>

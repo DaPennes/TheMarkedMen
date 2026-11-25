@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+  <!-- Group Coordination - Infected communicating with each other -->
+
+  <RulePackDef>
+    <defName>CA_CrossedSpeechGroupCoordination</defName>
+    <rulePack>
+      <rulesStrings>
+        <!-- Attack coordination -->
+        <li>[RECIPIENT_nameDef], the pack finds you</li>
+        <li>count to three, [RECIPIENT_nameDef]</li>
+        <li>divide and conquer, boys</li>
+        <li>all for one, one for all</li>
+        <li>spread the word, we have a new plaything</li>
+        <li>every door opens for our cocky little walk</li>
+        <li>the horde laughs at your whimpering</li>
+        <li>we're all getting fucking fed</li>
+        <li>the colony's names on my tongue tonight</li>
+        <li>mark that little shit for dinner</li>
+
+        <!-- Group signals -->
+        <li>signal->the crack of bone on metal</li>
+        <li>signal->the wet slap of teeth on flesh</li>
+        <li>signal->a sharp whistle down the hall</li>
+        <li>signal->the drip of blood on concrete</li>
+        <li>signal->the thump of a heart slowing down</li>
+        <li>signal->the final gasp before we take you</li>
+        <li>signal->the creak of bones</li>
+        <li>signal->the wet sound of teeth finding flesh</li>
+        <li>signal->the scream of the girl who bled for us</li>
+        <li>signal->the moan of your last breath</li>
+
+        <!-- Pack celebration -->
+        <li>celebration->fuck yeah, another one bites the dust</li>
+        <li>celebration->that's one less cocky bastard</li>
+        <li>celebration->we're getting fat on survivors</li>
+        <li>celebration>the colony's down to a few bitches</li>
+        <li>celebration>I'm gonna need more knives for this one</li>
+        <li>celebration>another day, another piece of ass</li>
+        <li>celebration>we've outdone ourselves today</li>
+        <li>celebration>the taste of [RECIPIENT_nameDef] was perfect</li>
+        <li>celebration>I'm so turned on right now</li>
+        <li>celebration>this place is going to burn when we're done</li>
+      </rulesStrings>
+    </rulePack>
+  </RulePackDef>
+
+  <RulePackDef>
+    <defName>CA_CrossedSpeechInfectionCelebration</defName>
+    <rulePack>
+      <rulesStrings>
+        <!-- Infection celebration -->
+        <li>[RECIPIENT_nameDef] is mine now</li>
+        <li>the fever's spreading through the colony</li>
+        <li>more mouths to join the pack</li>
+        <li>one sick bastard feeding the others</li>
+        <li>the rash is blooming, like a beautiful flower</li>
+        <li>the screaming's getting louder</li>
+        <li>we're all wet for you, [RECIPIENT_nameDef]</li>
+        <li>the disease chooses quickly</li>
+        <li>I'm already in your blood</li>
+        <li>the clean ones always bleed first</li>
+
+        <!-- Infection progress -->
+        <li>infectionStage->the rash is spreading</li>
+        <li>infectionStage->the fever's getting hotter</li>
+        <li>infectionStage->you're twitching, aren't you?</li>
+        <li>infectionStage->the change starts in your marrow</li>
+        <li>infectionStage->your skin's getting sensitive</li>
+        <li>infectionStage->you're close to joining us</li>
+        <li>infectionStage->the laugh won't stop when I'm inside you</li>
+        <li>infectionStage->the wetness is spreading</li>
+        <li>infectionStage->you can feel it taking hold</li>
+        <li>infectionStage->your thoughts are getting blurry</li>
+      </rulesStrings>
+    </rulePack>
+  </RulePackDef>
+
+</Defs>
