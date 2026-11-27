@@ -4,10 +4,10 @@ using Verse;
 
 namespace TheMarkedMen
 {
-    
-    
-    
-    
+
+
+
+
     public class ChoiceLetter_CuredRefugee : ChoiceLetter
     {
         public Pawn pawn;
@@ -17,7 +17,7 @@ namespace TheMarkedMen
 
         public ChoiceLetter_CuredRefugee()
         {
-            
+
             def = DefDatabase<LetterDef>.GetNamed("TheMarkedMen_CuredRefugeeLetter", false) ?? LetterDefOf.NeutralEvent;
         }
 
@@ -41,26 +41,35 @@ namespace TheMarkedMen
                 DiaOption diaOption = new DiaOption("TheMarkedMen_CuredRefugee_Accept".Translate());
                 diaOption.action = () =>
                 {
-                    if (pawn != null && !pawn.Dead && pawn.Spawned)
+                    if (pawn == null || pawn.Dead || !pawn.Spawned)
                     {
-                        
-                        if (originalFaction != null && !originalFaction.defeated)
+                        Find.LetterStack.RemoveLetter(this);
+                        return;
+                    }
+
+                    try
+                    {
+                        Faction playerFaction = Faction.OfPlayer;
+
+                        // Validate original faction and its relation with player
+                        if (originalFaction != null
+                            && !originalFaction.defeated
+                            && originalFaction != playerFaction
+                            && playerFaction != null
+                            && pawn.Faction != null)
                         {
-                            Faction playerFaction = Faction.OfPlayer;
-                            if (playerFaction != null && originalFaction != playerFaction)
+                            FactionRelation relation = playerFaction.RelationWith(originalFaction);
+                            if (relation != null)
                             {
-                                FactionRelation relation = playerFaction.RelationWith(originalFaction);
-                                if (relation != null)
-                                {
-                                    relation.baseGoodwill -= 1;
-                                }
+                                relation.baseGoodwill -= 1;
                             }
                         }
 
-                        
-                        pawn.SetFaction(Faction.OfPlayer);
+                        if (pawn.Faction == null || pawn.Faction != Faction.OfPlayer)
+                        {
+                            pawn.SetFaction(Faction.OfPlayer);
+                        }
 
-                        
                         if (pawn.needs?.mood?.thoughts?.memories != null)
                         {
                             ThoughtDef accepted = DefDatabase<ThoughtDef>.GetNamedSilentFail("TheMarkedMen_RefugeeAccepted");
@@ -70,15 +79,19 @@ namespace TheMarkedMen
                             }
                         }
 
-                        
                         Messages.Message("TheMarkedMen_MessageRefugeeAccepted".Translate(pawn.LabelShort),
                             pawn, MessageTypeDefOf.PositiveEvent);
 
-                        
                         CuredRefugeeManager.GetForMap(pawn.Map)?.RemoveRefugee(pawn);
                     }
-
-                    Find.LetterStack.RemoveLetter(this);
+                    catch (System.Exception ex)
+                    {
+                        Log.Warning("[The Marked Men] Error during refugee acceptance: " + ex.Message);
+                    }
+                    finally
+                    {
+                        Find.LetterStack.RemoveLetter(this);
+                    }
                 };
                 diaOption.resolveTree = true;
                 return diaOption;
@@ -92,27 +105,35 @@ namespace TheMarkedMen
                 DiaOption diaOption = new DiaOption("TheMarkedMen_CuredRefugee_Reject".Translate());
                 diaOption.action = () =>
                 {
-                    if (pawn != null && !pawn.Dead && !pawn.Destroyed && pawn.Spawned)
+                    if (pawn == null || pawn.Dead || pawn.Destroyed || !pawn.Spawned)
                     {
-                        
-                        if (originalFaction != null && !originalFaction.defeated)
+                        Find.LetterStack.RemoveLetter(this);
+                        return;
+                    }
+
+                    try
+                    {
+                        Faction playerFaction = Faction.OfPlayer;
+
+                        // Validate original faction and its relation with player
+                        if (originalFaction != null
+                            && !originalFaction.defeated
+                            && originalFaction != playerFaction
+                            && playerFaction != null)
                         {
-                            Faction playerFaction = Faction.OfPlayer;
-                            if (playerFaction != null && originalFaction != playerFaction)
+                            FactionRelation relation = playerFaction.RelationWith(originalFaction);
+                            if (relation != null)
                             {
-                                FactionRelation relation = playerFaction.RelationWith(originalFaction);
-                                if (relation != null)
-                                {
-                                    relation.baseGoodwill += 5;
-                                }
+                                relation.baseGoodwill += 5;
                             }
                         }
 
-                        
-                        
-                        pawn.SetFaction(null);
+                        // Only clear faction if pawn currently has a non-player faction
+                        if (pawn.Faction != null)
+                        {
+                            pawn.SetFaction(null);
+                        }
 
-                        
                         if (pawn.needs?.mood?.thoughts?.memories != null)
                         {
                             ThoughtDef rejected = DefDatabase<ThoughtDef>.GetNamedSilentFail("TheMarkedMen_RefugeeRejected");
@@ -122,18 +143,21 @@ namespace TheMarkedMen
                             }
                         }
 
-                        
                         CuredRefugeeManager.GetForMap(pawn.Map)?.ScheduleRefugeeDeparture(pawn);
 
-                        
                         Messages.Message("TheMarkedMen_MessageRefugeeRejected".Translate(pawn.LabelShort),
                             pawn, MessageTypeDefOf.NeutralEvent);
 
-                        
                         CuredRefugeeManager.GetForMap(pawn.Map)?.RemoveRefugee(pawn);
                     }
-
-                    Find.LetterStack.RemoveLetter(this);
+                    catch (System.Exception ex)
+                    {
+                        Log.Warning("[The Marked Men] Error during refugee rejection: " + ex.Message);
+                    }
+                    finally
+                    {
+                        Find.LetterStack.RemoveLetter(this);
+                    }
                 };
                 diaOption.resolveTree = true;
                 return diaOption;

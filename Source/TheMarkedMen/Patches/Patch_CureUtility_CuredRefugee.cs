@@ -30,18 +30,22 @@ namespace TheMarkedMen
             if (pawn == null || pawn.Dead || !pawn.Spawned || pawn.Map == null)
                 return;
 
-            
+
             Faction originalFaction = __state;
 
-            
             if (originalFaction == Faction.OfPlayer)
                 return;
 
-            
-            
-            pawn.SetFaction(null);
+            if (originalFaction == null)
+                return;
 
-            
+            // Only set faction if pawn is not already factionless
+            if (pawn.Faction != null)
+            {
+                pawn.SetFaction(null);
+            }
+
+
             CuredRefugeeManager manager = CuredRefugeeManager.GetForMap(pawn.Map);
             if (manager != null)
             {

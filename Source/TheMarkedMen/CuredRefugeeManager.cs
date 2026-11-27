@@ -46,7 +46,6 @@ namespace TheMarkedMen
 
         public override void MapComponentTick()
         {
-            
             if (lettersToGenerate.Count > 0)
             {
                 foreach (var (pawn, faction) in lettersToGenerate)
@@ -56,8 +55,10 @@ namespace TheMarkedMen
                 lettersToGenerate.Clear();
             }
 
-            
-            List<int> toDepart = null;
+            // Process departures and cleanup all stale entries in one pass
+            List<int> toRemove = null;
+
+            // Check departure schedule
             foreach (var kvp in departureSchedule)
             {
                 int pawnId = kvp.Key;
@@ -66,39 +67,45 @@ namespace TheMarkedMen
                 if (Find.TickManager.TicksGame >= departureTick)
                 {
                     Pawn pawn = FindPawnById(pawnId);
-                    if (pawn != null && pawn.Spawned)
+                    string pawnLabel = pawn?.LabelShort ?? "Unknown";
+
+                    if (pawn == null || pawn.Dead || pawn.Destroyed)
                     {
-                        
-                        pawn.DeSpawn();
-                        Messages.Message("TheMarkedMen_MessageRefugeeLeft".Translate(pawn.LabelShort),
-                            MessageTypeDefOf.NeutralEvent);
+                        // Pawn is gone - clean up silently
+                        if (toRemove == null) toRemove = new List<int>();
+                        toRemove.Add(pawnId);
                     }
+                    else if (pawn.Spawned)
+                    {
+                        pawn.DeSpawn();
+                        pawn.Destroy(DestroyMode.Vanish);
+                        Messages.Message("TheMarkedMen_MessageRefugeeLeft".Translate(pawnLabel),
+                            MessageTypeDefOf.NeutralEvent);
 
-                    if (toDepart == null) toDepart = new List<int>();
-                    toDepart.Add(pawnId);
+                        if (toRemove == null) toRemove = new List<int>();
+                        toRemove.Add(pawnId);
+                    }
+                    else if (!pawn.Spawned && pawn != null)
+                    {
+                        // Pawn exists but not spawned - just clean up
+                        if (toRemove == null) toRemove = new List<int>();
+                        toRemove.Add(pawnId);
+                    }
                 }
             }
 
-            if (toDepart != null)
-            {
-                foreach (int id in toDepart)
-                {
-                    departureSchedule.Remove(id);
-                }
-            }
-
-            
-            List<int> toRemove = null;
+            // Check pending refugees for invalid pawns
             foreach (int id in pendingRefugees)
             {
                 Pawn pawn = FindPawnById(id);
-                if (pawn == null || pawn.Dead || !pawn.Spawned)
+                if (pawn == null || pawn.Dead || pawn.Destroyed || !pawn.Spawned)
                 {
                     if (toRemove == null) toRemove = new List<int>();
                     toRemove.Add(id);
                 }
             }
 
+            // Atomic cleanup of all stale entries
             if (toRemove != null)
             {
                 foreach (int id in toRemove)
@@ -163,6 +170,7 @@ namespace TheMarkedMen
             int id = pawn.thingIDNumber;
             pendingRefugees.Remove(id);
             refugeeRecords.Remove(id);
+            refugeeLookup.Remove(id);
             if (departureSchedule.ContainsKey(id))
                 departureSchedule.Remove(id);
         }
@@ -238,10 +246,21 @@ namespace TheMarkedMen
         
         private Pawn FindPawnById(int id)
         {
+            // First check the cache (O(1))
+            if (refugeeLookup.TryGetValue(id, out Pawn cachedPawn))
+            {
+                return cachedPawn;
+            }
+
+            // Fall back to linear search (O(n)) for pawns that may have been moved to cache
             foreach (Pawn p in map.mapPawns.AllPawnsSpawned)
             {
                 if (p.thingIDNumber == id)
+                {
+                    // Update cache for future lookups
+                    refugeeLookup[id] = p;
                     return p;
+                }
             }
             return null;
         }
@@ -265,6 +284,25 @@ namespace TheMarkedMen
             if (departureSchedule == null)
             {
                 departureSchedule = new Dictionary<int, int>();
+            }
+
+            // Rebuild refugeeLookup cache after load (it's a transient cache of spawned pawns)
+            if (Scribe.mode == LoadSaveMode.PostLoadInit)
+            {
+                RebuildRefugeeLookupCache();
+            }
+        }
+
+        private void RebuildRefugeeLookupCache()
+        {
+            refugeeLookup.Clear();
+            foreach (int id in pendingRefugees)
+            {
+                Pawn pawn = FindPawnById(id);
+                if (pawn != null && pawn.Spawned)
+                {
+                    refugeeLookup[id] = pawn;
+                }
             }
         }
 
