@@ -504,6 +504,8 @@
   <CA_LostSurvivor_SendAway>Send them back to the wild</CA_LostSurvivor_SendAway>
   <CA_LostSurvivor_Betrayal_Label>The dormant Mark awakens</CA_LostSurvivor_Betrayal_Label>
   <CA_LostSurvivor_Betrayal_Text>{PAWN} has fallen to the dormant Mark. The infection was waiting all along, and now another Marked Man walks among the colony's ruins.</CA_LostSurvivor_Betrayal_Text>
+  <TheMarkedMen_MessageLostSurvivorAccepted>{0} has joined the colony. The dormant virus is now spreading.</TheMarkedMen_MessageLostSurvivorAccepted>
+  <TheMarkedMen_MessageLostSurvivorRejected>{0} has been turned away. The dormant virus remains.</TheMarkedMen_MessageLostSurvivorRejected>
   <CA_RestrainPrisoner>Restrain prisoner</CA_RestrainPrisoner>
   <CA_RestrainPrisonerDesc>Bind the infected prisoner to prevent escape and reduce contact exposure. Restrained prisoners are much less dangerous but cannot work.</CA_RestrainPrisonerDesc>
   <CA_ReleasePrisoner>Release restraint</CA_ReleasePrisoner>

@@ -14,3 +14,4 @@ graphify_*.py
 graphify_backend_source.txt
 remove_comments.py
 .graphify_chunk*
+CLAUDE.md*

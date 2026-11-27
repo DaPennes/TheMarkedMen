@@ -1,16 +1,38 @@
+using System;
 using System.Collections.Generic;
 using RimWorld;
 using Verse;
 using Verse.AI;
-using UnityEngine;
 
 namespace TheMarkedMen
 {
     public class ChoiceLetter_LostSurvivor : ChoiceLetter
     {
         public Pawn pawn;
-        
-        
+
+        public ChoiceLetter_LostSurvivor()
+        {
+            def = DefDatabase<LetterDef>.GetNamed("CA_LostSurvivorLetter", false) ?? LetterDefOf.NeutralEvent;
+        }
+
+        // Builds the choice letter in code instead of LetterMaker.MakeLetter so the
+        // letter instance is guaranteed to carry the choice logic and the pawn reference.
+        public static ChoiceLetter_LostSurvivor Create(string label, string text, Pawn survivor)
+        {
+            return new ChoiceLetter_LostSurvivor
+            {
+                pawn = survivor,
+                title = label,
+                Label = label,
+                Text = text,
+                lookTargets = new LookTargets(survivor),
+                ID = Find.UniqueIDsManager.GetNextLetterID()
+            };
+        }
+
+        // Right-click dismissal is disabled while the decision is pending, so the
+        // letter cannot be resolved accidentally; it returns once the pawn is gone.
+        public override bool CanDismissWithRightClick => pawn == null || pawn.Dead || !pawn.Spawned;
 
         public override IEnumerable<DiaOption> Choices
         {
@@ -20,12 +42,9 @@ namespace TheMarkedMen
                 {
                     yield return DiaOptionAccept;
                     yield return DiaOptionReject;
-                    
-                    if (TheMarkedMenMod.Settings?.survivorRefuseSendsAway ?? true)
-                    {
-                        yield return DiaOptionSendAway;
-                    }
                 }
+                // Close dismisses the dialog only: the letter stays in the stack and
+                // the guest remains on the map until the player decides.
                 yield return Option_Close;
             }
         }
@@ -39,8 +58,18 @@ namespace TheMarkedMen
                 {
                     if (pawn != null && !pawn.Dead && pawn.Spawned)
                     {
-                        pawn.SetFaction(Faction.OfPlayer);
+                        pawn.SetFaction(Faction.OfPlayer, null);
+                        pawn.guest?.SetGuestStatus(null);
+                        pawn.mindState?.mentalStateHandler?.Reset();
+                        pawn.jobs?.StopAll(true);
+                        pawn.lord = null;
+
+                        ArmDormantMark(pawn);
+
+                        Messages.Message("TheMarkedMen_MessageLostSurvivorAccepted".Translate(pawn.LabelShort),
+                            pawn, MessageTypeDefOf.PositiveEvent);
                     }
+                    Find.LetterStack.RemoveLetter(this);
                 };
                 diaOption.resolveTree = true;
                 return diaOption;
@@ -54,79 +83,58 @@ namespace TheMarkedMen
                 DiaOption diaOption = new DiaOption("CA_LostSurvivor_Reject".Translate());
                 diaOption.action = () =>
                 {
-                    IfPawnExistsAndNotDestroyed(() =>
+                    if (pawn != null && !pawn.Dead)
                     {
-                        MakePawnWandererAndSendAway();
-                    });
+                        Messages.Message("TheMarkedMen_MessageLostSurvivorRejected".Translate(pawn.LabelShort),
+                            pawn, MessageTypeDefOf.NeutralEvent);
+
+                        if (pawn.Faction != null)
+                        {
+                            pawn.SetFaction(null);
+                        }
+
+                        pawn.guest?.SetGuestStatus(null);
+                        RemoveDormantMark(pawn);
+                        pawn.mindState?.mentalStateHandler?.Reset();
+                        pawn.jobs?.StopAll(true);
+                        pawn.lord = null;
+
+                        if (pawn.Map != null && pawn.mindState != null)
+                        {
+                            // Vanilla exit mechanism: the pawn walks to the map edge
+                            // when its exit tick arrives instead of being destroyed.
+                            int daysUntilDeparture = Rand.Range(3, 6);
+                            pawn.mindState.exitMapAfterTick = Find.TickManager.TicksGame + daysUntilDeparture * GenDate.TicksPerDay;
+                            pawn.mindState.duty = new PawnDuty(DutyDefOf.ExitMapBest);
+                        }
+                    }
+                    Find.LetterStack.RemoveLetter(this);
                 };
                 diaOption.resolveTree = true;
                 return diaOption;
             }
         }
 
-        private DiaOption DiaOptionSendAway
+        // CompPostPostAdd skips non-colonist pawns, so the dormancy window must be
+        // armed manually once the pawn becomes a colonist.
+        private static void ArmDormantMark(Pawn pawn)
         {
-            get
+            Hediff dormant = pawn.health?.hediffSet?.GetFirstHediffOfDef(CADefOf.CA_DormantMark);
+            if (dormant == null)
             {
-                DiaOption diaOption = new DiaOption("CA_LostSurvivor_SendAway".Translate());
-                diaOption.action = () =>
-                {
-                    IfPawnExistsAndNotDestroyed(() =>
-                    {
-                        MakePawnWandererAndSendAway();
-                    });
-                };
-                diaOption.resolveTree = true;
-                return diaOption;
-            }
-        }
-
-        private void IfPawnExistsAndNotDestroyed(System.Action action)
-        {
-            if (pawn != null && !pawn.Destroyed)
-            {
-                action?.Invoke();
-            }
-        }
-
-        private void DestroyPawn()
-        {
-            if (pawn.Spawned)
-            {
-                pawn.DeSpawn();
-            }
-            pawn.Destroy(DestroyMode.Vanish);
-        }
-
-        private void SendPawnAwayAtEdge()
-        {
-            MakePawnWandererAndSendAway();
-        }
-
-        private void MakePawnWandererAndSendAway()
-        {
-            if (pawn == null) return;
-
-            Map map = pawn.Map;
-            if (map == null)
-            {
-                pawn.Destroy(DestroyMode.Vanish);
                 return;
             }
+            HediffComp_DormantMark comp = dormant.TryGetComp<HediffComp_DormantMark>();
+            comp?.ArmDormancyWindow();
+        }
 
-            if (!pawn.Spawned)
+        private static void RemoveDormantMark(Pawn pawn)
+        {
+            Hediff dormant = pawn.health?.hediffSet?.GetFirstHediffOfDef(CADefOf.CA_DormantMark);
+            if (dormant != null)
             {
-                pawn.Destroy(DestroyMode.Vanish);
-                return;
+                pawn.health.RemoveHediff(dormant);
             }
-
-            pawn.SetFaction(null);
-            pawn.guest?.SetGuestStatus(null);
-            pawn.mindState?.mentalStateHandler?.Reset();
-            pawn.jobs.StopAll(true);
-            pawn.lord = null;
-
-            pawn.mindState.duty = new PawnDuty(DutyDefOf.ExitMapBest);
         }
 
         public override void ExposeData()

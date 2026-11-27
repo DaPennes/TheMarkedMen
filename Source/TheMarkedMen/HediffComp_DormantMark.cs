@@ -60,6 +60,21 @@ namespace TheMarkedMen
             }
         }
 
+        // CompPostPostAdd skips non-colonist pawns, so a dormant mark added to a
+        // guest survivor has no activation window. Call this once the pawn
+        // becomes a colonist to arm the dormancy timer.
+        public void ArmDormancyWindow()
+        {
+            if (activated || activationTick >= 0) return;
+            TheMarkedMenSettings settings = TheMarkedMenMod.Settings;
+            float minDays = settings?.dormantMarkMinDays ?? Props.dormantMinDays;
+            float maxDays = settings?.dormantMarkMaxDays ?? Props.dormantMaxDays;
+            minDays *= settings?.dormantMarkTriggerMultiplier ?? 1f;
+            maxDays *= settings?.dormantMarkTriggerMultiplier ?? 1f;
+            float days = Rand.Range(minDays, maxDays);
+            activationTick = Find.TickManager.TicksGame + (int)(days * GenDate.TicksPerDay);
+        }
+
         public override void CompPostPostAdd(DamageInfo? dinfo)
         {
             base.CompPostPostAdd(dinfo);

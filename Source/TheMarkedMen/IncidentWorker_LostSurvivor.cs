@@ -76,18 +76,37 @@ namespace TheMarkedMen
                 return false;
             }
 
-            GenSpawn.Spawn(survivor, dropSpot, map, Rot4.Random);
-
+            // Set guest status before spawning so the pawn is a guest from the moment it appears
+            SetGuestOfPlayer(survivor);
             ApplyDormantMark(survivor);
 
-            Letter choiceLetter = LetterMaker.MakeLetter(def.letterLabel, def.letterText, def.letterDef, new LookTargets(survivor)) as ChoiceLetter_LostSurvivor;
-            if (choiceLetter is ChoiceLetter_LostSurvivor choiceLetterLostSurvivor)
+            GenSpawn.Spawn(survivor, dropSpot, map, Rot4.Random);
+
+            // Abort if the pawn did not actually appear on the map; a letter with no
+            // spawned pawn would only offer a Close button.
+            if (survivor == null || !survivor.Spawned)
             {
-                choiceLetterLostSurvivor.pawn = survivor;
+                Log.Warning("[TheMarkedMen] Lost survivor did not spawn at " + dropSpot);
+                return false;
             }
+
+            Letter choiceLetter = ChoiceLetter_LostSurvivor.Create(def.letterLabel, def.letterText, survivor);
             Find.LetterStack.ReceiveLetter(choiceLetter);
 
             return true;
+        }
+
+        private static void SetGuestOfPlayer(Pawn pawn)
+        {
+            if (pawn == null)
+            {
+                return;
+            }
+            pawn.SetFaction(null);
+            if (pawn.guest != null)
+            {
+                pawn.guest.SetGuestStatus(Faction.OfPlayer, GuestStatus.Guest);
+            }
         }
 
         private bool TryFindValidSpawnCell(Map map, out IntVec3 result)
@@ -175,14 +194,13 @@ namespace TheMarkedMen
         {
             for (int i = 0; i < MaxSurvivorPawnRetries; i++)
             {
-                Pawn pawn = PawnGenerator.GeneratePawn(PawnKindDefOf.Colonist, Faction.OfPlayer);
+                Pawn pawn = PawnGenerator.GeneratePawn(PawnKindDefOf.Colonist, null);
                 if (pawn == null) continue;
                 if (pawn.Dead) continue;
                 if (pawn.RaceProps == null || !pawn.RaceProps.Humanlike) continue;
                 if (pawn.IsQuestLodger()) continue;
                 if (pawn.IsMutant) continue;
                 if (CrossedUtility.IsInfectedPawn(pawn)) continue;
-                pawn.SetFaction(null);
                 return pawn;
             }
             return null;
