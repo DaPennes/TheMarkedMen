@@ -1434,12 +1434,6 @@ namespace TheMarkedMen
                 {
                     AddGroundVehicleSpawnCandidate(vehicle, map, rotation, blocked, nonStandable, new IntVec3(x, 0, minZ), candidates);
                     AddGroundVehicleSpawnCandidate(vehicle, map, rotation, blocked, nonStandable, new IntVec3(x, 0, maxZ), candidates);
-                    
-                    if (maxZ - minZ > 1)
-                    {
-                        int midZ = minZ + (maxZ - minZ) / 2;
-                        AddGroundVehicleSpawnCandidate(vehicle, map, rotation, blocked, nonStandable, new IntVec3(x, 0, midZ), candidates);
-                    }
                 }
 
                 for (int z = minZ + 1; z < maxZ; z++)
@@ -1461,9 +1455,12 @@ namespace TheMarkedMen
             if (candidates.Count == 0)
             {
                 Map location = map;
-                Log.Warning("[The Marked Men] Ground vehicle failed placement (no candidates found). Map center: " + location.Center + ", Map size: " + location.Size + ", Vehicle size: " + vehicle.def.Size + ", Safety margin: " + minimumDepth);
+                Log.Warning("[The Marked Men] Ground vehicle failed edge placement (no candidates found). Map center: "
+                    + location.Center + ", Map size: " + location.Size + ", Vehicle size: "
+                    + vehicle.def.Size + ", Safety margin: " + minimumDepth);
 
-                
+                // Emergency fallback only when the entire edge sweep found nothing
+                // (e.g. fully sealed mountain edges) so raids still work.
                 IntVec3 centerCell = location.Center;
                 Log.Message("[The Marked Men] Attempting emergency placement at map center: " + centerCell);
                 if (IsVehicleFootprintValid(vehicle, map, centerCell, rotation, blocked, nonStandable))
@@ -1473,6 +1470,7 @@ namespace TheMarkedMen
 
                 if (candidates.Count == 0)
                 {
+                    failureReason = "No clear, traversable ground-vehicle footprint was found.";
                     return false;
                 }
             }
@@ -1555,8 +1553,7 @@ namespace TheMarkedMen
 
             foreach (IntVec3 occupiedCell in occupiedRect)
             {
-                if ((requireOpenSky && occupiedCell.GetRoof(map) != null)
-                    || occupiedCell.GetFirstPawn(map) != null)
+                if (requireOpenSky && occupiedCell.GetRoof(map) != null)
                 {
                     return false;
                 }

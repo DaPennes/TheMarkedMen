@@ -103,7 +103,7 @@ namespace TheMarkedMen
             IntVec3 awayFromEnemy = new IntVec3(Mathf.RoundToInt(awayVec.x), 0, Mathf.RoundToInt(awayVec.z));
 
             
-            IntVec3 targetCell = enemyPos + (awayFromEnemy * Mathf.RoundToInt(deploymentDistance));
+            IntVec3 targetCell = enemyPos + (awayFromEnemy * 5); // Disembark 5 cells from target
 
             
             for (int radius = 0; radius <= 10; radius++)

@@ -166,12 +166,18 @@ namespace TheMarkedMen
         
         private static PawnDuty DetermineVehicleDuty(Pawn vehicle, Pawn target, VehicleTypeCategory vtype, float actualDistance, float preferredRange)
         {
+            IntVec3 vehiclePos = vehicle.Position;
+
             if (vtype == VehicleTypeCategory.Technical || vtype == VehicleTypeCategory.Motorcycle)
             {
                 if (actualDistance < 25f)
                 {
                     IntVec3 standoffCell = FindStandoffPosition(vehicle, target, 20f);
-                    return standoffCell.IsValid ? new PawnDuty(DutyDefOf.AssaultColony, standoffCell, 15f) : new PawnDuty(DutyDefOf.AssaultColony);
+                    if (standoffCell.IsValid)
+                    {
+                        return new PawnDuty(DutyDefOf.AssaultColony, standoffCell, 15f);
+                    }
+                    return new PawnDuty(DutyDefOf.AssaultColony, vehiclePos, 15f);
                 }
                 return new PawnDuty(DutyDefOf.AssaultColony);
             }
@@ -199,7 +205,11 @@ namespace TheMarkedMen
             if (preferredRange > 0f && actualDistance < preferredRange * thresholdMultiplier)
             {
                 IntVec3 standoffCell = FindStandoffPosition(vehicle, target, preferredRange);
-                return standoffCell.IsValid ? new PawnDuty(DutyDefOf.AssaultColony, standoffCell, preferredRange * 0.5f) : new PawnDuty(DutyDefOf.AssaultColony);
+                if (standoffCell.IsValid)
+                {
+                    return new PawnDuty(DutyDefOf.AssaultColony, standoffCell, preferredRange * 0.5f);
+                }
+                return new PawnDuty(DutyDefOf.AssaultColony, vehiclePos, preferredRange * 0.5f);
             }
 
             return new PawnDuty(DutyDefOf.AssaultColony);
@@ -813,25 +823,30 @@ namespace TheMarkedMen
             IntVec3 vehiclePos = vehicle.Position;
             IntVec3 targetPos = target.Position;
 
-            int attempts = 0;
-            int maxAttempts = 12; 
+            int maxDistance = Mathf.RoundToInt(preferredRange * standoffMultiplier * 0.9f);
+            int[] distanceAttempts = { maxDistance, 20, 10, 5, 3, 1 };
 
-            while (attempts < maxAttempts)
+            foreach (int distance in distanceAttempts)
             {
-                
                 Vector3 directionVec = (vehiclePos - targetPos).ToVector3().normalized;
                 IntVec3 direction = new IntVec3(Mathf.RoundToInt(directionVec.x), 0, Mathf.RoundToInt(directionVec.z));
-                IntVec3 candidateCell = targetPos + (direction * Mathf.RoundToInt(preferredRange * standoffMultiplier * 0.9f));
+                IntVec3 candidateCell = targetPos + (direction * distance);
 
-                
-                if (candidateCell.InBounds(vehicle.Map)
-                    && candidateCell.Walkable(vehicle.Map)
+                if (!candidateCell.InBounds(vehicle.Map))
+                {
+                    if (distance <= 1)
+                    {
+                        continue;
+                    }
+                    continue;
+                }
+
+                if (candidateCell.Walkable(vehicle.Map)
                     && vehicle.CanReachImmediate(candidateCell, PathEndMode.OnCell))
                 {
                     return candidateCell;
                 }
 
-                
                 for (int dx = -2; dx <= 2; dx++)
                 {
                     for (int dz = -2; dz <= 2; dz++)
@@ -845,8 +860,13 @@ namespace TheMarkedMen
                         }
                     }
                 }
+            }
 
-                attempts++;
+            if (vehiclePos.InBounds(vehicle.Map)
+                && vehiclePos.Walkable(vehicle.Map)
+                && vehicle.CanReachImmediate(vehiclePos, PathEndMode.OnCell))
+            {
+                return vehiclePos;
             }
 
             return IntVec3.Invalid;
