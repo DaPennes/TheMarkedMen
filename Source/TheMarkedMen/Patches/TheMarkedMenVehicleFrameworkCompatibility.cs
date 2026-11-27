@@ -1535,11 +1535,6 @@ namespace TheMarkedMen
                 return false;
             }
 
-            if (!IsSafeVehiclePathCell(vehicle, map, cell, Rot4.North))
-            {
-                return false;
-            }
-
             if (blocked == null || nonStandable == null)
             {
                 return false;
@@ -1561,12 +1556,16 @@ namespace TheMarkedMen
 
             
             
+            if (blocked.Invoke(null, new object[] { vehicle, map, cell, rotation }) is not bool isBlocked
+                || isBlocked)
+            {
+                return false;
+            }
+
             if (!cell.Walkable(map))
             {
-                
                 if (occupiedRect.Cells.All(c => c.GetRoof(map) != null))
                 {
-                    
                     bool terrainInfoValid = true;
                     if (!terrainInfoValid)
                     {
@@ -1577,12 +1576,6 @@ namespace TheMarkedMen
                 {
                     return false;
                 }
-            }
-
-            if (blocked.Invoke(null, new object[] { vehicle, map, cell, rotation }) is not bool isBlocked
-                || isBlocked)
-            {
-                return false;
             }
 
             
