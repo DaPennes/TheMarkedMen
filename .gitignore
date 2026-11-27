@@ -5,3 +5,10 @@ Assemblies/**/*.dll
 Assemblies/**/*.pdb
 *.user
 *.suo
+.claude/
+.remember/
+graphify-out/
+.mcp.json
+generate_labels.py
+graphify_*.py
+graphify_backend_source.txt
