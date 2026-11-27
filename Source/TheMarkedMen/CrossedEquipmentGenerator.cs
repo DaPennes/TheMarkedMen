@@ -370,10 +370,10 @@ namespace TheMarkedMen
 
         private static void EnsureShield(Pawn pawn, int tier, float chance)
         {
-            // All infected pawns get basic shield protection
-            if (Rand.Chance(0.25f)) // 25% chance for basic shield
+            
+            if (Rand.Chance(0.25f)) 
             {
-                // Get a random shield from the lowest tier
+                
                 for (int t = 0; t < TierCount; t++)
                 {
                     List<ThingDef> pool = shieldsByTier[t];
@@ -400,8 +400,8 @@ namespace TheMarkedMen
                 ThingDef def = ap.def;
                 if (def?.apparel == null) continue;
 
-                // The category options are the single source of truth, so the
-                // same rules apply to generated raids and gear worn in play.
+                
+                
                 if (isInfected && !CrossedApparelCompatibility.CanWearApparel(pawn, def))
                 {
                     pawn.apparel.Remove(ap);
@@ -629,7 +629,7 @@ namespace TheMarkedMen
 
         private static float ShieldChanceForKind(PawnKindDef kind)
         {
-            return 0.25f; // All infected get same basic shield chance
+            return 0.25f; 
         }
 
         internal static bool IsCrossedKind(PawnKindDef kind)

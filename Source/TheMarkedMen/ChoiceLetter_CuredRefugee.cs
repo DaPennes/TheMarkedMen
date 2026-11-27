@@ -4,10 +4,10 @@ using Verse;
 
 namespace TheMarkedMen
 {
-    /// <summary>
-    /// Choice letter for a pawn that has been cured and is seeking to rejoin society as a refugee.
-    /// Shows the pawn's backstory and offers to recruit them or let them leave as a wanderer.
-    /// </summary>
+    
+    
+    
+    
     public class ChoiceLetter_CuredRefugee : ChoiceLetter
     {
         public Pawn pawn;
@@ -17,7 +17,7 @@ namespace TheMarkedMen
 
         public ChoiceLetter_CuredRefugee()
         {
-            // Initialize required letter properties
+            
             def = DefDatabase<LetterDef>.GetNamed("TheMarkedMen_CuredRefugeeLetter", false) ?? LetterDefOf.NeutralEvent;
         }
 
@@ -43,7 +43,7 @@ namespace TheMarkedMen
                 {
                     if (pawn != null && !pawn.Dead && pawn.Spawned)
                     {
-                        // Apply faction relation penalty for acceptance (you're taking their pawn)
+                        
                         if (originalFaction != null && !originalFaction.defeated)
                         {
                             Faction playerFaction = Faction.OfPlayer;
@@ -57,10 +57,10 @@ namespace TheMarkedMen
                             }
                         }
 
-                        // Set pawn to player faction
+                        
                         pawn.SetFaction(Faction.OfPlayer);
 
-                        // Add a positive thought about being accepted
+                        
                         if (pawn.needs?.mood?.thoughts?.memories != null)
                         {
                             ThoughtDef accepted = DefDatabase<ThoughtDef>.GetNamedSilentFail("TheMarkedMen_RefugeeAccepted");
@@ -70,11 +70,11 @@ namespace TheMarkedMen
                             }
                         }
 
-                        // Notify the player
+                        
                         Messages.Message("TheMarkedMen_MessageRefugeeAccepted".Translate(pawn.LabelShort),
                             pawn, MessageTypeDefOf.PositiveEvent);
 
-                        // Clean up the refugee marker
+                        
                         CuredRefugeeManager.GetForMap(pawn.Map)?.RemoveRefugee(pawn);
                     }
 
@@ -94,7 +94,7 @@ namespace TheMarkedMen
                 {
                     if (pawn != null && !pawn.Destroyed)
                     {
-                        // Apply faction relation bonus for rejection (you're letting them go back)
+                        
                         if (originalFaction != null && !originalFaction.defeated)
                         {
                             Faction playerFaction = Faction.OfPlayer;
@@ -108,11 +108,11 @@ namespace TheMarkedMen
                             }
                         }
 
-                        // Keep pawn as wanderer (null faction) - do NOT return to original faction
-                        // This ensures they don't turn back into Marked Men
+                        
+                        
                         pawn.SetFaction(null);
 
-                        // Add rejection thought
+                        
                         if (pawn.needs?.mood?.thoughts?.memories != null)
                         {
                             ThoughtDef rejected = DefDatabase<ThoughtDef>.GetNamedSilentFail("TheMarkedMen_RefugeeRejected");
@@ -122,14 +122,14 @@ namespace TheMarkedMen
                             }
                         }
 
-                        // Schedule the pawn to leave the map after a few days
+                        
                         CuredRefugeeManager.GetForMap(pawn.Map)?.ScheduleRefugeeDeparture(pawn);
 
-                        // Notify the player
+                        
                         Messages.Message("TheMarkedMen_MessageRefugeeRejected".Translate(pawn.LabelShort),
                             pawn, MessageTypeDefOf.NeutralEvent);
 
-                        // Clean up the refugee marker
+                        
                         CuredRefugeeManager.GetForMap(pawn.Map)?.RemoveRefugee(pawn);
                     }
 

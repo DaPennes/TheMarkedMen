@@ -246,9 +246,9 @@ namespace TheMarkedMen
                 return;
             }
 
-            // Debug assaults use a fixed, deliberately high point budget so the
-            // vehicle eligibility checks cannot fail on point requirements.
-            // Normal raid generation is untouched and still uses its own points.
+            
+            
+            
             const float DebugRaidPoints = 20000f;
             float debugPoints = Mathf.Max(incident.minThreatPoints, DebugRaidPoints);
             IncidentParms parms = new IncidentParms

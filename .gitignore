@@ -12,3 +12,4 @@ graphify-out/
 generate_labels.py
 graphify_*.py
 graphify_backend_source.txt
+remove_comments.py

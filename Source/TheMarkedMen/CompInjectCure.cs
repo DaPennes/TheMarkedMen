@@ -4,12 +4,12 @@ using Verse;
 
 namespace TheMarkedMen
 {
-    /// <summary>
-    /// Gives cure syringes a right-click float menu option to inject. The
-    /// injecting pawn must carry a cure syringe in their inventory (picking
-    /// one up from this stack first if needed), and one syringe is consumed
-    /// from that inventory after the injection succeeds.
-    /// </summary>
+    
+    
+    
+    
+    
+    
     public class CompInjectCure : ThingComp
     {
         public override IEnumerable<FloatMenuOption> CompFloatMenuOptions(Pawn selPawn)

@@ -25,7 +25,7 @@ namespace TheMarkedMen
 
         private static FieldInfo worldbuilderPreviewDirtyField;
         private static FieldInfo worldbuilderPreviewTextureField;
-        // Use a reference wrapper to avoid static UnityEngine type at load time
+        
         private static object fallbackWorldPreviewTextureRef;
         private static bool delayedRetryScheduled;
         private static bool patchApplied;

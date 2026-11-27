@@ -29,7 +29,7 @@ namespace TheMarkedMen
         private static PawnKindDef crossedCivilian;
         private static PawnKindDef crossedScout;
 
-        // General interactions
+        
         public static InteractionDef CA_GeneralHostileStandoff;
         public static InteractionDef CA_GeneralThreateningTaunt;
         public static InteractionDef CA_GeneralDefiantInsult;

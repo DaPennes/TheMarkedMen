@@ -4,10 +4,10 @@ using Verse.AI;
 
 namespace TheMarkedMen
 {
-    /// <summary>
-    /// Shared validation, inventory helpers and job setup for drawing blood
-    /// from an infected pawn with a syringe.
-    /// </summary>
+    
+    
+    
+    
     public static class BloodDrawUtility
     {
         public static bool ResearchCompleted
@@ -103,11 +103,11 @@ namespace TheMarkedMen
             });
         }
 
-        /// <summary>
-        /// Queues the timed blood-draw job. If the actor is not already
-        /// carrying a syringe, the job first picks one up from
-        /// <paramref name="syringeSource"/>.
-        /// </summary>
+        
+        
+        
+        
+        
         public static bool TryStartDraw(Pawn actor, Pawn target, Thing syringeSource)
         {
             if (!ResearchCompleted || !CanActorUse(actor) || syringeSource == null)

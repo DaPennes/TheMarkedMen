@@ -7,10 +7,10 @@ using Verse.AI;
 
 namespace TheMarkedMen
 {
-    /// <summary>
-    /// JobGiver for infected to find and pursue nearest non-infected target with memory-based tracking.
-    /// Caches target for 250 ticks; tracks last-seen position if target LOS breaks.
-    /// </summary>
+    
+    
+    
+    
     public class JobGiver_FindNearestTarget : ThinkNode_JobGiver
     {
         private const int TargetCacheIntervalTicks = 250;
@@ -25,34 +25,34 @@ namespace TheMarkedMen
             int pawnId = pawn.thingIDNumber;
             int currentTick = Find.TickManager.TicksGame;
 
-            // Check memory for cached target
+            
             if (targetMemory.TryGetValue(pawnId, out var memory))
             {
-                // If target still alive and in LOS, continue pursuit
+                
                 if (memory.target != null && !memory.target.Dead && GenSight.LineOfSight(pawn.Position, memory.target.Position, pawn.Map))
                 {
-                    // Still valid - attack
+                    
                     return new Job(JobDefOf.AttackMelee, memory.target) { checkOverrideOnExpire = true };
                 }
 
-                // Target lost or dead. Hunt last-seen position if recent
+                
                 if (currentTick - memory.lastSeenTick < 500)
                 {
                     return new Job(JobDefOf.Goto, memory.lastSeenPos) { checkOverrideOnExpire = true };
                 }
 
-                // Memory stale - clear it
+                
                 targetMemory.Remove(pawnId);
             }
 
-            // Cache expired or no memory - search for new target
+            
             if (!pawn.IsHashIntervalTick(TargetCacheIntervalTicks))
                 return null;
 
             Pawn bestTarget = FindBestTarget(pawn);
             if (bestTarget != null)
             {
-                // Store in memory
+                
                 targetMemory[pawnId] = (bestTarget, bestTarget.Position, currentTick);
                 return new Job(JobDefOf.AttackMelee, bestTarget) { checkOverrideOnExpire = true };
             }
@@ -62,7 +62,7 @@ namespace TheMarkedMen
 
         private Pawn FindBestTarget(Pawn pawn)
         {
-            // Priority: wounded/downed colonists first, then any non-infected
+            
             IReadOnlyList<Pawn> candidates = pawn.Map.mapPawns.AllPawnsSpawned;
             Pawn bestTarget = null;
             float bestScore = 0f;
@@ -78,7 +78,7 @@ namespace TheMarkedMen
                 if (!pawn.CanReach(candidate, PathEndMode.Touch, Danger.Deadly))
                     continue;
 
-                // Score: wounded/downed are prioritized
+                
                 float score = 1f;
                 if (candidate.Downed)
                     score += 100f;
@@ -90,7 +90,7 @@ namespace TheMarkedMen
                         score += 50f;
                 }
 
-                // Closer targets score higher
+                
                 float distance = pawn.Position.DistanceTo(candidate.Position);
                 score += Mathf.Max(0f, 30f - distance);
 
@@ -108,7 +108,7 @@ namespace TheMarkedMen
         {
             if (targetMemory.TryGetValue(pawn.thingIDNumber, out var memory) && memory.target == lostTarget)
             {
-                // Keep the last known position for hunting
+                
                 targetMemory[pawn.thingIDNumber] = (null, lostTarget.Position, Find.TickManager.TicksGame);
             }
         }

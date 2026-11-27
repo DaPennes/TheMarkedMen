@@ -6,10 +6,10 @@ using Verse.AI;
 
 namespace TheMarkedMen
 {
-    /// <summary>
-    /// Pre-transformation identity of a pawn that was turned into a Marked Man.
-    /// Stored on the game component so the cure can restore it.
-    /// </summary>
+    
+    
+    
+    
     public sealed class CureOriginRecord : IExposable
     {
         public Pawn pawn;
@@ -26,17 +26,17 @@ namespace TheMarkedMen
         }
     }
 
-    /// <summary>
-    /// Shared cure logic used by the cure syringe item and the
-    /// Health -> Operations "administer cure syringe" bill.
-    /// </summary>
+    
+    
+    
+    
     public static class CureUtility
     {
         public const string CureSyringeDefName = "TheMarkedMen_Cure_Syringe";
         private const string ModPackageId = "dapennes.themarkedmen";
         private const int RemorseThoughtDurationDays = 90;
 
-        // Hediffs from this mod that must survive a cure.
+        
         private static readonly HashSet<string> PreservedModHediffs = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
         {
             "CA_CrossVirusImmunity",
@@ -50,10 +50,10 @@ namespace TheMarkedMen
             return thing != null && thing.def != null && thing.def.defName == CureSyringeDefName;
         }
 
-        /// <summary>
-        /// True when the pawn is infected, transformed, dormant-marked or a
-        /// member of the Marked Men faction.
-        /// </summary>
+        
+        
+        
+        
         public static bool IsInfected(Pawn pawn)
         {
             if (pawn == null || pawn.Dead || pawn.Destroyed || pawn.health?.hediffSet == null)
@@ -134,11 +134,11 @@ namespace TheMarkedMen
             return null;
         }
 
-        /// <summary>
-        /// Queues the injection job. If the actor is not already carrying a
-        /// cure syringe, the job first picks one up from
-        /// <paramref name="cureSource"/>.
-        /// </summary>
+        
+        
+        
+        
+        
         public static bool TryStartInject(Pawn actor, Pawn target, Thing cureSource)
         {
             if (!CanActorUse(actor) || cureSource == null)
@@ -214,10 +214,10 @@ namespace TheMarkedMen
             });
         }
 
-        /// <summary>
-        /// Starts the cure. The pawn gets a "cure working" status that counts
-        /// down a random delay before the actual cure is applied.
-        /// </summary>
+        
+        
+        
+        
         public static bool TryBeginCure(Pawn pawn, out string failureReason)
         {
             failureReason = null;
@@ -231,12 +231,12 @@ namespace TheMarkedMen
             HediffDef pendingDef = CADefOf.CurePending;
             if (pendingDef == null)
             {
-                // Fall back to an instant cure if the hediff def is missing.
+                
                 ApplyCure(pawn);
                 return true;
             }
 
-            // Check if a cure is already pending for this pawn.
+            
             if (HasPendingCure(pawn))
             {
                 failureReason = "TheMarkedMen_CureAlreadyWorking".Translate();
@@ -264,19 +264,19 @@ namespace TheMarkedMen
             return true;
         }
 
-        /// <summary>
-        /// Directly applies the cure without validation checks.
-        /// Used internally when the cure is ready to apply.
-        /// </summary>
+        
+        
+        
+        
         public static void ApplyCureDirectly(Pawn pawn)
         {
             ApplyCure(pawn);
         }
 
-        /// <summary>
-        /// Consumes a single syringe from a stack (or the whole stack when it
-        /// only contains one syringe).
-        /// </summary>
+        
+        
+        
+        
         public static void ConsumeOne(Thing stack)
         {
             if (stack == null || stack.DestroyedOrNull() || stack.stackCount <= 0)
@@ -299,9 +299,9 @@ namespace TheMarkedMen
             if (targetFaction != null && pawn.Faction != targetFaction)
                 pawn.SetFaction(targetFaction, null);
 
-            // Pawn.SetFaction already assigns the player's basic member kind
-            // when a pawn joins the colony. For other factions restore the kind
-            // recorded before the transformation.
+            
+            
+            
             if (origin?.kind != null && pawn.Faction != Faction.OfPlayer && pawn.kindDef != origin.kind)
                 pawn.ChangeKind(origin.kind);
 
@@ -409,10 +409,10 @@ namespace TheMarkedMen
             }
         }
 
-        /// <summary>
-        /// Converts memories left by the earlier permanent version of the
-        /// debuff into 90-day memories. Does not re-add expired memories.
-        /// </summary>
+        
+        
+        
+        
         public static void NormalizeRemorseThought(Pawn pawn)
         {
             ThoughtDef thoughtDef = CADefOf.RememberEverything;

@@ -6,11 +6,11 @@ using Verse;
 
 namespace TheMarkedMen
 {
-    /// <summary>
-    /// Adds an "Inject cure into..." gizmo to player-controlled colonists who
-    /// are carrying a cure syringe, so the cure can be used without a cure
-    /// syringe lying on the ground.
-    /// </summary>
+    
+    
+    
+    
+    
     [HarmonyPatch(typeof(Pawn), nameof(Pawn.GetGizmos))]
     public static class Patch_PawnInjectCureGizmo
     {

@@ -77,8 +77,8 @@ namespace TheMarkedMen
                 return TryIssueCommonInfectedJob(pawn);
             }
 
-            // Vanilla breaching/sapping is already a coordinated siege: let the breachers
-            // finish their wall work instead of pulling them away every tactical refresh.
+            
+            
             if (IsCommittedBreacher(pawn))
             {
                 return false;
@@ -97,8 +97,8 @@ namespace TheMarkedMen
                         pawn.jobs.EndCurrentJob(JobCondition.InterruptForced);
                         return TryAssignAttackJob(pawn, roomTarget, true);
                     }
-                    // No room target yet, but keep the pawn moving while the
-                    // escape scan continues instead of idling until it expires.
+                    
+                    
                     return TryAssignWanderJob(pawn);
                 }
                 escapeScanStartTicks.Remove(pawnId);
@@ -112,7 +112,7 @@ namespace TheMarkedMen
 
             if (!pyromaniac)
             {
-                // Rjw compatibility patched out
+                
             }
 
             JobDef currentJobDef = pawn.CurJob?.def;
@@ -237,9 +237,9 @@ namespace TheMarkedMen
                     return false;
                 }
 
-                // If the target is walled in, break the wall before trying to walk
-                // into it. Grenadiers would otherwise stall at the perimeter in a
-                // normal move job and never reach the breach fallback.
+                
+                
+                
                 if (!pawn.CanReach(bestNonInfected, PathEndMode.Touch, Danger.Deadly, true, true)
                     && TryAssignBreachJob(pawn, bestNonInfected))
                 {
@@ -251,7 +251,7 @@ namespace TheMarkedMen
                     return true;
                 }
 
-                // The target may have moved behind a wall since the reach check.
+                
                 if (TryAssignBreachJob(pawn, bestNonInfected))
                 {
                     return true;
@@ -302,7 +302,7 @@ namespace TheMarkedMen
 
             if (!pyromaniac && allowRjwJob)
             {
-                // Rjw compatibility patched out
+                
             }
 
             Pawn target = FindBestNonInfectedPawnTarget(pawn);
@@ -418,7 +418,7 @@ namespace TheMarkedMen
             Job job = JobMaker.MakeJob(JobDefOf.AttackMelee, target);
             job.expiryInterval = TacticalJobExpiryTicks;
             job.checkOverrideOnExpire = true;
-            job.killIncappedTarget = true; // Rjw compatibility patched out
+            job.killIncappedTarget = true; 
             job.canBashDoors = TheMarkedMenSettings.DoorTargetingEnabled;
             job.canBashFences = true;
             job.attackDoorIfTargetLost = TheMarkedMenSettings.DoorTargetingEnabled;
@@ -460,7 +460,7 @@ namespace TheMarkedMen
                 attackJob.verbToUse = verb;
                 attackJob.expiryInterval = TacticalJobExpiryTicks;
                 attackJob.checkOverrideOnExpire = true;
-                attackJob.killIncappedTarget = true; // Rjw compatibility patched out
+                attackJob.killIncappedTarget = true; 
                 attackJob.canBashDoors = TheMarkedMenSettings.DoorTargetingEnabled;
                 attackJob.canBashFences = true;
                 attackJob.attackDoorIfTargetLost = TheMarkedMenSettings.DoorTargetingEnabled;
@@ -537,7 +537,7 @@ namespace TheMarkedMen
 
                     job.expiryInterval = TacticalJobExpiryTicks;
                     job.checkOverrideOnExpire = true;
-                    job.killIncappedTarget = true; // Rjw compatibility patched out
+                    job.killIncappedTarget = true; 
                     job.canBashDoors = TheMarkedMenSettings.DoorTargetingEnabled;
                     job.canBashFences = true;
                     job.attackDoorIfTargetLost = TheMarkedMenSettings.DoorTargetingEnabled;
@@ -556,7 +556,7 @@ namespace TheMarkedMen
                 return false;
             }
 
-            // Prevent job thrashing by checking if assignment is safe
+            
             if (!AIConflictPrevention.CanAssignJob(pawn, job))
             {
                 return false;
@@ -575,7 +575,7 @@ namespace TheMarkedMen
             bool success = pawn.jobs.TryTakeOrderedJob(job, JobTag.Misc, false);
             if (success)
             {
-                // Notify conflict prevention system of successful assignment
+                
                 AIConflictPrevention.NotifyJobAssigned(pawn);
             }
             return success;
@@ -1099,8 +1099,8 @@ namespace TheMarkedMen
                     return null;
                 }
 
-                // The chosen prey died or left the map. Look for a new one now
-                // instead of waiting for the next scheduled scan.
+                
+                
                 nextScanDue = true;
             }
 
@@ -1132,8 +1132,8 @@ namespace TheMarkedMen
 
             if (best == null)
             {
-                // No valid prey this scan. Retry soon instead of locking the
-                // pawn out of target scanning for a full BestTargetScanIntervalTicks.
+                
+                
                 nextTargetScanTick[pawnId] = currentTick + NoTargetScanIntervalTicks;
             }
 
@@ -1230,8 +1230,8 @@ namespace TheMarkedMen
             }
             else
             {
-                // Prefer healthy colonists: a live, uninfected target is how the
-                // pack spreads the virus, while already-marked pawns are lower value.
+                
+                
                 score += 25f;
             }
 
@@ -1270,7 +1270,7 @@ namespace TheMarkedMen
 
             if (target.Faction == Faction.OfPlayer || target.HostFaction == Faction.OfPlayer || target.IsColonistPlayerControlled)
             {
-                // Colonists are the primary prey; hunting them is the point of the raid.
+                
                 score += 60f;
             }
 
@@ -1305,10 +1305,10 @@ namespace TheMarkedMen
             return score * AggressionScoreMultiplier - Mathf.Sqrt(distanceSquared) * 1.15f;
         }
 
-        /// <summary>
-        /// Applies infected AI profile adjustments to target scoring.
-        /// Enhances decision-making based on pawn type and tactical role.
-        /// </summary>
+        
+        
+        
+        
         private static float ApplyProfileAdjustments(Pawn searcher, Pawn target, float baseScore)
         {
             if (searcher == null || target == null || baseScore <= 0f)
@@ -1324,7 +1324,7 @@ namespace TheMarkedMen
 
             float adjustedScore = baseScore;
 
-            // Scouts prioritize isolated targets highly
+            
             if (profile.Role == InfectedAIProfiles.TacticalRole.Scout)
             {
                 if (IsIsolatedTarget(searcher, target))
@@ -1333,7 +1333,7 @@ namespace TheMarkedMen
                 }
             }
 
-            // Hunters focus on vulnerable targets
+            
             if (profile.Role == InfectedAIProfiles.TacticalRole.Striker)
             {
                 if (target.Downed || target.health?.summaryHealth.SummaryHealthPercent < 0.5f)
@@ -1342,7 +1342,7 @@ namespace TheMarkedMen
                 }
             }
 
-            // Gunners (Shooters, Soldiers) prefer armed targets
+            
             if (profile.Role == InfectedAIProfiles.TacticalRole.Gunner)
             {
                 if (target.equipment?.Primary != null)
@@ -1351,7 +1351,7 @@ namespace TheMarkedMen
                 }
             }
 
-            // Tanks prioritize defensive structure interactions
+            
             if (profile.Role == InfectedAIProfiles.TacticalRole.Tank)
             {
                 if (target.equipment?.Primary != null && target.health?.summaryHealth.SummaryHealthPercent > 0.6f)
@@ -1360,7 +1360,7 @@ namespace TheMarkedMen
                 }
             }
 
-            // Commanders adapt to threat level
+            
             if (profile.Role == InfectedAIProfiles.TacticalRole.Commander)
             {
                 int nearbyEnemies = 0;
@@ -1375,7 +1375,7 @@ namespace TheMarkedMen
 
                 if (nearbyEnemies > 3)
                 {
-                    adjustedScore += 50f; // High-priority targets when outnumbered
+                    adjustedScore += 50f; 
                 }
             }
 
@@ -1534,8 +1534,8 @@ namespace TheMarkedMen
                 return false;
             }
 
-            // Only pawns with a wall-breaking weapon, or a melee weapon that can
-            // chip at masonry, should spend time on a breach.
+            
+            
             Verb breachVerb = BreachingUtility.FindVerbToUseForBreaching(pawn);
             if (breachVerb == null
                 || (!breachVerb.IsMeleeAttack && !breachVerb.verbProps.ai_IsBuildingDestroyer))
@@ -1601,9 +1601,9 @@ namespace TheMarkedMen
                 return false;
             }
 
-            // A destroyable path is the cheapest reliable way to find the actual
-            // wall or door standing between the pack and its prey. Budget the
-            // searches so a large raid cannot stall the game on pathfinding.
+            
+            
+            
             int now = Find.TickManager?.TicksGame ?? 0;
             if (now >= nextBreachPathTick)
             {

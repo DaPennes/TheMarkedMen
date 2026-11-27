@@ -69,7 +69,7 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
         private const string CasualPresetName = "Very Easy";
         private const string VanillaLikePresetName = "Easy";
         private const string BrutalPresetName = "Hard";
-        // Lazy-initialized to avoid static UnityEngine type references at mod load time
+        
         private static Color? helpTextColor;
         private static Color? sectionHeaderColor;
         private static Color? sectionHeaderHoverColor;
@@ -79,7 +79,7 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
         private const float SectionHeaderHeight = 38f;
         private const float SectionToggleWidth = 48f;
 
-        // Lazy-initialize UI colors to avoid static UnityEngine type references at mod load time
+        
         private static void EnsureUIColors()
         {
             if (helpTextColor.HasValue) return;
@@ -165,7 +165,7 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
         public float raidEscalationPerRaid = 0.05f;
         public float raidEscalationMaxBonus = 2f;
 
-        // Raid wave randomization settings
+        
         public float raidEscalationRandomness = 0.3f;
         public float raidDifficultyWaviness = 0.2f;
         public float raidEscalationSpikeProbability = 0.15f;
@@ -217,7 +217,7 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
         public float terminalDeathWeight = DefaultTerminalDeathWeight;
         public float reanimationChance = 1f;
 
-        // CA_MarkedTurned strength multipliers (applied to base HediffComp_MarkedTurned values)
+        
         public float markedTurnedMoveSpeedFactor = 1.05f;
         public float markedTurnedMeleeAccuracyBonus = 0.1f;
         public float markedTurnedRangedAccuracyBonus = 0.05f;
@@ -247,7 +247,7 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
         public bool incidentLogEnabled = true;
         public bool debugActionsEnabled = true;
 
-        // Caravan ambush timer settings
+        
         public bool caravanAmbushTimerVisible = true;
         public float caravanAmbushTelegraphDays = 2f;
         public float caravanAmbushPrepTimeInHours = 8f;
@@ -262,7 +262,7 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
         public int maxRaidInfantry = 30;
         public int maxRaidVehicles = 2;
         public int maxActiveRaidPawns = 40;
-        // New performance settings
+        
         public int minRaidVehicles = 1;
         public int maxAllowedRaidVehicles = 5;
 
@@ -310,8 +310,8 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
         public bool prisonerDebugLogging;
         public float prisonerEscapeChance = 0.04f;
 
-        // Infected apparel compatibility settings - category based blocking.
-        // These control what apparel infected pawns can equip.
+        
+        
         public bool allowInfectedWearTribalApparel = true;
         public bool allowInfectedWearNeolithicApparel = true;
         public bool allowInfectedWearMilitaryApparel = true;
@@ -482,8 +482,8 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
                 return defaults;
             }
 
-            // Add vehicles in order: combat/military first, then others
-            // This ensures military vehicles are selected by default for performance-friendly raids
+            
+            
             HashSet<string> added = new HashSet<string>();
             for (int i = 0; i < options.Count; i++)
             {
@@ -710,7 +710,7 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
             Scribe_Values.Look(ref terminalDeathWeight, "terminalDeathWeight", DefaultTerminalDeathWeight);
             Scribe_Values.Look(ref reanimationChance, "reanimationChance", 1f);
 
-            // CA_MarkedTurned strength multipliers
+            
             Scribe_Values.Look(ref markedTurnedMoveSpeedFactor, "markedTurnedMoveSpeedFactor", 1.05f);
             Scribe_Values.Look(ref markedTurnedMeleeAccuracyBonus, "markedTurnedMeleeAccuracyBonus", 0.1f);
             Scribe_Values.Look(ref markedTurnedRangedAccuracyBonus, "markedTurnedRangedAccuracyBonus", 0.05f);
@@ -1293,7 +1293,7 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
             return Mathf.Clamp01(settings.terminalTransformationWeight / total);
         }
 
-        // Validate and clamp maxRaidVehicles on settings load
+        
         public static int ClampMaxRaidVehicles(int value)
         {
             return Mathf.Clamp(value, 1, 5);
@@ -1821,7 +1821,7 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
             raidDifficultyWaviness = Mathf.Clamp(raidDifficultyWaviness, 0f, 1f);
             raidEscalationSpikeProbability = Mathf.Clamp01(raidEscalationSpikeProbability);
 
-            // Caravan ambush timer settings
+            
             caravanAmbushTelegraphDays = Mathf.Clamp(caravanAmbushTelegraphDays, 0f, 365f);
             caravanAmbushPrepTimeInHours = Mathf.Clamp(caravanAmbushPrepTimeInHours, 0f, 24f);
             civilianWeightMultiplier = Mathf.Clamp(civilianWeightMultiplier, 0f, 5f);
@@ -1877,17 +1877,17 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
             maxActiveRaidPawns = Mathf.Clamp(maxActiveRaidPawns, 12, 180);
             minRaidVehicles = Mathf.Clamp(minRaidVehicles, 1, 5);
             maxAllowedRaidVehicles = Mathf.Clamp(maxAllowedRaidVehicles, 1, 5);
-            // Ensure minRaidVehicles doesn't exceed maxAllowedRaidVehicles
+            
             if (minRaidVehicles > maxAllowedRaidVehicles)
             {
                 minRaidVehicles = maxAllowedRaidVehicles;
             }
-            // Ensure maxRaidVehicles is at least minRaidVehicles
+            
             if (maxRaidVehicles < minRaidVehicles)
             {
                 maxRaidVehicles = minRaidVehicles;
             }
-            // Ensure maxAllowedRaidVehicles is at least maxRaidVehicles
+            
             if (maxAllowedRaidVehicles < maxRaidVehicles)
             {
                 maxAllowedRaidVehicles = maxRaidVehicles;
@@ -1904,7 +1904,7 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
             prisonerEscapeAggressionMultiplier = Mathf.Clamp(prisonerEscapeAggressionMultiplier, 0f, 5f);
             prisonerEscapeChance = Mathf.Clamp01(prisonerEscapeChance);
 
-            // CA_MarkedTurned strength multipliers
+            
             markedTurnedMoveSpeedFactor = Mathf.Clamp(markedTurnedMoveSpeedFactor, 0.5f, 3f);
             markedTurnedMeleeAccuracyBonus = Mathf.Clamp(markedTurnedMeleeAccuracyBonus, 0f, 0.5f);
             markedTurnedRangedAccuracyBonus = Mathf.Clamp(markedTurnedRangedAccuracyBonus, 0f, 0.5f);
@@ -2325,10 +2325,10 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
             this.game = game;
         }
 
-        /// <summary>
-        /// Records a pawn's identity before it is turned into a Marked Man.
-        /// The cure uses this to restore the previous faction, kind and xenotype.
-        /// </summary>
+        
+        
+        
+        
         public void RecordCureOrigin(Pawn pawn)
         {
             if (pawn == null || pawn.Dead || pawn.Destroyed)
@@ -2549,14 +2549,14 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
             MonitorActiveRaid(ticks);
             CheckAndSendRaidWarningLetter(ticks);
 
-            // Scheduled attacks are due on an exact tick. The other periodic
-            // upkeep is gated to 2500-tick windows, but raids and hordes must
-            // not wait for the next window after their countdown reaches zero.
+            
+            
+            
             TryFireScheduledRaid(ticks);
             TryFireScheduledHorde(ticks);
 
-            // Keep scheduled raids, hordes, and periodic upkeep advancing even
-            // when no infected pawns are active on any map.
+            
+            
             TryRunPeriodicMaintenance(ticks);
 
             if (ticks >= nextReanimationProcessTick)
@@ -2580,8 +2580,8 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
                 return;
             }
 
-            // The warning is day-scale; four checks per second is plenty and avoids
-            // recalculating threat points every single tick.
+            
+            
             if (currentTick < nextRaidWarningCheckTick)
             {
                 return;
@@ -2599,7 +2599,7 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
                 return;
             }
 
-            // Warn exactly once per scheduled raid, even across retries and reloads.
+            
             if (nextTick == lastWarnedRaidTick)
             {
                 return;
@@ -2687,9 +2687,9 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
             return -1f;
         }
 
-        /// <summary>
-        /// Shared 2500-tick upkeep for reconciliation and caravan timers.
-        /// </summary>
+        
+        
+        
         private bool TryRunPeriodicMaintenance(int currentTick)
         {
             if (currentTick < nextMaintenanceTick)
@@ -2701,15 +2701,15 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
             InitializeStarterLineageResistance();
             MapClassificationService.PruneDestroyedMaps();
 
-            // Full pawn reconciliation is expensive; run it once per in-game day.
-            // Loading a game and starting a new one still run it immediately.
+            
+            
             if (currentTick >= nextInfectedStateReconciliationTick)
             {
                 nextInfectedStateReconciliationTick = currentTick + InfectedStateReconciliationIntervalTicks;
                 EnsureInfectedStateOnLoadedPawns();
             }
 
-            // Update caravan ambush timers
+            
             if (currentTick >= nextCaravanAmbushUpdateTick)
             {
                 nextCaravanAmbushUpdateTick = currentTick + 2500;
@@ -2790,7 +2790,7 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
 
             if (targetMap == null || !TheMarkedMenSettings.WarbandsEnabled)
             {
-                return (currentTick + 100000, 0f); // Far future if no valid map
+                return (currentTick + 100000, 0f); 
             }
 
             int raidTick = nextRaidTick > currentTick ? nextRaidTick : currentTick + 100000;
@@ -2979,24 +2979,24 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
 
         private float CurrentRaidEscalationMultiplier()
         {
-            // Base escalation: 1.0 + (raidCount × escalationPerRaid), capped at max bonus
+            
             float baseMultiplier = 1f + Mathf.Min(totalCrossedRaidsStarted * TheMarkedMenSettings.RaidEscalationPerRaid, TheMarkedMenSettings.RaidEscalationMaxBonus);
 
-            // Apply randomization if enabled
+            
             float randomness = Mathf.Clamp01(TheMarkedMenMod.Settings?.raidEscalationRandomness ?? 0.3f);
             if (randomness > 0.001f)
             {
                 baseMultiplier *= Rand.Range(1f - randomness, 1f + randomness);
             }
 
-            // Apply waviness (alternating dips)
+            
             float waviness = Mathf.Clamp01(TheMarkedMenMod.Settings?.raidDifficultyWaviness ?? 0.2f);
             if (waviness > 0.001f && totalCrossedRaidsStarted % 2 == 1)
             {
                 baseMultiplier *= (1f - waviness);
             }
 
-            // Apply spike chance (occasional difficulty spike)
+            
             float spikeProbability = Mathf.Clamp01(TheMarkedMenMod.Settings?.raidEscalationSpikeProbability ?? 0.15f);
             if (spikeProbability > 0.001f && totalCrossedRaidsStarted != lastSpikeRaidNumber && Rand.Chance(spikeProbability))
             {
@@ -3004,11 +3004,11 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
                 lastSpikeRaidNumber = totalCrossedRaidsStarted;
             }
 
-            // Ensure progression doesn't regress: never drop below 85% of last raid's multiplier
+            
             float minimumMultiplier = lastRaidEscalationMultiplier * 0.85f;
             float finalMultiplier = Mathf.Max(baseMultiplier, minimumMultiplier);
 
-            // Store for next raid's floor comparison
+            
             lastRaidEscalationMultiplier = finalMultiplier;
 
             return finalMultiplier;
@@ -3482,7 +3482,7 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
             }
             else
             {
-                // Do not silently skip this raid; try again tomorrow.
+                
                 nextRaidTick = ticks + RaidRetryTicks;
             }
         }
@@ -3830,11 +3830,11 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
             }
         }
 
-        /// <summary>
-        /// Resolves the arrival mode and its spawn center before spawning raiders.
-        /// Vanilla calls TryResolveRaidSpawnCenter before Arrive; skipping it made
-        /// single-edge walk-ins spawn at IntVec3.Invalid, losing the whole raid.
-        /// </summary>
+        
+        
+        
+        
+        
         public static bool TryArriveRaidPawns(List<Pawn> pawns, IncidentParms parms)
         {
             if (pawns == null || pawns.Count == 0 || parms == null || !(parms.target is Map))
@@ -3862,9 +3862,9 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
 
             mode.Worker.Arrive(pawns, parms);
 
-            // Arrival workers can silently drop pawns when no cell resolves. Do
-            // not leave unspawned or out-of-bounds infected behind for the lord
-            // cleanup pass to trip over later.
+            
+            
+            
             Map map = (Map)parms.target;
             for (int i = pawns.Count - 1; i >= 0; i--)
             {
@@ -4104,9 +4104,9 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
 
     public sealed class IncidentWorker_CrossedRaid : IncidentWorker_RaidEnemy
     {
-        // Dire Raid-scale warbands: the pawn count scales with the raid points
-        // instead of being a fixed handful. The cap keeps a late-game raid
-        // large without letting pathfinding and lord updates run away.
+        
+        
+        
         private const int MinRaidCount = 6;
         private const int MaxRaidCount = 90;
         private const float RaidPointsPerPawn = 90f;
@@ -4196,8 +4196,8 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
             parms.pawnCount = pawns.Count;
             CrossedUtility.ApplyGeneratedRaidKindTuning(pawns);
 
-            // Build the raid lord only after arrival. Assigning lords per pawn here
-            // would split the warband and break coordinated breaching.
+            
+            
             LordJob lordJob = CrossedRaidTactics.CreateAssaultLordJob(crossed, parms.points, pawns);
             CrossedLordCleanupUtility.DetachFromAnyLord(pawns);
             LordMaker.MakeNewLord(crossed, lordJob, map, pawns);
@@ -4213,9 +4213,9 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
 
         internal static int CalculateRaidCount(float points, Map map, int reservedPawnSlots = 0)
         {
-            // Points already include the storyteller, difficulty, escalation, and
-            // player multipliers. Roughly one infected per 90 points lands near
-            // vanilla combat power, while the floor keeps early raids threatening.
+            
+            
+            
             float threat = Mathf.InverseLerp(600f, 15000f, Mathf.Max(0f, points));
             float minimum = Mathf.Lerp(8f, 24f, threat);
             int expected = Mathf.Clamp(
@@ -4258,7 +4258,7 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
                 pawns.Add(leader);
             }
 
-            // The leader counts toward the raid size so the cap is a real cap.
+            
             int followers = leader == null ? count : Mathf.Max(0, count - 1);
             for (int i = 0; i < followers; i++)
             {
@@ -4756,8 +4756,8 @@ public TheMarkedMenMod(ModContentPack content) : base(content)
         {
             CrossedUtility.ApplyGeneratedRaidKindTuning(generatedPawns);
 
-            // The ambush lord is created right after this callback. Creating lords
-            // per pawn here would leave the real ambush lord empty.
+            
+            
         }
 
         protected override LordJob CreateLordJob(List<Pawn> generatedPawns, IncidentParms parms)

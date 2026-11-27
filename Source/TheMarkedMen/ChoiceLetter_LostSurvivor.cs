@@ -8,8 +8,8 @@ namespace TheMarkedMen
     public class ChoiceLetter_LostSurvivor : ChoiceLetter
     {
         public Pawn pawn;
-        // Color field moved to lazy initialization to avoid static Unity type resolution at load time
-        // private Color color = new Color(1f, 0.85f, 0f); // REMOVED - causing TypeLoadException
+        
+        
 
         public override IEnumerable<DiaOption> Choices
         {
@@ -19,7 +19,7 @@ namespace TheMarkedMen
                 {
                     yield return DiaOptionAccept;
                     yield return DiaOptionReject;
-                    // If the "send away" option is enabled, add a second reject option
+                    
                     if (TheMarkedMenMod.Settings?.survivorRefuseSendsAway ?? true)
                     {
                         yield return DiaOptionSendAway;
@@ -108,17 +108,17 @@ namespace TheMarkedMen
         {
             if (pawn == null) return;
 
-            // If on a map, find the edge cell closest to where they spawned
-            // and de-spawn them there so they can walk off the map naturally
+            
+            
             Map map = pawn.Map;
             if (map != null && pawn.Spawned)
             {
-                // Mark them as a guest with no faction to leave naturally
+                
                 pawn.SetFaction(null);
                 pawn.guest?.SetGuestStatus(null);
                 pawn.mindState?.mentalStateHandler?.Reset();
 
-                // Find an edge cell to de-spawn them
+                
                 IntVec3 edgeSpot = CellFinder.RandomEdgeCell(map);
                 if (edgeSpot.IsValid)
                 {

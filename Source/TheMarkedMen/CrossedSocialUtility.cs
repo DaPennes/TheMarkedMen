@@ -23,7 +23,7 @@ namespace TheMarkedMen
                 return;
             }
 
-            // Existing crossed-pawn logic
+            
             if (CrossedUtility.IsCrossedPawn(initiator))
             {
                 float socialStrength = TheMarkedMenSettings.SocialTerrorStrength;
@@ -52,15 +52,15 @@ namespace TheMarkedMen
             }
             else
             {
-                // New general-pawn branch
+                
                 TryGeneralSocialPulse(initiator);
             }
         }
 
-        // New general-pawn interaction methods
+        
         public static void TryGeneralSocialPulse(Pawn initiator)
         {
-            // General-pawn social pulse implementation
+            
             float chance = Mathf.Clamp01(TheMarkedMenSettings.GeneralSocialPulseChance);
             if (!initiator.IsHashIntervalTick(SocialPulseInterval) || !Rand.Chance(chance))
             {
@@ -124,7 +124,7 @@ namespace TheMarkedMen
                 }
                 if (initiator.ageTracker.Adult || candidate.ageTracker.Adult)
                 {
-                    // Prefer adults; children get lower scores
+                    
                     score += 25f;
                 }
                 if (!GenSight.LineOfSight(initiator.Position, candidate.Position, map))
@@ -149,13 +149,13 @@ namespace TheMarkedMen
                 return false;
             }
 
-            // Exclude crossed pawns (handled in existing branch)
+            
             if (CrossedUtility.IsCrossedPawn(initiator) || CrossedUtility.IsCrossedPawn(recipient))
             {
                 return false;
             }
 
-            // Both must be humanlike and active
+            
             return IsHumanlikeActivePawn(initiator) && IsHumanlikeActivePawn(recipient);
         }
 
@@ -167,7 +167,7 @@ namespace TheMarkedMen
             bool recipientPrisoner = recipient.IsPrisonerOfColony;
             float opinion = initiator.relations.OpinionOf(recipient);
 
-            // Hostile interactions take priority
+            
             if (hostile)
             {
                 if (r < 0.3f && CADefOf.CA_GeneralHostileStandoff != null)
@@ -181,7 +181,7 @@ namespace TheMarkedMen
                 return CADefOf.CA_GeneralDefiantInsult ?? CADefOf.CA_GeneralHostileStandoff;
             }
 
-            // Prisoner dynamics
+            
             else if (initiatorPrisoner && recipientPrisoner)
             {
                 if (r < 0.4f && CADefOf.CA_GeneralPrisonerSolidarity != null)
@@ -207,7 +207,7 @@ namespace TheMarkedMen
                 return CADefOf.CA_GeneralGuardIntimidation ?? CADefOf.CA_GeneralThreateningTaunt;
             }
 
-            // Neutral/friendly with opinion weighting
+            
             else
             {
                 if (opinion > 20)
@@ -388,31 +388,31 @@ namespace TheMarkedMen
 
             List<RulePackDef> result = new List<RulePackDef>();
 
-            // Predatory taunt - sadistic attacks revealing weaknesses
+            
             if (interactionDef == CADefOf.CrossedPredatoryTaunt)
             {
                 if (CADefOf.CA_CrossedSpeechPredatory != null)
                     result.Add(CADefOf.CA_CrossedSpeechPredatory);
             }
-            // False mercy - deceptive mockery
+            
             else if (interactionDef == CADefOf.CrossedFalseMercy)
             {
                 if (CADefOf.CA_CrossedSpeechFalseMercy != null)
                     result.Add(CADefOf.CA_CrossedSpeechFalseMercy);
             }
-            // Pack laughter - coordinated sadism
+            
             else if (interactionDef == CADefOf.CrossedPackLaughter)
             {
                 if (CADefOf.CA_CrossedSpeechPackLaughter != null)
                     result.Add(CADefOf.CA_CrossedSpeechPackLaughter);
             }
-            // Infection gloat - transformation horror
+            
             else if (interactionDef == CADefOf.CrossedInfectionGloat)
             {
                 if (CADefOf.CA_CrossedSpeechInfection != null)
                     result.Add(CADefOf.CA_CrossedSpeechInfection);
             }
-            // Prisoner harassment - mockery of prisoners
+            
             else if (interactionDef == CADefOf.CrossedPrisonerHarassment)
             {
                 if (CADefOf.CA_CrossedSpeechPrisonerHarassment != null)
@@ -420,31 +420,31 @@ namespace TheMarkedMen
                 if (CADefOf.CA_CrossedSpeechWoundedMockery != null)
                     result.Add(CADefOf.CA_CrossedSpeechWoundedMockery);
             }
-            // Wounded mockery - targeting injured victims
+            
             else if (interactionDef == CADefOf.CrossedWoundedMockery)
             {
                 if (CADefOf.CA_CrossedSpeechWoundedMockery != null)
                     result.Add(CADefOf.CA_CrossedSpeechWoundedMockery);
             }
-            // Escape taunt - mocking escape attempts
+            
             else if (interactionDef == CADefOf.CrossedEscapeTaunt)
             {
                 if (CADefOf.CA_CrossedSpeechEscapeTaunt != null)
                     result.Add(CADefOf.CA_CrossedSpeechEscapeTaunt);
             }
-            // Group coordination - pack-level communication
+            
             else if (interactionDef == CADefOf.CrossedGroupCoordination)
             {
                 if (CADefOf.CA_CrossedSpeechGroupCoordination != null)
                     result.Add(CADefOf.CA_CrossedSpeechGroupCoordination);
             }
-            // Companion mockery - mocking other survivors
+            
             else if (interactionDef == CADefOf.CrossedCompanionMockery)
             {
                 if (CADefOf.CA_CrossedSpeechCompanionMockery != null)
                     result.Add(CADefOf.CA_CrossedSpeechCompanionMockery);
             }
-            // Pack announcement - announcing victims to the pack
+            
             else if (interactionDef == CADefOf.CrossedPackAnnouncement)
             {
                 if (CADefOf.CA_CrossedSpeechPackAnnouncement != null)
@@ -513,7 +513,7 @@ namespace TheMarkedMen
 
         private static InteractionDef PickInteraction(Pawn initiator, Pawn recipient, bool isInfectedToInfected = false)
         {
-            // For infected-to-infected interactions, use pack laughter or infection gloat
+            
             if (isInfectedToInfected)
             {
                 float rValue = Rand.Value;
@@ -524,13 +524,13 @@ namespace TheMarkedMen
                 return CADefOf.CrossedInfectionGloat ?? CADefOf.CrossedPackLaughter;
             }
 
-            // Wounded target - use infection gloat to emphasize suffering
+            
             if (recipient.Downed && CADefOf.CrossedInfectionGloat != null)
             {
                 return CADefOf.CrossedInfectionGloat;
             }
 
-            // Civilian initiate - pack laughter is primary
+            
             if ((initiator.kindDef == CADefOf.CrossedCivilian) && CADefOf.CrossedPackLaughter != null)
             {
                 return CADefOf.CrossedPackLaughter;
@@ -538,25 +538,25 @@ namespace TheMarkedMen
 
             float r = Rand.Value;
 
-            // False mercy - deceptive approach
+            
             if (r < 0.15f && CADefOf.CrossedFalseMercy != null)
             {
                 return CADefOf.CrossedFalseMercy;
             }
 
-            // Predatory taunt - direct sadistic attack
+            
             if (r < 0.45f && CADefOf.CrossedPredatoryTaunt != null)
             {
                 return CADefOf.CrossedPredatoryTaunt;
             }
 
-            // Prisoner harassment - when targeting prisoners
+            
             if (recipient.IsPrisonerOfColony)
             {
                 return CADefOf.CrossedPackLaughter;
             }
 
-            // Infection gloat - transformation horror
+            
             if (CADefOf.CrossedInfectionGloat != null)
             {
                 return CADefOf.CrossedInfectionGloat;
@@ -616,25 +616,25 @@ namespace TheMarkedMen
                 return 0f;
             }
 
-            // Civilian initiate - pack laughter gets extra weight
+            
             if (interaction == CADefOf.CrossedPackLaughter && (initiator.kindDef == CADefOf.CrossedCivilian))
             {
                 return 1.2f;
             }
 
-            // Wounded target - infection gloat is extra effective
+            
             if (interaction == CADefOf.CrossedInfectionGloat && recipient.Downed)
             {
                 return 1.8f;
             }
 
-            // Prisoner harassment - extra weight for prisoners
+            
             if (interaction == CADefOf.CrossedPackLaughter && recipient.IsPrisonerOfColony)
             {
                 return 1.3f;
             }
 
-            // Group coordination - weight for Civilian initiates
+            
             if (interaction == CADefOf.CrossedGroupCoordination && initiator.kindDef == CADefOf.CrossedCivilian)
             {
                 return 0.9f;

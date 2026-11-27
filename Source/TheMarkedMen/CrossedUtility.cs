@@ -31,10 +31,10 @@ namespace TheMarkedMen
 
 		private static readonly List<KeyValuePair<PawnKindDef, float>> TransformationKinds = new List<KeyValuePair<PawnKindDef, float>>();
 
-		/// <summary>
-		/// Set while original gear is being restored so the infected apparel
-		/// compatibility patch does not block the pawn's own pre-infection gear.
-		/// </summary>
+		
+		
+		
+		
 		internal static bool SuppressInfectedApparelRestrictions { get; set; }
 
 		public static TheMarkedMenGameComponent Component => Current.Game?.GetComponent<TheMarkedMenGameComponent>();
@@ -60,12 +60,12 @@ namespace TheMarkedMen
 			return crossed != null && pawn.Faction?.def == crossed;
 		}
 
-		/// <summary>
-		/// Re-equips the apparel and weapons a pawn carried before transformation.
-		/// Transformation does not intentionally replace gear, so this acts as a
-		/// non-destructive safety net: worn and wielded items are left alone, and
-		/// originals that were dropped or unequipped are reclaimed.
-		/// </summary>
+		
+		
+		
+		
+		
+		
 		public static void RestoreOriginalEquipment(Pawn pawn, List<Apparel> originalApparel, List<ThingWithComps> originalEquipment)
 		{
 			if (pawn == null)
@@ -142,8 +142,8 @@ namespace TheMarkedMen
 
 				if (pawn.equipment.Primary != null)
 				{
-					// Vanilla has a single primary slot. Never replace a weapon the
-					// pawn is already holding.
+					
+					
 					continue;
 				}
 
@@ -733,7 +733,7 @@ namespace TheMarkedMen
 			if (newlyInfected)
 			{
 				existing = pawn.health.AddHediff(virus);
-				existing.SetVisible(); // Force visibility so stages show on clean pawns
+				existing.SetVisible(); 
 				existing.Severity = Mathf.Max(existing.Severity, initialSeverity);
 			}
 			else
@@ -1041,7 +1041,7 @@ namespace TheMarkedMen
 			float toxicEnvironmentResistance = EquippedStatOffset(apparelDef, "ToxicEnvironmentResistance");
 			float vacuumResistance = EquippedStatOffset(apparelDef, "VacuumResistance");
 
-			// Sealed undersuits, orbital armor (XML: 0.25 sealed)
+			
 			if (torso && (ContainsOrdinalIgnoreCase(defName, "Sealed") || ContainsOrdinalIgnoreCase(label, "sealed")
 				|| ContainsOrdinalIgnoreCase(defName, "AstroSuit") || ContainsOrdinalIgnoreCase(label, "astrosuit")
 				|| ContainsOrdinalIgnoreCase(defName, "SecurityArmor") || ContainsOrdinalIgnoreCase(label, "security armor")
@@ -1050,7 +1050,7 @@ namespace TheMarkedMen
 				return new MarkedVirusApparelProtection(0.25f, true, TheMarkedMenSettings.SealedArmorBlockExposure);
 			}
 
-			// Gas masks, HAZMAT masks (XML: 0.25 sealed)
+			
 			if (toxGasImmune || ContainsOrdinalIgnoreCase(defName, "GasMask")
 				|| ContainsOrdinalIgnoreCase(label, "gas mask")
 				|| ContainsOrdinalIgnoreCase(defName, "HAZMATMask")
@@ -1059,56 +1059,56 @@ namespace TheMarkedMen
 				return new MarkedVirusApparelProtection(0.25f, true, TheMarkedMenSettings.GasMasksBlockExposure);
 			}
 
-			// Toxic environment resistance (XML: 0.25 sealed)
+			
 			if (toxicEnvironmentResistance >= 0.75f && fullHead)
 			{
 				return new MarkedVirusApparelProtection(0.25f, true);
 			}
 
-			// Vacuum resistance (XML: 0.25 sealed)
+			
 			if (vacuumResistance >= 0.30f && torso)
 			{
 				return new MarkedVirusApparelProtection(0.25f, true);
 			}
 
-			// Powered armor bodies (XML: 0.25 not sealed)
+			
 			if (IsPoweredArmorBody(defName) || IsPoweredArmorBody(label))
 			{
 				return new MarkedVirusApparelProtection(0.25f, false);
 			}
 
-			// Powered armor helmets (XML: 0.20 not sealed)
+			
 			if (IsPoweredArmorHelmet(defName) || IsPoweredArmorHelmet(label))
 			{
 				return new MarkedVirusApparelProtection(0.20f, false);
 			}
 
-			// Plague masks (XML: 0.10 not sealed)
+			
 			if (ContainsOrdinalIgnoreCase(defName, "PlagueMask") || ContainsOrdinalIgnoreCase(label, "plague mask"))
 			{
 				return new MarkedVirusApparelProtection(0.10f, false);
 			}
 
-			// Cloth, surgical, face masks (XML: 0.06 not sealed)
+			
 			if (ContainsOrdinalIgnoreCase(defName, "ClothMask") || ContainsOrdinalIgnoreCase(defName, "SurgicalMask")
 				|| ContainsOrdinalIgnoreCase(label, "surgical mask") || ContainsOrdinalIgnoreCase(label, "face mask"))
 			{
 				return new MarkedVirusApparelProtection(0.06f, false);
 			}
 
-			// Suits, armor, flak (XML: 0.08 not sealed)
+			
 			if (IsArmorOrSuit(defName) || IsArmorOrSuit(label))
 			{
 				return new MarkedVirusApparelProtection(0.08f, false);
 			}
 
-			// Masks (XML: 0.05 not sealed)
+			
 			if (ContainsOrdinalIgnoreCase(defName, "Mask") || ContainsOrdinalIgnoreCase(label, "mask"))
 			{
 				return new MarkedVirusApparelProtection(0.05f, false);
 			}
 
-			// Helmets (XML: 0.05 not sealed)
+			
 			if (ContainsOrdinalIgnoreCase(defName, "Helmet") || ContainsOrdinalIgnoreCase(label, "helmet"))
 			{
 				return new MarkedVirusApparelProtection(0.05f, false);
@@ -1212,7 +1212,7 @@ namespace TheMarkedMen
 				return;
 			}
 
-			// Snapshot the pawn's own gear before any transformation side effects.
+			
 			List<Apparel> wornApparel = pawn.apparel?.WornApparel?.ToList() ?? new List<Apparel>();
 			List<ThingWithComps> equipment = pawn.equipment?.AllEquipmentListForReading?.ToList() ?? new List<ThingWithComps>();
 
@@ -1236,8 +1236,8 @@ namespace TheMarkedMen
 
 			ApplyClassHediffs(pawn);
 
-			// Restore the pawn's own pre-infection gear instead of assigning new
-			// tier-based equipment.
+			
+			
 			RestoreOriginalEquipment(pawn, wornApparel, equipment);
 			if (pawn.Drawer?.renderer != null)
 			{
@@ -1261,8 +1261,8 @@ namespace TheMarkedMen
 				return;
 			}
 
-			// Raid composition already assigns each pawn its intended kind. This
-			// hook is kept as the single place for any future per-pawn tuning.
+			
+			
 		}
 
 		private static void RemoveHediffIfPresent(Pawn pawn, HediffDef def)
@@ -1286,7 +1286,7 @@ namespace TheMarkedMen
 				return;
 			}
 
-			// Skip all class/role hediff assignment for CA_MarkedTurned victims (virus-transformed original-kind pawns)
+			
 			if (IsMarkedTurnedPawn(pawn))
 			{
 				return;
@@ -1315,7 +1315,7 @@ namespace TheMarkedMen
 				}
 			}
 
-			// Apply base infected strength buff to all crossed faction pawns
+			
 			if (IsCrossedFactionPawn(pawn) && CADefOf.CrossedStrength != null
 				&& !pawn.health.hediffSet.HasHediff(CADefOf.CrossedStrength))
 			{
@@ -1356,16 +1356,16 @@ namespace TheMarkedMen
                 return;
             }
 
-            // Only the Marked Man is heavily augmented; the other kinds rely on
-            // their pawn kind gear and tier hediffs.
+            
+            
             if (pawn.kindDef != CADefOf.MarkedMan)
             {
                 return;
             }
 
-            // This method is also reached from the daily infected-state pass.
-            // Never stack a second set of implants on a pawn that already has
-            // any of the bionics from the first pass.
+            
+            
+            
             if (HasAnyMarkedManBionic(pawn))
             {
                 return;
@@ -1458,7 +1458,7 @@ namespace TheMarkedMen
 				return;
 			}
 
-			// Skip predator hediffs for CA_MarkedTurned victims (virus-transformed original-kind pawns are mindless, not predatory)
+			
 			if (IsMarkedTurnedPawn(pawn))
 			{
 				return;
@@ -1501,7 +1501,7 @@ namespace TheMarkedMen
 
 		public static bool IsCrossedPyromaniac(Pawn pawn)
 		{
-			return false; // No more role-specific pawns
+			return false; 
 		}
 
 		public static bool IsMolotovWeapon(ThingDef def)
@@ -1649,7 +1649,7 @@ namespace TheMarkedMen
 
 	Component?.RecordCureOrigin(pawn);
 
-	// Apply CA_MarkedTurned hediff to mark this pawn as virus-transformed
+	
 	HediffDef markedTurned = CADefOf.MarkedTurned;
 	if (markedTurned != null && !pawn.health.hediffSet.HasHediff(markedTurned))
 	{
@@ -1723,7 +1723,7 @@ public static void RemoveMarkedVirusHediffFromFullyTurnedPawn(Pawn pawn)
 
 		public static void ApplyInfectedTattoo(Pawn pawn)
 		{
-			// Tattoos require Ideology DLC
+			
 			if (!ModLister.IdeologyInstalled)
 			{
 				return;
@@ -1760,8 +1760,8 @@ public static void RemoveMarkedVirusHediffFromFullyTurnedPawn(Pawn pawn)
 				return;
 			}
 
-			// A cure is in progress; do not let the Marked Virus advance
-			// while the countdown is active.
+			
+			
 			if (CureUtility.HasPendingCure(pawn))
 			{
 				return;
@@ -1769,7 +1769,7 @@ public static void RemoveMarkedVirusHediffFromFullyTurnedPawn(Pawn pawn)
 
 			RemoveDeprecatedCrossedRashHediff(pawn);
 
-			// Handle CA_MarkedTurned victims (virus-transformed original-kind pawns)
+			
 			if (IsMarkedTurnedPawn(pawn))
 			{
 				RemoveMarkedVirusHediffFromFullyTurnedPawn(pawn);
@@ -1935,20 +1935,20 @@ public static void RemoveMarkedVirusHediffFromFullyTurnedPawn(Pawn pawn)
 
 		private static PawnKindDef PickTransformationKind(Pawn pawn)
 		{
-			// Always transform colonists to CA_CrossedCivilian infected
+			
 			return CADefOf.CrossedCivilian;
 		}
 
-		/// <summary>
-		/// Ensure infected pawn has a valid Lord assignment.
-		/// Called on dev-spawn and raid setup to prevent map-exit bug and enable tactical AI.
-		/// </summary>
+		
+		
+		
+		
 		public static void EnsureInfectedHasValidLord(Pawn pawn)
 		{
 			if (pawn == null || pawn.Dead || pawn.Faction == Faction.OfPlayer)
 				return;
 
-			// Ensure faction is set to Crossed
+			
 			Faction crossed = Find.FactionManager.FirstFactionOfDef(CADefOf.CrossedFaction);
 			if (crossed == null)
 				crossed = Component?.EnsureCrossedFaction();
@@ -1956,12 +1956,12 @@ public static void RemoveMarkedVirusHediffFromFullyTurnedPawn(Pawn pawn)
 			if (pawn.Faction != crossed && crossed != null)
 				pawn.SetFaction(crossed);
 
-			// Check if pawn has a valid Lord already
+			
 			Lord currentLord = pawn.GetLord();
 			if (currentLord != null && currentLord.faction == crossed)
-				return; // Already has valid Lord
+				return; 
 
-			// Try to assign to existing raid Lord on map
+			
 			Map map = pawn.Map;
 			if (map != null && crossed != null)
 			{
@@ -1978,7 +1978,7 @@ public static void RemoveMarkedVirusHediffFromFullyTurnedPawn(Pawn pawn)
 				}
 			}
 
-			// Create new Lord if none found
+			
 			if (map != null && crossed != null)
 			{
 				try
@@ -1997,24 +1997,24 @@ public static void RemoveMarkedVirusHediffFromFullyTurnedPawn(Pawn pawn)
 			}
 		}
 
-		/// <summary>
-		/// Setup infected pawn with initial behavior state and prevent map-exit.
-		/// </summary>
+		
+		
+		
 		public static void SetupInfectedPawn(Pawn pawn)
 		{
 			if (pawn == null || pawn.Dead)
 				return;
 
-			// Ensure valid Lord
+			
 			EnsureInfectedHasValidLord(pawn);
 
-			// Prevent vanilla map-exit behavior
+			
 			if (pawn.mindState != null)
 			{
 				pawn.mindState.exitMapAfterTick = -1;
 			}
 
-			// Issue initial tactical job
+			
 			CrossedTacticalAI.TryIssueTacticalJob(pawn);
 		}
 	}

@@ -215,7 +215,7 @@ namespace TheMarkedMen
                 pawn.mindState.mentalStateHandler.neverFleeIndividual = true;
             }
 
-            // Scan the prison room for non-infected targets first
+            
             Pawn roomTarget = CrossedTacticalAI.FindRoomTarget(pawn);
             if (roomTarget != null)
             {
@@ -236,7 +236,7 @@ namespace TheMarkedMen
                 return;
             }
 
-            // No target in room - scan for 15 seconds before breaking out
+            
             CrossedTacticalAI.NotifyEscapeScanStarted(pawn);
             if (!CrossedTacticalAI.TryIssueTacticalJob(pawn))
             {

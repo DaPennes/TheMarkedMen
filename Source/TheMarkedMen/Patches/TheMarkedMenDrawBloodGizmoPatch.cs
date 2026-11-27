@@ -6,11 +6,11 @@ using Verse;
 
 namespace TheMarkedMen
 {
-    /// <summary>
-    /// Adds a "Draw blood from..." gizmo to player-controlled colonists who
-    /// are carrying a syringe, so the action can be used without a syringe
-    /// lying on the ground.
-    /// </summary>
+    
+    
+    
+    
+    
     [HarmonyPatch(typeof(Pawn), nameof(Pawn.GetGizmos))]
     public static class Patch_PawnDrawBloodGizmo
     {

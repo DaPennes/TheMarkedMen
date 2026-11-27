@@ -7,14 +7,14 @@ using Verse.AI.Group;
 
 namespace TheMarkedMen
 {
-    /// <summary>
-    /// Raid lord job used by Marked Men warbands, hordes, probes and settlement assaults.
-    /// Big raids start in a coordinated breach phase: pick a weak point, escort the
-    /// breachers, suppress the defenders and break through the perimeter. Once the
-    /// breach is opened (or the siege timer runs out), the group switches to a normal
-    /// assault so the tactical AI can hunt survivors through the colony. Small raids
-    /// skip the siege and rely on the tactical AI to break through when needed.
-    /// </summary>
+    
+    
+    
+    
+    
+    
+    
+    
     public sealed class LordJob_CrossedAssault : LordJob
     {
         private Faction faction;
@@ -64,18 +64,18 @@ namespace TheMarkedMen
 
             if (breach != null)
             {
-                // Switch to the hunt as soon as someone gets through, or after the
-                // siege has dragged on long enough that standing outside is pointless.
+                
+                
                 Transition toAssault = new Transition(breach, assault);
                 toAssault.AddTrigger(new Trigger_CrossedBreachComplete());
                 toAssault.AddTrigger(new Trigger_TicksPassed(siegeTicks));
                 graph.AddTransition(toAssault);
             }
 
-            // Infected raids do not give up and do not steal or kidnap. They only
-            // leave when the colony is no longer hostile to them. Keep the graph
-            // shape stable even if the faction reference is missing on load, so
-            // saved toil and trigger data still line up.
+            
+            
+            
+            
             Transition leave = new Transition(assault, exit);
             if (breach != null)
             {
@@ -100,11 +100,11 @@ namespace TheMarkedMen
         }
     }
 
-    /// <summary>
-    /// Vanilla breaching toil with one extra signal: a pawn reached the breach
-    /// destination, so the lord can switch from siege mode to hunting mode
-    /// immediately instead of waiting for the timer.
-    /// </summary>
+    
+    
+    
+    
+    
     public sealed class LordToil_CrossedBreach : LordToil_AssaultColonyBreaching
     {
         public bool ReachedBreachDestination;
@@ -133,8 +133,8 @@ namespace TheMarkedMen
             ReachedBreachDestination = true;
         }
 
-        // The reached flag is transient. After a save/load, fall back to checking
-        // whether someone is already standing at the breach destination.
+        
+        
         public bool AnyPawnAtBreachDestination()
         {
             IntVec3 dest = Data.breachDest;
@@ -341,8 +341,8 @@ namespace TheMarkedMen
                 return true;
             }
 
-            // Fallback for loaded saves: check a few pawns at a time instead of
-            // doing a room lookup for the whole warband every tick.
+            
+            
             return lord.ticksInToil % 30 == 0 && breach.AnyPawnAtBreachDestination();
         }
     }
@@ -400,8 +400,8 @@ namespace TheMarkedMen
 
         public static LordJob CreateAssaultLordJob(Faction faction, float points, IReadOnlyList<Pawn> pawns = null)
         {
-            // The staged siege needs at least one pawn who can actually cut through
-            // a wall. Otherwise the group would stand outside shooting masonry.
+            
+            
             bool breachers = points >= BreacherThresholdPoints && HasGoodBreacher(pawns);
             return new LordJob_CrossedAssault(faction, breachers, GetSiegeDurationTicks(points));
         }

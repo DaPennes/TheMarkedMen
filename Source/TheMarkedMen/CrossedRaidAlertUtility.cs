@@ -12,13 +12,13 @@ namespace TheMarkedMen
     {
         public static string BuildRaidLetterLabel(string fallbackLabel, List<Pawn> pawns, float points)
         {
-            // Return the fallback label (from incident def letterLabel) for vanilla-style raid alert
+            
             return fallbackLabel;
         }
 
         public static string BuildRaidLetterText(string baseText, List<Pawn> pawns, IncidentParms parms, bool horde)
         {
-            // Build detailed raid text similar to vanilla
+            
             if (baseText.NullOrEmpty())
             {
                 baseText = "A group of infected is attacking your colony.";

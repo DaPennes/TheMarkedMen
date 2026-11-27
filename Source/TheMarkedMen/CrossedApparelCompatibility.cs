@@ -5,16 +5,16 @@ using Verse;
 
 namespace TheMarkedMen
 {
-    /// <summary>
-    /// Applies the category-based apparel rules configured under
-    /// Mod Options → Infected Apparel Compatibility.
-    ///
-    /// The category toggles are independent: disabling a category blocks every
-    /// apparel item that matches it. <c>allowInfectedWearApparelWithTags</c>
-    /// controls apparel whose tags are not recognized by any of the categories
-    /// (for example tags added by other mods); it does not override the
-    /// category toggles.
-    /// </summary>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     public static class CrossedApparelCompatibility
     {
         private static readonly string[] MilitaryTags =
@@ -51,8 +51,8 @@ namespace TheMarkedMen
                 return false;
             }
 
-            // Virus-transformed original-kind pawns keep their pre-infection
-            // gear by design and are never restricted by these options.
+            
+            
             if (CrossedUtility.IsMarkedTurnedPawn(pawn))
             {
                 return true;

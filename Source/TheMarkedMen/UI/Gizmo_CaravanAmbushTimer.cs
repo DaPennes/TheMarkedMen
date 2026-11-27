@@ -24,7 +24,7 @@ namespace TheMarkedMen.UI
 
             if (ticksUntilAmbush < 0)
             {
-                // Ambush already occurred or passed
+                
                 Text.Font = GameFont.Tiny;
                 GUI.Label(rect, "No imminent threat");
                 return new GizmoResult(GizmoState.Clear);
@@ -33,7 +33,7 @@ namespace TheMarkedMen.UI
             float hours = ticksUntilAmbush / (float)GenDate.TicksPerHour;
             string label = $"Ambush Warning: {Mathf.CeilToInt(hours)}h";
 
-            // Determine color based on urgency
+            
             Color color = Color.white;
             if (hours <= 24f) color = Color.red;
             else if (hours <= 168f) color = Color.yellow;

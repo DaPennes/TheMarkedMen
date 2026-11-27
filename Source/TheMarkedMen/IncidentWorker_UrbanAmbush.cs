@@ -77,7 +77,7 @@ namespace TheMarkedMen
             GenSpawn.Spawn(attacker, dropSpot, map, Rot4.Random);
             GenSpawn.Spawn(victim, dropSpot, map, Rot4.Random);
 
-            // Use standard letter instead of custom ChoiceLetter
+            
             Find.LetterStack.ReceiveLetter(def.letterLabel, def.letterText, def.letterDef, new LookTargets(attacker, victim));
 
             return true;

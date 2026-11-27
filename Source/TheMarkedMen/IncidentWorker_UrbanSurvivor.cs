@@ -77,7 +77,7 @@ namespace TheMarkedMen
 
             ApplyDormantMark(survivor);
 
-            // Use standard letter instead of custom ChoiceLetter
+            
             Find.LetterStack.ReceiveLetter(def.letterLabel, def.letterText, def.letterDef, new LookTargets(survivor));
 
             return true;

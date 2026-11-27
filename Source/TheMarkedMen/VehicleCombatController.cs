@@ -5,34 +5,34 @@ using UnityEngine;
 using Verse;
 using Verse.AI;
 using Verse.AI.Group;
-using TheMarkedMen; // For Constants
+using TheMarkedMen; 
 
 namespace TheMarkedMen
 {
-    /// <summary>
-    /// Manages vehicle combat behavior, targeting, and weapon engagement.
-    /// Caches target information to avoid excessive scanning.
-    /// </summary>
+    
+    
+    
+    
     public static class VehicleCombatController
     {
-        /// <summary>
-        /// Cached combat state per vehicle (indexed by thing ID).
-        /// </summary>
+        
+        
+        
         private static readonly Dictionary<int, VehicleCombatState> combatStates = new Dictionary<int, VehicleCombatState>();
 
-        /// <summary>
-        /// How often to scan for new targets (in ticks).
-        /// </summary>
+        
+        
+        
         private const int TargetScanIntervalTicks = 60;
 
-        /// <summary>
-        /// Maximum distance to consider engaging targets.
-        /// </summary>
+        
+        
+        
         private const float MaxCombatEngagementDistance = 150f;
 
-        /// <summary>
-        /// Vehicle type categories for behavior differentiation.
-        /// </summary>
+        
+        
+        
         private enum VehicleTypeCategory
         {
             Tank,
@@ -46,9 +46,9 @@ namespace TheMarkedMen
             Unknown
         }
 
-        /// <summary>
-        /// Combat state data for a single vehicle.
-        /// </summary>
+        
+        
+        
         private class VehicleCombatState
         {
             public Pawn vehicle;
@@ -87,9 +87,9 @@ namespace TheMarkedMen
             }
         }
 
-        /// <summary>
-        /// Gets or creates combat state for a vehicle.
-        /// </summary>
+        
+        
+        
         private static VehicleCombatState GetCombatState(Pawn vehicle)
         {
             if (vehicle == null)
@@ -104,9 +104,9 @@ namespace TheMarkedMen
                 combatStates[vehicleId] = state;
             }
 
-            // Immediately clear target if vehicle's current target is no longer valid
-            // (destroyed, downed, map change, or no longer hostile). This prevents
-            // vehicles from stubbornly continuing to engage invalid targets.
+            
+            
+            
             if (state?.lastTarget != null
                 && (!state.lastTarget.Spawned
                     || state.lastTarget.Dead
@@ -122,9 +122,9 @@ namespace TheMarkedMen
             return state;
         }
 
-        /// <summary>
-        /// Handles vehicle disengagement when health is too low.
-        /// </summary>
+        
+        
+        
         private static bool HandleHealthDisengagement(Pawn vehicle, Pawn target, VehicleCombatState state, float preferredRange, int currentTick)
         {
             if (ShouldDisengageDueToHealth(vehicle, isVehicle: true))
@@ -161,9 +161,9 @@ namespace TheMarkedMen
             return false;
         }
 
-        /// <summary>
-        /// Determines the appropriate duty for a vehicle based on its type and distance to target.
-        /// </summary>
+        
+        
+        
         private static PawnDuty DetermineVehicleDuty(Pawn vehicle, Pawn target, VehicleTypeCategory vtype, float actualDistance, float preferredRange)
         {
             if (vtype == VehicleTypeCategory.Technical || vtype == VehicleTypeCategory.Motorcycle)
@@ -206,9 +206,9 @@ namespace TheMarkedMen
         }
 
 
-        /// <summary>
-        /// Main entry point: evaluates and applies combat behavior to a raid vehicle.
-        /// </summary>
+        
+        
+        
         public static void UpdateVehicleCombatBehavior(Pawn vehicle)
         {
             if (vehicle == null || !vehicle.Spawned || vehicle.Dead || vehicle.Map == null)
@@ -224,7 +224,7 @@ namespace TheMarkedMen
 
             int currentTick = Find.TickManager.TicksGame;
 
-            // Update target if needed
+            
             if (state.ShouldUpdateTarget(currentTick))
             {
                 Pawn bestTarget = FindBestCombatTarget(vehicle);
@@ -232,13 +232,13 @@ namespace TheMarkedMen
                 state.lastTargetUpdateTick = currentTick;
             }
 
-            // Ensure target is still valid
+            
             if (state.lastTarget != null && !state.IsTargetValid())
             {
                 state.lastTarget = null;
             }
 
-            // Update combat behavior based on target
+            
             if (state.lastTarget != null)
             {
                 ApplyCombatBehavior(vehicle, state.lastTarget, state, currentTick);
@@ -249,11 +249,11 @@ namespace TheMarkedMen
             }
         }
 
-        /// <summary>
-        /// Finds the highest-priority target for a vehicle to engage.
-        /// Prioritizes: Defensive structures > Armed enemies > Unarmed enemies
-        /// Then by distance and threat assessment.
-        /// </summary>
+        
+        
+        
+        
+        
         private static Pawn FindBestCombatTarget(Pawn vehicle)
         {
             if (vehicle?.Map?.mapPawns == null)
@@ -288,60 +288,60 @@ namespace TheMarkedMen
             return bestTarget;
         }
 
-        /// <summary>
-        /// Checks if a pawn represents a defensive threat (heavily armed, in turret, etc).
-        /// </summary>
+        
+        
+        
         private static bool IsThreatBuilding(Pawn target)
         {
-            // Non-pawn threats are handled elsewhere
-            // This just marks heavily armed or positioned enemies as higher threat
+            
+            
             if (target.equipment?.Primary != null)
             {
-                // Has any primary weapon equipped
+                
                 return true;
             }
 
             return false;
         }
 
-        /// <summary>
-        /// Calculates a score for prioritizing a target.
-        /// Higher scores = higher priority.
-        /// Score weights are modified by vehicle type and crew effectiveness.
-        /// </summary>
+        
+        
+        
+        
+        
         private static float CalculateTargetScore(Pawn target, Pawn vehicle, float crewEffectiveness = 1.0f)
         {
             float score = 0f;
 
-            // Prioritize dangerous structures (turrets, defensive positions)
+            
             if (IsThreatBuilding(target))
             {
                 score += 1000f;
             }
 
-            // Prioritize armed enemies
+            
             if (target.equipment?.Primary != null)
             {
                 score += 500f;
             }
 
-            // Closer targets are higher priority (weight scaled by vehicle type and crew effectiveness)
+            
             float distance = target.Position.DistanceTo(vehicle.Position);
             VehicleTypeCategory vtype = GetVehicleTypeCategory(vehicle);
             float distanceWeight = 200f;
 
-            // Tanks/APCs value distance more (they have long-range turrets)
-            // Motorcycles/Technicals value closeness more (flanking behavior)
+            
+            
             switch (vtype)
             {
                 case VehicleTypeCategory.Tank:
                 case VehicleTypeCategory.APC:
-                    distanceWeight = 300f; // Value range more
+                    distanceWeight = 300f; 
                     break;
 
                 case VehicleTypeCategory.Motorcycle:
                 case VehicleTypeCategory.Technical:
-                    distanceWeight = 150f; // Value closeness more
+                    distanceWeight = 150f; 
                     break;
 
                 default:
@@ -351,29 +351,29 @@ namespace TheMarkedMen
 
             score += Mathf.Max(0f, distanceWeight - distance) * crewEffectiveness;
 
-            // Prioritize healthy enemies (less wasted firepower), modulated by crew effectiveness
+            
             if (target.health != null)
             {
                 float healthPercent = target.health.summaryHealth.SummaryHealthPercent;
                 score += (healthPercent * 100f) * crewEffectiveness;
             }
 
-            // Vehicle-type-specific target priorities
+            
             score += ApplyVehicleTargetPriority(target, vehicle);
 
             return score;
         }
 
-        /// <summary>
-        /// Applies vehicle-type-specific target priority modifications.
-        /// Uses only RimWorld API properties that are guaranteed to exist.
-        /// </summary>
+        
+        
+        
+        
         private static float ApplyVehicleTargetPriority(Pawn target, Pawn vehicle)
         {
             float score = 0f;
             VehicleTypeCategory vtype = GetVehicleTypeCategory(vehicle);
 
-            // Tanks prioritize colonists (they hunt aggressively)
+            
             if (vtype == VehicleTypeCategory.Tank)
             {
                 if (target.Faction == Faction.OfPlayer || target.IsColonist || target.IsPrisonerOfColony)
@@ -382,7 +382,7 @@ namespace TheMarkedMen
                 }
             }
 
-            // APCs prioritize colonists
+            
             if (vtype == VehicleTypeCategory.APC)
             {
                 if (target.IsColonist || target.IsPrisonerOfColony || target.IsFreeColonist)
@@ -391,23 +391,23 @@ namespace TheMarkedMen
                 }
             }
 
-            // Technicals prioritize unarmed targets
+            
             if (vtype == VehicleTypeCategory.Technical)
             {
                 if (target.equipment?.Primary == null)
                 {
-                    score += 100f; // Technicals gun down unarmed targets
+                    score += 100f; 
                 }
             }
 
-            // Motorcycles prioritize colonists and close targets
+            
             if (vtype == VehicleTypeCategory.Motorcycle)
             {
                 if (target.IsColonist || target.IsPrisonerOfColony || target.IsFreeColonist)
                 {
                     score += 125f;
                 }
-                // Close targets for rapid engagement
+                
                 float distance = target.Position.DistanceTo(vehicle.Position);
                 if (distance < 30f)
                 {
@@ -415,7 +415,7 @@ namespace TheMarkedMen
                 }
             }
 
-            // Armored cars have mild colonist preference
+            
             if (vtype == VehicleTypeCategory.ArmoredCar)
             {
                 if (target.Faction == Faction.OfPlayer || target.IsColonist)
@@ -424,7 +424,7 @@ namespace TheMarkedMen
                 }
             }
 
-            // Half-tracks prioritize enemy infantry
+            
             if (vtype == VehicleTypeCategory.HalfTrack)
             {
                 if (target.RaceProps.Humanlike && !target.IsColonist)
@@ -433,7 +433,7 @@ namespace TheMarkedMen
                 }
             }
 
-            // Airplanes value healthy targets
+            
             if (vtype == VehicleTypeCategory.Airplane)
             {
                 if (target.health != null)
@@ -443,7 +443,7 @@ namespace TheMarkedMen
                 }
             }
 
-            // Helicopters have mild colonist preference
+            
             if (vtype == VehicleTypeCategory.Helicopter)
             {
                 if (target.IsColonist || target.IsPrisonerOfColony || target.IsFreeColonist)
@@ -455,9 +455,9 @@ namespace TheMarkedMen
             return score;
         }
 
-        /// <summary>
-        /// Gets the pawn's effective health percentage.
-        /// </summary>
+        
+        
+        
         private static float GetPawnHealthPercent(Pawn pawn)
         {
             if (pawn == null || pawn.Dead || pawn.Destroyed)
@@ -470,22 +470,22 @@ namespace TheMarkedMen
                 return pawn.health.summaryHealth.SummaryHealthPercent;
             }
 
-            return 1f; // Default to full health if we can't determine
+            return 1f; 
         }
 
-        /// <summary>
-        /// Checks if a pawn (or vehicle) should disengage based on health status.
-        /// Damaged pawns prioritize survival over continued combat.
-        /// </summary>
-        /// <param name="entity">The pawn or vehicle to check</param>
-        /// <param name="isVehicle">Whether this is a vehicle entity</param>
+        
+        
+        
+        
+        
+        
         private static bool ShouldDisengageDueToHealth(Pawn entity, bool isVehicle = false)
         {
             float healthPercent;
 
             if (isVehicle)
             {
-                // For vehicles, check the vehicle's health
+                
                 if (entity == null || entity.Dead || entity.Destroyed)
                 {
                     return false;
@@ -505,7 +505,7 @@ namespace TheMarkedMen
                 healthPercent = GetPawnHealthPercent(entity);
             }
 
-            // Entities below 20% health disengage to avoid pointless fights
+            
             if (healthPercent <= Constants.VehicleHealthDisengagePercent / 100f)
             {
                 return true;
@@ -514,10 +514,10 @@ namespace TheMarkedMen
             return false;
         }
 
-        /// <summary>
-        /// Gets the crew's combat effectiveness modifier based on pawn skills.
-        /// Veterans shoot better, green crews are less accurate.
-        /// </summary>
+        
+        
+        
+        
         private static float GetCrewCombatEffectiveness(Pawn vehicle)
         {
             if (vehicle == null || !vehicle.Spawned || vehicle.Map == null)
@@ -528,7 +528,7 @@ namespace TheMarkedMen
             float totalEffectiveness = 1f;
             int crewCount = 0;
 
-            // Check passengers via Vehicle Framework
+            
             if (TheMarkedMenVehicleFrameworkCompatibility.IsVehicleFrameworkLoaded)
             {
                 IEnumerable<Pawn> passengers = TheMarkedMenVehicleFrameworkCompatibility.GetVehiclePassengers(vehicle);
@@ -543,24 +543,24 @@ namespace TheMarkedMen
             }
             else if (TheMarkedMenVehicleFrameworkCompatibility.IsVehiclePawn(vehicle))
             {
-                // Fallback: simplified check - count as one crew member with base effectiveness
+                
                 totalEffectiveness = 1f;
                 crewCount = 1;
             }
 
-            // Normalize by crew count
+            
             if (crewCount > 0)
             {
                 totalEffectiveness /= crewCount;
             }
 
-            // Clamp to reasonable bounds
+            
             return Mathf.Clamp01(totalEffectiveness);
         }
 
-        /// <summary>
-        /// Calculates combat effectiveness for a single pawn based on skills.
-        /// </summary>
+        
+        
+        
         private static float CalculatePassengerCombatEffectiveness(Pawn pawn)
         {
             if (pawn == null || pawn.Dead || pawn.Downed || !pawn.Spawned)
@@ -568,29 +568,29 @@ namespace TheMarkedMen
                 return 0f;
             }
 
-            float effectiveness = 1f; // Base effectiveness
+            float effectiveness = 1f; 
 
-            // Shooting skill increases ranged combat effectiveness
+            
             if (pawn.skills != null)
             {
                 float shootingLevel = pawn.skills.GetSkill(SkillDefOf.Shooting).Level;
-                // Each skill level adds ~15% effectiveness, capped
+                
                 effectiveness += shootingLevel * 0.15f;
             }
 
-            // Clamp to reasonable bounds
+            
             return Mathf.Clamp01(effectiveness);
         }
 
-        /// <summary>
-        /// Applies combat behavior: maintain distance, prepare for engagement.
-        /// Includes health-based disengagement and crew-skill awareness.
-        /// </summary>
+        
+        
+        
+        
         private static void ApplyCombatBehavior(Pawn vehicle, Pawn target, VehicleCombatState state, int currentTick)
         {
             float preferredRange = GetPreferredCombatRange(vehicle);
 
-            // --- HEALTH-BASED DISENGAGEMENT ---
+            
             if (HandleHealthDisengagement(vehicle, target, state, preferredRange, currentTick))
             {
                 return;
@@ -601,24 +601,24 @@ namespace TheMarkedMen
                 return;
             }
 
-            // --- CREW-SKILL AWARENESS & TARGET SCORING ---
+            
             float crewEffectiveness = GetCrewCombatEffectiveness(vehicle);
             float actualDistance = vehicle.Position.DistanceTo(target.Position);
 
-            // Use refactored scoring that incorporates crew effectiveness
+            
             float score = CalculateTargetScore(target, vehicle, crewEffectiveness);
 
-            // If target is very poor priority given crew effectiveness, we may want to reconsider
+            
             if (crewEffectiveness < 0.5f && score < 200f)
             {
-                // Conservative play: we'll still assign a duty, but the score reflects the risk
+                
             }
 
-            // --- DUTY ASSIGNMENT ---
+            
             VehicleTypeCategory vtype = GetVehicleTypeCategory(vehicle);
             PawnDuty newDuty = DetermineVehicleDuty(vehicle, target, vtype, actualDistance, preferredRange);
 
-            // Validate assignment before applying
+            
             if (newDuty != null && AIConflictPrevention.CanAssignDuty(vehicle, newDuty))
             {
                 vehicle.mindState.duty = newDuty;
@@ -627,9 +627,9 @@ namespace TheMarkedMen
             }
         }
 
-        /// <summary>
-        /// Applies general assault behavior when no specific target is engaged.
-        /// </summary>
+        
+        
+        
         private static void ApplyAssaultBehavior(Pawn vehicle, VehicleCombatState state, int currentTick)
         {
             if (!state.CanReassignDuty(currentTick))
@@ -639,7 +639,7 @@ namespace TheMarkedMen
 
             PawnDuty newDuty = new PawnDuty(DutyDefOf.AssaultColony);
 
-            // Validate assignment before applying
+            
             if (AIConflictPrevention.CanAssignDuty(vehicle, newDuty))
             {
                 vehicle.mindState.duty = newDuty;
@@ -648,52 +648,52 @@ namespace TheMarkedMen
             }
         }
 
-        /// <summary>
-        /// Gets the preferred combat engagement range for a vehicle based on its type.
-        /// Different vehicle types have different optimal engagement distances.
-        /// </summary>
+        
+        
+        
+        
         private static float GetPreferredCombatRange(Pawn vehicle)
         {
             VehicleTypeCategory type = GetVehicleTypeCategory(vehicle);
-            float baseRange = 35f; // Default general assault range
+            float baseRange = 35f; 
 
             switch (type)
             {
                 case VehicleTypeCategory.Tank:
                 case VehicleTypeCategory.APC:
-                    // Tanks and APCs maintain standoff distance for turret engagement
+                    
                     return 60f;
 
                 case VehicleTypeCategory.Technical:
                 case VehicleTypeCategory.Motorcycle:
-                    // Technicals and motorcycles engage at closer ranges, flank aggressively
+                    
                     return 20f;
 
                 case VehicleTypeCategory.ArmoredCar:
-                    // Armored cars maintain moderate distance, can ram
+                    
                     return 40f;
 
                 case VehicleTypeCategory.HalfTrack:
-                    // Half-tracks transport troops, support from moderate distance
+                    
                     return 35f;
 
                 case VehicleTypeCategory.Airplane:
-                    // Aircraft engage from distance, guns have long range
+                    
                     return 100f;
 
                 case VehicleTypeCategory.Helicopter:
-                    // Helicopters can engage at various ranges, default to 50f
+                    
                     return 50f;
 
                 default:
-                    // Unknown or vanilla vehicles use default
+                    
                     return baseRange;
             }
         }
 
-        /// <summary>
-        /// Determines the vehicle type category based on its definition.
-        /// </summary>
+        
+        
+        
         private static VehicleTypeCategory GetVehicleTypeCategory(Pawn vehicle)
         {
             if (vehicle == null || vehicle.def == null)
@@ -703,10 +703,10 @@ namespace TheMarkedMen
 
             string defName = vehicle.def.defName;
 
-            // Check for known vehicle type keywords in def name
+            
             defName = defName.ToLower();
 
-            // Tank-like vehicles
+            
             if (defName.Contains("tank")
                 || defName.Contains("heavy")
                 || defName.Contains("main battle"))
@@ -714,14 +714,14 @@ namespace TheMarkedMen
                 return VehicleTypeCategory.Tank;
             }
 
-            // APC vehicles
+            
             if (defName.Contains("apc")
                 || defName.Contains("personal carriage"))
             {
                 return VehicleTypeCategory.APC;
             }
 
-            // Technical vehicles (technicals, pickups with weapons)
+            
             if (defName.Contains("technical")
                 || defName.Contains("pickup")
                 || defName.Contains("hilux"))
@@ -729,7 +729,7 @@ namespace TheMarkedMen
                 return VehicleTypeCategory.Technical;
             }
 
-            // Motorcycle-like vehicles
+            
             if (defName.Contains("motorcycle")
                 || defName.Contains("bike")
                 || defName.Contains("quad"))
@@ -737,7 +737,7 @@ namespace TheMarkedMen
                 return VehicleTypeCategory.Motorcycle;
             }
 
-            // Armored car vehicles
+            
             if (defName.Contains("armored")
                 || defName.Contains("car")
                 || defName.Contains("sedan"))
@@ -745,7 +745,7 @@ namespace TheMarkedMen
                 return VehicleTypeCategory.ArmoredCar;
             }
 
-            // Half-track vehicles
+            
             if (defName.Contains("half-track")
                 || defName.Contains("halftrack")
                 || defName.Contains("scout"))
@@ -753,7 +753,7 @@ namespace TheMarkedMen
                 return VehicleTypeCategory.HalfTrack;
             }
 
-            // Aircraft
+            
             if (defName.Contains("plane")
                 || defName.Contains("aircraft")
                 || defName.Contains("jet")
@@ -762,7 +762,7 @@ namespace TheMarkedMen
                 return VehicleTypeCategory.Airplane;
             }
 
-            // Helicopters
+            
             if (defName.Contains("heli")
                 || defName.Contains("helicopter")
                 || defName.Contains("chopper"))
@@ -773,10 +773,10 @@ namespace TheMarkedMen
             return VehicleTypeCategory.Unknown;
         }
 
-        /// <summary>
-        /// Finds a position where the vehicle can maintain combat distance from target.
-        /// Different vehicle types have different standoff preferences.
-        /// </summary>
+        
+        
+        
+        
         private static IntVec3 FindStandoffPosition(Pawn vehicle, Pawn target, float preferredRange)
         {
             if (vehicle?.Map == null || target == null)
@@ -787,21 +787,21 @@ namespace TheMarkedMen
             VehicleTypeCategory type = GetVehicleTypeCategory(vehicle);
             float standoffMultiplier = 1f;
 
-            // Adjust standoff distance based on vehicle type
+            
             switch (type)
             {
                 case VehicleTypeCategory.Tank:
                 case VehicleTypeCategory.APC:
-                    standoffMultiplier = 1.2f; // Tanks prefer slightly further back
+                    standoffMultiplier = 1.2f; 
                     break;
 
                 case VehicleTypeCategory.Motorcycle:
                 case VehicleTypeCategory.Technical:
-                    standoffMultiplier = 0.8f; // Motorcycles/technicals prefer closer
+                    standoffMultiplier = 0.8f; 
                     break;
 
                 case VehicleTypeCategory.Helicopter:
-                    standoffMultiplier = 1.5f; // Helicopters can operate further out
+                    standoffMultiplier = 1.5f; 
                     break;
 
                 default:
@@ -809,21 +809,21 @@ namespace TheMarkedMen
                     break;
             }
 
-            // Try to find a cell at the preferred distance
+            
             IntVec3 vehiclePos = vehicle.Position;
             IntVec3 targetPos = target.Position;
 
             int attempts = 0;
-            int maxAttempts = 12; // More attempts for vehicle types
+            int maxAttempts = 12; 
 
             while (attempts < maxAttempts)
             {
-                // Calculate direction away from target
+                
                 Vector3 directionVec = (vehiclePos - targetPos).ToVector3().normalized;
                 IntVec3 direction = new IntVec3(Mathf.RoundToInt(directionVec.x), 0, Mathf.RoundToInt(directionVec.z));
                 IntVec3 candidateCell = targetPos + (direction * Mathf.RoundToInt(preferredRange * standoffMultiplier * 0.9f));
 
-                // Check if this cell is valid
+                
                 if (candidateCell.InBounds(vehicle.Map)
                     && candidateCell.Walkable(vehicle.Map)
                     && vehicle.CanReachImmediate(candidateCell, PathEndMode.OnCell))
@@ -831,7 +831,7 @@ namespace TheMarkedMen
                     return candidateCell;
                 }
 
-                // Try a nearby cell if the ideal one doesn't work
+                
                 for (int dx = -2; dx <= 2; dx++)
                 {
                     for (int dz = -2; dz <= 2; dz++)
@@ -852,9 +852,9 @@ namespace TheMarkedMen
             return IntVec3.Invalid;
         }
 
-        /// <summary>
-        /// Clears all cached combat states. Call this when cleaning up raids.
-        /// </summary>
+        
+        
+        
         public static void ClearAllCombatStates()
         {
             combatStates.Clear();

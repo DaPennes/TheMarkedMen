@@ -5,11 +5,11 @@ using Verse.AI;
 
 namespace TheMarkedMen
 {
-    /// <summary>
-    /// Picks up a cure syringe (unless the pawn already carries one), walks to
-    /// the infected target and injects it. The cure is taken from the pawn's
-    /// inventory and consumed only after the injection succeeds.
-    /// </summary>
+    
+    
+    
+    
+    
     public class JobDriver_InjectCure : JobDriver
     {
         private Pawn TargetPawn => job.GetTarget(TargetIndex.A).Thing as Pawn;
@@ -47,8 +47,8 @@ namespace TheMarkedMen
                 yield return takeCure;
             }
 
-            // The injecting pawn may be the infected target itself, in which
-            // case there is nowhere to walk.
+            
+            
             if (pawn != TargetPawn)
             {
                 Toil goToTarget = Toils_Goto.GotoThing(TargetIndex.A, PathEndMode.Touch);

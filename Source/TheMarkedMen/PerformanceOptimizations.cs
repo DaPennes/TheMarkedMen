@@ -7,25 +7,25 @@ using Verse;
 
 namespace TheMarkedMen
 {
-    /// <summary>
-    /// Performance optimization module for vehicle raid AI and infected behavior systems.
-    /// Implements caching, tick intervals, and efficient data structures.
-    /// </summary>
+    
+    
+    
+    
     public static class PerformanceOptimizations
     {
-        /// <summary>
-        /// Caches reflection MethodInfo/PropertyInfo to avoid repeated reflection overhead.
-        /// </summary>
+        
+        
+        
         public static class ReflectionCache
         {
             private static Dictionary<string, MethodInfo> methodCache = new Dictionary<string, MethodInfo>();
             private static Dictionary<string, PropertyInfo> propertyCache = new Dictionary<string, PropertyInfo>();
             private static int lastCacheClearTick = 0;
-            private const int CacheClearIntervalTicks = 10000;  // Clear old cache every ~2.8 hours
+            private const int CacheClearIntervalTicks = 10000;  
 
-            /// <summary>
-            /// Gets cached MethodInfo for a type's method, caching the result.
-            /// </summary>
+            
+            
+            
             public static MethodInfo GetMethod(Type type, string methodName, Type[] parameterTypes = null)
             {
                 if (type == null || string.IsNullOrEmpty(methodName))
@@ -49,7 +49,7 @@ namespace TheMarkedMen
                     }
                 }
 
-                // Periodically clear cache to prevent indefinite growth
+                
                 int? currentTick = Find.TickManager?.TicksGame;
                 if (currentTick.HasValue && currentTick.Value - lastCacheClearTick > CacheClearIntervalTicks)
                 {
@@ -60,9 +60,9 @@ namespace TheMarkedMen
                 return method;
             }
 
-            /// <summary>
-            /// Gets cached PropertyInfo for a type's property.
-            /// </summary>
+            
+            
+            
             public static PropertyInfo GetProperty(Type type, string propertyName)
             {
                 if (type == null || string.IsNullOrEmpty(propertyName))
@@ -83,43 +83,43 @@ namespace TheMarkedMen
                 return prop;
             }
 
-            /// <summary>
-            /// Clears reflection cache to prevent unbounded memory growth.
-            /// </summary>
+            
+            
+            
             private static void ClearOldCache()
             {
                 methodCache.Clear();
                 propertyCache.Clear();
             }
 
-            /// <summary>
-            /// Manual cache clearing for map transitions or cleanup.
-            /// </summary>
+            
+            
+            
             public static void ClearCache()
             {
                 ClearOldCache();
             }
         }
 
-        /// <summary>
-        /// Efficient tick-based update scheduling to prevent TPS degradation.
-        /// </summary>
+        
+        
+        
         public static class TickScheduler
         {
-            /// <summary>
-            /// Standard tick intervals (in ticks) for different update frequencies.
-            /// </summary>
-            public const int FastTickInterval = 12;          // ~0.2 seconds
-            public const int NormalTickInterval = 120;        // ~2 seconds
-            public const int SlowTickInterval = 500;         // ~8 seconds
-            public const int RareTickInterval = 5000;        // ~83 seconds
-            public const int CombatScanInterval = 60;        // Vehicle combat target scan
-            public const int DisembarkCheckInterval = 30;    // Tactical disembarkation checks
+            
+            
+            
+            public const int FastTickInterval = 12;          
+            public const int NormalTickInterval = 120;        
+            public const int SlowTickInterval = 500;         
+            public const int RareTickInterval = 5000;        
+            public const int CombatScanInterval = 60;        
+            public const int DisembarkCheckInterval = 30;    
 
-            /// <summary>
-            /// Checks if a pawn should update on a given tick interval using hash-based distribution.
-            /// This spreads updates across the interval to prevent TPS spikes.
-            /// </summary>
+            
+            
+            
+            
             public static bool ShouldUpdateThisTick(Pawn pawn, int intervalTicks)
             {
                 if (pawn == null)
@@ -130,36 +130,36 @@ namespace TheMarkedMen
                 return pawn.IsHashIntervalTick(intervalTicks);
             }
 
-            /// <summary>
-            /// Checks if something should update on a global tick interval.
-            /// Useful for map-wide systems that don't tie to individual pawns.
-            /// </summary>
+            
+            
+            
+            
             public static bool ShouldUpdateGlobalThisTick(int intervalTicks)
             {
                 int currentTick = Find.TickManager.TicksGame;
                 return currentTick % intervalTicks == 0;
             }
 
-            /// <summary>
-            /// Gets the next tick when an update should occur.
-            /// Useful for external scheduling systems.
-            /// </summary>
+            
+            
+            
+            
             public static int GetNextUpdateTick(int currentTick, int intervalTicks)
             {
                 return currentTick + intervalTicks;
             }
         }
 
-        /// <summary>
-        /// Region-based search optimization for spatial queries.
-        /// Reduces search space by searching only relevant map regions.
-        /// </summary>
+        
+        
+        
+        
         public static class RegionSearch
         {
-            /// <summary>
-            /// Gets all pawns within a search radius using basic distance checks.
-            /// Simpler than region traversal but still efficient for moderate searches.
-            /// </summary>
+            
+            
+            
+            
             public static List<Pawn> GetPawnsInSearchRadius(Pawn origin, float searchRadiusSquared, Predicate<Pawn> validator = null)
             {
                 List<Pawn> results = new List<Pawn>();
@@ -190,9 +190,9 @@ namespace TheMarkedMen
                 return results;
             }
 
-            /// <summary>
-            /// Gets all things of a specific type within a search radius.
-            /// </summary>
+            
+            
+            
             public static List<Thing> GetThingsInSearchRadius(Pawn origin, float searchRadiusSquared, Predicate<Thing> validator = null)
             {
                 List<Thing> results = new List<Thing>();
@@ -223,9 +223,9 @@ namespace TheMarkedMen
             }
         }
 
-        /// <summary>
-        /// Generic caching system for expensive calculations with TTL (time-to-live).
-        /// </summary>
+        
+        
+        
         public static class CacheManager
         {
             private class CacheEntry
@@ -244,9 +244,9 @@ namespace TheMarkedMen
             private static int lastCleanupTick = 0;
             private const int CleanupIntervalTicks = 5000;
 
-            /// <summary>
-            /// Gets a cached value, or returns null if not found or expired.
-            /// </summary>
+            
+            
+            
             public static object GetCached(string key)
             {
                 if (string.IsNullOrEmpty(key) || !cache.TryGetValue(key, out CacheEntry entry))
@@ -264,9 +264,9 @@ namespace TheMarkedMen
                 return entry.value;
             }
 
-            /// <summary>
-            /// Caches a value with a time-to-live in ticks.
-            /// </summary>
+            
+            
+            
             public static void Cache(string key, object value, int ttlTicks)
             {
                 if (string.IsNullOrEmpty(key) || value == null)
@@ -281,7 +281,7 @@ namespace TheMarkedMen
                     ttlTicks = ttlTicks
                 };
 
-                // Periodically clean up expired entries
+                
                 int currentTick = Find.TickManager.TicksGame;
                 if (currentTick - lastCleanupTick > CleanupIntervalTicks)
                 {
@@ -290,9 +290,9 @@ namespace TheMarkedMen
                 }
             }
 
-            /// <summary>
-            /// Removes expired entries from cache.
-            /// </summary>
+            
+            
+            
             private static void CleanupExpired()
             {
                 int currentTick = Find.TickManager.TicksGame;
@@ -312,24 +312,24 @@ namespace TheMarkedMen
                 }
             }
 
-            /// <summary>
-            /// Clears entire cache.
-            /// </summary>
+            
+            
+            
             public static void ClearCache()
             {
                 cache.Clear();
             }
         }
 
-        /// <summary>
-        /// Batch processing system for handling multiple operations efficiently.
-        /// Spreads work across multiple ticks to prevent frame hitches.
-        /// </summary>
+        
+        
+        
+        
         public static class BatchProcessor
         {
-            /// <summary>
-            /// Processes a collection in batches spread across ticks.
-            /// </summary>
+            
+            
+            
             public static void ProcessBatch<T>(List<T> items, int batchSize, System.Action<T> processor)
             {
                 if (items == null || items.Count == 0 || processor == null)
@@ -348,38 +348,38 @@ namespace TheMarkedMen
                 }
             }
 
-            /// <summary>
-            /// Gets how many items to process this tick given total count and batch size.
-            /// </summary>
+            
+            
+            
             public static int GetCurrentBatchSize(int totalItems, int itemsPerBatch)
             {
                 if (totalItems <= itemsPerBatch)
                 {
-                    return totalItems;  // Process all this tick if small enough
+                    return totalItems;  
                 }
 
                 return itemsPerBatch;
             }
         }
 
-        /// <summary>
-        /// Gets diagnostic performance information for profiling.
-        /// </summary>
+        
+        
+        
         public static class Diagnostics
         {
             private static int lastProfileTick = 0;
-            private const int ProfileIntervalTicks = 2500;  // Profile every ~42 seconds
+            private const int ProfileIntervalTicks = 2500;  
 
-            /// <summary>
-            /// Returns performance diagnostics string (memory usage, cache sizes, etc).
-            /// Only generates report periodically to avoid overhead.
-            /// </summary>
+            
+            
+            
+            
             public static string GetPerformanceReport()
             {
                 int currentTick = Find.TickManager.TicksGame;
                 if (currentTick - lastProfileTick < ProfileIntervalTicks)
                 {
-                    return null;  // Don't profile every tick
+                    return null;  
                 }
 
                 lastProfileTick = currentTick;
@@ -388,9 +388,9 @@ namespace TheMarkedMen
                 return $"[Perf] Memory: {memoryMB:F1}MB";
             }
 
-            /// <summary>
-            /// Resets profiling timers.
-            /// </summary>
+            
+            
+            
             public static void ResetProfile()
             {
                 lastProfileTick = 0;

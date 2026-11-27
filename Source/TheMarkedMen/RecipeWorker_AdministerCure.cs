@@ -5,11 +5,11 @@ using Verse;
 
 namespace TheMarkedMen
 {
-    /// <summary>
-    /// Health -> Operations bill that injects a cure syringe into a patient.
-    /// The cure ingredient is consumed by the medical bill itself before this
-    /// worker runs, so no ingredient handling is done here.
-    /// </summary>
+    
+    
+    
+    
+    
     public class RecipeWorker_AdministerCure : Recipe_Surgery
     {
         public override AcceptanceReport AvailableReport(Thing thing, BodyPartRecord part = null)

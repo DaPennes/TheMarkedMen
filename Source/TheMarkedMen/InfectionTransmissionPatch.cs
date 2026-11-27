@@ -5,7 +5,7 @@ using Verse;
 
 namespace TheMarkedMen
 {
-    // Patch to transmit Marked Virus infection on melee hits
+    
     [HarmonyPatch(typeof(Verb_MeleeAttackDamage), "ApplyMeleeDamageToTarget")]
     public static class Verb_MeleeAttackDamage_ApplyMeleeDamageToTarget_Patch
     {
@@ -17,8 +17,8 @@ namespace TheMarkedMen
                 return;
             }
 
-            // Create a pseudo DamageInfo for checking since the original method
-            // creates DamageInfo internally
+            
+            
             DamageDef damageDef = __instance.verbProps?.meleeDamageDef ?? DamageDefOf.Scratch;
             float armorPen = __instance.verbProps?.meleeDamageBaseAmount ?? 1f;
             var dinfo = new DamageInfo(damageDef, 1f, armorPen, instigator: attacker);
@@ -27,12 +27,12 @@ namespace TheMarkedMen
         }
     }
 
-    // Note: We cannot patch the abstract Verb.TryCastShot - it has no method body.
-    // The primary infection transmission is handled by the
-    // Verb_MeleeAttackDamage_ApplyMeleeDamageToTarget_Patch above, which covers
-    // all melee verb attacks in RimWorld.
+    
+    
+    
+    
 
-    // Helper class for infection transmission logic
+    
     public static class InfectionTransmissionHelper
     {
         public static void TryTransmitInfection(Pawn attacker, Pawn victim, DamageInfo dinfo)
@@ -68,7 +68,7 @@ namespace TheMarkedMen
                 return;
             }
 
-            // Create a pseudo DamageInfo for checking
+            
             var dinfo = new DamageInfo(
                 verb.verbProps?.meleeDamageDef ?? DamageDefOf.Scratch,
                 1f,

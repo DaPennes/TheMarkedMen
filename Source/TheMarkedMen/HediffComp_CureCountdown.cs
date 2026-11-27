@@ -58,11 +58,11 @@ namespace TheMarkedMen
             if (ticksRemaining <= 0)
             {
                 Log.Message($"[The Marked Men] Cure countdown completed for {Pawn.LabelShort}. Applying cure...");
-                // Apply the cure directly without validation since countdown is already validated
+                
                 if (Pawn != null && !Pawn.Dead && Pawn.Spawned)
                 {
                     CureUtility.ApplyCureDirectly(Pawn);
-                    // Remove the pending cure hediff after cure is applied
+                    
                     Pawn.health.RemoveHediff(parent);
                     Log.Message($"[The Marked Men] Cure applied and pending hediff removed for {Pawn.LabelShort}");
                 }
@@ -74,7 +74,7 @@ namespace TheMarkedMen
             if (parent == null || ticksTotal <= 0)
                 return;
 
-            // Progress from 0.01 to 1 based on remaining ticks
+            
             float progress = 0.01f + (0.99f * (1f - ((float)ticksRemaining / ticksTotal)));
             parent.Severity = Mathf.Clamp01(progress);
         }

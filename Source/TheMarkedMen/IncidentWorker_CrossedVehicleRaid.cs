@@ -94,9 +94,9 @@ namespace TheMarkedMen
                 return false;
             }
 
-            // Vehicle assaults use only the crew and escort force required by their
-            // actual vehicle mix. Raid points still determine requested vehicles, but
-            // cannot expand the infantry force beyond this dynamic target.
+            
+            
+            
             float infantryPointBudget = Mathf.Min(raidPoints, maximumInfantryCount * 90f);
             parms.points = Mathf.Max(120f, infantryPointBudget);
             bool baseRaidLaunched;
@@ -260,21 +260,21 @@ if (!TrimRaidPawnsToLimit(spawnedPawns, maximumInfantryCount))
         {
             if (combinedArms)
             {
-                // A combined assault uses the ground and aircraft crews plus its
-                // six-person combined escort: 11 pawns for one vehicle and one
-                // aircraft, then two/three more for each additional vehicle/aircraft.
+                
+                
+                
                 return groundVehicleCount * 2 + aircraftCount * 3 + 6;
             }
 
             if (aircraftCount > 0)
             {
-                // Six pawns for one aircraft, then its three-person crew for each
-                // additional aircraft.
+                
+                
                 return aircraftCount * 3 + 3;
             }
 
-            // Eight pawns for one ground vehicle, then two additional crew-capable
-            // infected for each additional ground vehicle.
+            
+            
             return groundVehicleCount * 2 + 6;
         }
 

@@ -32,11 +32,11 @@ namespace TheMarkedMen
         public bool EnabledByDefault { get; set; }
     }
 
-    /// <summary>
-    /// Compatibility layer for Vehicle Framework mod.
-    /// Allows infected to interact with vehicles and vehicle-based caravans.
-    /// Uses reflection-based detection to avoid hard dependency on Vehicle Framework.
-    /// </summary>
+    
+    
+    
+    
+    
     [StaticConstructorOnStartup]
     public static class TheMarkedMenVehicleFrameworkCompatibility
     {
@@ -69,9 +69,9 @@ namespace TheMarkedMen
         private static bool vehicleControlApiFailureLogged;
         private static bool vehicleOrderApiFailureLogged;
 
-        // Job throttling: track recent pathfinding failures to prevent job spam
+        
         private static Dictionary<int, int> vehiclePathFailureTicks = new Dictionary<int, int>();
-        private const int VehiclePathFailureCooldownTicks = 120; // Wait 2 seconds before retry to reduce job spam on difficult maps
+        private const int VehiclePathFailureCooldownTicks = 120; 
 
         private const int VehicleAssaultWaypointDistance = 35;
 
@@ -84,7 +84,7 @@ namespace TheMarkedMen
         {
             try
             {
-                // Try to load Vehicle Framework types
+                
                 Assembly vehicleAssembly = null;
                 Log.Message("[The Marked Men] Starting Vehicle Framework compatibility initialization...");
 
@@ -109,7 +109,7 @@ namespace TheMarkedMen
                             Log.Warning("[The Marked Men] Found assembly with 'vehicle' in name: '" + name + "'");
                         }
                     }
-                    return; // Vehicle Framework not loaded
+                    return; 
                 }
 
                 Log.Message("[The Marked Men] Found Vehicle Framework assembly: " + vehicleAssembly.GetName().FullName);
@@ -126,10 +126,10 @@ namespace TheMarkedMen
                             Log.Warning("[The Marked Men]   - " + type.FullName);
                         }
                     }
-                    return; // Vehicle type not found
+                    return; 
                 }
 
-                // Get useful methods for vehicle interaction
+                
                 getPawnCapacityMethod = AccessTools.Method(vehicleType, "GetPawnCapacity");
                 getPassengersMethod = AccessTools.PropertyGetter(vehicleType, "AllPawnsAboard");
 
@@ -155,11 +155,11 @@ namespace TheMarkedMen
             PawnsArrivalModeDef arrivalMode,
             RaidVehicleSelectionGroup selectionGroup = RaidVehicleSelectionGroup.Land)
         {
-            // Always return true: let Framework's internal spawn logic determine
-            // vehicle availability. The points gating has been removed from our mod,
-            // so raids will trigger regardless. Framework will attempt to spawn vehicles
-            // based on its own settings (vehicle raider extension, tech level, etc.).
-            // If Framework blocks vehicle spawning, our mod no longer forces infantry fallback.
+            
+            
+            
+            
+            
             return true;
         }
 
@@ -423,7 +423,7 @@ namespace TheMarkedMen
             {
                 if (drafted.GetValue(ignition, null) is bool isDrafted && !isDrafted)
                 {
-                    // Vehicle Framework's ignition-off setter fails its path and interrupts its current job.
+                    
                     drafted.SetValue(ignition, true, null);
                 }
             }
@@ -639,7 +639,7 @@ namespace TheMarkedMen
                     }
                     EnsureRaidVehicleFaction(vehicle, faction);
 
-                    // Ensure raid vehicles start with full fuel and ammo
+                    
                     TryFillVehicleFuelAndAmmo(vehicle);
 
                     MethodInfo tryAddPawn = AccessTools.Method(vehicle.GetType(), "TryAddPawn", new[] { typeof(Pawn) });
@@ -768,7 +768,7 @@ namespace TheMarkedMen
 
         public static void ApplyVehicleCombatBehavior(Pawn vehicle)
         {
-            // Delegate to the new VehicleCombatController for intelligent targeting and combat behavior
+            
             VehicleCombatController.UpdateVehicleCombatBehavior(vehicle);
         }
 
@@ -840,25 +840,25 @@ namespace TheMarkedMen
 
             if (destination == pawn.Position)
             {
-                // VehiclePathFollower.StartPath() calls AtDestinationPosition(), which is
-                // true when the destination is already the vehicle's cell. Returning that
-                // Goto job completes it in the same tick and RimWorld recursively starts
-                // another one, which ends in "started 10 jobs in one tick" errors.
-                // Returning no job lets Vehicle Framework's await-orders node idle the
-                // vehicle instead.
+                
+                
+                
+                
+                
+                
                 __result = null;
                 return;
             }
 
-            // Throttle pathfinding attempts to prevent job spam when path fails repeatedly
-            // This prevents Vehicle Framework's PatherFailed() from causing recursive job creation
+            
+            
             int vehicleId = pawn.thingIDNumber;
             int currentTick = Find.TickManager.TicksGame;
             if (vehiclePathFailureTicks.TryGetValue(vehicleId, out int lastFailTick))
             {
                 if (currentTick - lastFailTick < VehiclePathFailureCooldownTicks)
                 {
-                    // Recent pathfinding failure - don't issue another job yet to prevent spam
+                    
                     __result = null;
                     return;
                 }
@@ -1043,8 +1043,8 @@ namespace TheMarkedMen
             MethodInfo messageMethod = FindVehicleFailureMessageMethod(originalInstructions);
             if (messageMethod == null)
             {
-                // Different Vehicle Framework version or a changed message call.
-                // Leave the original notification untouched instead of failing the patch.
+                
+                
                 return originalInstructions;
             }
 
@@ -1172,43 +1172,43 @@ namespace TheMarkedMen
 
         private static bool IsSafeVehiclePathCell(Pawn vehicle, Map map, IntVec3 cell, Rot4 rotation)
         {
-            // Placement is validated before the vehicle is spawned, when vehicle.Map is still null.
+            
             map = map ?? vehicle?.Map;
             if (map == null || !cell.InBounds(map))
             {
                 return false;
             }
 
-            // Check if vehicle footprint at this rotation fits in bounds
-            // Instead of applying conservative margin from cell position, we check:
-            // 1. Footprint must be in bounds
-            // 2. We reduce the margin to allow edge cells to be valid
+            
+            
+            
+            
             CellRect footprint = GenAdj.OccupiedRect(cell, rotation, vehicle.def.Size);
 
-            // Check footprint is fully in bounds
+            
             if (!footprint.InBounds(map))
             {
                 return false;
             }
 
-            // Minimal margin: ensure at least some clearance from absolute map edges
-            // but allow cells very close to edges for proper raid entry positioning
+            
+            
             int minimumMargin = Mathf.Max(2, Mathf.Max(vehicle.def.Size.x, vehicle.def.Size.z) / 2);
             if (cell.x < minimumMargin
                 || cell.x >= map.Size.x - minimumMargin
                 || cell.z < minimumMargin
                 || cell.z >= map.Size.z - minimumMargin)
             {
-                // For cells beyond the minimum margin, verify footprint doesn't extend past map edge
-                // This is already checked by InBounds above, so we just need a reduced check
-                // that doesn't create exclusion zones eliminating all edge cells
-                int reducedMargin = 2; // Small margin only
+                
+                
+                
+                int reducedMargin = 2; 
                 if (cell.x < reducedMargin
                     || cell.x >= map.Size.x - reducedMargin
                     || cell.z < reducedMargin
                     || cell.z >= map.Size.z - reducedMargin)
                 {
-                    // Still too close to absolute edge - reject
+                    
                     return false;
                 }
             }
@@ -1218,10 +1218,10 @@ namespace TheMarkedMen
 
         private static int GetVehiclePathSafetyMargin(Pawn vehicle)
         {
-            // Reduced from original to prevent eliminating all edge cells on smaller maps
-            // Original: max(8, max(x,z) + 2) - created massive exclusion zones
-            // New: 3 - provides adequate clearance without blocking edge cells
-            // The actual footprint check in IsSafeVehiclePathCell handles real validation
+            
+            
+            
+            
             return 3;
         }
 
@@ -1434,7 +1434,7 @@ namespace TheMarkedMen
                 {
                     AddGroundVehicleSpawnCandidate(vehicle, map, rotation, blocked, nonStandable, new IntVec3(x, 0, minZ), candidates);
                     AddGroundVehicleSpawnCandidate(vehicle, map, rotation, blocked, nonStandable, new IntVec3(x, 0, maxZ), candidates);
-                    // Add more candidates at intermediate depths
+                    
                     if (maxZ - minZ > 1)
                     {
                         int midZ = minZ + (maxZ - minZ) / 2;
@@ -1463,7 +1463,7 @@ namespace TheMarkedMen
                 Map location = map;
                 Log.Warning("[The Marked Men] Ground vehicle failed placement (no candidates found). Map center: " + location.Center + ", Map size: " + location.Size + ", Vehicle size: " + vehicle.def.Size + ", Safety margin: " + minimumDepth);
 
-                // Try to place at center as last resort
+                
                 IntVec3 centerCell = location.Center;
                 Log.Message("[The Marked Men] Attempting emergency placement at map center: " + centerCell);
                 if (IsVehicleFootprintValid(vehicle, map, centerCell, rotation, blocked, nonStandable))
@@ -1562,14 +1562,14 @@ namespace TheMarkedMen
                 }
             }
 
-            // Only check Vehicle Framework methods if the cell is actually walkable
-            // For ground vehicles, rooftops should be valid if they're physically reachable
+            
+            
             if (!cell.Walkable(map))
             {
-                // If not walkable, check if it has a roof (ground-level vehicle can be on roof)
+                
                 if (occupiedRect.Cells.All(c => c.GetRoof(map) != null))
                 {
-                    // This is a rooftop placement - validate via Vehicle Framework only for terrain blocking
+                    
                     bool terrainInfoValid = true;
                     if (!terrainInfoValid)
                     {
@@ -1588,8 +1588,8 @@ namespace TheMarkedMen
                 return false;
             }
 
-            // Don't reject non-standable for ground vehicles - they can be on rooftops
-            // (Aircraft require open sky, which is enforced by requireOpenSky parameter)
+            
+            
 
             return true;
         }
@@ -1652,11 +1652,11 @@ namespace TheMarkedMen
                 PawnsArrivalModeDef arrivalMode = null,
                 RaidVehicleSelectionGroup selectionGroup = RaidVehicleSelectionGroup.Air)
             {
-                // Always return true: let Framework's internal spawn logic determine
-                // vehicle availability. The points gating has been removed from our mod,
-                // so raids will trigger regardless. Framework will attempt to spawn vehicles
-                // based on its own settings (vehicle raider extension, tech level, etc.).
-                // If Framework blocks vehicle spawning, our mod no longer forces infantry fallback.
+                
+                
+                
+                
+                
                 return true;
             }
 
@@ -1950,9 +1950,9 @@ namespace TheMarkedMen
                         return eligible;
                     }
 
-                    // Keep the same no-gating policy as land raids: select loaded,
-                    // NPC-enabled aircraft chosen in Marked Men settings, without
-                    // reapplying faction, point, tech-level, or arrival-mode checks.
+                    
+                    
+                    
                     for (int i = 0; i < airborneVehicleDefs.Count; i++)
                     {
                         object vehicleDef = airborneVehicleDefs[i];
@@ -2174,7 +2174,7 @@ namespace TheMarkedMen
                 inFlightField?.SetValue(launcher, true);
                 try
                 {
-                    // VehicleSkyfaller_Arriving.SpawnSetup prepares and starts the landing protocol.
+                    
                     GenSpawn.Spawn(skyfaller, landingCell, map, rotation);
                 }
                 catch (Exception ex)
@@ -2228,7 +2228,7 @@ namespace TheMarkedMen
                     if (!IsVehicleFootprintValid(vehicle, map, cell, rotation, blocked, nonStandable, true))
                     {
                         totalCandidates++;
-                        // Log the reason if we have debug conditions
+                        
                         CellRect occupiedRect = GenAdj.OccupiedRect(cell, rotation, vehicle.def.Size);
                         bool hasRoof = false;
                         foreach (IntVec3 occupiedCell in occupiedRect)
@@ -2483,10 +2483,10 @@ namespace TheMarkedMen
                     return eligible;
                 }
 
-                // Vehicle Framework's ValidRaiderVehicle method re-applies faction,
-                // point-budget, tech-level, and arrival-mode gates. Marked Men vehicle
-                // assaults deliberately bypass those gates, but still use loaded,
-                // NPC-enabled, selected land vehicle definitions.
+                
+                
+                
+                
                 foreach (object vehicleDef in GetAllLandRaidVehicleDefs(vehicleDefType))
                 {
                     if (!HasAnyEnabledVehicleCategory(vehicleDef, enabledCategories))
@@ -2641,7 +2641,7 @@ namespace TheMarkedMen
 
         private static int GetVehicleCrewPriority(Pawn pawn, string handlingTypeName)
         {
-            // Delegate to the new VehicleCrewManager for intelligent priority scoring
+            
             return VehicleCrewManager.GetCrewRolePriority(pawn, handlingTypeName);
         }
 
@@ -2823,7 +2823,7 @@ namespace TheMarkedMen
                     continue;
                 }
 
-                // Use tactical disembarkation controller to find appropriate deployment cell
+                
                 if (!TacticalDisembarkationController.TryFindDisembarkCell(vehicle, passenger, nearestEnemy, out IntVec3 cell))
                 {
                     return;
@@ -3016,16 +3016,16 @@ namespace TheMarkedMen
                     return;
                 }
 
-                // CRITICAL: Remove passenger from any vehicle lord before disembarkation.
-                // Without this, passengers remain in the vehicle's LordToil_CrossedVehicleAssault
-                // which causes them to follow vehicle movement orders (sprinting to map edges)
-                // instead of engaging enemies. This is the root cause of passengers walking
-                // off the map instead of attacking.
+                
+                
+                
+                
+                
                 Lord passengerLord = passenger.GetLord();
                 if (passengerLord != null)
                 {
-                    // If passenger is in a vehicle assault lord, remove them so they get
-                    // their own dedicated assault lord after disembarkation
+                    
+                    
                     if (passengerLord.LordJob is LordJob_CrossedVehicleAssault
                         || passengerLord.LordJob is LordJob_CrossedAssault)
                     {
@@ -3033,7 +3033,7 @@ namespace TheMarkedMen
                     }
                 }
 
-                // Now find or create a proper CrossedAssault lord for the passenger
+                
                 Lord existingLord = passenger.GetLord();
                 Lord assaultLord = null;
                 if (existingLord != null && existingLord.LordJob is LordJob_CrossedAssault)
@@ -3042,7 +3042,7 @@ namespace TheMarkedMen
                 }
                 else
                 {
-                    // Search existing CrossedAssault lords for this faction
+                    
                     foreach (Lord lord in vehicle.Map.lordManager.lords)
                     {
                         if (lord?.faction == vehicle.Faction
@@ -3055,16 +3055,16 @@ namespace TheMarkedMen
                     }
                 }
 
-                // Add passenger to existing lord, or create a new dedicated one
+                
                 if (assaultLord != null)
                 {
                     assaultLord.AddPawn(passenger);
                 }
                 else
                 {
-                    // Create a brand new assault lord specifically for this passenger.
-                    // Use moderate point value (300f) so it forms its own group
-                    // but doesn't hog points from the main raid.
+                    
+                    
+                    
                     assaultLord = LordMaker.MakeNewLord(
                         vehicle.Faction,
                         CrossedRaidTactics.CreateAssaultLordJob(vehicle.Faction, 300f),
@@ -3072,7 +3072,7 @@ namespace TheMarkedMen
                         new[] { passenger });
                 }
 
-                // Set assault colony duty for combat engagement
+                
                 passenger.mindState.duty = new PawnDuty(DutyDefOf.AssaultColony);
             }
 
@@ -3120,9 +3120,9 @@ namespace TheMarkedMen
             raidLookupFailureLogged = true;
         }
 
-        /// <summary>
-        /// Check if a pawn is inside a vehicle (as a passenger).
-        /// </summary>
+        
+        
+        
         public static bool IsInVehicle(Pawn pawn)
         {
             if (!isVehicleFrameworkActive || pawn == null)
@@ -3132,7 +3132,7 @@ namespace TheMarkedMen
 
             try
             {
-                // Check if pawn's parent is a vehicle
+                
                 if (pawn.ParentHolder is IThingHolder holder)
                 {
                     Thing parent = holder as Thing;
@@ -3151,9 +3151,9 @@ namespace TheMarkedMen
             }
         }
 
-        /// <summary>
-        /// Get the vehicle that a pawn is riding in, if any.
-        /// </summary>
+        
+        
+        
         public static dynamic GetVehicleForPawn(Pawn pawn)
         {
             if (!isVehicleFrameworkActive || pawn == null)
@@ -3181,9 +3181,9 @@ namespace TheMarkedMen
             }
         }
 
-        /// <summary>
-        /// Get all passengers in a vehicle.
-        /// </summary>
+        
+        
+        
         public static List<Pawn> GetVehiclePassengers(dynamic vehicle)
         {
             if (!isVehicleFrameworkActive || vehicle == null || getPassengersMethod == null)
@@ -3203,10 +3203,10 @@ namespace TheMarkedMen
             }
         }
 
-        /// <summary>
-        /// Check if infected can ride in a specific vehicle.
-        /// Some vehicles may be restricted (e.g., player-controlled transports).
-        /// </summary>
+        
+        
+        
+        
         public static bool CanInfectedRideVehicle(dynamic vehicle)
         {
             if (!isVehicleFrameworkActive || vehicle == null)
@@ -3216,15 +3216,15 @@ namespace TheMarkedMen
 
             try
             {
-                // Vehicle Framework vehicles are generally rideable
-                // Check if vehicle is owned by player faction (skip if so)
+                
+                
                 Thing vehicleThing = vehicle as Thing;
                 if (vehicleThing == null)
                 {
                     return false;
                 }
 
-                // Hostile to player-owned vehicles
+                
                 Faction playerFaction = Faction.OfPlayer;
                 if (vehicleThing.Faction == playerFaction)
                 {
@@ -3240,9 +3240,9 @@ namespace TheMarkedMen
             }
         }
 
-        /// <summary>
-        /// Apply Vehicle Framework compatibility patches to a Harmony instance.
-        /// </summary>
+        
+        
+        
         public static void ApplyPatches(Harmony harmony)
         {
             if (!isVehicleFrameworkActive || harmony == null || vehicleType == null)
@@ -3252,7 +3252,7 @@ namespace TheMarkedMen
 
             try
             {
-                // Patch vehicle GetGizmos to show ambush timer for vehicle-based caravans
+                
                 MethodInfo getGizmosMethod = AccessTools.Method(vehicleType, "GetGizmos");
                 if (getGizmosMethod != null)
                 {
@@ -3416,7 +3416,7 @@ namespace TheMarkedMen
                         "Vehicle Framework's path task manager could not be patched; raid vehicles may still report expected path cancellations.");
                 }
 
-                // Patch vehicle TakeDamage to track infected occupants
+                
                 MethodInfo takeDamageMethod = AccessTools.Method(
                     vehicleType,
                     "TakeDamage",
@@ -3514,7 +3514,7 @@ namespace TheMarkedMen
             pawn.mindState.duty = new PawnDuty(DutyDefOf.AssaultColony);
         }
 
-        // Harmony patch methods
+        
         public static void Patch_VehicleGetGizmos(dynamic __instance, ref IEnumerable<Gizmo> __result)
         {
             Pawn vehicle = __instance as Pawn;
@@ -3568,44 +3568,44 @@ namespace TheMarkedMen
         {
             try
             {
-                // Guard against destroyed vehicles - prevents race condition with Vehicle Framework's
-                // reservation cleanup during explosions or catastrophic damage
+                
+                
                 Pawn vehicle = __instance as Pawn;
                 if (vehicle == null || vehicle.Destroyed)
                 {
                     return;
                 }
 
-                // When vehicle takes damage, notify any infected passengers
-                // Make a copy of passengers list to prevent enumeration during concurrent modification
+                
+                
                 var passengers = GetVehiclePassengers(__instance);
                 if (passengers == null || !passengers.Any())
                 {
                     return;
                 }
 
-                // Create defensive copy to prevent issues if passengers collection is modified during iteration
+                
                 List<Pawn> passengersCopy = new List<Pawn>(passengers);
                 foreach (Pawn passenger in passengersCopy)
                 {
                     if (passenger != null && !passenger.Destroyed && CrossedUtility.IsInfectedPawn(passenger))
                     {
-                        // Infected passenger experiences damage notification
-                        // Could trigger combat reactions or escape behavior
+                        
+                        
                     }
                 }
             }
             catch (Exception ex)
             {
-                // Log exception for diagnostics without crashing
-                // This helps identify upstream Vehicle Framework issues
+                
+                
                 Log.Warning($"[The Marked Men] Exception in vehicle damage patch: {ex.Message}");
             }
         }
 
-        /// <summary>
-        /// Ensures Marked Men raid vehicles spawn with full fuel and ammunition.
-        /// </summary>
+        
+        
+        
         public static void TryFillVehicleFuelAndAmmo(Pawn vehicle)
         {
             if (vehicle?.AllComps == null)
@@ -3622,7 +3622,7 @@ namespace TheMarkedMen
 
                 string fullName = comp.GetType().FullName ?? string.Empty;
 
-                // Fill fuel tank to maximum
+                
                 if (fullName.Contains("Refuelable")
                     || fullName.Contains("VehicleFuel")
                     || fullName.Contains("Fuel"))
@@ -3631,7 +3631,7 @@ namespace TheMarkedMen
                     TrySetMember(comp, "FuelPercentOfMax", "FuelPercent", "PercentFull", 1f);
                 }
 
-                // Fill turret ammo to maximum
+                
                 if (fullName.Contains("VehicleTurrets")
                     || fullName.Contains("Turret"))
                 {
@@ -3644,7 +3644,7 @@ namespace TheMarkedMen
                             {
                                 continue;
                             }
-                            // Try various ammo fields
+                            
                             object ammoCapacity = ReadMember(turret, "MaxAmmo", "AmmoCapacity", "Props", "maxAmmo");
                             if (TryConvertFloat(ammoCapacity, out float maxAmmo) && maxAmmo > 0f)
                             {
@@ -3656,7 +3656,7 @@ namespace TheMarkedMen
                     }
                 }
 
-                // Fill launcher ammo to maximum
+                
                 if (fullName.Contains("VehicleLauncher")
                     || fullName.Contains("Launcher"))
                 {
@@ -3705,7 +3705,7 @@ namespace TheMarkedMen
                 }
                 catch
                 {
-                    // Ignore and try next name
+                    
                 }
             }
         }

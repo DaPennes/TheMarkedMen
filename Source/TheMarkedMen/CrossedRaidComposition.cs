@@ -14,9 +14,9 @@ namespace TheMarkedMen
 
     internal sealed class CrossedRaidComposition
     {
-        // Weights lerp from early-game to late-game pressure, then the player's
-        // Enemy Mix multipliers are applied by AddWeightedKind. Elite counts are
-        // capped so a lucky roll cannot flood a raid with commanders.
+        
+        
+        
         private readonly CrossedRaidCompositionRole role;
         private readonly float threat;
         private readonly int maxAlphas;
@@ -32,8 +32,8 @@ namespace TheMarkedMen
             threat = NormalizeThreat(points);
             TheMarkedMenSettings settings = TheMarkedMenMod.Settings;
             int configuredAlphas = Mathf.Clamp(settings?.maximumAlphasPerRaid ?? 2, 0, 99);
-            // Large raids can support more commanders, but the player's cap
-            // always wins. Small raids still allow at most one of each elite.
+            
+            
             maxAlphas = Mathf.Min(configuredAlphas, Mathf.Max(1, Mathf.RoundToInt(points / 1800f)));
             maxWarlords = Mathf.Clamp(Mathf.RoundToInt(points / 5000f), 1, 3);
             maxMarkedMen = role == CrossedRaidCompositionRole.Warband

@@ -6,8 +6,8 @@ using Verse;
 
 namespace TheMarkedMen
 {
-    // This patch was merged into TheMarkedMenHarmonyPatches.Patch_BloodExposure to reduce Harmony overhead.
-    // REMOVED: Patch_DormantMarkDamageTrigger was consolidated to avoid duplicate Harmony patch on Pawn.PostApplyDamage
+    
+    
 
     [HarmonyPatch(typeof(Pawn), nameof(Pawn.Kill))]
     public static class Patch_DormantMarkOnDeath

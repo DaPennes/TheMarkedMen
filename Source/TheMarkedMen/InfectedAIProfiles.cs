@@ -6,63 +6,63 @@ using Verse.AI;
 
 namespace TheMarkedMen
 {
-    /// <summary>
-    /// Defines tactical behavior profiles and decision-making logic for each infected pawn type.
-    /// Each profile describes the pawn's combat priorities, engagement distances, and tactical preferences.
-    /// </summary>
+    
+    
+    
+    
     public static class InfectedAIProfiles
     {
-        /// <summary>
-        /// Behavior profile for a single infected type.
-        /// </summary>
+        
+        
+        
         public class InfectedBehaviorProfile
         {
             public string Name { get; set; }
             public PawnKindDef KindDef { get; set; }
 
-            /// <summary>
-            /// Minimum combat distance this pawn prefers to maintain from enemies.
-            /// </summary>
+            
+            
+            
             public float PreferredMinRange { get; set; }
 
-            /// <summary>
-            /// Maximum combat distance this pawn will engage from.
-            /// </summary>
+            
+            
+            
             public float PreferredMaxRange { get; set; }
 
-            /// <summary>
-            /// Primary tactical role (offense, support, tank, scout, etc).
-            /// </summary>
+            
+            
+            
             public TacticalRole Role { get; set; }
 
-            /// <summary>
-            /// Priority targets for this pawn type (in order of preference).
-            /// </summary>
+            
+            
+            
             public List<TargetPriority> TargetPriorities { get; set; }
 
-            /// <summary>
-            /// Whether this pawn prefers melee or ranged engagement.
-            /// </summary>
+            
+            
+            
             public CombatStyle CombatStyle { get; set; }
         }
 
-        /// <summary>
-        /// Tactical roles for infected types.
-        /// </summary>
+        
+        
+        
         public enum TacticalRole
         {
-            Scout,           // Reconnaissance, mobility
-            Striker,         // Melee assault
-            Gunner,          // Ranged support
-            Specialist,      // Special abilities (fire, psychic, etc)
-            Commander,       // Coordination, leadership
-            Tank,            // Heavy defense breaking
-            Infiltrator      // Stealth, hit-and-run
+            Scout,           
+            Striker,         
+            Gunner,          
+            Specialist,      
+            Commander,       
+            Tank,            
+            Infiltrator      
         }
 
-        /// <summary>
-        /// Combat style preference.
-        /// </summary>
+        
+        
+        
         public enum CombatStyle
         {
             MeleePreferred,
@@ -71,16 +71,16 @@ namespace TheMarkedMen
             FleeIfLosing
         }
 
-        /// <summary>
-        /// Target priority entry.
-        /// </summary>
+        
+        
+        
         public class TargetPriority
         {
             public string Name { get; set; }
-            public int Priority { get; set; }  // Higher = higher priority
+            public int Priority { get; set; }  
         }
 
-        // Cached profiles per kind
+        
         private static readonly Dictionary<PawnKindDef, InfectedBehaviorProfile> profiles =
             new Dictionary<PawnKindDef, InfectedBehaviorProfile>();
 
@@ -91,7 +91,7 @@ namespace TheMarkedMen
 
         private static void InitializeProfiles()
         {
-            // Scout Profile
+            
             if (CADefOf.CrossedScout != null)
             {
                 profiles[CADefOf.CrossedScout] = new InfectedBehaviorProfile
@@ -111,7 +111,7 @@ namespace TheMarkedMen
                 };
             }
 
-            // Hunter Profile
+            
             if (CADefOf.CrossedHunter != null)
             {
                 profiles[CADefOf.CrossedHunter] = new InfectedBehaviorProfile
@@ -131,7 +131,7 @@ namespace TheMarkedMen
                 };
             }
 
-            // Shooter Profile
+            
             if (CADefOf.CrossedShooter != null)
             {
                 profiles[CADefOf.CrossedShooter] = new InfectedBehaviorProfile
@@ -151,7 +151,7 @@ namespace TheMarkedMen
                 };
             }
 
-            // Raider Profile
+            
             if (CADefOf.CrossedRaider != null)
             {
                 profiles[CADefOf.CrossedRaider] = new InfectedBehaviorProfile
@@ -171,7 +171,7 @@ namespace TheMarkedMen
                 };
             }
 
-            // Soldier Profile
+            
             if (CADefOf.CrossedSoldier != null)
             {
                 profiles[CADefOf.CrossedSoldier] = new InfectedBehaviorProfile
@@ -191,7 +191,7 @@ namespace TheMarkedMen
                 };
             }
 
-            // Brute Profile
+            
             if (CADefOf.CrossedBrute != null)
             {
                 profiles[CADefOf.CrossedBrute] = new InfectedBehaviorProfile
@@ -211,7 +211,7 @@ namespace TheMarkedMen
                 };
             }
 
-            // Pyromaniac Profile
+            
             if (CADefOf.CrossedPyromaniac != null)
             {
                 profiles[CADefOf.CrossedPyromaniac] = new InfectedBehaviorProfile
@@ -231,7 +231,7 @@ namespace TheMarkedMen
                 };
             }
 
-            // Alpha Profile
+            
             if (CADefOf.CrossedAlpha != null)
             {
                 profiles[CADefOf.CrossedAlpha] = new InfectedBehaviorProfile
@@ -251,7 +251,7 @@ namespace TheMarkedMen
                 };
             }
 
-            // Warlord Profile
+            
             if (CADefOf.CrossedWarlord != null)
             {
                 profiles[CADefOf.CrossedWarlord] = new InfectedBehaviorProfile
@@ -271,7 +271,7 @@ namespace TheMarkedMen
                 };
             }
 
-            // Marked Man Profile (if available)
+            
             if (CADefOf.MarkedMan != null)
             {
                 profiles[CADefOf.MarkedMan] = new InfectedBehaviorProfile
@@ -291,7 +291,7 @@ namespace TheMarkedMen
                 };
             }
 
-            // Civilian Profile
+            
             if (CADefOf.CrossedCivilian != null)
             {
                 profiles[CADefOf.CrossedCivilian] = new InfectedBehaviorProfile
@@ -312,10 +312,10 @@ namespace TheMarkedMen
             }
         }
 
-        /// <summary>
-        /// Gets the behavior profile for a pawn type.
-        /// Returns a default profile if the specific type is not defined.
-        /// </summary>
+        
+        
+        
+        
         public static InfectedBehaviorProfile GetProfile(Pawn pawn)
         {
             if (pawn?.kindDef == null)
@@ -331,9 +331,9 @@ namespace TheMarkedMen
             return GetDefaultProfile();
         }
 
-        /// <summary>
-        /// Gets the default profile for undefined pawn types.
-        /// </summary>
+        
+        
+        
         private static InfectedBehaviorProfile GetDefaultProfile()
         {
             return new InfectedBehaviorProfile
@@ -351,9 +351,9 @@ namespace TheMarkedMen
             };
         }
 
-        /// <summary>
-        /// Determines if a pawn should maintain ranged distance from a target.
-        /// </summary>
+        
+        
+        
         public static bool ShouldMaintainRange(Pawn pawn, Pawn target, float currentDistance)
         {
             InfectedBehaviorProfile profile = GetProfile(pawn);
@@ -362,13 +362,13 @@ namespace TheMarkedMen
                 return false;
             }
 
-            // If already within preferred range, maintain it
+            
             if (currentDistance >= profile.PreferredMinRange && currentDistance <= profile.PreferredMaxRange)
             {
                 return true;
             }
 
-            // Ranged specialists always want distance
+            
             if (profile.CombatStyle == CombatStyle.RangedPreferred && currentDistance < profile.PreferredMinRange)
             {
                 return true;
@@ -377,9 +377,9 @@ namespace TheMarkedMen
             return false;
         }
 
-        /// <summary>
-        /// Determines if a pawn should engage a target based on their profile.
-        /// </summary>
+        
+        
+        
         public static bool ShouldEngageTarget(Pawn pawn, Pawn target)
         {
             if (pawn == null || target == null)
@@ -389,16 +389,16 @@ namespace TheMarkedMen
 
             InfectedBehaviorProfile profile = GetProfile(pawn);
 
-            // Never engage allies or downed enemies
+            
             if (!pawn.HostileTo(target) || target.Downed)
             {
                 return false;
             }
 
-            // Fleeing types should avoid enemies they can't handle
+            
             if (profile.CombatStyle == CombatStyle.FleeIfLosing)
             {
-                // Don't engage if outnumbered or heavily outgunned
+                
                 int nearbyThreats = 0;
                 for (int i = 0; i < pawn.Map.mapPawns.AllPawnsSpawned.Count; i++)
                 {
@@ -418,9 +418,9 @@ namespace TheMarkedMen
             return true;
         }
 
-        /// <summary>
-        /// Gets a score for prioritizing a target based on the pawn's profile.
-        /// </summary>
+        
+        
+        
         public static float GetTargetPriorityScore(Pawn pawn, Pawn target)
         {
             if (pawn?.kindDef == null || target == null)
@@ -429,28 +429,28 @@ namespace TheMarkedMen
             }
 
             InfectedBehaviorProfile profile = GetProfile(pawn);
-            float score = 100f;  // Base score
+            float score = 100f;  
 
-            // Apply distance penalty
+            
             float distance = pawn.Position.DistanceTo(target.Position);
             score -= distance * 0.5f;
 
-            // Apply threat assessment bonus
+            
             if (target.equipment?.Primary != null)
             {
-                score += 50f;  // Armed targets are more important
+                score += 50f;  
             }
 
-            // Apply health modifier
+            
             if (target.health != null)
             {
                 score += (1f - target.health.summaryHealth.SummaryHealthPercent) * 100f;
             }
 
-            // Apply profile-specific modifiers
+            
             if (profile?.Role == TacticalRole.Tank)
             {
-                // Tanks prioritize defensive structures/armored enemies
+                
                 if (target.equipment?.Primary != null)
                 {
                     score += 75f;
@@ -459,7 +459,7 @@ namespace TheMarkedMen
 
             if (profile?.Role == TacticalRole.Scout)
             {
-                // Scouts prioritize isolated enemies
+                
                 int nearbyAllie = 0;
                 for (int i = 0; i < pawn.Map.mapPawns.AllPawnsSpawned.Count; i++)
                 {
@@ -472,7 +472,7 @@ namespace TheMarkedMen
 
                 if (nearbyAllie <= 1)
                 {
-                    score += 100f;  // Isolated target bonus
+                    score += 100f;  
                 }
             }
 

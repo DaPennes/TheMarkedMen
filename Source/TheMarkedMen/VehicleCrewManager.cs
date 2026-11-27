@@ -6,16 +6,16 @@ using Verse;
 
 namespace TheMarkedMen
 {
-    /// <summary>
-    /// Manages intelligent crew assignment for raid vehicles.
-    /// Prioritizes crew roles (driver > gunner > passenger) and caches assignments
-    /// to avoid repeated calculation during vehicle lifetime.
-    /// </summary>
+    
+    
+    
+    
+    
     public static class VehicleCrewManager
     {
-        /// <summary>
-        /// Crew role priorities for assignment. Higher values = higher priority.
-        /// </summary>
+        
+        
+        
         public enum CrewRolePriority
         {
             Driver = 100,
@@ -23,10 +23,10 @@ namespace TheMarkedMen
             Passenger = 10
         }
 
-        /// <summary>
-        /// Gets the priority score for assigning a pawn to a crew role.
-        /// Higher scores indicate better fit for the role.
-        /// </summary>
+        
+        
+        
+        
         public static int GetCrewRolePriority(Pawn pawn, string handlingTypeName)
         {
             if (pawn == null || string.IsNullOrEmpty(handlingTypeName))
@@ -36,18 +36,18 @@ namespace TheMarkedMen
 
             int baseScore = 0;
 
-            // Determine base priority by role type
+            
             if (handlingTypeName.Equals("Movement", StringComparison.OrdinalIgnoreCase))
             {
                 baseScore = (int)CrewRolePriority.Driver;
-                // Prefer pawns with better shooting/melee for driver (can engage if needed)
+                
                 baseScore += pawn.skills?.GetSkill(SkillDefOf.Shooting)?.Level ?? 0;
                 baseScore += pawn.skills?.GetSkill(SkillDefOf.Melee)?.Level ?? 0;
             }
             else if (handlingTypeName.Equals("Turret", StringComparison.OrdinalIgnoreCase))
             {
                 baseScore = (int)CrewRolePriority.Gunner;
-                // Strongly prefer high shooting skill for gunners
+                
                 baseScore += (pawn.skills?.GetSkill(SkillDefOf.Shooting)?.Level ?? 0) * 3;
             }
             else
@@ -55,14 +55,14 @@ namespace TheMarkedMen
                 baseScore = (int)CrewRolePriority.Passenger;
             }
 
-            // Apply combat readiness modifier
+            
             if (pawn.health != null && pawn.health.capacities != null)
             {
                 float combatReadiness = pawn.health.capacities.GetLevel(PawnCapacityDefOf.Consciousness);
                 baseScore += Mathf.RoundToInt(combatReadiness * 10f);
             }
 
-            // Prefer infected with combat-focused roles
+            
             if (pawn.kindDef == CADefOf.CrossedShooter
                 || pawn.kindDef == CADefOf.CrossedSoldier
                 || pawn.kindDef == CADefOf.CrossedRaider
@@ -74,24 +74,24 @@ namespace TheMarkedMen
             return baseScore;
         }
 
-        /// <summary>
-        /// Checks if a pawn is suitable for vehicle crew assignment.
-        /// Excludes non-humanlike and special unit types.
-        /// </summary>
+        
+        
+        
+        
         public static bool IsValidCrewCandidate(Pawn pawn)
         {
             return pawn != null
                 && !pawn.Destroyed
                 && pawn.RaceProps.Humanlike
-                && pawn.kindDef != CADefOf.MarkedMan  // MarkedMen should not crew vehicles
+                && pawn.kindDef != CADefOf.MarkedMan  
                 && !pawn.Dead
                 && !pawn.Downed;
         }
 
-        /// <summary>
-        /// Counts the number of available pawns that can crew vehicles in the list.
-        /// Excludes vehicle pawns themselves.
-        /// </summary>
+        
+        
+        
+        
         public static int CountAvailableCrewCandidates(List<Pawn> pawns)
         {
             if (pawns == null)
@@ -113,10 +113,10 @@ namespace TheMarkedMen
             return count;
         }
 
-        /// <summary>
-        /// Finds the best pawn to fill a specific crew role from available candidates.
-        /// Scoring prioritizes role fit, skill level, and combat readiness.
-        /// </summary>
+        
+        
+        
+        
         public static Pawn FindBestCrewForRole(
             List<Pawn> candidates,
             string roleName,
@@ -154,10 +154,10 @@ namespace TheMarkedMen
             return bestPawn;
         }
 
-        /// <summary>
-        /// Validates that a pawn in a crew role is still suitable.
-        /// Used to detect when reassignment is necessary (after death/downed).
-        /// </summary>
+        
+        
+        
+        
         public static bool IsCrewAssignmentValid(Pawn pawn)
         {
             return pawn != null
@@ -167,9 +167,9 @@ namespace TheMarkedMen
                 && pawn.RaceProps.Humanlike;
         }
 
-        /// <summary>
-        /// Gets a descriptive label for a crew role (used in logging).
-        /// </summary>
+        
+        
+        
         public static string GetRoleLabel(string handlingTypeName)
         {
             if (handlingTypeName.Equals("Movement", StringComparison.OrdinalIgnoreCase))

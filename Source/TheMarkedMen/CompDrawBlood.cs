@@ -4,13 +4,13 @@ using Verse;
 
 namespace TheMarkedMen
 {
-    /// <summary>
-    /// Gives the blood syringe a right-click float menu option to draw blood
-    /// from an infected pawn. The drawing pawn picks up a syringe (if it is
-    /// not already carrying one), spends a few seconds drawing, then consumes
-    /// one syringe from its inventory and creates an infected blood sample at
-    /// the target's position.
-    /// </summary>
+    
+    
+    
+    
+    
+    
+    
     public class CompDrawBlood : ThingComp
     {
         private const string BloodSampleDefName = "TheMarkedMen_InfectedBloodSample";
@@ -98,11 +98,11 @@ namespace TheMarkedMen
                 && !parent.IsForbidden(Faction.OfPlayer);
         }
 
-        /// <summary>
-        /// Called by <see cref="JobDriver_DrawBlood"/> after the draw time has
-        /// elapsed. Revalidates everything, then consumes one syringe from the
-        /// drawing pawn's inventory and places the sample.
-        /// </summary>
+        
+        
+        
+        
+        
         public void PerformDraw(Pawn actor, Pawn target)
         {
             if (!BloodDrawUtility.ResearchCompleted || !BloodDrawUtility.CanActorUse(actor))

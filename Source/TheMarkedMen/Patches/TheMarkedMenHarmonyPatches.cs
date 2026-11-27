@@ -49,7 +49,7 @@ namespace TheMarkedMen
                 memory.AddNoise(__instance.Position, 1f, 2500);
             }
 
-            // Trigger Dormant Mark activation
+            
             if (!__instance.Dead)
             {
                 Hediff dormant = __instance.health?.hediffSet?.GetFirstHediffOfDef(CADefOf.CA_DormantMark);
@@ -158,12 +158,12 @@ namespace TheMarkedMen
             CrossedUtility.EnsureFearlessCrossedState(__instance);
             CrossedTacticalAI.TryIssueTacticalJob(__instance);
 
-            // Prevent vanilla map-exit behavior for infected
+            
             if (__instance.mindState != null && __instance.mindState.exitMapAfterTick > 0)
             {
-                __instance.mindState.exitMapAfterTick = -1; // Cancel exit
+                __instance.mindState.exitMapAfterTick = -1; 
 
-                // Reassign to stay on map and engage targets
+                
                 CrossedUtility.EnsureInfectedHasValidLord(__instance);
                 CrossedTacticalAI.TryIssueTacticalJob(__instance);
             }
@@ -496,7 +496,7 @@ namespace TheMarkedMen
             if (def == null)
                 return true;
 
-            // Check category-based apparel compatibility settings
+            
             if (!CrossedApparelCompatibility.CanWearApparel(__instance.pawn, def))
             {
                 if (Prefs.DevMode)

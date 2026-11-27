@@ -11,8 +11,8 @@ namespace TheMarkedMen
         private const float ContagionRadiusSquared = ContagionRadius * ContagionRadius;
         private const int ContagionPulseIntervalTicks = 500;
         private const int MaxContagionTargetsPerPulse = 3;
-        public const float RestrainedPrisonerExposureChance = 0.000005f; // 0.0005%
-        public const float UnrestrainedPrisonerExposureChance = 0.02f; // 2%
+        public const float RestrainedPrisonerExposureChance = 0.000005f; 
+        public const float UnrestrainedPrisonerExposureChance = 0.02f; 
 
         public static void TryContagionPulse(Pawn source)
         {
@@ -36,11 +36,11 @@ namespace TheMarkedMen
                 : UnrestrainedPrisonerExposureChance;
         }
 
-        /// <summary>
-        /// Infected prisoners can expose someone tending or standing close to
-        /// them. Restraint makes transmission extremely unlikely; an
-        /// unrestrained prisoner is a much greater risk.
-        /// </summary>
+        
+        
+        
+        
+        
         public static void TryPrisonerContagion(Pawn source)
         {
             if (source == null || !source.IsPrisonerOfColony)

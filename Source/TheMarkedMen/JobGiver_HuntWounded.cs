@@ -7,10 +7,10 @@ using Verse.AI;
 
 namespace TheMarkedMen
 {
-    /// <summary>
-    /// JobGiver for infected to prioritize hunting wounded/downed targets.
-    /// Actively seeks out and pursues injured colonists.
-    /// </summary>
+    
+    
+    
+    
     public class JobGiver_HuntWounded : ThinkNode_JobGiver
     {
         private const int WoundCheckIntervalTicks = 150;
@@ -21,7 +21,7 @@ namespace TheMarkedMen
             if (pawn == null || pawn.Map == null)
                 return null;
 
-            // Only check periodically
+            
             if (!pawn.IsHashIntervalTick(WoundCheckIntervalTicks))
                 return null;
 
@@ -29,7 +29,7 @@ namespace TheMarkedMen
             if (woundedTarget == null)
                 return null;
 
-            // Chase and attack the wounded target
+            
             return new Job(JobDefOf.AttackMelee, woundedTarget) { checkOverrideOnExpire = true };
         }
 
@@ -47,7 +47,7 @@ namespace TheMarkedMen
                 if (CrossedUtility.IsInfectedPawn(candidate))
                     continue;
 
-                // Must be within reasonable distance
+                
                 if (!pawn.CanReach(candidate, PathEndMode.Touch, Danger.Deadly))
                     continue;
 
@@ -55,13 +55,13 @@ namespace TheMarkedMen
                 if (distance > MaxWoundSearchDistance)
                     continue;
 
-                // Score based on wound severity
+                
                 float score = 1f;
 
-                // Prioritize downed targets
+                
                 if (candidate.Downed)
                     score += 200f;
-                // Prioritize wounded targets
+                
                 else if (candidate.health?.hediffSet != null)
                 {
                     List<Hediff_Injury> injuries = new List<Hediff_Injury>();
@@ -70,11 +70,11 @@ namespace TheMarkedMen
                     score += woundPct * 100f;
                 }
 
-                // Colonist bonus
+                
                 if (candidate.IsColonist)
                     score += 50f;
 
-                // Closer targets score higher
+                
                 score += Mathf.Max(0f, 20f - distance);
 
                 if (score > bestScore)

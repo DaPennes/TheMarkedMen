@@ -5,21 +5,21 @@ using Verse;
 
 namespace TheMarkedMen.UI
 {
-    /// <summary>
-    /// Vanilla-style raid countdown drawn in the same slot the game uses for
-    /// timed raid warnings: between the letter stack and the time/environment
-    /// readout in the bottom-right corner.
-    /// </summary>
+    
+    
+    
+    
+    
     public static class RaidTimerUIOverlay
     {
         private const float RowHeight = 26f;
         private const float LetterStackGap = 10f;
         private const float RightPadding = 7f;
 
-        /// <summary>
-        /// Draws the countdown and moves the letter stack up by one row so the
-        /// countdown does not overlap either the letters or the environment HUD.
-        /// </summary>
+        
+        
+        
+        
         public static void Draw(ref float letterStackBaseY)
         {
             TheMarkedMenGameComponent component = CrossedUtility.Component;
@@ -34,9 +34,9 @@ namespace TheMarkedMen.UI
                 return;
             }
 
-            // Vanilla reserves one row for its own timed-raid countdown and moves
-            // the letter stack up by that row. Do the same so the HUD stays
-            // perfectly aligned with the date/time readout.
+            
+            
+            
             letterStackBaseY -= RowHeight;
 
             float columnWidth = WorldRendererUtility.WorldSelected ? 250f : 200f;

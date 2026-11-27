@@ -8,7 +8,7 @@ namespace TheMarkedMen
     [StaticConstructorOnStartup]
     public static class MarkedMenDebugOverlay
     {
-        // ─── State ─────────────────────────────────────────────────
+        
         private static bool active;
         private static bool showScent = true;
         private static bool showNoise = true;
@@ -19,24 +19,24 @@ namespace TheMarkedMen
         private static float panelPosX = 12f;
         private static float panelPosY = -1f;
 
-        // ─── Animation ─────────────────────────────────────────────
+        
         private static float fadeAlpha;
         private static float lastToggleTime;
         private static float[] flashAlpha = new float[5];
         private static int hoveredIdx = -1;
 
-        // ─── Drag ──────────────────────────────────────────────────
-        // ─── Drag ──────────────────────────────────────────────────
+        
+        
         private static bool dragging;
-        // Use float[] instead of Vector2 to avoid static UnityEngine type reference at load time
+        
         private static float[] dragOffset;
 
-        // ─── Textures ──────────────────────────────────────────────
+        
         private static Texture2D glowTex;
         private static bool texReady;
 
-        // ─── Colors ────────────────────────────────────────────────
-        // Lazy-initialized to avoid static UnityEngine type references at mod load time
+        
+        
         private static Color? colScent;
         private static Color? colNoise;
         private static Color? colMemory;
@@ -48,7 +48,7 @@ namespace TheMarkedMen
 
         private static readonly string[] stateLabels = { "IDLE", "SEARCH", "HUNT", "FRENZY" };
 
-        // Initialize colors lazily
+        
         private static void EnsureColors()
         {
             if (colScent.HasValue) return;
@@ -62,11 +62,11 @@ namespace TheMarkedMen
             borderHi = new Color(0.5f, 0.5f, 0.6f, 0.3f);
         }
 
-        // Helper to get color from nullable field
+        
         private static Color GetColor(Color? colorRef)
         {
             if (colorRef.HasValue) return colorRef.Value;
-            // Default fallback colors if reference is null
+            
             return Color.white;
         }
 
@@ -82,7 +82,7 @@ namespace TheMarkedMen
             }
         }
 
-        // ─── Texture init ─────────────────────────────────────────
+        
         private static void EnsureTex()
         {
             if (texReady) return;
@@ -102,7 +102,7 @@ namespace TheMarkedMen
             glowTex.Apply();
         }
 
-        // ─── Debug action ──────────────────────────────────────────
+        
         [DebugAction("The Marked Men", "Toggle AI overlay (scent/noise/memory)",
             allowedGameStates = AllowedGameStates.PlayingOnMap,
             actionType = DebugActionType.Action, displayPriority = 800)]
@@ -116,13 +116,13 @@ namespace TheMarkedMen
             Active = !Active;
         }
 
-        // ─── Main draw ─────────────────────────────────────────────
+        
         public static void Draw()
         {
             float now = Time.realtimeSinceStartup;
             float dt = Time.deltaTime;
 
-            // fade animation
+            
             if (active) fadeAlpha = Mathf.Min(1f, fadeAlpha + dt * 3f);
             else { fadeAlpha = Mathf.Max(0f, fadeAlpha - dt * 3f); if (fadeAlpha < 0.001f) return; }
 
@@ -150,7 +150,7 @@ namespace TheMarkedMen
             catch (Exception ex) { Log.Warning("[TMM] Overlay error: " + ex.Message); }
         }
 
-        // ─── Glow helper ───────────────────────────────────────────
+        
         private static void Glow(IntVec3 cell, Camera cam, CellRect vr, Color c,
             float baseSize, float alpha, float pulseHz, float time, float fadeMul)
         {
@@ -164,17 +164,17 @@ namespace TheMarkedMen
 
             float sz = baseSize * overlayOpacity;
 
-            // outer
+            
             float o = sz * 2.2f;
             GUI.color = new Color(c.r, c.g, c.b, fa * 0.18f);
             GUI.DrawTexture(new Rect(sp.x - o * 0.5f, sp.y - o * 0.5f, o, o), glowTex);
 
-            // mid
+            
             float m = sz * 1.2f;
             GUI.color = new Color(c.r, c.g, c.b, fa * 0.4f);
             GUI.DrawTexture(new Rect(sp.x - m * 0.5f, sp.y - m * 0.5f, m, m), glowTex);
 
-            // core
+            
             float cr = sz * 0.5f;
             GUI.color = new Color(1f, 1f, 1f, fa * 0.75f);
             GUI.DrawTexture(new Rect(sp.x - cr * 0.5f, sp.y - cr * 0.5f, cr, cr), glowTex);
@@ -272,15 +272,15 @@ namespace TheMarkedMen
                 float lx = sp.x - lw * 0.5f;
                 float ly = sp.y - 24f;
 
-                // shadow
+                
                 GUI.color = new Color(0f, 0f, 0f, 0.45f * fa);
                 GUI.DrawTexture(new Rect(lx + 1f, ly + 1f, lw, lh), BaseContent.WhiteTex);
 
-                // bg
+                
                 GUI.color = new Color(0.08f, 0.08f, 0.12f, 0.7f * fa);
                 GUI.DrawTexture(new Rect(lx, ly, lw, lh), BaseContent.WhiteTex);
 
-                // border
+                
                 GUI.color = new Color(tc.r, tc.g, tc.b, 0.4f * fa);
                 GUI.DrawTexture(new Rect(lx, ly, lw, 1f), BaseContent.WhiteTex);
                 GUI.DrawTexture(new Rect(lx, ly + lh - 1f, lw, 1f), BaseContent.WhiteTex);
@@ -291,7 +291,7 @@ namespace TheMarkedMen
             }
         }
 
-        // ─── UI Panel ──────────────────────────────────────────────
+        
         private static void DrawUI(Map map, float time, float fa, float dt)
         {
             float pad = 10f;
@@ -300,12 +300,12 @@ namespace TheMarkedMen
             float lw = 70f;
             float pw = lw + tw + pad * 3f + 6f;
 
-            // header
+            
             float hh = 28f;
             int rows = 5;
             float ph = hh + pad + rows * ih + pad;
 
-            // collapse tab size
+            
             float tabW = 32f;
             float tabH = 40f;
 
@@ -315,12 +315,12 @@ namespace TheMarkedMen
                 return;
             }
 
-            // position
+            
             if (panelPosY < 0) panelPosY = Screen.height - ph - pad;
             float px = panelPosX;
             float py = panelPosY;
 
-            // clamp
+            
             px = Mathf.Clamp(px, 2f - pw + tabW, Screen.width - pw - 2f);
             py = Mathf.Clamp(py, 2f, Screen.height - ph - 2f);
 
@@ -328,12 +328,12 @@ namespace TheMarkedMen
             Rect fullR = new Rect(px, py, pw, ph);
             Rect headR = new Rect(px, py, pw, hh);
 
-            // body bg
+            
             EnsureColors();
             GUI.color = GetColor(bgPanel);
             GUI.DrawTexture(bodyR, BaseContent.WhiteTex);
 
-            // body border
+            
             GUI.color = GetColor(borderDim);
             GUI.DrawTexture(new Rect(px, py + hh, pw, 1f), BaseContent.WhiteTex);
             GUI.DrawTexture(new Rect(px, py + ph - 1f, pw, 1f), BaseContent.WhiteTex);
@@ -341,7 +341,7 @@ namespace TheMarkedMen
             GUI.DrawTexture(new Rect(px + pw - 1f, py + hh, 1f, ph - hh), BaseContent.WhiteTex);
             GUI.color = Color.white;
 
-            // ── header ──
+            
             GUI.color = GetColor(bgHeader);
             GUI.DrawTexture(headR, BaseContent.WhiteTex);
             GUI.color = GetColor(borderDim);
@@ -351,12 +351,12 @@ namespace TheMarkedMen
             GUI.DrawTexture(new Rect(px + pw - 1f, py, 1f, hh), BaseContent.WhiteTex);
             GUI.color = Color.white;
 
-            // title
+            
             GUI.color = new Color(0.7f, 0.7f, 0.8f, 0.85f * fa);
             GUI.Label(new Rect(px + 10f, py + 5f, 120f, 18f), "PREDATOR AI");
             GUI.color = Color.white;
 
-            // collapse button
+            
             float btnS = 18f;
             float btnX = px + pw - btnS - 6f;
             float btnY = py + (hh - btnS) * 0.5f;
@@ -365,13 +365,13 @@ namespace TheMarkedMen
                 GUI.color = new Color(1f, 1f, 1f, 0.6f);
             else
                 GUI.color = new Color(0.5f, 0.5f, 0.6f, 0.7f * fa);
-            // "−" icon for collapse
+            
             GUI.Label(new Rect(btnX + 2f, btnY + 1f, btnS, btnS), "−");
             GUI.color = Color.white;
             if (Event.current.type == EventType.MouseDown && collapseR.Contains(Event.current.mousePosition))
             { collapsed = true; Event.current.Use(); }
 
-            // ── body items ──
+            
             float cy = py + hh + pad;
             float ix = px + pad + 6f;
 
@@ -380,7 +380,7 @@ namespace TheMarkedMen
             DrawItem(ix, ref cy, "MEMORY", GetColor(colMemory), ref showMemory, 2, lw, tw, ih, fa, time);
             DrawItem(ix, ref cy, "LABELS", GetColor(colLabel), ref showLabels, 3, lw, tw, ih, fa, time);
 
-            // opacity
+            
             float opY = cy + (ih - 18f) * 0.5f;
             GUI.color = new Color(0.55f, 0.55f, 0.6f, 0.75f * fa);
             GUI.Label(new Rect(ix, opY, lw, 18f), "OPACITY");
@@ -391,14 +391,14 @@ namespace TheMarkedMen
             overlayOpacity = GUI.HorizontalSlider(slR, overlayOpacity, 0.1f, 1f);
             GUI.color = Color.white;
 
-            // mouse scroll on slider area
+            
             if (slR.Contains(Event.current.mousePosition) && Event.current.type == EventType.ScrollWheel)
             {
                 overlayOpacity = Mathf.Clamp01(overlayOpacity - Event.current.delta.y * 0.05f);
                 Event.current.Use();
             }
 
-            // ── drag logic ──
+            
             if (Event.current.type == EventType.MouseDown && headR.Contains(Event.current.mousePosition))
             { dragging = true; dragOffset = new float[2] { Event.current.mousePosition.x - px, Event.current.mousePosition.y - py }; Event.current.Use(); }
             if (dragging && Event.current.type == EventType.MouseDrag)
@@ -410,7 +410,7 @@ namespace TheMarkedMen
             if (dragging && (Event.current.type == EventType.MouseUp || Event.current.rawType == EventType.MouseUp))
             { dragging = false; SnapPanel(ph); Event.current.Use(); }
 
-            // hover detection
+            
             float hy = py + hh + pad;
             hoveredIdx = -1;
             for (int i = 0; i < 4; i++)
@@ -420,7 +420,7 @@ namespace TheMarkedMen
                 hy += ih;
             }
 
-            // flash decay
+            
             for (int i = 0; i < 5; i++) flashAlpha[i] = Mathf.Max(0f, flashAlpha[i] - dt * 2f);
         }
 
@@ -465,7 +465,7 @@ namespace TheMarkedMen
             float ds = 10f;
             float dy = y + (ih - ds) * 0.5f;
 
-            // hover bg
+            
             if (hovered)
             {
                 GUI.color = new Color(1f, 1f, 1f, 0.04f);
@@ -473,13 +473,13 @@ namespace TheMarkedMen
                 GUI.color = Color.white;
             }
 
-            // dot
+            
             float dotA = enabled ? (0.9f + 0.1f * Mathf.Sin(time * 1.5f + idx)) : 0.25f;
             GUI.color = new Color(color.r, color.g, color.b, dotA * fa);
             GUI.DrawTexture(new Rect(x, dy, ds, ds), glowTex);
             GUI.color = Color.white;
 
-            // label
+            
             float lx = x + ds + 6f;
             float ly2 = y + (ih - 16f) * 0.5f;
             Color lc = hovered ? new Color(1f, 1f, 1f, 0.95f * fa) : new Color(0.85f, 0.85f, 0.9f, (enabled ? 0.9f : 0.3f) * fa);
@@ -487,12 +487,12 @@ namespace TheMarkedMen
             GUI.Label(new Rect(lx, ly2, lw, 16f), label);
             GUI.color = Color.white;
 
-            // toggle
+            
             float tx = x + lw + ds + 8f;
             float ty = y + (ih - tw) * 0.5f;
             Rect tr = new Rect(tx, ty, tw, tw);
 
-            // toggle bg
+            
             Color tbg = enabled ? new Color(color.r * 0.3f, color.g * 0.3f, color.b * 0.3f, 0.8f * fa)
                                 : new Color(0.2f, 0.2f, 0.25f, 0.6f * fa);
             GUI.color = tbg;
@@ -504,7 +504,7 @@ namespace TheMarkedMen
             GUI.DrawTexture(new Rect(tx + tw - 1f, ty, 1f, tw), BaseContent.WhiteTex);
             GUI.color = Color.white;
 
-            // checkmark
+            
             if (enabled)
             {
                 float flash = flashAlpha[idx];
@@ -514,7 +514,7 @@ namespace TheMarkedMen
                 GUI.color = Color.white;
             }
 
-            // click
+            
             if (Event.current.type == EventType.MouseDown && tr.Contains(Event.current.mousePosition) && idx < 4)
             {
                 enabled = !enabled;
