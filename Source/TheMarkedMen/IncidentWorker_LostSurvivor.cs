@@ -182,6 +182,7 @@ namespace TheMarkedMen
                 if (pawn.IsQuestLodger()) continue;
                 if (pawn.IsMutant) continue;
                 if (CrossedUtility.IsInfectedPawn(pawn)) continue;
+                pawn.SetFaction(null);
                 return pawn;
             }
             return null;

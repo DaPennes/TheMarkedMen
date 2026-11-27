@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using RimWorld;
 using Verse;
+using Verse.AI;
 using UnityEngine;
 
 namespace TheMarkedMen
@@ -119,24 +120,13 @@ namespace TheMarkedMen
                 return;
             }
 
-            var dormantMark = pawn.health.hediffSet.GetFirstHediffOfDef(CADefOf.CA_DormantMark);
-            if (dormantMark != null)
-            {
-                pawn.health.RemoveHediff(dormantMark);
-            }
-
             pawn.SetFaction(null);
             pawn.guest?.SetGuestStatus(null);
             pawn.mindState?.mentalStateHandler?.Reset();
             pawn.jobs.StopAll(true);
             pawn.lord = null;
 
-            IntVec3 edgeSpot = CellFinder.RandomEdgeCell(map);
-            if (edgeSpot.IsValid)
-            {
-                pawn.Position = edgeSpot;
-                pawn.DeSpawn();
-            }
+            pawn.mindState.duty = new PawnDuty(DutyDefOf.ExitMapBest);
         }
 
         public override void ExposeData()
