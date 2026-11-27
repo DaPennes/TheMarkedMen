@@ -34,6 +34,7 @@ namespace TheMarkedMen
     
     public class CuredRefugeeManager : MapComponent
     {
+        private Dictionary<int, Pawn> refugeeLookup = new Dictionary<int, Pawn>();
         private HashSet<int> pendingRefugees = new HashSet<int>();
         private Dictionary<int, CuredRefugeeRecord> refugeeRecords = new Dictionary<int, CuredRefugeeRecord>();
         private List<(Pawn pawn, Faction faction)> lettersToGenerate = new List<(Pawn, Faction)>();
@@ -104,6 +105,7 @@ namespace TheMarkedMen
                 {
                     pendingRefugees.Remove(id);
                     refugeeRecords.Remove(id);
+                    refugeeLookup.Remove(id);
                     departureSchedule.Remove(id);
                 }
             }
@@ -128,6 +130,7 @@ namespace TheMarkedMen
 
             pendingRefugees.Add(id);
             refugeeRecords[id] = new CuredRefugeeRecord(id, originalFaction);
+            refugeeLookup[id] = pawn;
 
             
             lettersToGenerate.Add((pawn, originalFaction));
@@ -160,6 +163,8 @@ namespace TheMarkedMen
             int id = pawn.thingIDNumber;
             pendingRefugees.Remove(id);
             refugeeRecords.Remove(id);
+            if (departureSchedule.ContainsKey(id))
+                departureSchedule.Remove(id);
         }
 
         

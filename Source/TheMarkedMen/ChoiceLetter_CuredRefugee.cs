@@ -92,7 +92,7 @@ namespace TheMarkedMen
                 DiaOption diaOption = new DiaOption("TheMarkedMen_CuredRefugee_Reject".Translate());
                 diaOption.action = () =>
                 {
-                    if (pawn != null && !pawn.Destroyed)
+                    if (pawn != null && !pawn.Dead && !pawn.Destroyed && pawn.Spawned)
                     {
                         
                         if (originalFaction != null && !originalFaction.defeated)
