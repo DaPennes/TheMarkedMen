@@ -3183,8 +3183,33 @@ namespace TheMarkedMen
 
             try
             {
-                var result = getPassengersMethod.Invoke(vehicle, null) as List<Pawn>;
-                return result ?? new List<Pawn>();
+                var result = getPassengersMethod.Invoke(vehicle, null);
+                if (result == null)
+                {
+                    return new List<Pawn>();
+                }
+
+                if (result is IEnumerable<Pawn> pawnEnumerable)
+                {
+                    return pawnEnumerable.ToList();
+                }
+
+                object[] resultArray = result as object[];
+                if (resultArray != null)
+                {
+                    List<Pawn> passengers = new List<Pawn>();
+                    foreach (object passengerObj in resultArray)
+                    {
+                        if (passengerObj is Pawn pawn && pawn != null)
+                        {
+                            passengers.Add(pawn);
+                        }
+                    }
+                    return passengers;
+                }
+
+                Log.Warning($"[The Marked Men] Could not convert vehicle passengers result to List<Pawn>: {result.GetType()}");
+                return new List<Pawn>();
             }
             catch (Exception ex)
             {

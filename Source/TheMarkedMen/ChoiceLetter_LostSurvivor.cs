@@ -55,14 +55,7 @@ namespace TheMarkedMen
                 {
                     IfPawnExistsAndNotDestroyed(() =>
                     {
-                        if (TheMarkedMenMod.Settings?.survivorRefuseSendsAway ?? true)
-                        {
-                            SendPawnAwayAtEdge();
-                        }
-                        else
-                        {
-                            DestroyPawn();
-                        }
+                        MakePawnWandererAndSendAway();
                     });
                 };
                 diaOption.resolveTree = true;
@@ -79,7 +72,7 @@ namespace TheMarkedMen
                 {
                     IfPawnExistsAndNotDestroyed(() =>
                     {
-                        SendPawnAwayAtEdge();
+                        MakePawnWandererAndSendAway();
                     });
                 };
                 diaOption.resolveTree = true;
@@ -106,29 +99,43 @@ namespace TheMarkedMen
 
         private void SendPawnAwayAtEdge()
         {
+            MakePawnWandererAndSendAway();
+        }
+
+        private void MakePawnWandererAndSendAway()
+        {
             if (pawn == null) return;
 
-            
-            
             Map map = pawn.Map;
-            if (map != null && pawn.Spawned)
-            {
-                
-                pawn.SetFaction(null);
-                pawn.guest?.SetGuestStatus(null);
-                pawn.mindState?.mentalStateHandler?.Reset();
-
-                
-                IntVec3 edgeSpot = CellFinder.RandomEdgeCell(map);
-                if (edgeSpot.IsValid)
-                {
-                    pawn.Position = edgeSpot;
-                }
-                pawn.DeSpawn();
-            }
-            else
+            if (map == null)
             {
                 pawn.Destroy(DestroyMode.Vanish);
+                return;
+            }
+
+            if (!pawn.Spawned)
+            {
+                pawn.Destroy(DestroyMode.Vanish);
+                return;
+            }
+
+            var dormantMark = pawn.health.hediffSet.GetFirstHediffOfDef(CADefOf.CA_DormantMark);
+            if (dormantMark != null)
+            {
+                pawn.health.RemoveHediff(dormantMark);
+            }
+
+            pawn.SetFaction(null);
+            pawn.guest?.SetGuestStatus(null);
+            pawn.mindState?.mentalStateHandler?.Reset();
+            pawn.jobs.StopAll(true);
+            pawn.lord = null;
+
+            IntVec3 edgeSpot = CellFinder.RandomEdgeCell(map);
+            if (edgeSpot.IsValid)
+            {
+                pawn.Position = edgeSpot;
+                pawn.DeSpawn();
             }
         }
 
